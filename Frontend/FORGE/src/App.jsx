@@ -10,21 +10,27 @@ import MapPage from './pages/MapPage';
 import ProfilePage from './pages/ProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
 import Survey from './Components/Survey';
+import AuthCallback from './pages/AuthCallback';
+import { AuthProvider } from './contexts/AuthContext';
+
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/account" element={<AccountPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/map" element={<MapPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/profile/edit" element={<EditProfilePage />} />
-        <Route path="/survey" element={<Survey />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/map" element={<MapPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/edit" element={<EditProfilePage />} />
+          <Route path="/survey" element={<Survey />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

@@ -8,8 +8,7 @@ import Tokens from '../Components/Tokens';
 import Offer from '../Components/Offer';
 import Event from '../Components/Event';
 import ActiveEvent from '../Components/ActiveEvent';
-import SurveyQuestion from '../Components/SurveyQuestion';
-import SurveyTaker from '../Components/SurveyTaker';
+import SurveyRotator from '../Components/SurveyRotator';
 
 
 
@@ -28,12 +27,16 @@ const topActions = [
 
 
 function HomePage() {
+
+
   const [activePopup, setActivePopup] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [surveys, setSurveys] = useState([]);
-  const [activeSurvey, setActiveSurvey] = useState(null);
   const [tokenBalance, setTokenBalance] = useState(0);
-  const [mustCompleteSurvey, setMustCompleteSurvey] = useState(false);
+
+
+
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -55,35 +58,23 @@ function HomePage() {
       setTokenBalance(balance);
     };
 
-    const checkCompulsorySurvey = () => {
-      const completedSurveys = JSON.parse(localStorage.getItem('forge_completed_surveys') || '[]');
-      const hasCompletedSurvey = completedSurveys.length > 0;
-      
-      if (!hasCompletedSurvey && surveys.length > 0) {
-        setMustCompleteSurvey(true);
-        setActiveSurvey(surveys[0]);
-      }
-    };
-
     loadSurveys();
     loadTokenBalance();
 
     const handleStorageChange = () => {
       loadSurveys();
       loadTokenBalance();
-      checkCompulsorySurvey();
     };
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [surveys.length]);
 
-  const handleAnswerSubmit = (surveyId, answers) => {
+  const handleAnswerSubmit = (surveyId, answers, tokensEarned) => {
     const survey = surveys.find(s => s.id === surveyId);
     if (!survey) return;
 
     const answeredCount = Object.keys(answers).length;
-    const tokensEarned = answeredCount * 20;
 
     const currentBalance = parseInt(localStorage.getItem('forge_token_balance') || '0');
     const newBalance = currentBalance + tokensEarned;
@@ -105,12 +96,7 @@ function HomePage() {
       localStorage.setItem('forge_completed_surveys', JSON.stringify(completedSurveys));
     }
 
-    alert(`Thank you! You earned ${tokensEarned} tokens for ${answeredCount} answered questions.`);
-    
-    if (mustCompleteSurvey) {
-      setMustCompleteSurvey(false);
-      setActiveSurvey(null);
-    }
+    alert(`Thank you for giving the survey! You earned ${tokensEarned} tokens for ${answeredCount} answered questions.`);
   };
 
   return (
@@ -167,11 +153,7 @@ function HomePage() {
 
         {surveys.length > 0 && (
           <div className="home-surveys-section">
-            <div className="home-surveys-grid">
-              {surveys.map((survey) => (
-                <SurveyQuestion key={survey.id} survey={survey} onAnswerSubmit={handleAnswerSubmit} />
-              ))}
-            </div>
+            <SurveyRotator surveys={surveys} onAnswerSubmit={handleAnswerSubmit} />
           </div>
         )}
       </div>
@@ -183,19 +165,6 @@ function HomePage() {
       {activePopup === 'offer' && <Offer onClose={() => setActivePopup(null)} />}
       {activePopup === 'event' && <Event onClose={() => setActivePopup(null)} />}
       {activePopup === 'activeEvent' && <ActiveEvent onClose={() => setActivePopup(null)} />}
-
-      {activeSurvey && (
-        <SurveyTaker 
-          survey={activeSurvey} 
-          onClose={() => {
-            setActiveSurvey(null);
-            if (mustCompleteSurvey) {
-              setMustCompleteSurvey(false);
-            }
-          }}
-          isCompulsory={mustCompleteSurvey}
-        />
-      )}
     </div>
   );
 }

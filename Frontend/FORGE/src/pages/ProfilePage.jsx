@@ -1,23 +1,15 @@
 import { Link } from 'react-router-dom';
 import { IoSettingsSharp, IoMailOutline, IoLocationOutline, IoBriefcaseOutline, IoLinkOutline } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
-import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 function ProfilePage() {
-  const [userId, setUserId] = useState(null);
+  const { user, userId, signOut } = useAuth();
 
-  useEffect(() => {
-    // Get user ID from localStorage or token
-    const token = localStorage.getItem('token');
-    if (token) {
-      // For now, we'll parse the token or get user ID from localStorage
-      // This is a placeholder - you might need to decode the JWT or store userId separately
-      const storedUserId = localStorage.getItem('userId');
-      if (storedUserId) {
-        setUserId(storedUserId);
-      }
-    }
-  }, []);
+  const handleSignOut = async () => {
+    await signOut();
+    window.location.href = '/';
+  };
 
   return (
     <div className="page-shell">
@@ -33,26 +25,29 @@ function ProfilePage() {
           </div>
           <div className="profile-card__info">
             <div className="profile-card__title-row">
-              <h1>Sarah Morgan</h1>
+              <h1>{user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}</h1>
               <span className="profile-card__verify-tag">Verified</span>
             </div>
-            <p className="profile-card__role">Product Designer</p>
+            <p className="profile-card__role">{user?.user_metadata?.role || 'User'}</p>
             <div className="profile-card__meta">
               <span className="profile-card__meta-item">
-                <IoLocationOutline />
-                United States · California
-              </span>
-              <span className="profile-card__meta-item">
                 <IoMailOutline />
-                sarah.morgan@email.com
+                {user?.email || 'No email'}
               </span>
             </div>
             <span className="profile-card__badge">Pro Member</span>
           </div>
           <div className="profile-card__actions">
-            <Link to={userId ? `/profile/edit/${userId}` : '/profile/edit'} className="profile-card__edit-button">
+            <Link to="/profile/edit" className="profile-card__edit-button">
               Edit Profile
             </Link>
+            <button
+              onClick={handleSignOut}
+              className="profile-card__edit-button"
+              style={{ marginLeft: '8px' }}
+            >
+              Sign Out
+            </button>
             <Link to="/settings" className="profile-card__settings-button">
               <IoSettingsSharp />
             </Link>

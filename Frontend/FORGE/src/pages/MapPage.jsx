@@ -6,8 +6,10 @@ import NavigationBar from '../Components/NavigationBar'
 import Filtersection from '../Components/Filtersection'
 import EventFiltersection from '../Components/EventFiltersection'
 import Hideinfo from '../Components/Hideinfo'
-import { MAPBOX_ACCESS_TOKEN, MAPBOX_STYLE_URI } from '../mapboxConfig'
+// import { MAPBOX_ACCESS_TOKEN, MAPBOX_STYLE_URI } from '../mapboxConfig'
 
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+const MAPBOX_STYLE_URI=import.meta.env.VITE_MAPBOX_STYLE_URI;
 
 
 
@@ -20,7 +22,7 @@ function Map() {
 
   useEffect(() => {
     mapRef.current = new mapboxgl.Map({
-      accessToken: MAPBOX_ACCESS_TOKEN,
+      accessToken: MAPBOX_TOKEN,
       container: mapContainerRef.current,
       style: MAPBOX_STYLE_URI,
       center: [0, 0],

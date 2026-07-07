@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
 import NavigationBar from '../Components/NavigationBar';
+import { useAuth } from '../contexts/AuthContext';
 
 function EditProfilePage() {
   const { userId } = useParams();
+  const navigate = useNavigate();
+  const { supabase } = useAuth();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [profileData, setProfileData] = useState({
     name: '',
@@ -46,6 +48,26 @@ function EditProfilePage() {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    // Load current user data from Supabase
+    const loadUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setProfileData({
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
+          bio: user.user_metadata?.bio || '',
+          profession: user.user_metadata?.profession || '',
+          lookingFor: user.user_metadata?.lookingFor || [],
+          customLookingFor: '',
+          contactNumber: user.user_metadata?.contactNumber || '',
+        });
+        setProfessionSearch(user.user_metadata?.profession || '');
+      }
+    };
+
+    loadUserData();
   }, []);
 
   useEffect(() => {
@@ -251,36 +273,27 @@ function EditProfilePage() {
     setError(null);
 
     try {
-      const token = localStorage.getItem('token');
-      
-      const response = await axios.put(
-        'http://localhost:5000/profile/update',
-        {
-          userId: userId,
-          name: profileData.name,
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: profileData.name,
           bio: profileData.bio,
           profession: profileData.profession,
           lookingFor: profileData.lookingFor,
           contactNumber: profileData.contactNumber,
           socialLinks: socialLinks
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
         }
-      );
+      });
 
-      if (response.data.success) {
-        alert('Profile saved successfully!');
-      } else {
+      if (error) {
         setError('Failed to save profile');
-        alert('Failed to save profile');
+        alert('Failed to save profile: ' + error.message);
+      } else {
+        alert('Profile saved successfully!');
+        navigate('/profile');
       }
     } catch (err) {
       console.error('Error saving profile:', err);
-      setError(err.response?.data?.message || 'Error saving profile');
+      setError('Error saving profile');
       alert('Error saving profile. Please try again.');
     } finally {
       setIsLoading(false);
@@ -319,16 +332,47 @@ function EditProfilePage() {
             marginBottom: isMobile ? '82px' : '90px',
           }}
         >
-          <h1
-            style={{
-              margin: '0 0 20px 0',
-              textAlign: 'center',
-              color: '#000000',
-              fontSize: isMobile ? '1.55rem' : '2rem',
-            }}
-          >
-            Edit Profile
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                border: '2px solid #000000',
+                borderRadius: '50%',
+                background: '#000000',
+                color: '#FFD700',
+                cursor: 'pointer',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                marginRight: '16px',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#FFD700';
+                e.target.style.color = '#000000';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#000000';
+                e.target.style.color = '#FFD700';
+              }}
+            >
+              ←
+            </button>
+            <h1
+              style={{
+                margin: '0',
+                color: '#000000',
+                fontSize: isMobile ? '1.55rem' : '2rem',
+              }}
+            >
+              Edit Profile
+            </h1>
+          </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
             <label style={{ cursor: 'pointer', textAlign: 'center' }}>

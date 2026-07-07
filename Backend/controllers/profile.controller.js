@@ -3,7 +3,7 @@ const Profile = require('../models/Profile.model');
 exports.updateProfile = async (req, res) => {
   try {
     const { user } = req;
-    const { userId, name, bio, profession, socialLinks } = req.body;
+    const { userId, name, bio, profession, lookingFor, contactNumber, socialLinks } = req.body;
 
     // Use userId from request body if provided, otherwise use authenticated user
     const targetUserId = userId || user._id;
@@ -22,6 +22,8 @@ exports.updateProfile = async (req, res) => {
       profile.last_name = last_name;
       profile.bio = bio;
       profile.department = profession;
+      profile.contact_number = contactNumber;
+      profile.looking_for = lookingFor || [];
       
       // Update social links based on titles
       socialLinks.forEach(link => {
@@ -44,6 +46,8 @@ exports.updateProfile = async (req, res) => {
         last_name,
         bio,
         department: profession,
+        contact_number: contactNumber,
+        looking_for: lookingFor || [],
       });
     }
 
