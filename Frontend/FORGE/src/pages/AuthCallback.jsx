@@ -9,7 +9,7 @@ function AuthCallback() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate('/profile');
+        navigate('/home');
       } else {
         navigate('/');
       }
@@ -18,7 +18,7 @@ function AuthCallback() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        navigate('/profile');
+        navigate('/home');
       } else {
         navigate('/');
       }

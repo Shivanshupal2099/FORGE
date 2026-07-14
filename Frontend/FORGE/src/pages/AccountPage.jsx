@@ -118,7 +118,7 @@ function AccountPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#000000",
+        backgroundImage: "var(--app-theme-gradient)",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -223,7 +223,7 @@ function AccountPage() {
         </div>
 
         {errors.submit && <div style={{ color: "#dc2626", fontSize: "0.95rem", marginBottom: "16px", textAlign: "center", padding: "12px", borderRadius: "12px", background: "rgba(220, 38, 38, 0.1)" }}>{errors.submit}</div>}
-        <button type="submit" disabled={isSubmitting} style={{ width: "100%", padding: "16px", background: isSubmitting ? "#666666" : "#000000", color: "#FFD700", border: "2px solid #000000", borderRadius: "18px", cursor: isSubmitting ? "not-allowed" : "pointer", fontWeight: "800", fontSize: "1rem", letterSpacing: "0.8px", boxShadow: "0 12px 28px rgba(0,0,0,0.4)", opacity: isSubmitting ? 0.7 : 1 }}>
+        <button type="submit" disabled={isSubmitting} style={{ width: "100%", padding: "16px", background: isSubmitting ? "#666666" : "var(--app-theme-gradient)", color: "#000000", border: "2px solid #000000", borderRadius: "18px", cursor: isSubmitting ? "not-allowed" : "pointer", fontWeight: "800", fontSize: "1rem", letterSpacing: "0.8px", boxShadow: "0 12px 28px rgba(0,0,0,0.24)", opacity: isSubmitting ? 0.7 : 1 }}>
           {isSubmitting ? 'Creating Account...' : 'Create My Forge Account'}
         </button>
 

@@ -1,13 +1,12 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const userLocationSchema = new mongoose.Schema(
   {
-    user_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    uid: {
+      type: String,
       required: true,
       unique: true,
-      index: true
+      description: "Unique user identifier (from auth provider)"
     },
 
     latitude: {
@@ -68,16 +67,10 @@ userLocationSchema.index({
   longitude: 1
 });
 
-// One location document per user
-userLocationSchema.index(
-  { user_id: 1 },
-  { unique: true }
-);
-
 // TTL index for automatic cleanup of expired locations
 userLocationSchema.index(
   { expires_at: 1 },
   { expireAfterSeconds: 0 }
 );
 
-export default mongoose.model("UserLocation", userLocationSchema);
+module.exports = mongoose.model("UserLocation", userLocationSchema);

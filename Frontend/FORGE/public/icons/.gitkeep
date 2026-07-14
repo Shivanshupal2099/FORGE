@@ -1,0 +1,7 @@
+# This directory should contain PWA icons
+# Required sizes:
+# - icon-192x192.png
+# - icon-512x512.png
+#
+# Generate icons using: public/generate-icons.html
+# Or visit: https://www.pwabuilder.com/imageGenerator

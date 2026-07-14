@@ -1,11 +1,12 @@
 import { useRef, useEffect, useState, useMemo } from 'react'
-import { FaFilter, FaEyeSlash } from 'react-icons/fa'
+import { FaFilter, FaPlus, FaMinus } from 'react-icons/fa'
 import * as mapboxgl from 'mapbox-gl/esm'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import NavigationBar from '../Components/NavigationBar'
+import Header from '../Components/Header'
 import Filtersection from '../Components/Filtersection'
 import EventFiltersection from '../Components/EventFiltersection'
-import Hideinfo from '../Components/Hideinfo'
+import Usercard from '../Components/Usercard'
 // import { MAPBOX_ACCESS_TOKEN, MAPBOX_STYLE_URI } from '../mapboxConfig'
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -18,7 +19,72 @@ function Map() {
   const mapRef = useRef()
   const mapContainerRef = useRef()
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [isHideInfoOpen, setIsHideInfoOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const markersRef = useRef([])
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 600)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const handleMarkerClick = async (uid) => {
+    try {
+      console.log('Fetching user profile for:', uid)
+      const response = await fetch(`http://localhost:5000/api/profile/${uid}`)
+      const data = await response.json()
+      console.log('Profile data:', data)
+      
+      if (data.success && data.profile) {
+        const profile = data.profile
+        // Format profile data to match Usercard structure
+        const userData = {
+          name: `${profile.first_name} ${profile.last_name}`,
+          profession: profile.department || 'User',
+          bio: profile.bio,
+          photo: profile.avatar_url,
+          isVerified: profile.is_verified || false,
+          status: 'Active',
+          visibility: 'Public',
+          lookingFor: profile.looking_for || [],
+          email: uid,
+          socialLinks: {
+            linkedin: profile.linkedin_url,
+            github: profile.github_url,
+            twitter: profile.portfolio_url
+          }
+        }
+        setSelectedUser(userData)
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    }
+  }
+
+  const updateMarkerSizes = (zoom) => {
+    // Calculate marker size based on zoom level
+    // Global view (zoom 0-3): small markers
+    // Regional view (zoom 4-7): medium markers
+    // Local view (zoom 8+): large markers
+    let size
+    if (zoom <= 3) {
+      size = 20 // Small for global view
+    } else if (zoom <= 7) {
+      size = 30 // Medium for regional view
+    } else {
+      size = 40 // Large for local view
+    }
+
+    markersRef.current.forEach((marker) => {
+      if (marker.element) {
+        marker.element.style.width = `${size}px`
+        marker.element.style.height = `${size}px`
+      }
+    })
+  }
 
   useEffect(() => {
     mapRef.current = new mapboxgl.Map({
@@ -27,6 +93,63 @@ function Map() {
       style: MAPBOX_STYLE_URI,
       center: [0, 0],
       zoom: 3
+    })
+
+    mapRef.current.on('load', async () => {
+      try {
+        // Fetch and display all user locations from database
+        console.log('Fetching user locations...')
+        const response = await fetch('http://localhost:5000/api/location/all')
+        const data = await response.json()
+        console.log('Location data:', data)
+        
+        if (data.success && data.locations.length > 0) {
+          // Clear existing markers
+          markersRef.current.forEach(marker => marker.remove())
+          markersRef.current = []
+
+          data.locations.forEach((location) => {
+            console.log('Adding marker for:', location.uid, 'at:', location.longitude, location.latitude)
+            const markerElement = document.createElement('div')
+            markerElement.style.width = '30px'
+            markerElement.style.height = '30px'
+            markerElement.style.backgroundColor = '#22c55e'
+            markerElement.style.borderRadius = '50%'
+            markerElement.style.border = '3px solid white'
+            markerElement.style.cursor = 'pointer'
+            markerElement.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)'
+            markerElement.style.transition = 'width 0.3s ease, height 0.3s ease'
+            
+            markerElement.addEventListener('click', () => {
+              handleMarkerClick(location.uid)
+            })
+            
+            const marker = new mapboxgl.Marker(markerElement)
+              .setLngLat([location.longitude, location.latitude])
+              .addTo(mapRef.current)
+            
+            // Store marker reference with its element
+            marker.element = markerElement
+            markersRef.current.push(marker)
+          })
+          
+          // Update marker sizes based on current zoom
+          updateMarkerSizes(mapRef.current.getZoom())
+          
+          // Center map on first location
+          mapRef.current.flyTo({
+            center: [data.locations[0].longitude, data.locations[0].latitude],
+            zoom: 10
+          })
+        }
+      } catch (error) {
+        console.error('Error:', error)
+      }
+    })
+
+    // Update marker sizes on zoom change
+    mapRef.current.on('zoom', () => {
+      updateMarkerSizes(mapRef.current.getZoom())
     })
 
     return () => {
@@ -43,18 +166,12 @@ function Map() {
 
   const filterBtnStyle = {
     position: 'absolute',
-    bottom: '48px',
-    right: '196px',
-    '@media (max-width: 600px)': {
-      right: '120px',
-      bottom: '18px',
-      width: '72px',
-      height: '72px'
-    },
-
+    bottom: isMobile ? 'auto' : '48px',
+    top: isMobile ? '16px' : 'auto',
+    right: isMobile ? '16px' : '196px',
     zIndex: 1100,
-    width: '86px',
-    height: '86px',
+    width: isMobile ? '56px' : '86px',
+    height: isMobile ? '56px' : '86px',
     borderRadius: '24px',
     background: 'linear-gradient(135deg, #fb923c, #f97316)',
     color: 'white',
@@ -65,15 +182,34 @@ function Map() {
     ...buttonCommon
   }
 
-  const hideInfoBtnStyle = {
+  const zoomInBtnStyle = {
     position: 'absolute',
-    bottom: '48px',
-    right: '328px',
+    bottom: isMobile ? 'auto' : '48px',
+    top: isMobile ? '16px' : 'auto',
+    right: isMobile ? '80px' : '328px',
     zIndex: 1100,
-    width: '86px',
-    height: '86px',
+    width: isMobile ? '56px' : '86px',
+    height: isMobile ? '56px' : '86px',
     borderRadius: '24px',
-    background: 'linear-gradient(135deg, #818cf8, #6366f1)',
+    background: 'linear-gradient(135deg, #34d399, #10b981)',
+    color: 'white',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...buttonCommon
+  }
+
+  const zoomOutBtnStyle = {
+    position: 'absolute',
+    bottom: isMobile ? 'auto' : '48px',
+    top: isMobile ? '16px' : 'auto',
+    right: isMobile ? '144px' : '460px',
+    zIndex: 1100,
+    width: isMobile ? '56px' : '86px',
+    height: isMobile ? '56px' : '86px',
+    borderRadius: '24px',
+    background: 'linear-gradient(135deg, #f472b6, #ec4899)',
     color: 'white',
     cursor: 'pointer',
     display: 'flex',
@@ -166,7 +302,8 @@ function Map() {
 
 
   return (
-    <div style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, boxSizing: 'border-box', position: 'relative', overflow: 'hidden', backgroundColor: '#000000' }}>
+    <div style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, boxSizing: 'border-box', position: 'relative', overflow: 'hidden', backgroundImage: 'var(--app-theme-gradient)' }}>
+      <Header />
       <div id='map-container' ref={mapContainerRef} style={{ width: '100vw', height: '100vh', borderRadius: '0', overflow: 'hidden', boxShadow: 'none', position: 'absolute', inset: 0 }} />
 
       <button
@@ -180,11 +317,20 @@ function Map() {
 
       <button
         type='button'
-        onClick={() => setIsHideInfoOpen(true)}
-        aria-label='Open privacy settings'
-        style={hideInfoBtnStyle}
+        onClick={() => mapRef.current.zoomIn()}
+        aria-label='Zoom in'
+        style={zoomInBtnStyle}
       >
-        <FaEyeSlash size={28} />
+        <FaPlus size={28} />
+      </button>
+
+      <button
+        type='button'
+        onClick={() => mapRef.current.zoomOut()}
+        aria-label='Zoom out'
+        style={zoomOutBtnStyle}
+      >
+        <FaMinus size={28} />
       </button>
 
       {isFilterOpen && (
@@ -271,19 +417,11 @@ function Map() {
         </div>
       )}
 
-      {isHideInfoOpen && (
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.35)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '28px' }}>
-          <div style={{ position: 'relative', width: '100%', maxWidth: '420px', maxHeight: '88vh', overflowY: 'auto', background: 'white', borderRadius: '26px', boxShadow: '0 26px 64px rgba(0, 0, 0, 0.22)', padding: '28px' }}>
-            <button
-              type='button'
-              onClick={() => setIsHideInfoOpen(false)}
-              style={{ position: 'absolute', top: '12px', right: '12px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '20px', color: '#4b5563' }}
-            >
-              ×
-            </button>
-            <Hideinfo />
-          </div>
-        </div>
+      {selectedUser && (
+        <Usercard 
+          user={selectedUser} 
+          onClose={() => setSelectedUser(null)} 
+        />
       )}
 
       <div style={{ position: 'absolute', left: '50%', bottom: '20px', transform: 'translateX(-50%)', width: 'calc(100% - 24px)', maxWidth: '920px', zIndex: 1000 }}>

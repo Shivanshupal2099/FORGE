@@ -1,7 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Usercard.css';
 
 const Usercard = ({ user, onClose }) => {
+  const [isOnline, setIsOnline] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState(true);
+
+  useEffect(() => {
+    const fetchUserStatus = async () => {
+      if (!user?.email) return;
+
+      try {
+        setLoadingStatus(true);
+        const response = await fetch(`http://localhost:5000/api/auth/status/${user.email}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const data = await response.json();
+        if (data.success && data.status) {
+          setIsOnline(data.status.is_online);
+        }
+      } catch (error) {
+        console.error('Error fetching user status:', error);
+        setIsOnline(false);
+      } finally {
+        setLoadingStatus(false);
+      }
+    };
+
+    fetchUserStatus();
+
+    // Refresh status every 30 seconds
+    const intervalId = setInterval(fetchUserStatus, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [user?.email]);
+
   if (!user) return null;
 
   return (
@@ -35,8 +69,13 @@ const Usercard = ({ user, onClose }) => {
             </h2>
             <p className="usercard__profession">{user.profession}</p>
             <div className="usercard__status">
-              <span className={`usercard__statusDot ${user.status?.toLowerCase()}`} />
-              {user.status || 'Active'}
+              <span 
+                className={`usercard__statusDot ${isOnline ? 'usercard__statusDot--online' : 'usercard__statusDot--offline'}`}
+                style={{ 
+                  backgroundColor: loadingStatus ? '#ccc' : (isOnline ? '#10b981' : '#ef4444')
+                }}
+              />
+              {loadingStatus ? 'Loading...' : (isOnline ? 'Online' : 'Offline')}
             </div>
           </div>
         </div>
@@ -73,23 +112,6 @@ const Usercard = ({ user, onClose }) => {
           </div>
         )}
 
-        {/* Contact Information */}
-        <div className="usercard__section">
-          <h3 className="usercard__sectionTitle">Contact</h3>
-          {user.contactNumber && (
-            <div className="usercard__contactItem">
-              <span className="usercard__contactIcon">📞</span>
-              <span className="usercard__contactValue">{user.contactNumber}</span>
-            </div>
-          )}
-          {user.email && (
-            <div className="usercard__contactItem">
-              <span className="usercard__contactIcon">✉️</span>
-              <span className="usercard__contactValue">{user.email}</span>
-            </div>
-          )}
-        </div>
-
         {/* Social Links */}
         {user.socialLinks && Object.keys(user.socialLinks).length > 0 && (
           <div className="usercard__section">
@@ -115,17 +137,6 @@ const Usercard = ({ user, onClose }) => {
                   Instagram
                 </a>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* Location */}
-        {user.location && (
-          <div className="usercard__section">
-            <h3 className="usercard__sectionTitle">Location</h3>
-            <div className="usercard__location">
-              <span className="usercard__locationIcon">📍</span>
-              <span className="usercard__locationValue">{user.location}</span>
             </div>
           </div>
         )}

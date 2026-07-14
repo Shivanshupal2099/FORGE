@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaSlidersH, FaTimes, FaChevronDown, FaChevronUp, FaCheck, FaMapMarkerAlt, FaBriefcase, FaUser, FaGlobe, FaGraduationCap, FaHeart, FaShieldAlt, FaClock } from "react-icons/fa";
 
 const tagOptions = ["Work", "Friendship", "Dating", "Networking", "Travel", "Coffee", "Business", "Sports", "Music", "Art", "Tech", "Fitness", "Gaming", "Photography", "Cooking"];
@@ -21,6 +21,7 @@ const quickPresets = [
 
 
 function Filtersection() {
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
     const [filters, setFilters] = useState({
         country: "",
         state: "",
@@ -38,10 +39,22 @@ function Filtersection() {
     });
     const [saved, setSaved] = useState(false);
     const [expandedSections, setExpandedSections] = useState({
-        basic: true,
+        basic: !isMobile,
         advanced: false,
-        interests: true
+        interests: !isMobile
     });
+
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth <= 600;
+            setIsMobile(mobile);
+            if (mobile) {
+                setExpandedSections({ basic: false, advanced: false, interests: false });
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
 
     
@@ -133,17 +146,17 @@ function Filtersection() {
     };
 
     return (
-        <div style={styles.card}>
-            <div style={styles.header}>
+        <div style={{ ...styles.card, ...(isMobile ? styles.cardMobile : {}) }}>
+            <div style={{ ...styles.header, ...(isMobile ? styles.headerMobile : {}) }}>
                 <div>
-                    <h3 style={styles.title}>Find People</h3>
-                    <p style={styles.subtitle}>Discover your perfect connections</p>
+                    <h3 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>Find People</h3>
+                    {!isMobile && <p style={styles.subtitle}>Discover your perfect connections</p>}
                 </div>
-                <div style={styles.headerActions}>
-                    <span style={styles.badge}>{getActiveFilterCount()} Active</span>
-                    <button 
+                <div style={{ ...styles.headerActions, ...(isMobile ? styles.headerActionsMobile : {}) }}>
+                    <span style={{ ...styles.badge, ...(isMobile ? styles.badgeMobile : {}) }}>{getActiveFilterCount()} Active</span>
+                    <button
                         onClick={resetFilters}
-                        style={styles.resetButton}
+                        style={{ ...styles.resetButton, ...(isMobile ? styles.resetButtonMobile : {}) }}
                         title="Reset all filters"
                     >
                         <FaTimes style={styles.resetIcon} />
@@ -152,64 +165,66 @@ function Filtersection() {
             </div>
 
             {/* Quick Presets */}
-            <div style={styles.presetsSection}>
-                <span style={styles.presetsLabel}>Quick presets:</span>
-                <div style={styles.presetsGrid}>
-                    {quickPresets.map((preset) => (
-                        <button
-                            key={preset.name}
-                            onClick={() => applyPreset(preset)}
-                            style={styles.presetButton}
-                        >
-                            {preset.name}
-                        </button>
-                    ))}
+            {!isMobile && (
+                <div style={styles.presetsSection}>
+                    <span style={styles.presetsLabel}>Quick presets:</span>
+                    <div style={styles.presetsGrid}>
+                        {quickPresets.map((preset) => (
+                            <button
+                                key={preset.name}
+                                onClick={() => applyPreset(preset)}
+                                style={styles.presetButton}
+                            >
+                                {preset.name}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Basic Filters Section */}
-            <div style={styles.section}>
+            <div style={{ ...styles.section, ...(isMobile ? styles.sectionMobile : {}) }}>
                 <button 
-                    style={styles.sectionHeader}
+                    style={{ ...styles.sectionHeader, ...(isMobile ? styles.sectionHeaderMobile : {}) }}
                     onClick={() => toggleSection('basic')}
                 >
-                    <span style={styles.sectionTitle}><FaSlidersH style={styles.sectionIcon} /> Basic Filters</span>
+                    <span style={{ ...styles.sectionTitle, ...(isMobile ? styles.sectionTitleMobile : {}) }}><FaSlidersH style={styles.sectionIcon} /> Basic Filters</span>
                     {expandedSections.basic ? <FaChevronUp /> : <FaChevronDown />}
                 </button>
                 {expandedSections.basic && (
-                    <div style={styles.sectionContent}>
-                        <div style={styles.grid}>
-                            <label style={styles.field}>
-                                <span style={styles.label}><FaMapMarkerAlt style={styles.labelIcon} /> Country</span>
+                    <div style={{ ...styles.sectionContent, ...(isMobile ? styles.sectionContentMobile : {}) }}>
+                        <div style={{ ...styles.grid, ...(isMobile ? styles.gridMobile : {}) }}>
+                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaMapMarkerAlt style={styles.labelIcon} /> Country</span>
                                 <input
                                     type="text"
                                     name="country"
                                     placeholder="Enter country"
                                     value={filters.country}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                                 />
                             </label>
 
-                            <label style={styles.field}>
-                                <span style={styles.label}><FaMapMarkerAlt style={styles.labelIcon} /> State/Region</span>
+                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaMapMarkerAlt style={styles.labelIcon} /> State/Region</span>
                                 <input
                                     type="text"
                                     name="state"
                                     placeholder="Enter state"
                                     value={filters.state}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                                 />
                             </label>
 
-                            <label style={styles.field}>
-                                <span style={styles.label}><FaBriefcase style={styles.labelIcon} /> Profession</span>
+                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaBriefcase style={styles.labelIcon} /> Profession</span>
                                 <select
                                     name="profession"
                                     value={filters.profession}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                                 >
                                     <option value="">Choose profession</option>
                                     {professionOptions.map((option) => (
@@ -220,13 +235,13 @@ function Filtersection() {
                                 </select>
                             </label>
 
-                            <label style={styles.field}>
-                                <span style={styles.label}><FaUser style={styles.labelIcon} /> Gender</span>
+                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaUser style={styles.labelIcon} /> Gender</span>
                                 <select
                                     name="gender"
                                     value={filters.gender}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                                 >
                                     {genderOptions.map((option) => (
                                         <option key={option} value={option}>
@@ -238,8 +253,8 @@ function Filtersection() {
                         </div>
 
                         {/* Age Range */}
-                        <label style={styles.fullWidth}>
-                            <span style={styles.label}>Age Range: {filters.ageRange.min} - {filters.ageRange.max} years</span>
+                        <label style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
+                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>Age Range: {filters.ageRange.min} - {filters.ageRange.max} years</span>
                             <div style={styles.ageRangeContainer}>
                                 <input
                                     type="range"
@@ -261,8 +276,8 @@ function Filtersection() {
                         </label>
 
                         {/* Distance */}
-                        <label style={styles.fullWidth}>
-                            <span style={styles.label}><FaMapMarkerAlt style={styles.labelIcon} /> Distance radius: {filters.distance} km</span>
+                        <label style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
+                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaMapMarkerAlt style={styles.labelIcon} /> Distance radius: {filters.distance} km</span>
                             <input
                                 type="range"
                                 name="distance"
@@ -279,24 +294,24 @@ function Filtersection() {
             </div>
 
             {/* Advanced Filters Section */}
-            <div style={styles.section}>
+            <div style={{ ...styles.section, ...(isMobile ? styles.sectionMobile : {}) }}>
                 <button 
-                    style={styles.sectionHeader}
+                    style={{ ...styles.sectionHeader, ...(isMobile ? styles.sectionHeaderMobile : {}) }}
                     onClick={() => toggleSection('advanced')}
                 >
-                    <span style={styles.sectionTitle}><FaSlidersH style={styles.sectionIcon} /> Advanced Filters</span>
+                    <span style={{ ...styles.sectionTitle, ...(isMobile ? styles.sectionTitleMobile : {}) }}><FaSlidersH style={styles.sectionIcon} /> Advanced Filters</span>
                     {expandedSections.advanced ? <FaChevronUp /> : <FaChevronDown />}
                 </button>
                 {expandedSections.advanced && (
-                    <div style={styles.sectionContent}>
-                        <div style={styles.grid}>
-                            <label style={styles.field}>
-                                <span style={styles.label}><FaGraduationCap style={styles.labelIcon} /> Education</span>
+                    <div style={{ ...styles.sectionContent, ...(isMobile ? styles.sectionContentMobile : {}) }}>
+                        <div style={{ ...styles.grid, ...(isMobile ? styles.gridMobile : {}) }}>
+                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaGraduationCap style={styles.labelIcon} /> Education</span>
                                 <select
                                     name="education"
                                     value={filters.education}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                                 >
                                     {educationOptions.map((option) => (
                                         <option key={option} value={option}>
@@ -306,13 +321,13 @@ function Filtersection() {
                                 </select>
                             </label>
 
-                            <label style={styles.field}>
-                                <span style={styles.label}><FaHeart style={styles.labelIcon} /> Relationship</span>
+                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaHeart style={styles.labelIcon} /> Relationship</span>
                                 <select
                                     name="relationship"
                                     value={filters.relationship}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                                 >
                                     {relationshipOptions.map((option) => (
                                         <option key={option} value={option}>
@@ -322,13 +337,13 @@ function Filtersection() {
                                 </select>
                             </label>
 
-                            <label style={styles.field}>
-                                <span style={styles.label}><FaClock style={styles.labelIcon} /> Online Status</span>
+                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaClock style={styles.labelIcon} /> Online Status</span>
                                 <select
                                     name="onlineStatus"
                                     value={filters.onlineStatus}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                                 >
                                     {onlineStatusOptions.map((option) => (
                                         <option key={option} value={option}>
@@ -338,12 +353,12 @@ function Filtersection() {
                                 </select>
                             </label>
 
-                            <label style={styles.field}>
-                                <span style={styles.label}><FaGlobe style={styles.labelIcon} /> Languages</span>
+                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaGlobe style={styles.labelIcon} /> Languages</span>
                                 <select
                                     name="language"
                                     onChange={(e) => toggleLanguage(e.target.value)}
-                                    style={styles.input}
+                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                                 >
                                     <option value="">Add language</option>
                                     {languageOptions.filter(lang => !filters.languages.includes(lang)).map((option) => (
@@ -357,9 +372,9 @@ function Filtersection() {
 
                         {/* Selected Languages */}
                         {filters.languages.length > 0 && (
-                            <div style={styles.fullWidth}>
-                                <span style={styles.label}>Selected Languages:</span>
-                                <div style={styles.tagWrap}>
+                            <div style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>Selected Languages:</span>
+                                <div style={{ ...styles.tagWrap, ...(isMobile ? styles.tagWrapMobile : {}) }}>
                                     {filters.languages.map((lang) => (
                                         <button
                                             key={lang}
@@ -375,8 +390,8 @@ function Filtersection() {
                         )}
 
                         {/* Verified Only Toggle */}
-                        <label style={styles.toggleContainer}>
-                            <span style={styles.label}><FaShieldAlt style={styles.labelIcon} /> Verified profiles only</span>
+                        <label style={{ ...styles.toggleContainer, ...(isMobile ? styles.toggleContainerMobile : {}) }}>
+                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaShieldAlt style={styles.labelIcon} /> Verified profiles only</span>
                             <button
                                 type="button"
                                 onClick={() => handleChange({ target: { name: 'verifiedOnly', type: 'checkbox', checked: !filters.verifiedOnly } })}
@@ -396,31 +411,31 @@ function Filtersection() {
             </div>
 
             {/* Interests Section */}
-            <div style={styles.section}>
+            <div style={{ ...styles.section, ...(isMobile ? styles.sectionMobile : {}) }}>
                 <button 
-                    style={styles.sectionHeader}
+                    style={{ ...styles.sectionHeader, ...(isMobile ? styles.sectionHeaderMobile : {}) }}
                     onClick={() => toggleSection('interests')}
                 >
-                    <span style={styles.sectionTitle}><FaSlidersH style={styles.sectionIcon} /> Interests & What You're Looking For</span>
+                    <span style={{ ...styles.sectionTitle, ...(isMobile ? styles.sectionTitleMobile : {}) }}><FaSlidersH style={styles.sectionIcon} /> Interests & What You're Looking For</span>
                     {expandedSections.interests ? <FaChevronUp /> : <FaChevronDown />}
                 </button>
                 {expandedSections.interests && (
-                    <div style={styles.sectionContent}>
-                        <label style={styles.fullWidth}>
-                            <span style={styles.label}>What you are looking for</span>
+                    <div style={{ ...styles.sectionContent, ...(isMobile ? styles.sectionContentMobile : {}) }}>
+                        <label style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
+                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>What you are looking for</span>
                             <input
                                 type="text"
                                 name="lookingFor"
                                 placeholder="e.g. Work, friendship, dating"
                                 value={filters.lookingFor}
                                 onChange={handleChange}
-                                style={styles.input}
+                                style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                             />
                         </label>
 
-                        <div style={styles.fullWidth}>
-                            <span style={styles.label}>Interests & Activities</span>
-                            <div style={styles.tagWrap}>
+                        <div style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
+                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>Interests & Activities</span>
+                            <div style={{ ...styles.tagWrap, ...(isMobile ? styles.tagWrapMobile : {}) }}>
                                 {tagOptions.map((tag) => {
                                     const active = filters.tags.includes(tag);
                                     return (
@@ -430,6 +445,7 @@ function Filtersection() {
                                             onClick={() => toggleTag(tag)}
                                             style={{
                                                 ...styles.tagButton,
+                                                ...(isMobile ? styles.tagButtonMobile : {}),
                                                 ...(active ? styles.tagButtonActive : {})
                                             }}
                                         >
@@ -444,14 +460,14 @@ function Filtersection() {
                 )}
             </div>
 
-            <div style={styles.actions}>
-                <button type="button" onClick={handleSave} style={styles.saveButton}>
+            <div style={{ ...styles.actions, ...(isMobile ? styles.actionsMobile : {}) }}>
+                <button type="button" onClick={handleSave} style={{ ...styles.saveButton, ...(isMobile ? styles.saveButtonMobile : {}) }}>
                     <FaCheck style={styles.saveIcon} /> Apply Filters
                 </button>
             </div>
 
             {saved && (
-                <div style={styles.successMessage}>
+                <div style={{ ...styles.successMessage, ...(isMobile ? styles.successMessageMobile : {}) }}>
                     <FaCheck style={styles.successIcon} />
                     <span>Filters applied successfully! Found {Math.floor(Math.random() * 100) + 10} people matching your criteria.</span>
                 </div>
@@ -761,6 +777,90 @@ const styles = {
     },
     successIcon: {
         fontSize: "16px"
+    },
+    // Mobile responsive styles
+    cardMobile: {
+        margin: "0",
+        padding: "16px",
+        borderRadius: "16px",
+        maxWidth: "100%"
+    },
+    headerMobile: {
+        marginBottom: "12px",
+        paddingBottom: "12px"
+    },
+    titleMobile: {
+        fontSize: "18px"
+    },
+    headerActionsMobile: {
+        gap: "6px"
+    },
+    badgeMobile: {
+        padding: "4px 10px",
+        fontSize: "10px"
+    },
+    resetButtonMobile: {
+        padding: "5px"
+    },
+    sectionMobile: {
+        marginBottom: "8px"
+    },
+    sectionHeaderMobile: {
+        padding: "8px 10px",
+        borderRadius: "8px"
+    },
+    sectionTitleMobile: {
+        fontSize: "11px"
+    },
+    sectionContentMobile: {
+        padding: "10px"
+    },
+    gridMobile: {
+        gridTemplateColumns: "1fr",
+        gap: "10px"
+    },
+    fieldMobile: {
+        gap: "4px"
+    },
+    fullWidthMobile: {
+        marginTop: "10px"
+    },
+    labelMobile: {
+        fontSize: "11px"
+    },
+    labelIcon: {
+        color: "#667eea",
+        fontSize: "10px"
+    },
+    inputMobile: {
+        padding: "10px 12px",
+        fontSize: "13px",
+        borderRadius: "10px"
+    },
+    tagWrapMobile: {
+        gap: "6px"
+    },
+    tagButtonMobile: {
+        padding: "5px 10px",
+        fontSize: "10px",
+        borderRadius: "16px"
+    },
+    toggleContainerMobile: {
+        padding: "8px",
+        borderRadius: "8px"
+    },
+    actionsMobile: {
+        marginTop: "10px"
+    },
+    saveButtonMobile: {
+        padding: "10px 14px",
+        fontSize: "13px",
+        borderRadius: "10px"
+    },
+    successMessageMobile: {
+        padding: "12px 14px",
+        fontSize: "12px",
+        borderRadius: "10px"
     }
 };
 

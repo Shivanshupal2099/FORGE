@@ -1,4 +1,4 @@
-import React from 'react';
+import { IoChatbubblesOutline, IoPeopleOutline, IoSearchOutline, IoSparklesOutline } from 'react-icons/io5';
 import './ChatSidebar.css';
 
 const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
@@ -7,17 +7,17 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
       <div className="chat-sidebar__top">
         <div className="chat-sidebar__brand">
           <div className="chat-sidebar__brandIcon" aria-hidden="true">
-            💬
+            <IoChatbubblesOutline />
           </div>
           <div className="chat-sidebar__brandText">
             <div className="chat-sidebar__brandTitle">Messages</div>
-            <div className="chat-sidebar__brandSub">{connectedUsers.length} online</div>
+            <div className="chat-sidebar__brandSub">{connectedUsers.length} conversations</div>
           </div>
         </div>
 
         <div className="chat-sidebar__searchWrap">
           <div className="chat-sidebar__searchIcon" aria-hidden="true">
-            �
+            <IoSearchOutline />
           </div>
           <input
             className="chat-sidebar__search"
@@ -31,13 +31,16 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
       <div className="chat-sidebar__list" aria-label="Connected users">
         {connectedUsers.length === 0 ? (
           <div className="chat-sidebar__empty">
-            <div className="chat-sidebar__emptyIcon">👥</div>
+            <div className="chat-sidebar__emptyIcon">
+              <IoPeopleOutline />
+            </div>
             <div className="chat-sidebar__emptyText">No conversations yet</div>
             <div className="chat-sidebar__emptySub">Start connecting with people</div>
           </div>
         ) : (
           connectedUsers.map((user) => (
-            <div
+            <button
+              type="button"
               key={user.id}
               className={`chat-sidebar__thread ${selectedUser?.id === user.id ? 'chat-sidebar__thread--active' : ''}`}
               onClick={() => onSelectUser(user)}
@@ -65,12 +68,12 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
 
               {user.unread > 0 && (
                 <div className="chat-sidebar__threadAside">
-                  <div className="chat-sidebar__unread" aria-hidden="true">
+                  <div className="chat-sidebar__unread" aria-label={`${user.unread} unread messages`}>
                     {user.unread}
                   </div>
                 </div>
               )}
-            </div>
+            </button>
           ))
         )}
       </div>
@@ -78,7 +81,7 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
       <div className="chat-sidebar__footer" aria-label="Sidebar footer">
         <div className="chat-sidebar__tips">
           <div className="chat-sidebar__tipsIcon" aria-hidden="true">
-            ✨
+            <IoSparklesOutline />
           </div>
           <div className="chat-sidebar__tipsText">Select a conversation to start chatting</div>
         </div>
@@ -88,5 +91,3 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
 };
 
 export default ChatSidebar;
-
-

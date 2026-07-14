@@ -1,12 +1,11 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const surveySchema = new mongoose.Schema(
   {
     creator_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     title: {
@@ -67,4 +66,4 @@ surveySchema.index({ creator_id: 1 });
 surveySchema.index({ status: 1 });
 surveySchema.index({ expires_at: 1 });
 
-export default mongoose.model("Survey", surveySchema);
+module.exports = mongoose.model("Survey", surveySchema);

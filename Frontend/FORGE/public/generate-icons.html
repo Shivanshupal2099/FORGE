@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate PWA Icons from Forge Logo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .instructions {
+            background: #fff9c4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #ffeb3b;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .icon-preview img {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .icon-preview span {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .logo-preview {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        .logo-preview img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 PWA Icon Generator - Forge Logo</h1>
+        
+        <div class="logo-preview">
+            <h3>Source Logo:</h3>
+            <img id="sourceLogo" src="/forge.png" alt="Forge Logo" onerror="this.src='forge.png'">
+            <p>Using forge.png as source</p>
+        </div>
+        
+        <div class="instructions">
+            <strong>Quick Instructions:</strong>
+            <ol>
+                <li>Click "Generate Icons" below (uses forge.png as source)</li>
+                <li>Wait for all icons to be created</li>
+                <li>Click "Download All Icons"</li>
+                <li>Place the downloaded PNG files in your <code>public/icons/</code> directory</li>
+                <li>Refresh your browser - the install prompt should appear!</li>
+            </ol>
+        </div>
+
+        <button onclick="generateIcons()" id="generateBtn">🎯 Generate Icons from Forge Logo</button>
+        <button onclick="downloadAllIcons()" id="downloadBtn" disabled>📥 Download All Icons</button>
+
+        <div id="output">
+            <p>Click "Generate Icons" to create PWA icons from forge.png...</p>
+        </div>
+    </div>
+
+    <script>
+        const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const generatedIcons = [];
+        const sourceLogo = document.getElementById('sourceLogo');
+
+        function generateIcons() {
+            const output = document.getElementById('output');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            output.innerHTML = '<p>⏳ Loading forge.png and generating icons...</p>';
+            generateBtn.disabled = true;
+            generatedIcons.length = 0;
+            
+            // Load the forge.png image
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            
+            img.onload = function() {
+                output.innerHTML = '<p>⏳ Generating icons from forge.png...</p>';
+                
+                iconSizes.forEach((size, index) => {
+                    setTimeout(() => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Create yellow background (Forge theme)
+                        ctx.fillStyle = '#ffff00';
+                        ctx.fillRect(0, 0, size, size);
+                        
+                        // Add border
+                        ctx.strokeStyle = '#000000';
+                        ctx.lineWidth = Math.max(2, size * 0.03);
+                        ctx.strokeRect(size * 0.05, size * 0.05, size * 0.9, size * 0.9);
+                        
+                        // Draw the forge logo centered with padding
+                        const padding = size * 0.15;
+                        const logoSize = size - (padding * 2);
+                        ctx.drawImage(img, padding, padding, logoSize, logoSize);
+                        
+                        // Convert to PNG
+                        const pngUrl = canvas.toDataURL('image/png');
+                        generatedIcons.push({
+                            size: size,
+                            dataUrl: pngUrl,
+                            filename: `icon-${size}x${size}.png`
+                        });
+                        
+                        // Display preview
+                        const preview = document.createElement('div');
+                        preview.className = 'icon-preview';
+                        const displaySize = Math.min(size, 120);
+                        preview.innerHTML = `
+                            <img src="${pngUrl}" width="${displaySize}" height="${displaySize}">
+                            <span>${size}x${size}px</span>
+                        `;
+                        output.appendChild(preview);
+                        
+                        // Enable download button when all icons are generated
+                        if (generatedIcons.length === iconSizes.length) {
+                            const downloadBtn = document.getElementById('downloadBtn');
+                            downloadBtn.disabled = false;
+                            generateBtn.disabled = false;
+                            const status = document.createElement('p');
+                            status.className = 'success';
+                            status.textContent = `✅ All ${iconSizes.length} icons generated successfully from forge.png!`;
+                            output.insertBefore(status, output.firstChild.nextSibling);
+                        }
+                    }, index * 100);
+                });
+            };
+            
+            img.onerror = function() {
+                output.innerHTML = '<p class="error">❌ Error loading forge.png. Please ensure the file exists in the public directory.</p>';
+                generateBtn.disabled = false;
+            };
+            
+            // Try to load from different paths
+            img.src = '/forge.png';
+        }
+
+        function downloadAllIcons() {
+            generatedIcons.forEach((icon, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.download = icon.filename;
+                    link.href = icon.dataUrl;
+                    link.click();
+                }, index * 200);
+            });
+        }
+    </script>
+</body>
+</html>

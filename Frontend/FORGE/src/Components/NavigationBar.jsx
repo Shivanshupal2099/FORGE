@@ -28,11 +28,11 @@ function NavigationBar() {
     alignItems: 'center',
     gap: '8px',
     padding: '8px',
-    background: 'rgba(255, 255, 255, 0.92)',
+    background: 'var(--app-surface-strong)',
     backdropFilter: 'blur(18px)',
-    border: '1px solid rgba(255,255,255,0.9)',
+    border: '1px solid var(--app-card-border)',
     borderRadius: '999px',
-    boxShadow: '0 16px 40px rgba(0,0,0,0.16)',
+    boxShadow: 'var(--app-soft-shadow)',
     maxWidth: 'min(92vw, 520px)',
     width: 'calc(100% - 16px)',
     zIndex: 1000
@@ -45,8 +45,8 @@ function NavigationBar() {
     padding: '16px 18px',
     borderRadius: '999px',
     textDecoration: 'none',
-    color: '#7d6335',
-    background: 'rgba(255, 255, 255, 0.72)',
+    color: 'var(--app-muted-text)',
+    background: 'var(--app-surface)',
     transition: 'transform 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, padding 0.25s ease',
     boxShadow: 'inset 0 0 0 1px rgba(36,23,0,0.06)',
     display: 'flex',
@@ -63,9 +63,9 @@ function NavigationBar() {
 
 
   const activeStyle = {
-    background: 'linear-gradient(135deg, #f7d74f 0%, #f1b818 100%)',
-    color: '#1b1200',
-    boxShadow: '0 10px 22px rgba(243, 181, 34, 0.24)',
+    background: 'var(--app-accent-bg)',
+    color: 'var(--app-accent-text)',
+    boxShadow: 'var(--app-soft-shadow)',
     transform: 'translateY(-2px) scale(1.03)',
     padding: '12px 16px'
   }

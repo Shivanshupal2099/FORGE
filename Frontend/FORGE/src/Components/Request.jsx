@@ -1,14 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FaHandPaper, FaTimes } from 'react-icons/fa';
-
-
-
-const activeRequests = [
-  { id: 1, title: 'Need design feedback', category: 'Creative', tokens: '150', status: 'Open' },
-  { id: 2, title: 'Local event volunteers', category: 'Community', tokens: '80', status: 'Open' },
-  { id: 3, title: 'Survey participants', category: 'Research', tokens: '120', status: 'Pending' },
-  { id: 4, title: 'Mentorship session', category: 'Career', tokens: '200', status: 'Open' },
-];
 
 function Request({ onClose }) {
   useEffect(() => {
@@ -21,6 +12,8 @@ function Request({ onClose }) {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
+
+  const [activeRequests, setActiveRequests] = useState([]);
 
   return (
     <div className="home-popup-overlay" onClick={onClose} role="presentation">

@@ -8,27 +8,19 @@ const authMiddleware = require("../middlewares/auth.middleware");
 // Google Authentication
 // ===========================
 
-
-
-
 // Login/Register with Google
 router.post("/google", authController.googleAuth);
 
-
+// Sync user from Supabase to MongoDB
+router.post("/sync", authController.syncUser);
 
 // Get current logged-in user
 router.get("/me", authMiddleware, authController.getCurrentUser);
 
-
-
-
 // Logout
 router.post("/logout", authMiddleware, authController.logout);
 
-
-
-
-// Refresh Access Token (optional if using JWT refresh tokens)
-router.post("/refresh", authController.refreshToken);
+// Get user online status
+router.get("/status/:uid", authController.getUserStatus);
 
 module.exports = router;

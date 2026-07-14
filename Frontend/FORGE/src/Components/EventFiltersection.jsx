@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FaTimes, FaCheck, FaCalendarAlt, FaTag, FaSearch, FaDollarSign } from "react-icons/fa";
+import { FaTimes, FaCheck, FaCalendarAlt, FaTag, FaDollarSign } from "react-icons/fa";
 
 const categories = ["Any", "Workshop", "Meetup", "Conference", "Community", "Sports", "Music", "Tech", "Other"];
 const tagOptions = [
@@ -17,23 +17,20 @@ const tagOptions = [
 ];
 
 function EventFiltersection({ initialFilters, onApply }) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
   const [filters, setFilters] = useState(
     initialFilters || {
-      query: "",
       category: "Any",
-      tags: [],
       freeOnly: false,
       paidOnly: false,
-      dateDays: 30, // events happening in next N days
+      dateDays: 30,
     }
   );
 
   useEffect(() => {
     setFilters(
       initialFilters || {
-        query: "",
         category: "Any",
-        tags: [],
         freeOnly: false,
         paidOnly: false,
         dateDays: 30,
@@ -41,23 +38,23 @@ function EventFiltersection({ initialFilters, onApply }) {
     );
   }, [initialFilters]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 600);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const activeCount = useMemo(() => {
     let c = 0;
-    if (filters.query?.trim()) c++;
     if (filters.category !== "Any") c++;
-    if (filters.tags.length) c++;
     if (filters.freeOnly) c++;
     if (filters.paidOnly) c++;
     if (filters.dateDays !== 30) c++;
     return c;
   }, [filters]);
 
-  const toggleTag = (tag) => {
-    setFilters((prev) => ({
-      ...prev,
-      tags: prev.tags.includes(tag) ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag],
-    }));
-  };
 
   const handleApply = () => {
     // enforce mutual exclusivity
@@ -70,43 +67,25 @@ function EventFiltersection({ initialFilters, onApply }) {
   };
 
   return (
-    <div style={styles.card}>
-      <div style={styles.header}>
+    <div style={{ ...styles.card, ...(isMobile ? styles.cardMobile : {}) }}>
+      <div style={{ ...styles.header, ...(isMobile ? styles.headerMobile : {}) }}>
         <div>
-          <h3 style={styles.title}>Find Events</h3>
-          <p style={styles.subtitle}>Filter upcoming happenings around you</p>
+          <h3 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>Find Events</h3>
+          {!isMobile && <p style={styles.subtitle}>Filter upcoming happenings around you</p>}
         </div>
-        <div style={styles.headerActions}>
-          <span style={styles.badge}>{activeCount} Active</span>
+        <div style={{ ...styles.headerActions, ...(isMobile ? styles.headerActionsMobile : {}) }}>
+          <span style={{ ...styles.badge, ...(isMobile ? styles.badgeMobile : {}) }}>{activeCount} Active</span>
         </div>
       </div>
 
-      <div style={styles.section}>
-        <div style={styles.sectionTitleRow}>
-          <span style={styles.sectionTitle}>
-            <FaSearch style={styles.sectionIcon} /> Search
-          </span>
-        </div>
-        <label style={styles.field}>
-          <span style={styles.label}>
-            <FaSearch style={styles.labelIcon} /> Keyword
-          </span>
-          <input
-            style={styles.input}
-            value={filters.query}
-            placeholder="e.g. workshop, music, community..."
-            onChange={(e) => setFilters((prev) => ({ ...prev, query: e.target.value }))}
-          />
-        </label>
-      </div>
 
-      <div style={styles.grid}>
-        <label style={styles.field}>
-          <span style={styles.label}>
+      <div style={{ ...styles.grid, ...(isMobile ? styles.gridMobile : {}) }}>
+        <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+          <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>
             <FaTag style={styles.labelIcon} /> Category
           </span>
           <select
-            style={styles.input}
+            style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
             value={filters.category}
             onChange={(e) => setFilters((prev) => ({ ...prev, category: e.target.value }))}
           >
@@ -118,12 +97,12 @@ function EventFiltersection({ initialFilters, onApply }) {
           </select>
         </label>
 
-        <label style={styles.field}>
-          <span style={styles.label}>
+        <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+          <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>
             <FaCalendarAlt style={styles.labelIcon} /> Date (next {filters.dateDays} days)
           </span>
           <input
-            style={styles.input}
+            style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
             type="range"
             min={1}
             max={120}
@@ -134,19 +113,20 @@ function EventFiltersection({ initialFilters, onApply }) {
         </label>
       </div>
 
-      <div style={styles.section}>
-        <div style={styles.sectionTitleRow}>
-          <span style={styles.sectionTitle}>
+      <div style={{ ...styles.section, ...(isMobile ? styles.sectionMobile : {}) }}>
+        <div style={{ ...styles.sectionTitleRow, ...(isMobile ? styles.sectionTitleRowMobile : {}) }}>
+          <span style={{ ...styles.sectionTitle, ...(isMobile ? styles.sectionTitleMobile : {}) }}>
             <FaDollarSign style={styles.sectionIcon} /> Price
           </span>
         </div>
 
-        <div style={styles.toggleRow}>
+        <div style={{ ...styles.toggleRow, ...(isMobile ? styles.toggleRowMobile : {}) }}>
           <button
             type="button"
             onClick={() => setFilters((prev) => ({ ...prev, freeOnly: !prev.freeOnly, paidOnly: false }))}
             style={{
               ...styles.toggleButton,
+              ...(isMobile ? styles.toggleButtonMobile : {}),
               ...(filters.freeOnly ? styles.toggleButtonActive : {}),
             }}
           >
@@ -157,6 +137,7 @@ function EventFiltersection({ initialFilters, onApply }) {
             onClick={() => setFilters((prev) => ({ ...prev, paidOnly: !prev.paidOnly, freeOnly: false }))}
             style={{
               ...styles.toggleButton,
+              ...(isMobile ? styles.toggleButtonMobile : {}),
               ...(filters.paidOnly ? styles.toggleButtonActive : {}),
             }}
           >
@@ -165,53 +146,25 @@ function EventFiltersection({ initialFilters, onApply }) {
         </div>
       </div>
 
-      <div style={styles.section}>
-        <div style={styles.sectionTitleRow}>
-          <span style={styles.sectionTitle}>
-            <FaTag style={styles.sectionIcon} /> Tags
-          </span>
-        </div>
-        <div style={styles.tagWrap}>
-          {tagOptions.map((tag) => {
-            const active = filters.tags.includes(tag);
-            return (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => toggleTag(tag)}
-                style={{
-                  ...styles.tagButton,
-                  ...(active ? styles.tagButtonActive : {}),
-                }}
-              >
-                {active ? <FaCheck style={styles.tagCheckIcon} /> : null}
-                {tag}
-              </button>
-            );
-          })}
-        </div>
-      </div>
 
-      <div style={styles.actions}>
+      <div style={{ ...styles.actions, ...(isMobile ? styles.actionsMobile : {}) }}>
         <button
           type="button"
           onClick={() =>
             setFilters({
-              query: "",
               category: "Any",
-              tags: [],
               freeOnly: false,
               paidOnly: false,
               dateDays: 30,
             })
           }
-          style={styles.resetButton}
+          style={{ ...styles.resetButton, ...(isMobile ? styles.resetButtonMobile : {}) }}
           title="Reset event filters"
         >
           <FaTimes style={styles.resetIcon} /> Reset
         </button>
 
-        <button type="button" onClick={handleApply} style={styles.applyButton}>
+        <button type="button" onClick={handleApply} style={{ ...styles.applyButton, ...(isMobile ? styles.applyButtonMobile : {}) }}>
           <FaCheck style={{ fontSize: 16 }} /> Apply Event Filters
         </button>
       </div>
@@ -337,6 +290,78 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
+  },
+  // Mobile responsive styles
+  cardMobile: {
+    padding: "16px",
+  },
+  headerMobile: {
+    marginBottom: "12px",
+  },
+  titleMobile: {
+    fontSize: "18px",
+  },
+  headerActionsMobile: {
+    gap: "6px",
+  },
+  badgeMobile: {
+    padding: "4px 10px",
+    fontSize: "10px",
+  },
+  gridMobile: {
+    gridTemplateColumns: "1fr",
+    gap: "10px",
+    marginBottom: "12px",
+  },
+  fieldMobile: {
+    gap: "4px",
+  },
+  labelMobile: {
+    fontSize: "11px",
+  },
+  labelIcon: {
+    color: "#10b981",
+    fontSize: "10px",
+  },
+  inputMobile: {
+    padding: "10px 12px",
+    fontSize: "13px",
+    borderRadius: "10px",
+  },
+  sectionMobile: {
+    marginBottom: "12px",
+    padding: "12px",
+    borderRadius: "10px",
+  },
+  sectionTitleRowMobile: {
+    marginBottom: "8px",
+  },
+  sectionTitleMobile: {
+    fontSize: "12px",
+  },
+  sectionIcon: {
+    color: "#10b981",
+    fontSize: "12px",
+  },
+  toggleRowMobile: {
+    gap: "8px",
+  },
+  toggleButtonMobile: {
+    padding: "8px 10px",
+    fontSize: "11px",
+    borderRadius: "8px",
+  },
+  actionsMobile: {
+    marginTop: "10px",
+    gap: "6px",
+  },
+  resetButtonMobile: {
+    padding: "8px 10px",
+    fontSize: "11px",
+  },
+  applyButtonMobile: {
+    padding: "10px 12px",
+    fontSize: "13px",
   },
 };
 

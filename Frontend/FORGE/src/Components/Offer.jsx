@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaTags, FaTimes, FaPlus } from 'react-icons/fa';
 
-const availableOffers = [
-  { id: 1, title: '20% off local cafe', vendor: 'Sunrise Coffee', cost: '300 tokens', expires: 'Jul 12' },
-  { id: 2, title: 'Free workshop pass', vendor: 'Forge Studio', cost: '450 tokens', expires: 'Jul 18' },
-  { id: 3, title: 'Premium survey boost', vendor: 'Forge Network', cost: '150 tokens', expires: 'Jul 8' },
-  { id: 4, title: 'Community merch bundle', vendor: 'Forge Store', cost: '600 tokens', expires: 'Jul 25' },
-];
-
 function Offer({ onClose }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newOffer, setNewOffer] = useState({
@@ -19,7 +12,7 @@ function Offer({ onClose }) {
     cost: '',
     expires: ''
   });
-  const [offers, setOffers] = useState(availableOffers);
+  const [offers, setOffers] = useState([]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {

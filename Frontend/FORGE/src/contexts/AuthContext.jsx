@@ -13,25 +13,100 @@ export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const syncUserToBackend = async (user) => {
+    try {
+      await fetch('http://localhost:5000/api/auth/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uid: user.email,
+          email: user.email,
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
+          picture: user.user_metadata?.avatar_url || null
+        })
+      });
+    } catch (error) {
+      console.error('Error syncing user to backend:', error);
+    }
+  };
+
+  // Track user activity on the frontend
   useEffect(() => {
-    // Get initial session]
+    if (!user?.email) return;
+
+    const ACTIVITY_PING_INTERVAL = 2 * 60 * 1000; // 2 minutes
+    let intervalId = null;
+
+    const pingActivity = async () => {
+      try {
+        // Make a simple request to update activity timestamp
+        await fetch(`http://localhost:5000/api/auth/status/${user.email}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+      } catch (error) {
+        console.error('Error pinging activity:', error);
+      }
+    };
+
+    // Initial ping
+    pingActivity();
+
+    // Set up interval for activity pings
+    intervalId = setInterval(pingActivity, ACTIVITY_PING_INTERVAL);
+
+    // Track user interactions (mouse, keyboard, scroll, click)
+    const handleUserActivity = () => {
+      // Reset the interval on user activity
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      pingActivity();
+      intervalId = setInterval(pingActivity, ACTIVITY_PING_INTERVAL);
+    };
+
+    // Add event listeners for user activity
+    window.addEventListener('mousemove', handleUserActivity);
+    window.addEventListener('keydown', handleUserActivity);
+    window.addEventListener('scroll', handleUserActivity);
+    window.addEventListener('click', handleUserActivity);
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('keydown', handleUserActivity);
+      window.removeEventListener('scroll', handleUserActivity);
+      window.removeEventListener('click', handleUserActivity);
+    };
+  }, [user?.email]);
+
+  useEffect(() => {
+    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
         setUserId(session.user.id);
         localStorage.setItem('token', session.access_token);
         localStorage.setItem('userId', session.user.id);
+        syncUserToBackend(session.user);
       }
       setLoading(false);
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         setUser(session.user);
         setUserId(session.user.id);
         localStorage.setItem('token', session.access_token);
         localStorage.setItem('userId', session.user.id);
+        await syncUserToBackend(session.user);
       } else {
         setUser(null);
         setUserId(null);

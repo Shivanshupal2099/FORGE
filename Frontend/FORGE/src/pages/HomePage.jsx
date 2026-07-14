@@ -2,15 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaHandPaper, FaHandHoldingHeart, FaCoins, FaTags } from 'react-icons/fa';
 import NavigationBar from '../Components/NavigationBar';
+import Header from '../Components/Header';
 import Request from '../Components/Request';
 import Donation from '../Components/Donation';
 import Tokens from '../Components/Tokens';
 import Offer from '../Components/Offer';
-import Event from '../Components/Event';
-import ActiveEvent from '../Components/ActiveEvent';
-import SurveyRotator from '../Components/SurveyRotator';
-
-
+import { useAuth } from '../contexts/AuthContext';
 
 
 
@@ -22,21 +19,10 @@ const topActions = [
 ];
 
 
-
-
-
-
 function HomePage() {
-
-
   const [activePopup, setActivePopup] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [surveys, setSurveys] = useState([]);
-  const [tokenBalance, setTokenBalance] = useState(0);
-
-
-
-
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,58 +32,6 @@ function HomePage() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  useEffect(() => {
-    const loadSurveys = () => {
-      const savedSurveys = JSON.parse(localStorage.getItem('forge_surveys') || '[]');
-      setSurveys(savedSurveys);
-    };
-
-    const loadTokenBalance = () => {
-      const balance = parseInt(localStorage.getItem('forge_token_balance') || '0');
-      setTokenBalance(balance);
-    };
-
-    loadSurveys();
-    loadTokenBalance();
-
-    const handleStorageChange = () => {
-      loadSurveys();
-      loadTokenBalance();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [surveys.length]);
-
-  const handleAnswerSubmit = (surveyId, answers, tokensEarned) => {
-    const survey = surveys.find(s => s.id === surveyId);
-    if (!survey) return;
-
-    const answeredCount = Object.keys(answers).length;
-
-    const currentBalance = parseInt(localStorage.getItem('forge_token_balance') || '0');
-    const newBalance = currentBalance + tokensEarned;
-    localStorage.setItem('forge_token_balance', newBalance.toString());
-    setTokenBalance(newBalance);
-
-    const earnings = JSON.parse(localStorage.getItem('forge_token_earnings') || '[]');
-    earnings.unshift({
-      id: Date.now(),
-      label: `Survey: ${survey.title}`,
-      amount: tokensEarned,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    });
-    localStorage.setItem('forge_token_earnings', JSON.stringify(earnings.slice(0, 20)));
-
-    const completedSurveys = JSON.parse(localStorage.getItem('forge_completed_surveys') || '[]');
-    if (!completedSurveys.includes(surveyId)) {
-      completedSurveys.push(surveyId);
-      localStorage.setItem('forge_completed_surveys', JSON.stringify(completedSurveys));
-    }
-
-    alert(`Thank you for giving the survey! You earned ${tokensEarned} tokens for ${answeredCount} answered questions.`);
-  };
 
   return (
     <div
@@ -109,6 +43,7 @@ function HomePage() {
         justifyContent: 'flex-end',
       }}
     >
+      <Header />
       <div style={{ flex: 1, position: 'relative' }}>
         <div className="home-top-bar">
           <div className="home-action-dock">
@@ -127,33 +62,31 @@ function HomePage() {
               </button>
             ))}
           </div>
-          
           <Link to="/survey" className="home-create-survey-btn">
             <span>+</span>
             {!isMobile && <span>Create Survey</span>}
           </Link>
-          <button
-            type="button"
-            className="home-create-survey-btn"
-            onClick={() => setActivePopup('event')}
-          >
-            <span>+</span>
-            {!isMobile && <span>Create Event</span>}
-          </button>
-          <button
-            type="button"
-            className="home-create-survey-btn"
-            onClick={() => setActivePopup('activeEvent')}
-          >
-            <span>•</span>
-            {!isMobile && <span>Active Events</span>}
-          </button>
-
         </div>
 
-        {surveys.length > 0 && (
-          <div className="home-surveys-section">
-            <SurveyRotator surveys={surveys} onAnswerSubmit={handleAnswerSubmit} />
+        {/* Show message if not logged in */}
+        {!user && (
+          <div className="home-empty-state">
+            <div className="home-empty-state__preview" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
+            <span className="home-empty-state__badge">FORGE dashboard</span>
+            <h3>Welcome to FORGE</h3>
+            <p>Please log in to unlock requests, donations, tokens, offers, and people near you.</p>
+            <div className="home-empty-state__actions">
+              <Link to="/login" className="button-primary home-empty-state__cta">
+                Get Started
+              </Link>
+              <Link to="/" className="button-secondary home-empty-state__cta">
+                Learn More
+              </Link>
+            </div>
           </div>
         )}
       </div>
@@ -163,15 +96,8 @@ function HomePage() {
       {activePopup === 'donation' && <Donation onClose={() => setActivePopup(null)} />}
       {activePopup === 'tokens' && <Tokens onClose={() => setActivePopup(null)} />}
       {activePopup === 'offer' && <Offer onClose={() => setActivePopup(null)} />}
-      {activePopup === 'event' && <Event onClose={() => setActivePopup(null)} />}
-      {activePopup === 'activeEvent' && <ActiveEvent onClose={() => setActivePopup(null)} />}
     </div>
   );
 }
 
 export default HomePage;
-
-
-
-
-

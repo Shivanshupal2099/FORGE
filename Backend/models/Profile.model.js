@@ -1,7 +1,13 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const profileSchema = new mongoose.Schema(
   {
+    uid: {
+      type: String,
+      required: true,
+      unique: true,
+      description: "Unique user identifier (from auth provider)"
+    },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -30,10 +36,23 @@ const profileSchema = new mongoose.Schema(
       type: String,
       default: null
     },
-    year_of_study: {
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other"],
+      default: null
+    },
+
+    location: {
+      type: String,
+      maxlength: 120,
+      default: null
+    },
+    latitude: {
       type: Number,
-      min: 1,
-      max: 6,
+      default: null
+    },
+    longitude: {
+      type: Number,
       default: null
     },
 
@@ -43,7 +62,7 @@ const profileSchema = new mongoose.Schema(
       default: null
     },
 
-    degree: {
+    domain: {
       type: String,
       maxlength: 120,
       default: null
@@ -60,11 +79,6 @@ const profileSchema = new mongoose.Schema(
     },
 
     portfolio_url: {
-      type: String,
-      default: null
-    },
-
-    current_need: {
       type: String,
       default: null
     },
@@ -100,6 +114,26 @@ const profileSchema = new mongoose.Schema(
     is_open_to_work: {
       type: String,
         enum: ["yes", "no", "maybe"],
+    },
+
+    // Service provider fields
+    is_service_provider: {
+      type: Boolean,
+      default: false
+    },
+    services: {
+      type: [String],
+      default: []
+    },
+
+    // Payment verification
+    is_verified: {
+      type: Boolean,
+      default: false
+    },
+    payment_date: {
+      type: Date,
+      default: null
     }
   },
   {
@@ -110,4 +144,4 @@ const profileSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Profile", profileSchema);
+module.exports = mongoose.model("Profile", profileSchema);
