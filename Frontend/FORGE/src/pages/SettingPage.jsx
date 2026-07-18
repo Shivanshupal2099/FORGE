@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IoArrowBack, IoColorPaletteOutline, IoMoonOutline, IoSparklesOutline, IoSunnyOutline } from 'react-icons/io5';
+import { IoArrowBack, IoColorPaletteOutline, IoMoonOutline, IoSparklesOutline, IoSunnyOutline, IoTrashOutline } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
+import { useAuth } from '../contexts/AuthContext';
 
 const THEME_KEY = 'forge-theme';
 
 function SettingPage() {
+  const { user, signOut } = useAuth();
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || 'sunset');
   const isMonoTheme = theme === 'mono';
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -17,6 +22,51 @@ function SettingPage() {
 
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'sunset' ? 'mono' : 'sunset'));
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== 'DELETE') return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('You are not authenticated. Please log in again.');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`http://localhost:5000/api/auth/delete-account`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Clear local storage
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('forge-theme');
+        
+        // Sign out from Supabase
+        await signOut();
+        
+        // Redirect to home
+        window.location.href = '/';
+      } else {
+        alert('Failed to delete account: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      alert('An error occurred while deleting your account. Please try again.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+      setDeleteConfirmation('');
+    }
   };
 
   return (
@@ -82,7 +132,71 @@ function SettingPage() {
           <IoSparklesOutline />
           <span>The selected theme is saved on this device and applied across FORGE.</span>
         </div>
+
+        <section className="settings-danger-zone" aria-label="Danger zone">
+          <div className="settings-option">
+            <div className="settings-option__icon">
+              <IoTrashOutline />
+            </div>
+            <div className="settings-option__content">
+              <h2>Delete Account</h2>
+              <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+            </div>
+            <button
+              type="button"
+              className="settings-delete-button"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              Delete Account
+            </button>
+          </div>
+        </section>
       </div>
+
+      {showDeleteDialog && (
+        <div className="settings-delete-dialog-overlay" onClick={() => setShowDeleteDialog(false)}>
+          <div className="settings-delete-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="settings-delete-dialog__header">
+              <h2>Delete Account</h2>
+              <p>Are you sure you want to delete your account? This action is permanent and cannot be undone.</p>
+            </div>
+            <div className="settings-delete-dialog__content">
+              <label htmlFor="delete-confirmation">
+                Type <strong>DELETE</strong> to confirm:
+              </label>
+              <input
+                id="delete-confirmation"
+                type="text"
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                placeholder="DELETE"
+                disabled={isDeleting}
+              />
+            </div>
+            <div className="settings-delete-dialog__actions">
+              <button
+                type="button"
+                className="button-secondary"
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setDeleteConfirmation('');
+                }}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="button-primary settings-delete-confirm"
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmation !== 'DELETE' || isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Account'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <NavigationBar />
     </div>

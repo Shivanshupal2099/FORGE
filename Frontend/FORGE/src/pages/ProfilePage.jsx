@@ -228,6 +228,17 @@ function ProfilePage() {
               to="/settings" 
               className="profile-card__settings-button"
               aria-label="Settings"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                padding: '0',
+                marginLeft: '8px',
+                textDecoration: 'none',
+                color: 'inherit'
+              }}
             >
               <IoSettingsSharp />
             </Link>
