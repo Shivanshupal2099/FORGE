@@ -23,7 +23,6 @@ function EventFiltersection({ initialFilters, onApply }) {
       category: "Any",
       freeOnly: false,
       paidOnly: false,
-      dateDays: 30,
     }
   );
 
@@ -33,7 +32,6 @@ function EventFiltersection({ initialFilters, onApply }) {
         category: "Any",
         freeOnly: false,
         paidOnly: false,
-        dateDays: 30,
       }
     );
   }, [initialFilters]);
@@ -51,10 +49,8 @@ function EventFiltersection({ initialFilters, onApply }) {
     if (filters.category !== "Any") c++;
     if (filters.freeOnly) c++;
     if (filters.paidOnly) c++;
-    if (filters.dateDays !== 30) c++;
     return c;
   }, [filters]);
-
 
   const handleApply = () => {
     // enforce mutual exclusivity
@@ -97,20 +93,6 @@ function EventFiltersection({ initialFilters, onApply }) {
           </select>
         </label>
 
-        <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-          <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>
-            <FaCalendarAlt style={styles.labelIcon} /> Date (next {filters.dateDays} days)
-          </span>
-          <input
-            style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-            type="range"
-            min={1}
-            max={120}
-            step={1}
-            value={filters.dateDays}
-            onChange={(e) => setFilters((prev) => ({ ...prev, dateDays: Number(e.target.value) }))}
-          />
-        </label>
       </div>
 
       <div style={{ ...styles.section, ...(isMobile ? styles.sectionMobile : {}) }}>
@@ -155,7 +137,6 @@ function EventFiltersection({ initialFilters, onApply }) {
               category: "Any",
               freeOnly: false,
               paidOnly: false,
-              dateDays: 30,
             })
           }
           style={{ ...styles.resetButton, ...(isMobile ? styles.resetButtonMobile : {}) }}
@@ -165,7 +146,7 @@ function EventFiltersection({ initialFilters, onApply }) {
         </button>
 
         <button type="button" onClick={handleApply} style={{ ...styles.applyButton, ...(isMobile ? styles.applyButtonMobile : {}) }}>
-          <FaCheck style={{ fontSize: 16 }} /> Apply Event Filters
+          <FaCheck style={{ fontSize: 16 }} /> Apply Filters
         </button>
       </div>
     </div>

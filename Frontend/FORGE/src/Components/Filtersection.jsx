@@ -1,22 +1,75 @@
 import { useState, useEffect } from "react";
-import { FaSlidersH, FaTimes, FaChevronDown, FaChevronUp, FaCheck, FaMapMarkerAlt, FaBriefcase, FaUser, FaGlobe, FaGraduationCap, FaHeart, FaShieldAlt, FaClock } from "react-icons/fa";
+import { FaSlidersH, FaTimes, FaChevronDown, FaChevronUp, FaCheck, FaMapMarkerAlt, FaBriefcase, FaUser, FaShieldAlt, FaClock } from "react-icons/fa";
 
-const tagOptions = ["Work", "Friendship", "Dating", "Networking", "Travel", "Coffee", "Business", "Sports", "Music", "Art", "Tech", "Fitness", "Gaming", "Photography", "Cooking"];
-const professionOptions = ["Engineer", "Designer", "Doctor", "Teacher", "Student", "Freelancer", "Developer", "Manager", "Artist", "Writer", "Consultant", "Entrepreneur"];
-const genderOptions = ["Any", "Male", "Female", "Non-binary"];
-const languageOptions = ["English", "Spanish", "French", "German", "Mandarin", "Japanese", "Korean", "Hindi", "Arabic", "Portuguese"];
-const educationOptions = ["Any", "High School", "Bachelor's", "Master's", "PhD", "Other"];
-const relationshipOptions = ["Any", "Single", "In a relationship", "Married", "It's complicated"];
-const onlineStatusOptions = ["Any", "Online now", "Active recently", "Offline"];
-
-
-
-const quickPresets = [
-    { name: "Professional", filters: { profession: "Engineer", tags: ["Work", "Networking", "Business"] } },
-    { name: "Social", filters: { tags: ["Friendship", "Coffee", "Travel"] } },
-    { name: "Dating", filters: { tags: ["Dating", "Coffee", "Travel"] } },
-    { name: "Activity", filters: { tags: ["Sports", "Fitness", "Gaming"] } }
+const professionOptions = [
+  "AI Agent Developer",
+  "Prompt Engineer",
+  "Robotics Engineer",
+  "Blockchain Developer",
+  "AR/VR Developer",
+  "Quantum Computing Researcher",
+  "Sustainability Consultant",
+  "Climate Scientist",
+  "Ethical Hacker",
+  "Digital Forensics Expert",
+  "Creator Economy Manager",
+  "Space Systems Engineer",
+  "Drone Pilot",
+  "Bioinformatics Scientist",
+  "AI Product Manager",
+  "Software Engineer",
+  "AI/ML Engineer",
+  "Data Scientist",
+  "Cybersecurity Engineer",
+  "Cloud Engineer",
+  "DevOps Engineer",
+  "Product Manager",
+  "UI/UX Designer",
+  "Full-Stack Developer",
+  "Mobile App Developer",
+  "Doctor (Physician)",
+  "Surgeon",
+  "Dentist",
+  "Pharmacist",
+  "Nurse",
+  "Psychologist",
+  "Physiotherapist",
+  "Veterinarian",
+  "Lawyer",
+  "Judge",
+  "Chartered Accountant (CA)",
+  "Financial Analyst",
+  "Investment Banker",
+  "Entrepreneur",
+  "Startup Founder",
+  "CEO",
+  "Marketing Manager",
+  "Sales Manager",
+  "Human Resources (HR) Manager",
+  "Business Analyst",
+  "Civil Engineer",
+  "Mechanical Engineer",
+  "Electrical Engineer",
+  "Aerospace Engineer",
+  "Architect",
+  "Scientist",
+  "Researcher",
+  "Professor",
+  "School Teacher",
+  "Journalist",
+  "Content Creator",
+  "Graphic Designer",
+  "Photographer",
+  "Film Director",
+  "Pilot",
+  "Air Traffic Controller",
+  "Police Officer",
+  "Firefighter",
+  "Military Officer",
+  "Social Worker"
 ];
+const genderOptions = ["Any", "Male", "Female", "Non-binary"];
+const onlineStatusOptions = ["Any", "Online now", "Active recently", "Offline"];
 
 
 
@@ -24,24 +77,15 @@ function Filtersection() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
     const [filters, setFilters] = useState({
         country: "",
-        state: "",
         profession: "",
         gender: "Any",
-        distance: 25,
-        lookingFor: "",
-        tags: [],
-        ageRange: { min: 18, max: 65 },
-        languages: [],
-        education: "Any",
-        relationship: "Any",
         onlineStatus: "Any",
         verifiedOnly: false
     });
     const [saved, setSaved] = useState(false);
     const [expandedSections, setExpandedSections] = useState({
         basic: !isMobile,
-        advanced: false,
-        interests: !isMobile
+        advanced: false
     });
 
     useEffect(() => {
@@ -49,7 +93,7 @@ function Filtersection() {
             const mobile = window.innerWidth <= 600;
             setIsMobile(mobile);
             if (mobile) {
-                setExpandedSections({ basic: false, advanced: false, interests: false });
+                setExpandedSections({ basic: false, advanced: false });
             }
         };
         window.addEventListener('resize', handleResize);
@@ -67,79 +111,34 @@ function Filtersection() {
         setSaved(false);
     };
 
-    const handleAgeChange = (type, value) => {
-        setFilters((prev) => ({
-            ...prev,
-            ageRange: { ...prev.ageRange, [type]: parseInt(value) }
-        }));
-        setSaved(false);
-    };
 
     const toggleSection = (section) => {
         setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
     };
 
-    const applyPreset = (preset) => {
-        setFilters((prev) => ({ ...prev, ...preset.filters }));
-        setSaved(false);
-    };
 
     const resetFilters = () => {
         setFilters({
             country: "",
-            state: "",
             profession: "",
             gender: "Any",
-            distance: 25,
-            lookingFor: "",
-            tags: [],
-            ageRange: { min: 18, max: 65 },
-            languages: [],
-            education: "Any",
-            relationship: "Any",
             onlineStatus: "Any",
             verifiedOnly: false
         });
         setSaved(false);
     };
 
-    const toggleLanguage = (lang) => {
-        setFilters((prev) => ({
-            ...prev,
-            languages: prev.languages.includes(lang)
-                ? prev.languages.filter((item) => item !== lang)
-                : [...prev.languages, lang]
-        }));
-        setSaved(false);
-    };
 
     const getActiveFilterCount = () => {
         let count = 0;
         if (filters.country) count++;
-        if (filters.state) count++;
         if (filters.profession) count++;
         if (filters.gender !== "Any") count++;
-        if (filters.distance !== 25) count++;
-        if (filters.lookingFor) count++;
-        if (filters.tags.length > 0) count++;
-        if (filters.ageRange.min !== 18 || filters.ageRange.max !== 65) count++;
-        if (filters.languages.length > 0) count++;
-        if (filters.education !== "Any") count++;
-        if (filters.relationship !== "Any") count++;
         if (filters.onlineStatus !== "Any") count++;
         if (filters.verifiedOnly) count++;
         return count;
     };
 
-    const toggleTag = (tag) => {
-        setFilters((prev) => ({
-            ...prev,
-            tags: prev.tags.includes(tag)
-                ? prev.tags.filter((item) => item !== tag)
-                : [...prev.tags, tag]
-        }));
-        setSaved(false);
-    };
 
     const handleSave = () => {
         setSaved(true);
@@ -164,23 +163,6 @@ function Filtersection() {
                 </div>
             </div>
 
-            {/* Quick Presets */}
-            {!isMobile && (
-                <div style={styles.presetsSection}>
-                    <span style={styles.presetsLabel}>Quick presets:</span>
-                    <div style={styles.presetsGrid}>
-                        {quickPresets.map((preset) => (
-                            <button
-                                key={preset.name}
-                                onClick={() => applyPreset(preset)}
-                                style={styles.presetButton}
-                            >
-                                {preset.name}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
 
             {/* Basic Filters Section */}
             <div style={{ ...styles.section, ...(isMobile ? styles.sectionMobile : {}) }}>
@@ -206,20 +188,9 @@ function Filtersection() {
                                 />
                             </label>
 
-                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaMapMarkerAlt style={styles.labelIcon} /> State/Region</span>
-                                <input
-                                    type="text"
-                                    name="state"
-                                    placeholder="Enter state"
-                                    value={filters.state}
-                                    onChange={handleChange}
-                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                                />
-                            </label>
 
                             <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaBriefcase style={styles.labelIcon} /> Profession</span>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaBriefcase style={styles.labelIcon} /> People You're Looking For</span>
                                 <select
                                     name="profession"
                                     value={filters.profession}
@@ -252,43 +223,6 @@ function Filtersection() {
                             </label>
                         </div>
 
-                        {/* Age Range */}
-                        <label style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
-                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>Age Range: {filters.ageRange.min} - {filters.ageRange.max} years</span>
-                            <div style={styles.ageRangeContainer}>
-                                <input
-                                    type="range"
-                                    min="18"
-                                    max="65"
-                                    value={filters.ageRange.min}
-                                    onChange={(e) => handleAgeChange('min', e.target.value)}
-                                    style={styles.range}
-                                />
-                                <input
-                                    type="range"
-                                    min="18"
-                                    max="65"
-                                    value={filters.ageRange.max}
-                                    onChange={(e) => handleAgeChange('max', e.target.value)}
-                                    style={styles.range}
-                                />
-                            </div>
-                        </label>
-
-                        {/* Distance */}
-                        <label style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
-                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaMapMarkerAlt style={styles.labelIcon} /> Distance radius: {filters.distance} km</span>
-                            <input
-                                type="range"
-                                name="distance"
-                                min="5"
-                                max="100"
-                                step="5"
-                                value={filters.distance}
-                                onChange={handleChange}
-                                style={styles.range}
-                            />
-                        </label>
                     </div>
                 )}
             </div>
@@ -306,38 +240,6 @@ function Filtersection() {
                     <div style={{ ...styles.sectionContent, ...(isMobile ? styles.sectionContentMobile : {}) }}>
                         <div style={{ ...styles.grid, ...(isMobile ? styles.gridMobile : {}) }}>
                             <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaGraduationCap style={styles.labelIcon} /> Education</span>
-                                <select
-                                    name="education"
-                                    value={filters.education}
-                                    onChange={handleChange}
-                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                                >
-                                    {educationOptions.map((option) => (
-                                        <option key={option} value={option}>
-                                            {option}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-
-                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaHeart style={styles.labelIcon} /> Relationship</span>
-                                <select
-                                    name="relationship"
-                                    value={filters.relationship}
-                                    onChange={handleChange}
-                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                                >
-                                    {relationshipOptions.map((option) => (
-                                        <option key={option} value={option}>
-                                            {option}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-
-                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
                                 <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaClock style={styles.labelIcon} /> Online Status</span>
                                 <select
                                     name="onlineStatus"
@@ -352,46 +254,16 @@ function Filtersection() {
                                     ))}
                                 </select>
                             </label>
-
-                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaGlobe style={styles.labelIcon} /> Languages</span>
-                                <select
-                                    name="language"
-                                    onChange={(e) => toggleLanguage(e.target.value)}
-                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                                >
-                                    <option value="">Add language</option>
-                                    {languageOptions.filter(lang => !filters.languages.includes(lang)).map((option) => (
-                                        <option key={option} value={option}>
-                                            {option}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
                         </div>
-
-                        {/* Selected Languages */}
-                        {filters.languages.length > 0 && (
-                            <div style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>Selected Languages:</span>
-                                <div style={{ ...styles.tagWrap, ...(isMobile ? styles.tagWrapMobile : {}) }}>
-                                    {filters.languages.map((lang) => (
-                                        <button
-                                            key={lang}
-                                            type="button"
-                                            onClick={() => toggleLanguage(lang)}
-                                            style={styles.languageTag}
-                                        >
-                                            {lang} <FaTimes style={styles.tagRemoveIcon} />
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
 
                         {/* Verified Only Toggle */}
                         <label style={{ ...styles.toggleContainer, ...(isMobile ? styles.toggleContainerMobile : {}) }}>
-                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaShieldAlt style={styles.labelIcon} /> Verified profiles only</span>
+                            <div>
+                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaShieldAlt style={styles.labelIcon} /> Verified profiles only</span>
+                                <span style={{ ...styles.noteText, ...(isMobile ? styles.noteTextMobile : {}) }}>
+                                    Show genuine users who are verified and interested in being part of something great
+                                </span>
+                            </div>
                             <button
                                 type="button"
                                 onClick={() => handleChange({ target: { name: 'verifiedOnly', type: 'checkbox', checked: !filters.verifiedOnly } })}
@@ -410,55 +282,6 @@ function Filtersection() {
                 )}
             </div>
 
-            {/* Interests Section */}
-            <div style={{ ...styles.section, ...(isMobile ? styles.sectionMobile : {}) }}>
-                <button 
-                    style={{ ...styles.sectionHeader, ...(isMobile ? styles.sectionHeaderMobile : {}) }}
-                    onClick={() => toggleSection('interests')}
-                >
-                    <span style={{ ...styles.sectionTitle, ...(isMobile ? styles.sectionTitleMobile : {}) }}><FaSlidersH style={styles.sectionIcon} /> Interests & What You're Looking For</span>
-                    {expandedSections.interests ? <FaChevronUp /> : <FaChevronDown />}
-                </button>
-                {expandedSections.interests && (
-                    <div style={{ ...styles.sectionContent, ...(isMobile ? styles.sectionContentMobile : {}) }}>
-                        <label style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
-                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>What you are looking for</span>
-                            <input
-                                type="text"
-                                name="lookingFor"
-                                placeholder="e.g. Work, friendship, dating"
-                                value={filters.lookingFor}
-                                onChange={handleChange}
-                                style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                            />
-                        </label>
-
-                        <div style={{ ...styles.fullWidth, ...(isMobile ? styles.fullWidthMobile : {}) }}>
-                            <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}>Interests & Activities</span>
-                            <div style={{ ...styles.tagWrap, ...(isMobile ? styles.tagWrapMobile : {}) }}>
-                                {tagOptions.map((tag) => {
-                                    const active = filters.tags.includes(tag);
-                                    return (
-                                        <button
-                                            key={tag}
-                                            type="button"
-                                            onClick={() => toggleTag(tag)}
-                                            style={{
-                                                ...styles.tagButton,
-                                                ...(isMobile ? styles.tagButtonMobile : {}),
-                                                ...(active ? styles.tagButtonActive : {})
-                                            }}
-                                        >
-                                            {active && <FaCheck style={styles.tagCheckIcon} />}
-                                            {tag}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
 
             <div style={{ ...styles.actions, ...(isMobile ? styles.actionsMobile : {}) }}>
                 <button type="button" onClick={handleSave} style={{ ...styles.saveButton, ...(isMobile ? styles.saveButtonMobile : {}) }}>
@@ -708,6 +531,13 @@ const styles = {
         borderRadius: "12px",
         border: "2px solid #e8e8e8"
     },
+    noteText: {
+        fontSize: "12px",
+        color: "#666666",
+        fontWeight: 400,
+        marginTop: "4px",
+        display: "block"
+    },
     toggleButton: {
         width: "52px",
         height: "28px",
@@ -848,6 +678,10 @@ const styles = {
     toggleContainerMobile: {
         padding: "8px",
         borderRadius: "8px"
+    },
+    noteTextMobile: {
+        fontSize: "10px",
+        marginTop: "2px"
     },
     actionsMobile: {
         marginTop: "10px"

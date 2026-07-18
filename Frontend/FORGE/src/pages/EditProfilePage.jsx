@@ -12,7 +12,7 @@ function EditProfilePage() {
   const navigate = useNavigate();
   const { supabase } = useAuth();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [profileData, setProfileData] = useState({
+  const [profileData, setProfileData] = useState({ 
     name: '',
     bio: '',
     profession: '',
@@ -26,6 +26,12 @@ function EditProfilePage() {
     avatarUrl: '',
     isServiceProvider: false,
     services: [],
+  });
+  const [visibilitySettings, setVisibilitySettings] = useState({
+    show_name: true,
+    show_bio: true,
+    show_looking_for: true,
+    show_services: true
   });
   const [socialLinks, setSocialLinks] = useState([
     { title: '', url: '' }
@@ -86,6 +92,12 @@ function EditProfilePage() {
               avatarUrl: data.profile.avatar_url || '',
               isServiceProvider: data.profile.is_service_provider || false,
               services: data.profile.services || [],
+            });
+            setVisibilitySettings(data.profile.visibility_settings || {
+              show_name: true,
+              show_bio: true,
+              show_looking_for: true,
+              show_services: true
             });
             setProfessionSearch(data.profile.department || '');
             
@@ -327,106 +339,71 @@ function EditProfilePage() {
   ];
 
   const professionOptions = [
-    'Doctor',
-    'Surgeon',
-    'Nurse',
-    'Dentist',
-    'Pharmacist',
-    'Physiotherapist',
-    'Psychologist',
-    'Psychiatrist',
-    'Veterinarian',
-    'Medical Laboratory Scientist',
+    'AI Agent Developer',
+    'Prompt Engineer',
+    'Robotics Engineer',
+    'Blockchain Developer',
+    'AR/VR Developer',
+    'Quantum Computing Researcher',
+    'Sustainability Consultant',
+    'Climate Scientist',
+    'Ethical Hacker',
+    'Digital Forensics Expert',
+    'Creator Economy Manager',
+    'Space Systems Engineer',
+    'Drone Pilot',
+    'Bioinformatics Scientist',
+    'AI Product Manager',
     'Software Engineer',
+    'AI/ML Engineer',
     'Data Scientist',
-    'AI Engineer',
-    'Machine Learning Engineer',
-    'Cybersecurity Analyst',
+    'Cybersecurity Engineer',
     'Cloud Engineer',
     'DevOps Engineer',
+    'Product Manager',
+    'UI/UX Designer',
     'Full-Stack Developer',
     'Mobile App Developer',
-    'Game Developer',
+    'Doctor (Physician)',
+    'Surgeon',
+    'Dentist',
+    'Pharmacist',
+    'Nurse',
+    'Psychologist',
+    'Physiotherapist',
+    'Veterinarian',
+    'Lawyer',
+    'Judge',
+    'Chartered Accountant (CA)',
+    'Financial Analyst',
+    'Investment Banker',
+    'Entrepreneur',
+    'Startup Founder',
+    'CEO',
+    'Marketing Manager',
+    'Sales Manager',
+    'Human Resources (HR) Manager',
+    'Business Analyst',
     'Civil Engineer',
     'Mechanical Engineer',
     'Electrical Engineer',
-    'Electronics Engineer',
     'Aerospace Engineer',
-    'Chemical Engineer',
-    'Biomedical Engineer',
-    'Robotics Engineer',
     'Architect',
-    'Interior Designer',
-    'Lawyer',
-    'Judge',
-    'Public Prosecutor',
-    'Chartered Accountant',
-    'Financial Analyst',
-    'Investment Banker',
-    'Economist',
-    'Auditor',
-    'Tax Consultant',
-    'Insurance Advisor',
-    'Teacher',
+    'Scientist',
+    'Researcher',
     'Professor',
-    'School Principal',
-    'Research Scientist',
-    'Lecturer',
-    'Business Analyst',
-    'Product Manager',
-    'Project Manager',
-    'Operations Manager',
-    'Human Resources Manager',
-    'Marketing Manager',
-    'Sales Manager',
-    'Digital Marketing Specialist',
-    'Entrepreneur',
-    'Startup Founder',
-    'CEO (Chief Executive Officer)',
-    'COO (Chief Operating Officer)',
-    'CTO (Chief Technology Officer)',
+    'School Teacher',
     'Journalist',
-    'News Anchor',
-    'Content Writer',
-    'Copywriter',
-    'Technical Writer',
-    'Editor',
+    'Content Creator',
     'Graphic Designer',
-    'UI/UX Designer',
-    'Animator',
-    'Video Editor',
     'Photographer',
-    'Filmmaker',
-    'Music Producer',
-    'Singer',
-    'Actor',
-    'Voice Artist',
-    'YouTuber',
-    'Social Media Manager',
-    'Influencer',
+    'Film Director',
     'Pilot',
     'Air Traffic Controller',
-    'Flight Attendant',
-    'Merchant Navy Officer',
-    'Ship Captain',
     'Police Officer',
     'Firefighter',
-    'Soldier',
-    'Intelligence Officer',
-    'Emergency Medical Technician (EMT)',
-    'Paramedic',
-    'Chef',
-    'Hotel Manager',
-    'Event Manager',
-    'Real Estate Agent',
-    'Urban Planner',
-    'Environmental Scientist',
-    'Agricultural Scientist',
-    'Farmer',
-    'Supply Chain Manager',
-    'Logistics Manager',
-    'Electrician',
-    'Plumber',
+    'Military Officer',
+    'Social Worker'
   ];
 
   const filteredProfessions = professionOptions.filter((profession) =>
@@ -573,7 +550,8 @@ function EditProfilePage() {
           longitude: profileData.locationCoordinates?.longitude || null,
           socialLinks: socialLinks,
           isServiceProvider: profileData.isServiceProvider,
-          services: profileData.services
+          services: profileData.services,
+          visibilitySettings: visibilitySettings
         })
       });
 
@@ -1370,6 +1348,63 @@ function EditProfilePage() {
             >
               + Add Another Link
             </button>
+          </div>
+
+          <div style={{ marginBottom: isMobile ? '18px' : '22px' }}>
+            <label style={labelStyle}>
+              Profile Visibility Settings
+            </label>
+            <div style={{ 
+              background: 'rgba(255, 255, 255, 0.5)',
+              borderRadius: isMobile ? '12px' : '16px',
+              padding: isMobile ? '16px' : '20px',
+              border: '1px solid rgba(31, 23, 18, 0.12)'
+            }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? '12px' : '16px' }}>
+                {[
+                  { key: 'show_name', label: 'Show Name' },
+                  { key: 'show_bio', label: 'Show Bio' },
+                  { key: 'show_looking_for', label: 'Show Looking For' },
+                  { key: 'show_services', label: 'Show Services' }
+                ].map(({ key, label }) => (
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: isMobile ? '0.85rem' : '0.9rem', color: 'var(--app-text)' }}>{label}</span>
+                    <button
+                      type="button"
+                      onClick={() => setVisibilitySettings(prev => ({ ...prev, [key]: !prev[key] }))}
+                      style={{
+                        width: isMobile ? '44px' : '48px',
+                        height: isMobile ? '24px' : '26px',
+                        borderRadius: isMobile ? '12px' : '13px',
+                        background: visibilitySettings[key] 
+                          ? 'linear-gradient(135deg, #ef6f96, #513041)' 
+                          : 'rgba(31, 23, 18, 0.2)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        position: 'relative',
+                        transition: 'background 0.3s ease',
+                        padding: 0
+                      }}
+                    >
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: isMobile ? '2px' : '3px',
+                          left: visibilitySettings[key] ? 'auto' : isMobile ? '2px' : '3px',
+                          right: visibilitySettings[key] ? isMobile ? '2px' : '3px' : 'auto',
+                          width: isMobile ? '20px' : '22px',
+                          height: isMobile ? '20px' : '22px',
+                          borderRadius: '50%',
+                          background: 'white',
+                          transition: 'left 0.3s ease, right 0.3s ease',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                        }}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <button

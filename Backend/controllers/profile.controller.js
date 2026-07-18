@@ -7,7 +7,7 @@ exports.updateProfile = async (req, res) => {
     console.log('Received profile update request');
     console.log('Request body:', req.body);
     
-    const { uid, name, bio, profession, domain, lookingFor, contactNumber, avatarUrl, gender, location, latitude, longitude, socialLinks, isServiceProvider, services } = req.body;
+    const { uid, name, bio, profession, domain, lookingFor, contactNumber, avatarUrl, gender, location, latitude, longitude, socialLinks, isServiceProvider, services, visibilitySettings } = req.body;
 
     // Use uid from request body
     const targetUid = uid;
@@ -49,6 +49,15 @@ exports.updateProfile = async (req, res) => {
       profile.longitude = longitude || null;
       profile.is_service_provider = isServiceProvider || false;
       profile.services = services || [];
+      
+      // Update visibility settings if provided
+      if (visibilitySettings) {
+        profile.visibility_settings = {
+          ...profile.visibility_settings.toObject ? profile.visibility_settings.toObject() : profile.visibility_settings,
+          ...visibilitySettings
+        };
+      }
+      
       // Don't update is_verified - this should only be set by payment system
       
       // Update social links based on titles
@@ -123,6 +132,12 @@ exports.updateProfile = async (req, res) => {
         services: services || [],
         is_verified: false,
         payment_date: null,
+        visibility_settings: visibilitySettings || {
+          show_name: true,
+          show_bio: true,
+          show_looking_for: true,
+          show_services: true
+        }
       });
       console.log('Profile created:', profile._id);
 

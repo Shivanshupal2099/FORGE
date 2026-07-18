@@ -10,6 +10,7 @@ import ChatPage from './pages/ChatPage';
 import MapPage from './pages/MapPage';
 import ProfilePage from './pages/ProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
+import UserEventsPage from './pages/UserEventsPage';
 import SettingPage from './pages/SettingPage';
 import Survey from './Components/Survey';
 import AuthCallback from './pages/AuthCallback';
@@ -34,6 +35,7 @@ function App() {
             <Route path="/map" element={<MapPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/profile/edit" element={<EditProfilePage />} />
+            <Route path="/profile/events" element={<UserEventsPage />} />
             <Route path="/settings" element={<SettingPage />} />
             <Route path="/survey" element={<Survey />} />
             <Route path="/auth/callback" element={<AuthCallback />} />

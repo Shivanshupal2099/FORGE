@@ -7,27 +7,16 @@ import {
   FaGlobe,
   FaUsers,
   FaTicketAlt,
-  FaPhoneAlt,
   FaUserTie,
 } from 'react-icons/fa';
-
-const LS_EVENTS_KEY = 'forge_events';
-
-function safeParse(value, fallback) {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return fallback;
-  }
-}
+import { useAuth } from '../contexts/AuthContext';
 
 function Event({ onClose }) {
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
-
-  const [coverImageFile, setCoverImageFile] = useState(null);
-  const [coverImagePreviewUrl, setCoverImagePreviewUrl] = useState('');
 
   const [onlineType, setOnlineType] = useState('Offline'); // Online / Offline / Hybrid
   const [locationOrLink, setLocationOrLink] = useState('');
@@ -39,7 +28,6 @@ function Event({ onClose }) {
   const [endTime, setEndTime] = useState('');
 
   const [organizer, setOrganizer] = useState('');
-  const [organizerContact, setOrganizerContact] = useState('');
 
   const [registrationRequired, setRegistrationRequired] = useState(false);
   const [maxAttendees, setMaxAttendees] = useState('');
@@ -61,20 +49,6 @@ function Event({ onClose }) {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
-
-  useEffect(() => {
-    if (!coverImageFile) {
-      setCoverImagePreviewUrl('');
-      return;
-    }
-
-    const url = URL.createObjectURL(coverImageFile);
-    setCoverImagePreviewUrl(url);
-
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [coverImageFile]);
 
   const computedStart = useMemo(() => {
     if (!startDate || !startTime) return null;
@@ -112,13 +86,10 @@ function Event({ onClose }) {
   };
 
   const buildPayload = () => {
-    // coverImageFile is a File; we do NOT persist the file itself.
-    // ActiveEvent will show events without cover image (or just ignore it).
     const payload = {
       title: title.trim(),
       description: description.trim(),
       category: category || null,
-      coverImage: null,
 
       onlineType,
       locationOrLink: locationOrLink.trim() || null,
@@ -128,7 +99,6 @@ function Event({ onClose }) {
         computedEnd != null ? new Date(computedEnd).toISOString() : null,
 
       organizer: organizer.trim() || null,
-      organizerContact: organizerContact.trim() || null,
 
       registrationRequired,
       maxAttendees: registrationRequired ? Number(maxAttendees) : null,
@@ -144,22 +114,44 @@ function Event({ onClose }) {
     return payload;
   };
 
-  const persistEvent = (payload) => {
-    const existing = safeParse(localStorage.getItem(LS_EVENTS_KEY), []);
-    const list = Array.isArray(existing) ? existing : [];
+  const persistEvent = async (payload) => {
+    try {
+      setIsLoading(true);
+      
+      // Get user's email as UID
+      const uid = user?.email;
+      if (!uid) {
+        throw new Error('User not authenticated');
+      }
 
-    const next = [
-      {
-        id: Date.now(),
-        ...payload,
-      },
-      ...list,
-    ];
+      const response = await fetch('http://localhost:5000/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          uid,
+          ...payload
+        })
+      });
 
-    localStorage.setItem(LS_EVENTS_KEY, JSON.stringify(next.slice(0, 50)));
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to create event');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error creating event:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleAction = (status) => {
+  const handleAction = async (status) => {
     setDraftStatus(status);
 
     const err = validate();
@@ -169,54 +161,51 @@ function Event({ onClose }) {
     }
 
     // Build payload with the selected status.
-    const prevDraftStatus = draftStatus;
     const payload = buildPayload();
     payload.status = status;
 
-    persistEvent(payload);
+    try {
+      await persistEvent(payload);
 
-    alert(
-      status === 'published'
-        ? `Event "${payload.title}" published successfully!`
-        : `Event "${payload.title}" saved as draft successfully!`
-    );
+      alert(
+        status === 'published'
+          ? `Event "${payload.title}" published successfully!`
+          : `Event "${payload.title}" saved as draft successfully!`
+      );
 
-    // Reset
-    setTitle('');
-    setDescription('');
-    setCategory('');
-    setCoverImageFile(null);
-    setCoverImagePreviewUrl('');
+      // Reset
+      setTitle('');
+      setDescription('');
+      setCategory('');
 
-    setOnlineType('Offline');
-    setLocationOrLink('');
+      setOnlineType('Offline');
+      setLocationOrLink('');
 
-    setStartDate('');
-    setStartTime('');
-    setEndDate('');
-    setEndTime('');
+      setStartDate('');
+      setStartTime('');
+      setEndDate('');
+      setEndTime('');
 
-    setOrganizer('');
-    setOrganizerContact('');
+      setOrganizer('');
 
-    setRegistrationRequired(false);
-    setMaxAttendees('');
+      setRegistrationRequired(false);
+      setMaxAttendees('');
 
-    setVisibility('Public');
-    setPriceType('Free');
+      setVisibility('Public');
+      setPriceType('Free');
 
-    setContactInformation('');
+      setContactInformation('');
 
-    // keep behavior: close after action
-    onClose?.();
-
-    // avoid eslint unused warning (and keep logic deterministic)
-    void prevDraftStatus;
+      // keep behavior: close after action
+      onClose?.();
+    } catch (error) {
+      alert(`Failed to ${status === 'published' ? 'publish' : 'save'} event: ${error.message}`);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    handleAction('published');
+    await handleAction('published');
   };
 
   return (
@@ -388,42 +377,6 @@ function Event({ onClose }) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="event-organizer-contact">
-                <FaPhoneAlt aria-hidden="true" /> Contact information
-              </label>
-              <input
-                type="text"
-                id="event-organizer-contact"
-                value={organizerContact}
-                onChange={(e) => setOrganizerContact(e.target.value)}
-                placeholder="Email or phone (for organizer)"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="event-cover">Cover image</label>
-              <input
-                type="file"
-                id="event-cover"
-                accept="image/*"
-                onChange={(e) => setCoverImageFile(e.target.files?.[0] || null)}
-              />
-              {coverImagePreviewUrl ? (
-                <img
-                  src={coverImagePreviewUrl}
-                  alt="Cover preview"
-                  style={{
-                    width: '100%',
-                    maxHeight: 160,
-                    objectFit: 'cover',
-                    borderRadius: 12,
-                    marginTop: 10,
-                  }}
-                />
-              ) : null}
-            </div>
-
-            <div className="form-group">
               <label htmlFor="event-registration-required">
                 <FaUsers aria-hidden="true" /> Registration required
               </label>
@@ -528,7 +481,7 @@ function Event({ onClose }) {
           </div>
 
           <div className="home-popup-actions">
-            <button type="button" className="button-secondary" onClick={onClose}>
+            <button type="button" className="button-secondary" onClick={onClose} disabled={isLoading}>
               Cancel
             </button>
 
@@ -536,12 +489,13 @@ function Event({ onClose }) {
               type="button"
               className="button-secondary"
               onClick={() => handleAction('draft')}
+              disabled={isLoading}
             >
-              Save as Draft
+              {isLoading ? 'Saving...' : 'Save as Draft'}
             </button>
 
-            <button type="submit" className="button-primary">
-              <FaCalendarAlt aria-hidden="true" /> Publish
+            <button type="submit" className="button-primary" disabled={isLoading}>
+              <FaCalendarAlt aria-hidden="true" /> {isLoading ? 'Publishing...' : 'Publish'}
             </button>
           </div>
         </form>

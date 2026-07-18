@@ -7,6 +7,7 @@ const authRoutes=require('./routes/auth.routes')
 const profileRoutes=require('./routes/profile.routes')
 const surveyRoutes=require('./routes/survey.routes')
 const locationRoutes=require('./routes/location.routes')
+const eventRoutes=require('./routes/event.routes')
 const { ConnectDB }=require('./config/database')
 const { activityMiddleware, markInactiveUsersOffline }=require('./middlewares/activity.middleware')
 
@@ -30,6 +31,7 @@ app.use('/api/auth',authRoutes)
 app.use('/api/profile',profileRoutes)
 app.use('/api/survey',surveyRoutes)
 app.use('/api/location',locationRoutes)
+app.use('/api/events',eventRoutes)
 
 
 

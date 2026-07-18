@@ -1001,6 +1001,203 @@
   }
 }
 
+/* Event Form Styles */
+.event-form {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.event-form__main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.event-form__sidebar {
+  position: sticky;
+  top: 0;
+  height: fit-content;
+}
+
+.event-form__preview {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 24px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
+}
+
+.event-form__preview-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  opacity: 0.9;
+}
+
+.event-form__preview-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  line-height: 1.3;
+}
+
+.event-form__preview-date {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin: 6px 0;
+  font-weight: 500;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 14px 16px;
+  border: 2px solid #e8e8e8;
+  border-radius: 14px;
+  font-size: 1rem;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  outline: none;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-row .form-group {
+  gap: 8px;
+}
+
+/* Mobile Event Form */
+@media (max-width: 768px) {
+  .event-form {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .event-form__sidebar {
+    position: static;
+    order: -1;
+  }
+
+  .event-form__preview {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .event-form__preview-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  .event-form__preview-text {
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+  }
+
+  .event-form__preview-date {
+    font-size: 0.85rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+  }
+
+  .form-group textarea {
+    min-height: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-form {
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .event-form__main {
+    gap: 14px;
+  }
+
+  .event-form__preview {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .event-form__preview-icon {
+    font-size: 1.8rem;
+  }
+
+  .event-form__preview-text {
+    font-size: 1rem;
+  }
+
+  .event-form__preview-date {
+    font-size: 0.8rem;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .form-group textarea {
+    min-height: 70px;
+  }
+}
+
 .profile-card {
   width: min(100%, 860px);
   max-width: 860px;
@@ -1596,6 +1793,142 @@
 .settings-note svg {
   flex-shrink: 0;
   color: var(--app-text);
+}
+
+.settings-danger-zone {
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 16px;
+}
+
+.settings-delete-button {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.settings-delete-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.settings-delete-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 2000;
+}
+
+.settings-delete-dialog {
+  background: white;
+  border-radius: 20px;
+  padding: 28px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.settings-delete-dialog__header {
+  margin-bottom: 20px;
+}
+
+.settings-delete-dialog__header h2 {
+  margin: 0 0 8px;
+  color: #1f172a;
+  font-size: 1.5rem;
+}
+
+.settings-delete-dialog__header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.settings-delete-dialog__content {
+  margin-bottom: 20px;
+}
+
+.settings-delete-dialog__content label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.settings-delete-dialog__content input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: border-color 0.2s ease;
+}
+
+.settings-delete-dialog__content input:focus {
+  outline: none;
+  border-color: #ef4444;
+}
+
+.settings-delete-dialog__content input:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.settings-delete-dialog__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.settings-delete-confirm {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+}
+
+.settings-delete-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+::root[data-theme='mono'] .settings-danger-zone {
+  background: rgba(239, 68, 68, 0.1);
+  border: 2px solid #ef4444;
+}
+
+::root[data-theme='mono'] .settings-delete-dialog {
+  border: 2px solid #111111;
+  background: #ffffff;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+::root[data-theme='mono'] .settings-delete-dialog__header h2 {
+  color: #111111;
+}
+
+::root[data-theme='mono'] .settings-delete-dialog__content input {
+  border: 2px solid #111111;
+  background: #ffffff;
+}
+
+::root[data-theme='mono'] .settings-delete-dialog__content input:focus {
+  border-color: #ef4444;
 }
 
 :root[data-theme='mono'] .settings-page {

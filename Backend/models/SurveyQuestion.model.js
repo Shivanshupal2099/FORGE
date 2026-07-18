@@ -52,7 +52,13 @@ const surveySchema = new mongoose.Schema(
 
     expires_at: {
       type: Date,
-      default: null
+      default: function() {
+        // Default to 24 hours from creation
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        return expiresAt;
+      },
+      required: true
     }
   },
   {
@@ -65,6 +71,12 @@ const surveySchema = new mongoose.Schema(
 
 surveySchema.index({ creator_id: 1 });
 surveySchema.index({ status: 1 });
-surveySchema.index({ expires_at: 1 });
+
+// TTL index to auto-delete surveys after 24 hours
+surveySchema.index({ expires_at: 1 }, { 
+  expireAfterSeconds: 0,
+  name: 'survey_ttl_index'
+});
 
 export default mongoose.model("Survey", surveySchema);
+

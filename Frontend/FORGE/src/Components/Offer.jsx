@@ -97,12 +97,6 @@ function Offer({ onClose }) {
           >
             <FaPlus aria-hidden="true" /> {showCreateForm ? 'Cancel' : 'Create Offer'}
           </button>
-          <button type="button" className="button-secondary">
-            Redeem Offer
-          </button>
-          <button type="button" className="button-secondary">
-            My Redemptions
-          </button>
         </div>
 
         {showCreateForm && (

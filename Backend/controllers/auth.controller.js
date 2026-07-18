@@ -191,3 +191,108 @@ exports.getUserStatus = async (req, res) => {
         });
     }
 };
+
+exports.deleteAccount = async (req, res) => {
+    try {
+        // Get user from authentication middleware
+        const user = req.user;
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated'
+            });
+        }
+
+        const uid = user.uid;
+        const email = user.email;
+        const userId = user._id;
+
+        // Find user by email
+        const userToDelete = await User.findOne({ email });
+
+        if (!userToDelete) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Delete user's profile
+        await Profile.deleteOne({ uid });
+
+        // Delete user's location data
+        const UserLocation = require('../models/UserLocation.model');
+        await UserLocation.deleteOne({ uid });
+
+        // Delete user's notifications
+        const Notification = require('../models/Notification.model');
+        await Notification.deleteMany({ user_id: userId });
+
+        // Delete user's connections (as requester or receiver)
+        const Connection = require('../models/Connection.model');
+        await Connection.deleteMany({
+            $or: [
+                { requester_id: userId },
+                { receiver_id: userId }
+            ]
+        });
+
+        // Delete user's blocks (as blocker or blocked)
+        const BlockedUser = require('../models/BlockUser.model');
+        await BlockedUser.deleteMany({
+            $or: [
+                { blocker_id: userId },
+                { blocked_id: userId }
+            ]
+        });
+
+        // Delete user's event attendances
+        const EventAttendee = require('../models/EventAttandes.model');
+        await EventAttendee.deleteMany({ user_id: userId });
+
+        // Delete user's created surveys
+        const Survey = require('../models/Survey.model');
+        await Survey.deleteMany({ creator_id: userId });
+
+        // Delete user's push tokens
+        const PushToken = require('../models/PushToken.model');
+        await PushToken.deleteMany({ user_id: userId });
+
+        // Delete user's reports (as reporter or reported user)
+        const Report = require('../models/Reports.model');
+        await Report.deleteMany({
+            $or: [
+                { reporter_id: userId },
+                { reported_user_id: userId },
+                { reviewed_by: userId }
+            ]
+        });
+
+        // Delete user's transactions
+        const Transaction = require('../models/Transaction.model');
+        await Transaction.deleteMany({ user_id: userId });
+
+        // Delete user's sessions
+        const UserSession = require('../models/UserSession.model');
+        await UserSession.deleteMany({ user_id: userId });
+
+        // Mark user as offline before deletion
+        await markUserOffline(uid);
+
+        // Delete the user
+        await User.deleteOne({ email });
+
+        res.json({
+            success: true,
+            message: 'Account and all associated data deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete account',
+            error: error.message
+        });
+    }
+};

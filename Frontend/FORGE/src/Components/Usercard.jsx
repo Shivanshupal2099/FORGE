@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import './Usercard.css';
 
-const Usercard = ({ user, onClose }) => {
+const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   const [isOnline, setIsOnline] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(true);
+
+  const settings = visibilitySettings || {
+    show_name: true,
+    show_bio: true,
+    show_profession: true,
+    show_domain: true,
+    show_location: true,
+    show_social_links: true,
+    show_looking_for: true,
+    show_services: true
+  };
+
+  // Check if this is the current user's own card
+  const isOwnUser = user?.email === currentUserEmail;
 
   useEffect(() => {
     const fetchUserStatus = async () => {
@@ -64,14 +78,14 @@ const Usercard = ({ user, onClose }) => {
           </div>
           <div className="usercard__headerInfo">
             <h2 className="usercard__name">
-              {user.name}
+              {settings.show_name ? user.name : 'Anonymous'}
               {user.isVerified && <span className="usercard__verifiedText">Verified</span>}
             </h2>
-            <p className="usercard__profession">{user.profession}</p>
+            {settings.show_profession && <p className="usercard__profession">{user.profession}</p>}
             <div className="usercard__status">
-              <span 
+              <span
                 className={`usercard__statusDot ${isOnline ? 'usercard__statusDot--online' : 'usercard__statusDot--offline'}`}
-                style={{ 
+                style={{
                   backgroundColor: loadingStatus ? '#ccc' : (isOnline ? '#10b981' : '#ef4444')
                 }}
               />
@@ -81,25 +95,15 @@ const Usercard = ({ user, onClose }) => {
         </div>
 
         {/* Bio */}
-        {user.bio && (
+        {user.bio && settings.show_bio && (
           <div className="usercard__section">
             <h3 className="usercard__sectionTitle">About</h3>
             <p className="usercard__bio">{user.bio}</p>
           </div>
         )}
 
-        {/* Visibility */}
-        <div className="usercard__section">
-          <h3 className="usercard__sectionTitle">Visibility</h3>
-          <div className="usercard__visibility">
-            <span className={`usercard__visibilityBadge ${user.visibility?.toLowerCase()}`}>
-              {user.visibility || 'Public'}
-            </span>
-          </div>
-        </div>
-
         {/* Looking For */}
-        {user.lookingFor && user.lookingFor.length > 0 && (
+        {user.lookingFor && user.lookingFor.length > 0 && settings.show_looking_for && (
           <div className="usercard__section">
             <h3 className="usercard__sectionTitle">Looking For</h3>
             <div className="usercard__tags">
@@ -113,7 +117,7 @@ const Usercard = ({ user, onClose }) => {
         )}
 
         {/* Social Links */}
-        {user.socialLinks && Object.keys(user.socialLinks).length > 0 && (
+        {user.socialLinks && Object.keys(user.socialLinks).length > 0 && settings.show_social_links && (
           <div className="usercard__section">
             <h3 className="usercard__sectionTitle">Social Links</h3>
             <div className="usercard__socialLinks">
@@ -142,14 +146,16 @@ const Usercard = ({ user, onClose }) => {
         )}
 
         {/* Action Buttons */}
-        <div className="usercard__actions">
-          <button className="usercard__actionButton usercard__actionButton--primary">
-            Message
-          </button>
-          <button className="usercard__actionButton usercard__actionButton--secondary">
-            Connect
-          </button>
-        </div>
+        {!isOwnUser && (
+          <div className="usercard__actions">
+            <button className="usercard__actionButton usercard__actionButton--primary">
+              Message
+            </button>
+            <button className="usercard__actionButton usercard__actionButton--secondary">
+              Connect
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

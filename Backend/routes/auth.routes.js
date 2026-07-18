@@ -23,4 +23,7 @@ router.post("/logout", authMiddleware, authController.logout);
 // Get user online status
 router.get("/status/:uid", authController.getUserStatus);
 
+// Delete account
+router.delete("/delete-account", authMiddleware, authController.deleteAccount);
+
 module.exports = router;

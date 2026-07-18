@@ -134,6 +134,26 @@ const profileSchema = new mongoose.Schema(
     payment_date: {
       type: Date,
       default: null
+    },
+
+    // Visibility settings for public profile
+    visibility_settings: {
+      show_name: {
+        type: Boolean,
+        default: true
+      },
+      show_bio: {
+        type: Boolean,
+        default: true
+      },
+      show_looking_for: {
+        type: Boolean,
+        default: true
+      },
+      show_services: {
+        type: Boolean,
+        default: true
+      }
     }
   },
   {

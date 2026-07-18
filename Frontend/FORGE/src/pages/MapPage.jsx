@@ -5,8 +5,8 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import NavigationBar from '../Components/NavigationBar'
 import Header from '../Components/Header'
 import Filtersection from '../Components/Filtersection'
-import EventFiltersection from '../Components/EventFiltersection'
 import Usercard from '../Components/Usercard'
+import { useAuth } from '../contexts/AuthContext'
 // import { MAPBOX_ACCESS_TOKEN, MAPBOX_STYLE_URI } from '../mapboxConfig'
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -16,6 +16,7 @@ const MAPBOX_STYLE_URI=import.meta.env.VITE_MAPBOX_STYLE_URI;
 
 
 function Map() {
+  const { user } = useAuth();
   const mapRef = useRef()
   const mapContainerRef = useRef()
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -55,6 +56,16 @@ function Map() {
             linkedin: profile.linkedin_url,
             github: profile.github_url,
             twitter: profile.portfolio_url
+          },
+          visibilitySettings: profile.visibility_settings || {
+            show_name: true,
+            show_bio: true,
+            show_profession: true,
+            show_domain: true,
+            show_location: true,
+            show_social_links: true,
+            show_looking_for: true,
+            show_services: true
           }
         }
         setSelectedUser(userData)
@@ -238,17 +249,6 @@ function Map() {
     ...buttonCommon
   }
 
-  const [activeFilterTab, setActiveFilterTab] = useState('people')
-
-  const [eventFilters, setEventFilters] = useState({
-    query: '',
-    category: 'Any',
-    tags: [],
-    freeOnly: false,
-    paidOnly: false,
-    dateDays: 30
-  })
-
   const _markersRef = useRef([])
 
   const events = useMemo(() => {
@@ -368,51 +368,7 @@ function Map() {
               ×
             </button>
 
-            <div style={{ display: 'flex', gap: 12, marginBottom: 16, marginTop: 18 }}>
-              <button
-                type='button'
-                onClick={() => setActiveFilterTab('people')}
-                style={{
-                  flex: 1,
-                  padding: '12px 14px',
-                  borderRadius: 14,
-                  border: '2px solid #e5e7eb',
-                  background: activeFilterTab === 'people' ? 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)' : '#fff',
-                  color: activeFilterTab === 'people' ? '#fff' : '#0f172a',
-                  fontWeight: 900,
-                  cursor: 'pointer'
-                }}
-              >
-                People
-              </button>
-              <button
-                type='button'
-                onClick={() => setActiveFilterTab('event')}
-                style={{
-                  flex: 1,
-                  padding: '12px 14px',
-                  borderRadius: 14,
-                  border: '2px solid #e5e7eb',
-                  background: activeFilterTab === 'event' ? 'linear-gradient(135deg, #34d399 0%, #10b981 100%)' : '#fff',
-                  color: activeFilterTab === 'event' ? '#fff' : '#0f172a',
-                  fontWeight: 900,
-                  cursor: 'pointer'
-                }}
-              >
-                Event
-              </button>
-            </div>
-
-            {activeFilterTab === 'people' ? (
-              <Filtersection />
-            ) : (
-              <EventFiltersection
-                initialFilters={eventFilters}
-                onApply={(next) => {
-                  setEventFilters(next)
-                }}
-              />
-            )}
+            <Filtersection />
           </div>
         </div>
       )}
@@ -420,7 +376,9 @@ function Map() {
       {selectedUser && (
         <Usercard 
           user={selectedUser} 
-          onClose={() => setSelectedUser(null)} 
+          onClose={() => setSelectedUser(null)}
+          visibilitySettings={selectedUser.visibilitySettings}
+          currentUserEmail={user?.email}
         />
       )}
 

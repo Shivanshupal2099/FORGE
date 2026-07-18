@@ -7,6 +7,9 @@ import { useAuth } from '../contexts/AuthContext';
 import maleImage from '../assets/male.png';
 import femaleImage from '../assets/female.png';
 
+
+
+
 function ProfilePage() {
   const { user, userId, signOut } = useAuth();
   const [profile, setProfile] = useState(null);
@@ -102,17 +105,91 @@ function ProfilePage() {
             </div>
           </div>
           <div className="profile-card__actions">
-            <Link to="/profile/edit" className="profile-card__edit-button">
-              Edit Profile
+            <Link 
+              to="/profile/edit" 
+              className="profile-card__edit-button"
+              style={{
+                padding: '12px 20px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#ffffff',
+                fontWeight: '700',
+                fontSize: '0.9rem',
+                border: 'none',
+                textDecoration: 'none',
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                transition: 'all 0.3s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+              }}
+            >
+              <IoSettingsSharp /> Edit Profile
+            </Link>
+            <Link 
+              to="/profile/events" 
+              className="profile-card__edit-button"
+              style={{
+                padding: '12px 20px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                color: '#ffffff',
+                fontWeight: '700',
+                fontSize: '0.9rem',
+                border: 'none',
+                textDecoration: 'none',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                transition: 'all 0.3s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginLeft: '8px',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+              }}
+            >
+              My Events
             </Link>
             {!profile?.is_verified && (
               <button
                 onClick={() => setShowVerificationPopup(true)}
-                className="profile-card__edit-button"
-                style={{ 
+                style={{
+                  padding: '12px 20px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                  color: '#ffffff',
+                  fontWeight: '700',
+                  fontSize: '0.9rem',
+                  border: 'none',
+                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+                  transition: 'all 0.3s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
                   marginLeft: '8px',
-                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                  border: 'none'
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
                 }}
               >
                 Get Verified
@@ -120,12 +197,38 @@ function ProfilePage() {
             )}
             <button
               onClick={handleSignOut}
-              className="profile-card__edit-button"
-              style={{ marginLeft: '8px' }}
+              style={{
+                padding: '12px 20px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                color: '#ffffff',
+                fontWeight: '700',
+                fontSize: '0.9rem',
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                transition: 'all 0.3s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginLeft: '8px',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 20px rgba(239, 68, 68, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+              }}
             >
               Sign Out
             </button>
-            <Link to="/settings" className="profile-card__settings-button">
+            <Link 
+              to="/settings" 
+              className="profile-card__settings-button"
+              aria-label="Settings"
+            >
               <IoSettingsSharp />
             </Link>
           </div>

@@ -7,6 +7,7 @@ import Request from '../Components/Request';
 import Donation from '../Components/Donation';
 import Tokens from '../Components/Tokens';
 import Offer from '../Components/Offer';
+import WelcomeCard from '../Components/WelcomeCard';
 import { useAuth } from '../contexts/AuthContext';
 
 
@@ -92,6 +93,8 @@ function HomePage() {
       </div>
       <NavigationBar />
 
+      <WelcomeCard />
+      
       {activePopup === 'request' && <Request onClose={() => setActivePopup(null)} />}
       {activePopup === 'donation' && <Donation onClose={() => setActivePopup(null)} />}
       {activePopup === 'tokens' && <Tokens onClose={() => setActivePopup(null)} />}

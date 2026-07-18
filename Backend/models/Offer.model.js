@@ -56,18 +56,6 @@ const offerSchema = new mongoose.Schema(
       default: null
     },
 
-    max_claims: {
-      type: Number,
-      min: 1,
-      default: null
-    },
-
-    current_claims: {
-      type: Number,
-      min: 0,
-      default: 0
-    },
-
     is_active: {
       type: Boolean,
       default: true

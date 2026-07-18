@@ -16,7 +16,6 @@ const notificationSchema = new mongoose.Schema(
         "match_nearby",
         "event_reminder",
         "message",
-        "offer_claim",
         "survey_reward"
       ],
       required: true

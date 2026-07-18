@@ -2,34 +2,36 @@ import { useEffect, useMemo, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import EventFiltersection from './EventFiltersection';
 
-const LS_EVENTS_KEY = 'forge_events';
-
-function safeParse(value, fallback) {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return fallback;
-  }
-}
-
 function ActiveEvent({ onClose }) {
   const [filters, setFilters] = useState(null);
-
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load events from localStorage
-    const load = () => {
-      const stored = safeParse(localStorage.getItem(LS_EVENTS_KEY), []);
-      // Only keep published events
-      setEvents(Array.isArray(stored) ? stored.filter((e) => e?.status === 'published') : []);
+    // Load events from backend API
+    const loadEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:5000/api/events', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          // Only keep published events
+          setEvents(Array.isArray(data.events) ? data.events.filter((e) => e?.status === 'published') : []);
+        }
+      } catch (error) {
+        console.error('Error loading events:', error);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    load();
-
-    const onStorage = () => load();
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    loadEvents();
   }, []);
 
   useEffect(() => {
@@ -109,8 +111,11 @@ function ActiveEvent({ onClose }) {
         <div className="home-popup-section" style={{ padding: '14px 16px' }}>
           <h3 className="home-popup-section__title">Published Events</h3>
 
-
-          {filteredEvents.length === 0 ? (
+          {loading ? (
+            <p style={{ margin: '10px 0', color: '#64748b', fontWeight: 700 }}>
+              Loading events...
+            </p>
+          ) : filteredEvents.length === 0 ? (
             <p style={{ margin: '10px 0', color: '#64748b', fontWeight: 700 }}>
               No published events found.
             </p>
@@ -129,7 +134,7 @@ function ActiveEvent({ onClose }) {
 
                 return (
                   <li
-                    key={ev.id || ev.title || idx}
+                    key={ev._id || ev.title || idx}
                     className="home-popup-list__item"
                     style={{
                       display: 'flex',
