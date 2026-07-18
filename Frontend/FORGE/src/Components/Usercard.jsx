@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './Usercard.css';
+import VerificationPopup from './VerificationPopup';
+import { useAuth } from '../contexts/AuthContext';
 
 const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
+  const { user: currentUser } = useAuth();
   const [isOnline, setIsOnline] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(true);
+  const [showVerificationPopup, setShowVerificationPopup] = useState(false);
 
   const settings = visibilitySettings || {
     show_name: true,
@@ -18,6 +22,26 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
 
   // Check if this is the current user's own card
   const isOwnUser = user?.email === currentUserEmail;
+
+  const handleConnectClick = () => {
+    // Check if current user is verified
+    if (!currentUser?.user_metadata?.is_verified) {
+      setShowVerificationPopup(true);
+      return;
+    }
+    // TODO: Implement actual connection logic
+    console.log('Connect to user:', user.email);
+  };
+
+  const handleMessageClick = () => {
+    // Check if current user is verified
+    if (!currentUser?.user_metadata?.is_verified) {
+      setShowVerificationPopup(true);
+      return;
+    }
+    // TODO: Implement actual messaging logic
+    console.log('Message user:', user.email);
+  };
 
   useEffect(() => {
     const fetchUserStatus = async () => {
@@ -148,15 +172,25 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
         {/* Action Buttons */}
         {!isOwnUser && (
           <div className="usercard__actions">
-            <button className="usercard__actionButton usercard__actionButton--primary">
+            <button 
+              className="usercard__actionButton usercard__actionButton--primary"
+              onClick={handleMessageClick}
+            >
               Message
             </button>
-            <button className="usercard__actionButton usercard__actionButton--secondary">
+            <button 
+              className="usercard__actionButton usercard__actionButton--secondary"
+              onClick={handleConnectClick}
+            >
               Connect
             </button>
           </div>
         )}
       </div>
+      
+      {showVerificationPopup && (
+        <VerificationPopup onClose={() => setShowVerificationPopup(false)} />
+      )}
     </div>
   );
 };

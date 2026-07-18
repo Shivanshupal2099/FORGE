@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaHandPaper, FaHandHoldingHeart, FaCoins, FaTags } from 'react-icons/fa';
+import { FaHandPaper, FaCoins, FaTags } from 'react-icons/fa';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import Request from '../Components/Request';
-import Donation from '../Components/Donation';
 import Tokens from '../Components/Tokens';
 import Offer from '../Components/Offer';
 import WelcomeCard from '../Components/WelcomeCard';
@@ -14,7 +13,6 @@ import { useAuth } from '../contexts/AuthContext';
 
 const topActions = [
   { label: 'Request', icon: FaHandPaper, popup: 'request' },
-  { label: 'Donation', icon: FaHandHoldingHeart, popup: 'donation' },
   { label: 'Tokens', icon: FaCoins, popup: 'tokens' },
   { label: 'Offers', icon: FaTags, popup: 'offer' },
 ];
@@ -79,7 +77,7 @@ function HomePage() {
             </div>
             <span className="home-empty-state__badge">FORGE dashboard</span>
             <h3>Welcome to FORGE</h3>
-            <p>Please log in to unlock requests, donations, tokens, offers, and people near you.</p>
+            <p>Please log in to unlock requests, tokens, offers, and people near you.</p>
             <div className="home-empty-state__actions">
               <Link to="/login" className="button-primary home-empty-state__cta">
                 Get Started
@@ -96,7 +94,6 @@ function HomePage() {
       <WelcomeCard />
       
       {activePopup === 'request' && <Request onClose={() => setActivePopup(null)} />}
-      {activePopup === 'donation' && <Donation onClose={() => setActivePopup(null)} />}
       {activePopup === 'tokens' && <Tokens onClose={() => setActivePopup(null)} />}
       {activePopup === 'offer' && <Offer onClose={() => setActivePopup(null)} />}
     </div>

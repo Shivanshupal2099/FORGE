@@ -9,7 +9,6 @@ function Offer({ onClose }) {
     industry: '',
     targetAudience: '',
     vendor: '',
-    cost: '',
     expires: ''
   });
   const [offers, setOffers] = useState([]);
@@ -40,7 +39,6 @@ function Offer({ onClose }) {
         industry: newOffer.industry,
         targetAudience: newOffer.targetAudience,
         vendor: newOffer.vendor || 'Forge Community',
-        cost: newOffer.cost || '0 tokens',
         expires: newOffer.expires || 'TBD'
       };
       setOffers(prev => [offer, ...prev]);
@@ -50,7 +48,6 @@ function Offer({ onClose }) {
         industry: '',
         targetAudience: '',
         vendor: '',
-        cost: '',
         expires: ''
       });
       setShowCreateForm(false);
@@ -162,29 +159,16 @@ function Offer({ onClose }) {
                   placeholder="Vendor name"
                 />
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="cost">Cost (tokens)</label>
-                  <input
-                    type="text"
-                    id="cost"
-                    name="cost"
-                    value={newOffer.cost}
-                    onChange={handleInputChange}
-                    placeholder="e.g., 300 tokens"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="expires">Expiration Date</label>
-                  <input
-                    type="text"
-                    id="expires"
-                    name="expires"
-                    value={newOffer.expires}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Jul 15"
-                  />
-                </div>
+              <div className="form-group">
+                <label htmlFor="expires">Expiration Date</label>
+                <input
+                  type="text"
+                  id="expires"
+                  name="expires"
+                  value={newOffer.expires}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Jul 15"
+                />
               </div>
               <button type="submit" className="button-primary">
                 Create Offer
@@ -196,7 +180,7 @@ function Offer({ onClose }) {
         <div className="home-popup-section">
           <h3 className="home-popup-section__title">Available offers</h3>
           <ul className="home-popup-list">
-            {offers.map(({ id, title, vendor, cost, expires, description, industry, targetAudience }) => (
+            {offers.map(({ id, title, vendor, expires, description, industry, targetAudience }) => (
               <li key={id} className="home-popup-list__item">
                 <div className="home-popup-list__main">
                   <span className="home-popup-list__label">{title}</span>
@@ -213,7 +197,6 @@ function Offer({ onClose }) {
                     </span>
                   )}
                 </div>
-                <span className="home-popup-list__value">{cost}</span>
               </li>
             ))}
           </ul>
