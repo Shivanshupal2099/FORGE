@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { IoSettingsSharp, IoMailOutline, IoBriefcaseOutline, IoLinkOutline } from 'react-icons/io5';
+import { FaRegEdit } from 'react-icons/fa';
+import { MdEvent, MdOutlineVerified } from 'react-icons/md';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,6 +19,17 @@ function ProfilePage() {
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showVerificationPopup, setShowVerificationPopup] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -110,96 +123,99 @@ function ProfilePage() {
               to="/profile/edit" 
               className="profile-card__edit-button"
               style={{
-                padding: '10px 16px',
+                padding: isMobile ? '12px' : '10px 16px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: '#111111',
                 color: '#ffffff',
                 fontWeight: '600',
-                fontSize: '0.85rem',
-                border: 'none',
+                fontSize: isMobile ? '0.9rem' : '0.85rem',
+                border: '2px solid #111111',
                 textDecoration: 'none',
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                boxShadow: '4px 4px 0 #111111',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: isMobile ? '0' : '8px',
                 position: 'relative',
                 overflow: 'hidden',
+                minWidth: isMobile ? '44px' : 'auto',
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.5)';
+                e.target.style.boxShadow = '6px 6px 0 #111111';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+                e.target.style.boxShadow = '4px 4px 0 #111111';
               }}
             >
-              <IoSettingsSharp /> Edit Profile
+              <FaRegEdit /> {!isMobile && 'Edit Profile'}
             </Link>
             <Link 
               to="/profile/events" 
               className="profile-card__edit-button"
               style={{
-                padding: '10px 16px',
+                padding: isMobile ? '12px' : '10px 16px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                background: '#111111',
                 color: '#ffffff',
                 fontWeight: '600',
-                fontSize: '0.85rem',
-                border: 'none',
+                fontSize: isMobile ? '0.9rem' : '0.85rem',
+                border: '2px solid #111111',
                 textDecoration: 'none',
-                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+                boxShadow: '4px 4px 0 #111111',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                marginLeft: '8px',
+                gap: isMobile ? '0' : '8px',
+                marginLeft: isMobile ? '8px' : '8px',
                 position: 'relative',
                 overflow: 'hidden',
+                minWidth: isMobile ? '44px' : 'auto',
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                e.target.style.boxShadow = '0 8px 25px rgba(16, 185, 129, 0.5)';
+                e.target.style.boxShadow = '6px 6px 0 #111111';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
+                e.target.style.boxShadow = '4px 4px 0 #111111';
               }}
             >
-              My Events
+              <MdEvent /> {!isMobile && 'My Events'}
             </Link>
             {!profile?.is_verified && (
               <button
                 onClick={() => setShowVerificationPopup(true)}
                 style={{
-                  padding: '10px 16px',
+                  padding: isMobile ? '12px' : '10px 16px',
                   borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  background: '#111111',
                   color: '#ffffff',
                   fontWeight: '600',
-                  fontSize: '0.85rem',
-                  border: 'none',
-                  boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)',
+                  fontSize: isMobile ? '0.9rem' : '0.85rem',
+                  border: '2px solid #111111',
+                  boxShadow: '4px 4px 0 #111111',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  marginLeft: '8px',
+                  gap: isMobile ? '0' : '8px',
+                  marginLeft: isMobile ? '8px' : '8px',
                   cursor: 'pointer',
                   position: 'relative',
                   overflow: 'hidden',
+                  minWidth: isMobile ? '44px' : 'auto',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                  e.target.style.boxShadow = '0 8px 25px rgba(245, 158, 11, 0.5)';
+                  e.target.style.boxShadow = '6px 6px 0 #111111';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.4)';
+                  e.target.style.boxShadow = '4px 4px 0 #111111';
                 }}
               >
-                Get Verified
+                <MdOutlineVerified /> {!isMobile && 'Get Verified'}
               </button>
             )}
             <Link 
@@ -210,27 +226,28 @@ function ProfilePage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '40px',
-                height: '40px',
+                width: isMobile ? '44px' : '40px',
+                height: isMobile ? '44px' : '40px',
                 padding: '0',
                 marginLeft: '8px',
                 textDecoration: 'none',
                 color: 'inherit',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: '#111111',
                 borderRadius: '12px',
                 color: '#ffffff',
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                border: '2px solid #111111',
+                boxShadow: '4px 4px 0 #111111',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 position: 'relative',
                 overflow: 'hidden',
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-2px) scale(1.05)';
-                e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.5)';
+                e.target.style.boxShadow = '6px 6px 0 #111111';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+                e.target.style.boxShadow = '4px 4px 0 #111111';
               }}
             >
               <IoSettingsSharp />
