@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { IoArrowBack, IoCalendarOutline, IoPeopleOutline, IoLocationOutline, IoTimeOutline, IoAdd, IoFilter } from 'react-icons/io5';
+import { IoArrowBack, IoCalendarOutline, IoPeopleOutline, IoLocationOutline, IoTimeOutline, IoAdd, IoFilter, IoCreateOutline, IoTrashOutline } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,6 +21,8 @@ function UserEventsPage() {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showViewEvent, setShowViewEvent] = useState(false);
+  const [eventToEdit, setEventToEdit] = useState(null);
+  const [notification, setNotification] = useState(null);
   const [eventFilters, setEventFilters] = useState({
     category: 'Any',
     freeOnly: false,
@@ -38,7 +40,7 @@ function UserEventsPage() {
 
         const response = await fetch(`http://localhost:5000/api/events/user/${uid}`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${user?.email}`
           }
         });
         const data = await response.json();
@@ -74,6 +76,56 @@ function UserEventsPage() {
     const paidMatch = !eventFilters.paidOnly || event.priceType === 'Paid';
     return categoryMatch && freeMatch && paidMatch;
   });
+
+  const showNotification = (message, type = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${user?.email}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showNotification('Event deleted successfully!', 'success');
+        // Refresh event list
+        const uid = user?.email;
+        if (uid) {
+          const eventsResponse = await fetch(`http://localhost:5000/api/events/user/${uid}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          const eventsData = await eventsResponse.json();
+          if (eventsData.success) {
+            setCreatedEvents(Array.isArray(eventsData.events) ? eventsData.events : []);
+          }
+        }
+        return true;
+      } else {
+        showNotification(data.message || 'Failed to delete event', 'error');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      showNotification('An error occurred while deleting the event', 'error');
+      return false;
+    }
+  };
+
+  const handleEditEvent = (event) => {
+    setEventToEdit(event);
+    setShowCreateEvent(true);
+    setShowViewEvent(false);
+  };
 
   const EventCard = ({ event }) => (
     <div 
@@ -181,12 +233,110 @@ function UserEventsPage() {
         }}>
           {event.status || 'Draft'}
         </div>
+
+        {/* Action Buttons - Only show for owner */}
+        {event.isOwner && (
+          <div style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            marginTop: '16px',
+            width: '100%'
+          }}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditEvent(event);
+              }}
+              style={{
+                flex: 1,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                border: 'none',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#ffffff',
+                fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-1px)';
+                e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
+              }}
+            >
+              <IoCreateOutline /> Edit
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedEvent(event);
+                setShowViewEvent(true);
+              }}
+              style={{
+                flex: 1,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                border: 'none',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                color: '#ffffff',
+                fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
+                fontWeight: '600',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-1px)';
+                e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.3)';
+              }}
+            >
+              <IoTrashOutline /> Delete
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 
   return (
     <div className="page-shell" style={{ position: 'relative' }}>
+      {notification && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          padding: '16px 24px',
+          borderRadius: '12px',
+          background: notification.type === 'success' 
+            ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
+            : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+          color: '#ffffff',
+          fontSize: '1rem',
+          fontWeight: '700',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
+          zIndex: 5000,
+          animation: 'slideIn 0.3s ease',
+        }}>
+          {notification.message}
+        </div>
+      )}
       <Header />
       <style>
         {`
@@ -422,8 +572,42 @@ function UserEventsPage() {
       
       <NavigationBar />
       
-      {showCreateEvent && <Event onClose={() => setShowCreateEvent(false)} />}
-      {showViewEvent && selectedEvent && <ViewEvent event={selectedEvent} onClose={() => setShowViewEvent(false)} />}
+      {showCreateEvent && (
+        <Event 
+          onClose={() => {
+            setShowCreateEvent(false);
+            setEventToEdit(null);
+          }}
+          eventToEdit={eventToEdit}
+          onEventUpdated={() => {
+            setShowCreateEvent(false);
+            setEventToEdit(null);
+            // Refresh event list
+            const uid = user?.email;
+            if (uid) {
+              fetch(`http://localhost:5000/api/events/user/${uid}`, {
+                headers: {
+                  'Authorization': `Bearer ${user?.email}`
+                }
+              })
+              .then(res => res.json())
+              .then(data => {
+                if (data.success) {
+                  setCreatedEvents(Array.isArray(data.events) ? data.events : []);
+                }
+              });
+            }
+          }}
+        />
+      )}
+      {showViewEvent && selectedEvent && (
+        <ViewEvent 
+          event={selectedEvent} 
+          onClose={() => setShowViewEvent(false)} 
+          onEdit={handleEditEvent}
+          onDelete={handleDeleteEvent}
+        />
+      )}
     </div>
   );
 }

@@ -15,7 +15,8 @@ import SettingPage from './pages/SettingPage';
 import Survey from './Components/Survey';
 import AuthCallback from './pages/AuthCallback';
 import { AuthProvider } from './contexts/AuthContext';
-import GuestRoute from './components/GuestRoute';
+import GuestRoute from './Components/GuestRoute';
+import ProtectedRoute from './Components/ProtectedRoute';
 
 function App() {
   useEffect(() => {
@@ -30,14 +31,14 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
             <Route path="/account" element={<GuestRoute><AccountPage /></GuestRoute>} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/map" element={<MapPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/profile/edit" element={<EditProfilePage />} />
-            <Route path="/profile/events" element={<UserEventsPage />} />
-            <Route path="/settings" element={<SettingPage />} />
-            <Route path="/survey" element={<Survey />} />
+            <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+            <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+            <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
+            <Route path="/profile/events" element={<ProtectedRoute><UserEventsPage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
+            <Route path="/survey" element={<ProtectedRoute><Survey /></ProtectedRoute>} />
             <Route path="/auth/callback" element={<AuthCallback />} />
           </Routes>
       </BrowserRouter>

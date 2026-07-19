@@ -4,6 +4,7 @@ import { IoSettingsSharp, IoMailOutline, IoBriefcaseOutline, IoLinkOutline } fro
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
+import VerificationPopup from '../Components/VerificationPopup';
 import maleImage from '../assets/male.png';
 import femaleImage from '../assets/female.png';
 
@@ -104,32 +105,34 @@ function ProfilePage() {
               </span>
             </div>
           </div>
-          <div className="profile-card__actions">
+          <div className="profile-card__actions profile-card__actions--mobile">
             <Link 
               to="/profile/edit" 
               className="profile-card__edit-button"
               style={{
-                padding: '12px 20px',
+                padding: '10px 16px',
                 borderRadius: '12px',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: '#ffffff',
-                fontWeight: '700',
-                fontSize: '0.9rem',
+                fontWeight: '600',
+                fontSize: '0.85rem',
                 border: 'none',
                 textDecoration: 'none',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
+                position: 'relative',
+                overflow: 'hidden',
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
+                e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.5)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
               }}
             >
               <IoSettingsSharp /> Edit Profile
@@ -138,28 +141,30 @@ function ProfilePage() {
               to="/profile/events" 
               className="profile-card__edit-button"
               style={{
-                padding: '12px 20px',
+                padding: '10px 16px',
                 borderRadius: '12px',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: '#ffffff',
-                fontWeight: '700',
-                fontSize: '0.9rem',
+                fontWeight: '600',
+                fontSize: '0.85rem',
                 border: 'none',
                 textDecoration: 'none',
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
                 marginLeft: '8px',
+                position: 'relative',
+                overflow: 'hidden',
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.4)';
+                e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                e.target.style.boxShadow = '0 8px 25px rgba(16, 185, 129, 0.5)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
               }}
             >
               My Events
@@ -168,67 +173,40 @@ function ProfilePage() {
               <button
                 onClick={() => setShowVerificationPopup(true)}
                 style={{
-                  padding: '12px 20px',
+                  padding: '10px 16px',
                   borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                   color: '#ffffff',
-                  fontWeight: '700',
-                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  fontSize: '0.85rem',
                   border: 'none',
-                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
-                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
                   marginLeft: '8px',
                   cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.4)';
+                  e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                  e.target.style.boxShadow = '0 8px 25px rgba(245, 158, 11, 0.5)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
+                  e.target.style.transform = 'translateY(0) scale(1)';
+                  e.target.style.boxShadow = '0 4px 15px rgba(245, 158, 11, 0.4)';
                 }}
               >
                 Get Verified
               </button>
             )}
-            <button
-              onClick={handleSignOut}
-              style={{
-                padding: '12px 20px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                color: '#ffffff',
-                fontWeight: '700',
-                fontSize: '0.9rem',
-                border: 'none',
-                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                transition: 'all 0.3s ease',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginLeft: '8px',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 20px rgba(239, 68, 68, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
-              }}
-            >
-              Sign Out
-            </button>
             <Link 
               to="/settings" 
               className="profile-card__settings-button"
               aria-label="Settings"
-              style={{
+             style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -237,7 +215,22 @@ function ProfilePage() {
                 padding: '0',
                 marginLeft: '8px',
                 textDecoration: 'none',
-                color: 'inherit'
+                color: 'inherit',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '12px',
+                color: '#ffffff',
+                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px) scale(1.05)';
+                e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
               }}
             >
               <IoSettingsSharp />
@@ -355,108 +348,7 @@ function ProfilePage() {
       </div>
 
       {showVerificationPopup && (
-        <div 
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px'
-          }}
-          onClick={() => setShowVerificationPopup(false)}
-        >
-          <div 
-            style={{
-              background: 'white',
-              borderRadius: '20px',
-              padding: '32px',
-              maxWidth: '400px',
-              width: '100%',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-              position: 'relative'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowVerificationPopup(false)}
-              style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                background: 'none',
-                border: 'none',
-                fontSize: '24px',
-                cursor: 'pointer',
-                color: '#666',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                transition: 'background 0.2s'
-              }}
-              onMouseEnter={(e) => e.target.style.background = 'rgba(0,0,0,0.05)'}
-              onMouseLeave={(e) => e.target.style.background = 'none'}
-            >
-              ×
-            </button>
-            
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div 
-                style={{
-                  width: '64px',
-                  height: '64px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  margin: '0 auto 16px',
-                  fontSize: '32px'
-                }}
-              >
-                ✓
-              </div>
-              <h2 style={{ margin: '0 0 8px', color: '#1f172a', fontSize: '24px' }}>
-                Get Verified
-              </h2>
-              <p style={{ margin: '0', color: '#64748b', fontSize: '14px' }}>
-                Payment integration coming soon! Stay tuned for verification options.
-              </p>
-            </div>
-            
-            <button
-              onClick={() => setShowVerificationPopup(false)}
-              style={{
-                width: '100%',
-                padding: '14px 24px',
-                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                border: 'none',
-                borderRadius: '12px',
-                color: 'white',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'transform 0.2s, box-shadow 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = 'none';
-              }}
-            >
-              Got it
-            </button>
-          </div>
-        </div>
+        <VerificationPopup onClose={() => setShowVerificationPopup(false)} />
       )}
 
       <NavigationBar />

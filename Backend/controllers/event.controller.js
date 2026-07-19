@@ -7,8 +7,17 @@ exports.createEvent = async (req, res) => {
     console.log('Received event creation request');
     console.log('Request body:', req.body);
     
+    // Get authenticated user from middleware
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+    
     const { 
-      uid, 
       title, 
       description, 
       category, 
@@ -26,20 +35,9 @@ exports.createEvent = async (req, res) => {
       imageUrl 
     } = req.body;
 
-    // Find user by UID
-    const user = await User.findOne({ uid });
-    
-    if (!user) {
-      console.log('User not found with UID:', uid);
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    // Create new event
+    // Create new event with authenticated user's info
     const event = await Event.create({
-      uid,
+      uid: user.uid,
       user_id: user._id,
       title,
       description,
@@ -84,11 +82,17 @@ exports.getAllEvents = async (req, res) => {
     const events = await Event.find()
       .sort({ created_at: -1 });
 
+    // Add ownership information to each event
+    const eventsWithOwnership = events.map(event => ({
+      ...event.toObject(),
+      isOwner: req.user && event.uid === req.user.uid
+    }));
+
     console.log(`Found ${events.length} events`);
 
     res.json({
       success: true,
-      events
+      events: eventsWithOwnership
     });
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -116,7 +120,10 @@ exports.getEventById = async (req, res) => {
 
     res.json({
       success: true,
-      event
+      event: {
+        ...event.toObject(),
+        isOwner: req.user && event.uid === req.user.uid
+      }
     });
   } catch (error) {
     console.error('Error fetching event:', error);
@@ -149,11 +156,17 @@ exports.getUserEvents = async (req, res) => {
     const events = await Event.find({ uid: uid })
       .sort({ created_at: -1 });
 
+    // Add ownership information to each event
+    const eventsWithOwnership = events.map(event => ({
+      ...event.toObject(),
+      isOwner: req.user && event.uid === req.user.uid
+    }));
+
     console.log(`Found ${events.length} events for user ${uid}`);
 
     res.json({
       success: true,
-      events
+      events: eventsWithOwnership
     });
   } catch (error) {
     console.error('Error fetching user events:', error);
@@ -171,7 +184,16 @@ exports.updateEvent = async (req, res) => {
   try {
     console.log('Received event update request');
     const { id } = req.params;
-    const { uid } = req.body;
+    
+    // Get authenticated user from middleware
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
     
     const event = await Event.findById(id);
     
@@ -183,14 +205,14 @@ exports.updateEvent = async (req, res) => {
     }
 
     // Check if user is the creator
-    if (event.uid !== uid) {
+    if (event.uid !== user.uid) {
       return res.status(403).json({
         success: false,
         message: 'You are not authorized to update this event'
       });
     }
 
-    // Update event fields
+    // Update event fields (ignore client-supplied uid/user_id)
     const { 
       title, 
       description, 
@@ -248,7 +270,16 @@ exports.deleteEvent = async (req, res) => {
   try {
     console.log('Received event delete request');
     const { id } = req.params;
-    const { uid } = req.body;
+    
+    // Get authenticated user from middleware
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
     
     const event = await Event.findById(id);
     
@@ -260,7 +291,7 @@ exports.deleteEvent = async (req, res) => {
     }
 
     // Check if user is the creator
-    if (event.uid !== uid) {
+    if (event.uid !== user.uid) {
       return res.status(403).json({
         success: false,
         message: 'You are not authorized to delete this event'

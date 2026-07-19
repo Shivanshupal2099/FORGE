@@ -1,4 +1,4 @@
-import { IoChatbubblesOutline, IoPeopleOutline, IoSearchOutline, IoSparklesOutline } from 'react-icons/io5';
+import { IoChatbubblesOutline, IoPeopleOutline, IoSparklesOutline } from 'react-icons/io5';
 import './ChatSidebar.css';
 
 const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
@@ -13,18 +13,6 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
             <div className="chat-sidebar__brandTitle">Messages</div>
             <div className="chat-sidebar__brandSub">{connectedUsers.length} conversations</div>
           </div>
-        </div>
-
-        <div className="chat-sidebar__searchWrap">
-          <div className="chat-sidebar__searchIcon" aria-hidden="true">
-            <IoSearchOutline />
-          </div>
-          <input
-            className="chat-sidebar__search"
-            type="text"
-            placeholder="Search conversations..."
-            aria-label="Search conversations"
-          />
         </div>
       </div>
 

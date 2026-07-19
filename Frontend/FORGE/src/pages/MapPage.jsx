@@ -23,6 +23,7 @@ function Map() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600)
   const [selectedUser, setSelectedUser] = useState(null)
   const markersRef = useRef([])
+  const [userStats, setUserStats] = useState({ totalUsers: 0, activeUsers: 0 })
 
   useEffect(() => {
     const handleResize = () => {
@@ -30,6 +31,24 @@ function Map() {
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/stats')
+        const data = await response.json()
+        if (data.success) {
+          setUserStats(data.stats)
+        }
+      } catch (error) {
+        console.error('Error fetching user stats:', error)
+      }
+    }
+    fetchUserStats()
+    // Refresh stats every 30 seconds
+    const interval = setInterval(fetchUserStats, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   const handleMarkerClick = async (uid) => {
@@ -304,6 +323,125 @@ function Map() {
   return (
     <div style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, boxSizing: 'border-box', position: 'relative', overflow: 'hidden', backgroundImage: 'var(--app-theme-gradient)' }}>
       <Header />
+      
+      {/* User Stats Display */}
+      <div style={{
+        position: 'fixed',
+        top: isMobile ? '72px' : '90px',
+        left: isMobile ? '12px' : '24px',
+        right: isMobile ? '12px' : 'auto',
+        zIndex: 999,
+        display: 'flex',
+        flexDirection: isMobile ? 'row' : 'row',
+        gap: isMobile ? '8px' : '12px',
+        alignItems: 'center',
+        justifyContent: isMobile ? 'space-between' : 'flex-start'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1))',
+          backdropFilter: 'blur(30px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+          borderRadius: isMobile ? '12px' : '14px',
+          padding: isMobile ? '6px 10px' : '8px 14px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+          border: '1px solid rgba(255, 255, 255, 0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: isMobile ? '6px' : '8px',
+          flex: isMobile ? 1 : 'auto',
+          minWidth: isMobile ? '0' : 'auto',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05))',
+            opacity: 0.5,
+            pointerEvents: 'none'
+          }} />
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative', zIndex: 1 }}>
+            <span style={{
+              fontSize: isMobile ? '7px' : '9px',
+              color: 'rgba(255, 255, 255, 0.85)',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.2px',
+              whiteSpace: 'nowrap'
+            }}>
+              Total Users
+            </span>
+            <span style={{
+              fontSize: isMobile ? '12px' : '16px',
+              fontWeight: '800',
+              color: '#ffffff',
+              lineHeight: 1.1,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+            }}>
+              {userStats.totalUsers.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1))',
+          backdropFilter: 'blur(30px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+          borderRadius: isMobile ? '12px' : '14px',
+          padding: isMobile ? '6px 10px' : '8px 14px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+          border: '1px solid rgba(255, 255, 255, 0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: isMobile ? '6px' : '8px',
+          flex: isMobile ? 1 : 'auto',
+          minWidth: isMobile ? '0' : 'auto',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05))',
+            opacity: 0.5,
+            pointerEvents: 'none'
+          }} />
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative', zIndex: 1 }}>
+            <span style={{
+              fontSize: isMobile ? '7px' : '9px',
+              color: 'rgba(255, 255, 255, 0.85)',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.2px',
+              whiteSpace: 'nowrap'
+            }}>
+              Active Now
+            </span>
+            <span style={{
+              fontSize: isMobile ? '12px' : '16px',
+              fontWeight: '800',
+              color: '#ffffff',
+              lineHeight: 1.1,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+            }}>
+              {userStats.activeUsers.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div id='map-container' ref={mapContainerRef} style={{ width: '100vw', height: '100vh', borderRadius: '0', overflow: 'hidden', boxShadow: 'none', position: 'absolute', inset: 0 }} />
 
       <button

@@ -11,33 +11,34 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
-function Event({ onClose }) {
+function Event({ onClose, eventToEdit, onEventUpdated }) {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
+  const [isEditMode, setIsEditMode] = useState(!!eventToEdit);
+  const [title, setTitle] = useState(eventToEdit?.title || '');
+  const [description, setDescription] = useState(eventToEdit?.description || '');
+  const [category, setCategory] = useState(eventToEdit?.category || '');
 
-  const [onlineType, setOnlineType] = useState('Offline'); // Online / Offline / Hybrid
-  const [locationOrLink, setLocationOrLink] = useState('');
+  const [onlineType, setOnlineType] = useState(eventToEdit?.onlineType || 'Offline'); // Online / Offline / Hybrid
+  const [locationOrLink, setLocationOrLink] = useState(eventToEdit?.locationOrLink || '');
 
-  const [startDate, setStartDate] = useState('');
-  const [startTime, setStartTime] = useState('');
+  const [startDate, setStartDate] = useState(eventToEdit?.startAt ? new Date(eventToEdit.startAt).toISOString().split('T')[0] : '');
+  const [startTime, setStartTime] = useState(eventToEdit?.startAt ? new Date(eventToEdit.startAt).toTimeString().slice(0, 5) : '');
 
-  const [endDate, setEndDate] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [endDate, setEndDate] = useState(eventToEdit?.endAt ? new Date(eventToEdit.endAt).toISOString().split('T')[0] : '');
+  const [endTime, setEndTime] = useState(eventToEdit?.endAt ? new Date(eventToEdit.endAt).toTimeString().slice(0, 5) : '');
 
-  const [organizer, setOrganizer] = useState('');
+  const [organizer, setOrganizer] = useState(eventToEdit?.organizer || '');
 
-  const [registrationRequired, setRegistrationRequired] = useState(false);
-  const [maxAttendees, setMaxAttendees] = useState('');
+  const [registrationRequired, setRegistrationRequired] = useState(eventToEdit?.registrationRequired || false);
+  const [maxAttendees, setMaxAttendees] = useState(eventToEdit?.maxAttendees || '');
 
-  const [visibility, setVisibility] = useState('Public'); // Public / Private
-  const [priceType, setPriceType] = useState('Free'); // Free / Paid
+  const [visibility, setVisibility] = useState(eventToEdit?.visibility || 'Public'); // Public / Private
+  const [priceType, setPriceType] = useState(eventToEdit?.priceType || 'Free'); // Free / Paid
 
-  const [contactInformation, setContactInformation] = useState('');
+  const [contactInformation, setContactInformation] = useState(eventToEdit?.contactInformation || '');
 
-  const [draftStatus, setDraftStatus] = useState('draft'); // 'published' or 'draft'
+  const [draftStatus, setDraftStatus] = useState(eventToEdit?.status || 'draft'); // 'published' or 'draft'
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -118,33 +119,30 @@ function Event({ onClose }) {
     try {
       setIsLoading(true);
       
-      // Get user's email as UID
-      const uid = user?.email;
-      if (!uid) {
-        throw new Error('User not authenticated');
-      }
-
-      const response = await fetch('http://localhost:5000/api/events', {
-        method: 'POST',
+      const url = isEditMode 
+        ? `http://localhost:5000/api/events/${eventToEdit._id}`
+        : 'http://localhost:5000/api/events';
+      
+      const method = isEditMode ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${user?.email}`
         },
-        body: JSON.stringify({
-          uid,
-          ...payload
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
       
       if (!data.success) {
-        throw new Error(data.message || 'Failed to create event');
+        throw new Error(data.message || `Failed to ${isEditMode ? 'update' : 'create'} event`);
       }
 
       return data;
     } catch (error) {
-      console.error('Error creating event:', error);
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} event:`, error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -169,32 +167,41 @@ function Event({ onClose }) {
 
       alert(
         status === 'published'
-          ? `Event "${payload.title}" published successfully!`
-          : `Event "${payload.title}" saved as draft successfully!`
+          ? `Event "${payload.title}" ${isEditMode ? 'updated and' : ''} published successfully!`
+          : `Event "${payload.title}" ${isEditMode ? 'updated and' : ''} saved as draft successfully!`
       );
 
-      // Reset
-      setTitle('');
-      setDescription('');
-      setCategory('');
+      // Call onEventUpdated if in edit mode
+      if (isEditMode && onEventUpdated) {
+        onEventUpdated();
+      }
 
-      setOnlineType('Offline');
-      setLocationOrLink('');
+      // Reset form only if in create mode
+      if (!isEditMode) {
+        setTitle('');
+        setDescription('');
+        setCategory('');
 
-      setStartDate('');
-      setStartTime('');
-      setEndDate('');
-      setEndTime('');
+        setOnlineType('Offline');
+        setLocationOrLink('');
 
-      setOrganizer('');
+        setStartDate('');
+        setStartTime('');
+        setEndDate('');
+        setEndTime('');
 
-      setRegistrationRequired(false);
-      setMaxAttendees('');
+        setOrganizer('');
 
-      setVisibility('Public');
-      setPriceType('Free');
+        setRegistrationRequired(false);
+        setMaxAttendees('');
 
-      setContactInformation('');
+        setVisibility('Public');
+        setPriceType('Free');
+
+        setContactInformation('');
+
+        setDraftStatus('draft');
+      }
 
       // keep behavior: close after action
       onClose?.();
@@ -232,10 +239,10 @@ function Event({ onClose }) {
           </span>
           <div>
             <h2 id="event-popup-title" className="home-popup__title">
-              Create Event
+              {isEditMode ? 'Edit Event' : 'Create Event'}
             </h2>
             <p className="home-popup__subtitle">
-              Organize community events and reward participants with Forge tokens.
+              {isEditMode ? 'Update your event details and settings.' : 'Organize community events and reward participants with Forge tokens.'}
             </p>
           </div>
         </div>

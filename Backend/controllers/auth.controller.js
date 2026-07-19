@@ -22,7 +22,7 @@ exports.googleAuth = async (req, res) => {
                 uid,
                 email,
                 auth_provider: 'google',
-                is_verified: true,
+                is_verified: false,
                 last_login_at: new Date()
             });
 
@@ -96,7 +96,7 @@ exports.syncUser = async (req, res) => {
                 uid,
                 email,
                 auth_provider: 'email',
-                is_verified: true,
+                is_verified: false,
                 last_login_at: new Date()
             });
 
@@ -292,6 +292,31 @@ exports.deleteAccount = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to delete account',
+            error: error.message
+        });
+    }
+};
+
+exports.getUserStats = async (req, res) => {
+    try {
+        const totalUsers = await User.countDocuments({ deleted_at: null });
+        const activeUsers = await User.countDocuments({ 
+            deleted_at: null,
+            is_online: true 
+        });
+
+        res.json({
+            success: true,
+            stats: {
+                totalUsers,
+                activeUsers
+            }
+        });
+    } catch (error) {
+        console.error('Error getting user stats:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to get user stats',
             error: error.message
         });
     }

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import logoImage from '../assets/image.png';
 
 function Header() {
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -38,15 +39,21 @@ function Header() {
     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
   };
 
+  const isMapPage = location.pathname === '/map';
+  
   const logoTextStyle = {
     fontSize: isMobile ? '1rem' : '1.6rem',
     fontWeight: '800',
-    color: 'var(--app-text)',
+    color: isMapPage ? '#ffffff' : 'var(--app-text)',
     letterSpacing: '-0.3px',
-    background: 'linear-gradient(135deg, #21120a 0%, #513041 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
+    ...(isMapPage ? {
+      textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+    } : {
+      background: 'linear-gradient(135deg, #21120a 0%, #513041 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text'
+    })
   };
 
   const handleLogoClick = () => {

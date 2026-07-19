@@ -2,29 +2,7 @@
   font-family: Inter, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #2a211c;
-  --app-theme-gradient: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
-  --app-page-bg: #f6d365;
-  --app-card-bg: rgba(255, 255, 255, 0.86);
-  --app-card-border: rgba(255, 255, 255, 0.82);
-  --app-surface: rgba(255, 255, 255, 0.72);
-  --app-surface-strong: rgba(255, 255, 255, 0.94);
-  --app-text: #2a211c;
-  --app-muted-text: rgba(42, 33, 28, 0.62);
-  --app-accent-bg: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
-  --app-accent-text: #2a211c;
-  --app-shadow: 0 24px 70px rgba(111, 67, 43, 0.12);
-  --app-soft-shadow: 0 14px 34px rgba(111, 67, 43, 0.1);
-  --app-ring: rgba(244, 169, 192, 0.22);
-  background: var(--app-page-bg);
-  background-image: var(--app-theme-gradient);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-:root[data-theme='mono'] {
+  color: #111111;
   --app-theme-gradient: linear-gradient(135deg, #f7f7f7 0%, #e9e9e9 100%);
   --app-page-bg: #f3f3f3;
   --app-card-bg: #ffffff;
@@ -38,6 +16,28 @@
   --app-shadow: 10px 10px 0 #111111;
   --app-soft-shadow: 6px 6px 0 rgba(17, 17, 17, 0.25);
   --app-ring: rgba(17, 17, 17, 0.18);
+  background: var(--app-page-bg);
+  background-image: var(--app-theme-gradient);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme='sunset'] {
+  --app-theme-gradient: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+  --app-page-bg: #f6d365;
+  --app-card-bg: rgba(255, 255, 255, 0.86);
+  --app-card-border: rgba(255, 255, 255, 0.82);
+  --app-surface: rgba(255, 255, 255, 0.72);
+  --app-surface-strong: rgba(255, 255, 255, 0.94);
+  --app-text: #2a211c;
+  --app-muted-text: rgba(42, 33, 28, 0.62);
+  --app-accent-bg: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+  --app-accent-text: #2a211c;
+  --app-shadow: 0 24px 70px rgba(111, 67, 43, 0.12);
+  --app-soft-shadow: 0 14px 34px rgba(111, 67, 43, 0.1);
+  --app-ring: rgba(244, 169, 192, 0.22);
 }
 
 * {
@@ -66,15 +66,15 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
   background-size: 42px 42px;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.42), transparent 68%);
 }
 
-:root[data-theme='mono'] body::before {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+:root[data-theme='sunset'] body::before {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
 }
 
 #root {
@@ -90,43 +90,83 @@ input {
   font: inherit;
 }
 
-:root[data-theme='mono'] .landing-card,
-:root[data-theme='mono'] .auth-card,
-:root[data-theme='mono'] .home-card,
-:root[data-theme='mono'] .profile-card,
-:root[data-theme='mono'] .settings-card,
-:root[data-theme='mono'] .home-popup,
-:root[data-theme='mono'] .home-popup-highlight,
-:root[data-theme='mono'] .home-popup-list__item,
-:root[data-theme='mono'] .offer-create-form,
-:root[data-theme='mono'] .donation-form,
-:root[data-theme='mono'] .feature-card,
-:root[data-theme='mono'] .chat-sidebar,
-:root[data-theme='mono'] .usercard {
+.landing-card,
+.auth-card,
+.home-card,
+.profile-card,
+.settings-card,
+.home-popup,
+.home-popup-highlight,
+.home-popup-list__item,
+.offer-create-form,
+.donation-form,
+.feature-card,
+.chat-sidebar,
+.usercard {
   background: var(--app-card-bg) !important;
   border-color: var(--app-card-border) !important;
   box-shadow: 8px 8px 0 #111111 !important;
 }
 
-:root[data-theme='mono'] .button-primary,
-:root[data-theme='mono'] .home-action-btn:hover,
-:root[data-theme='mono'] .home-create-survey-btn,
-:root[data-theme='mono'] .profile-card__cover,
-:root[data-theme='mono'] .profile-card__detail-icon,
-:root[data-theme='mono'] .profile-stat::before,
-:root[data-theme='mono'] .progress-dot,
-:root[data-theme='mono'] .chat-sidebar__brandIcon,
-:root[data-theme='mono'] .chat-sidebar__thread--active,
-:root[data-theme='mono'] .chat-sidebar__avatar,
-:root[data-theme='mono'] .chat-sidebar__tipsIcon,
-:root[data-theme='mono'] .usercard__close,
-:root[data-theme='mono'] .usercard__photo,
-:root[data-theme='mono'] .usercard__photoPlaceholder,
-:root[data-theme='mono'] .usercard__visibilityBadge.private,
-:root[data-theme='mono'] .usercard__socialLink,
-:root[data-theme='mono'] .usercard__actionButton--primary,
-:root[data-theme='mono'] .usercard::-webkit-scrollbar-thumb {
+.button-primary,
+.home-action-btn:hover,
+.home-create-survey-btn,
+.profile-card__cover,
+.profile-card__detail-icon,
+.profile-stat::before,
+.progress-dot,
+.chat-sidebar__brandIcon,
+.chat-sidebar__thread--active,
+.chat-sidebar__avatar,
+.chat-sidebar__tipsIcon,
+.usercard__close,
+.usercard__photo,
+.usercard__photoPlaceholder,
+.usercard__visibilityBadge.private,
+.usercard__socialLink,
+.usercard__actionButton--primary,
+.usercard::-webkit-scrollbar-thumb {
   background: #111111 !important;
   background-image: none !important;
   color: #ffffff !important;
+}
+
+:root[data-theme='sunset'] .landing-card,
+:root[data-theme='sunset'] .auth-card,
+:root[data-theme='sunset'] .home-card,
+:root[data-theme='sunset'] .profile-card,
+:root[data-theme='sunset'] .settings-card,
+:root[data-theme='sunset'] .home-popup,
+:root[data-theme='sunset'] .home-popup-highlight,
+:root[data-theme='sunset'] .home-popup-list__item,
+:root[data-theme='sunset'] .offer-create-form,
+:root[data-theme='sunset'] .donation-form,
+:root[data-theme='sunset'] .feature-card,
+:root[data-theme='sunset'] .chat-sidebar,
+:root[data-theme='sunset'] .usercard {
+  background: var(--app-card-bg) !important;
+  border-color: var(--app-card-border) !important;
+  box-shadow: var(--app-shadow) !important;
+}
+
+:root[data-theme='sunset'] .button-primary,
+:root[data-theme='sunset'] .home-action-btn:hover,
+:root[data-theme='sunset'] .home-create-survey-btn,
+:root[data-theme='sunset'] .profile-card__cover,
+:root[data-theme='sunset'] .profile-card__detail-icon,
+:root[data-theme='sunset'] .profile-stat::before,
+:root[data-theme='sunset'] .progress-dot,
+:root[data-theme='sunset'] .chat-sidebar__brandIcon,
+:root[data-theme='sunset'] .chat-sidebar__thread--active,
+:root[data-theme='sunset'] .chat-sidebar__avatar,
+:root[data-theme='sunset'] .chat-sidebar__tipsIcon,
+:root[data-theme='sunset'] .usercard__close,
+:root[data-theme='sunset'] .usercard__photo,
+:root[data-theme='sunset'] .usercard__photoPlaceholder,
+:root[data-theme='sunset'] .usercard__visibilityBadge.private,
+:root[data-theme='sunset'] .usercard__socialLink,
+:root[data-theme='sunset'] .usercard__actionButton--primary,
+:root[data-theme='sunset'] .usercard::-webkit-scrollbar-thumb {
+  background: var(--app-accent-bg) !important;
+  color: var(--app-accent-text) !important;
 }

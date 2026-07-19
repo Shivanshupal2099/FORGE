@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IoArrowBack, IoColorPaletteOutline, IoMoonOutline, IoSparklesOutline, IoSunnyOutline, IoTrashOutline } from 'react-icons/io5';
+import { IoArrowBack, IoColorPaletteOutline, IoMoonOutline, IoSparklesOutline, IoSunnyOutline, IoTrashOutline, IoLogOutOutline } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
-
 const THEME_KEY = 'forge-theme';
+
+
 
 function SettingPage() {
   const { user, signOut } = useAuth();
@@ -22,6 +23,24 @@ function SettingPage() {
 
   const toggleTheme = () => {
     setTheme((currentTheme) => (currentTheme === 'sunset' ? 'mono' : 'sunset'));
+  };
+
+  const handleSignOut = async () => {
+    try {
+      // Clear local storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('forge-theme');
+      
+      // Sign out from Supabase
+      await signOut();
+      
+      // Redirect to login page
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Error signing out:', error);
+      alert('An error occurred while signing out. Please try again.');
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -132,6 +151,25 @@ function SettingPage() {
           <IoSparklesOutline />
           <span>The selected theme is saved on this device and applied across FORGE.</span>
         </div>
+
+        <section className="settings-signout-zone" aria-label="Sign out">
+          <div className="settings-option">
+            <div className="settings-option__icon">
+              <IoLogOutOutline />
+            </div>
+            <div className="settings-option__content">
+              <h2>Sign Out</h2>
+              <p>Sign out of your account on this device.</p>
+            </div>
+            <button
+              type="button"
+              className="settings-signout-button"
+              onClick={handleSignOut}
+            >
+              Sign Out
+            </button>
+          </div>
+        </section>
 
         <section className="settings-danger-zone" aria-label="Danger zone">
           <div className="settings-option">

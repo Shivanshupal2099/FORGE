@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/Users.model");
 
 const authMiddleware = async (req, res, next) => {
     try {
@@ -19,10 +20,23 @@ const authMiddleware = async (req, res, next) => {
             req.user = decoded;
             return next();
         } catch (jwtError) {
-            // If JWT verification fails, treat it as a Supabase token
-            // For now, we'll allow the request to proceed with the token as uid
-            // In production, you should verify Supabase tokens properly
-            req.user = { uid: token }; // Use token as uid for now
+            // If JWT verification fails, treat it as a Supabase token or email
+            // Try to find user by treating token as uid (Supabase user id) or email
+            let user = await User.findOne({ uid: token });
+            
+            // If not found by uid, try finding by email
+            if (!user) {
+                user = await User.findOne({ email: token });
+            }
+            
+            if (!user) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Invalid token or user not found"
+                });
+            }
+            
+            req.user = user;
             return next();
         }
     } catch (error) {

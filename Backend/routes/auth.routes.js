@@ -26,4 +26,7 @@ router.get("/status/:uid", authController.getUserStatus);
 // Delete account
 router.delete("/delete-account", authMiddleware, authController.deleteAccount);
 
+// Get user statistics (total users and active users)
+router.get("/stats", authController.getUserStats);
+
 module.exports = router;
