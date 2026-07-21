@@ -3,6 +3,8 @@ const app=express()
 const mongoose=require('mongoose')
 const dotenv=require('dotenv')
 const cors=require('cors')
+const helmet=require('helmet')
+const rateLimit=require('express-rate-limit')
 const authRoutes=require('./routes/auth.routes')
 const profileRoutes=require('./routes/profile.routes')
 const surveyRoutes=require('./routes/survey.routes')
@@ -20,9 +22,50 @@ ConnectDB();
 
 
 
-app.use(cors())
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for development
+  crossOriginEmbedderPolicy: false
+}))
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+})
+app.use('/api/', limiter)
+
+// Stricter rate limiting for auth routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 auth requests per windowMs
+  message: 'Too many authentication attempts, please try again later.'
+})
+app.use('/api/auth/google', authLimiter)
+app.use('/api/auth/sync', authLimiter)
+
+// CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',') 
+  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175']
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true)
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.'
+      return callback(new Error(msg), false)
+    }
+    return callback(null, true)
+  },
+  credentials: true
+}))
+
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({extended: true, limit: '10mb'}))
 
 // Apply activity tracking middleware to all routes
 app.use(activityMiddleware)
@@ -36,8 +79,9 @@ app.use('/api/events',eventRoutes)
 
 
 
-app.listen(5000,()=>{
-    console.log('Server is running on port 5000')
+const PORT = process.env.PORT || 5000
+app.listen(PORT,()=>{
+    console.log(`Server is running on port ${PORT}`)
 })
 
 // Schedule inactivity check - run every minute

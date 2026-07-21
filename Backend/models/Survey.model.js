@@ -26,6 +26,12 @@ const surveySchema = new mongoose.Schema(
       default: "draft"
     },
 
+    visibility: {
+      type: String,
+      enum: ["private", "public"],
+      default: "private"
+    },
+
     reward_amount: {
       type: Number,
       min: 0,

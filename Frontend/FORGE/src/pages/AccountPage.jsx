@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 
-function AccountPage() {
+function AccountPage() 
+{
+  
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -14,6 +16,7 @@ function AccountPage() {
   const [profilePhoto, setProfilePhoto] = useState(null)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+
 
   const validateForm = () => {
     const newErrors = {}

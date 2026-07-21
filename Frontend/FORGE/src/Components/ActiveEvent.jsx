@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import EventFiltersection from './EventFiltersection';
+import axios from '../api/axios';
 
 function ActiveEvent({ onClose }) {
   const [filters, setFilters] = useState(null);
@@ -12,16 +13,11 @@ function ActiveEvent({ onClose }) {
     const loadEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/events', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        const data = await response.json();
+        const response = await axios.get('/events');
         
-        if (data.success) {
+        if (response.data.success) {
           // Only keep published events
-          setEvents(Array.isArray(data.events) ? data.events.filter((e) => e?.status === 'published') : []);
+          setEvents(Array.isArray(response.data.events) ? response.data.events.filter((e) => e?.status === 'published') : []);
         }
       } catch (error) {
         console.error('Error loading events:', error);

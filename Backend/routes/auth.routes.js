@@ -29,4 +29,17 @@ router.delete("/delete-account", authMiddleware, authController.deleteAccount);
 // Get user statistics (total users and active users)
 router.get("/stats", authController.getUserStats);
 
+// ===========================
+// Session Management
+// ===========================
+
+// Get all active sessions for current user
+router.get("/sessions", authMiddleware, authController.getUserSessions);
+
+// Revoke a specific session
+router.delete("/sessions/:sessionId", authMiddleware, authController.revokeSession);
+
+// Revoke all sessions except current
+router.post("/sessions/revoke-others", authMiddleware, authController.revokeOtherSessions);
+
 module.exports = router;

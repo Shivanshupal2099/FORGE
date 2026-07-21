@@ -1,5 +1,6 @@
 const User = require('../models/Users.model');
 const Profile = require('../models/Profile.model');
+const UserSession = require('../models/UserSession.model');
 const { markUserOnline, markUserOffline, getUserOnlineStatus } = require('../middlewares/activity.middleware');
 
 exports.googleAuth = async (req, res) => {
@@ -47,6 +48,25 @@ exports.googleAuth = async (req, res) => {
             await user.save();
             await markUserOnline(uid);
         }
+
+        // Create user session
+        const sessionExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+        
+        // Extract device info from request
+        const deviceInfo = {
+            userAgent: req.headers['user-agent'] || '',
+            ip: req.ip || req.connection.remoteAddress || null
+        };
+
+        await UserSession.create({
+            user_id: user._id,
+            uid: user.uid,
+            device_info: deviceInfo,
+            ip_address: deviceInfo.ip,
+            user_agent: deviceInfo.userAgent,
+            expires_at: sessionExpiry,
+            is_active: true
+        });
 
         res.json({
             success: true,
@@ -122,6 +142,25 @@ exports.syncUser = async (req, res) => {
             await markUserOnline(uid);
         }
 
+        // Create user session
+        const sessionExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+        
+        // Extract device info from request
+        const deviceInfo = {
+            userAgent: req.headers['user-agent'] || '',
+            ip: req.ip || req.connection.remoteAddress || null
+        };
+
+        await UserSession.create({
+            user_id: user._id,
+            uid: user.uid,
+            device_info: deviceInfo,
+            ip_address: deviceInfo.ip,
+            user_agent: deviceInfo.userAgent,
+            expires_at: sessionExpiry,
+            is_active: true
+        });
+
         res.json({
             success: true,
             message: 'User synced successfully',
@@ -149,6 +188,12 @@ exports.logout = async (req, res) => {
         if (uid) {
             // Mark user as offline
             await markUserOffline(uid);
+            
+            // Deactivate all active sessions for this user
+            await UserSession.updateMany(
+                { uid: uid, is_active: true },
+                { is_active: false }
+            );
         }
 
         res.json({
@@ -317,6 +362,90 @@ exports.getUserStats = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to get user stats',
+            error: error.message
+        });
+    }
+};
+
+// ===========================
+// Session Management
+// ===========================
+
+exports.getUserSessions = async (req, res) => {
+    try {
+        const uid = req.user.uid;
+        
+        const sessions = await UserSession.find({ uid })
+            .sort({ created_at: -1 })
+            .limit(20);
+
+        res.json({
+            success: true,
+            sessions
+        });
+    } catch (error) {
+        console.error('Error getting user sessions:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to get sessions',
+            error: error.message
+        });
+    }
+};
+
+exports.revokeSession = async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const uid = req.user.uid;
+
+        const session = await UserSession.findOne({ _id: sessionId, uid });
+
+        if (!session) {
+            return res.status(404).json({
+                success: false,
+                message: 'Session not found'
+            });
+        }
+
+        await UserSession.findByIdAndUpdate(sessionId, { is_active: false });
+
+        res.json({
+            success: true,
+            message: 'Session revoked successfully'
+        });
+    } catch (error) {
+        console.error('Error revoking session:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to revoke session',
+            error: error.message
+        });
+    }
+};
+
+exports.revokeOtherSessions = async (req, res) => {
+    try {
+        const uid = req.user.uid;
+        const currentSessionId = req.body.currentSessionId;
+
+        await UserSession.updateMany(
+            { 
+                uid: uid,
+                is_active: true,
+                _id: { $ne: currentSessionId }
+            },
+            { is_active: false }
+        );
+
+        res.json({
+            success: true,
+            message: 'Other sessions revoked successfully'
+        });
+    } catch (error) {
+        console.error('Error revoking other sessions:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to revoke other sessions',
             error: error.message
         });
     }

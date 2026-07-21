@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { FaClipboardList, FaArrowLeft, FaArrowRight, FaCheck } from 'react-icons/fa';
 
-const ROTATION_INTERVAL = 10 * 60 * 1000; // 10 minutes
+const ROTATION_INTERVAL = 10 * 60 * 1000;   
 
 function SurveyRotator({ surveys, onAnswerSubmit }) {
   const [currentSurveyIndex, setCurrentSurveyIndex] = useState(0);
@@ -334,5 +334,4 @@ function SurveyRotator({ surveys, onAnswerSubmit }) {
     </div>
   );
 }
-
 export default SurveyRotator;

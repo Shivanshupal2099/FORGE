@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Usercard.css';
 import VerificationPopup from './VerificationPopup';
 import { useAuth } from '../contexts/AuthContext';
+import axios from '../api/axios';
 
 const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   const { user: currentUser } = useAuth();
@@ -49,14 +50,9 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
 
       try {
         setLoadingStatus(true);
-        const response = await fetch(`http://localhost:5000/api/auth/status/${user.email}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        const data = await response.json();
-        if (data.success && data.status) {
-          setIsOnline(data.status.is_online);
+        const response = await axios.get(`/auth/status/${user.email}`);
+        if (response.data.success && response.data.status) {
+          setIsOnline(response.data.status.is_online);
         }
       } catch (error) {
         console.error('Error fetching user status:', error);

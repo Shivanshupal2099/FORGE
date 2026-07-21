@@ -10,6 +10,7 @@ import {
   FaUserTie,
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
+import axios from '../api/axios';
 
 function Event({ onClose, eventToEdit, onEventUpdated }) {
   const { user } = useAuth();
@@ -120,27 +121,18 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
       setIsLoading(true);
       
       const url = isEditMode 
-        ? `http://localhost:5000/api/events/${eventToEdit._id}`
-        : 'http://localhost:5000/api/events';
+        ? `/events/${eventToEdit._id}`
+        : '/events';
       
-      const method = isEditMode ? 'PUT' : 'POST';
+      const method = isEditMode ? 'put' : 'post';
       
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.email}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
+      const response = await axios[method](url, payload);
       
-      if (!data.success) {
-        throw new Error(data.message || `Failed to ${isEditMode ? 'update' : 'create'} event`);
+      if (!response.data.success) {
+        throw new Error(response.data.message || `Failed to ${isEditMode ? 'update' : 'create'} event`);
       }
 
-      return data;
+      return response.data;
     } catch (error) {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'} event:`, error);
       throw error;

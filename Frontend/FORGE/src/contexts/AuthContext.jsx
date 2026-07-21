@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { createClient } from "@supabase/supabase-js";
+import axios from '../api/axios';
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -15,17 +16,11 @@ export const AuthProvider = ({ children }) => {
 
   const syncUserToBackend = async (user) => {
     try {
-      await fetch('http://localhost:5000/api/auth/sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          uid: user.email,
-          email: user.email,
-          name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
-          picture: user.user_metadata?.avatar_url || null
-        })
+      await axios.post('/auth/sync', {
+        uid: user.email,
+        email: user.email,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
+        picture: user.user_metadata?.avatar_url || null
       });
     } catch (error) {
       console.error('Error syncing user to backend:', error);
@@ -42,12 +37,7 @@ export const AuthProvider = ({ children }) => {
     const pingActivity = async () => {
       try {
         // Make a simple request to update activity timestamp
-        await fetch(`http://localhost:5000/api/auth/status/${user.email}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        await axios.get(`/auth/status/${user.email}`);
       } catch (error) {
         console.error('Error pinging activity:', error);
       }

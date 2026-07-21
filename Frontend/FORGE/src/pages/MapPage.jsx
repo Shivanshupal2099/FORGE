@@ -7,6 +7,7 @@ import Header from '../Components/Header'
 import Filtersection from '../Components/Filtersection'
 import Usercard from '../Components/Usercard'
 import { useAuth } from '../contexts/AuthContext'
+import axios from '../api/axios'
 // import { MAPBOX_ACCESS_TOKEN, MAPBOX_STYLE_URI } from '../mapboxConfig'
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
@@ -36,10 +37,9 @@ function Map() {
   useEffect(() => {
     const fetchUserStats = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/auth/stats')
-        const data = await response.json()
-        if (data.success) {
-          setUserStats(data.stats)
+        const response = await axios.get('/auth/stats')
+        if (response.data.success) {
+          setUserStats(response.data.stats)
         }
       } catch (error) {
         console.error('Error fetching user stats:', error)
@@ -54,12 +54,11 @@ function Map() {
   const handleMarkerClick = async (uid) => {
     try {
       console.log('Fetching user profile for:', uid)
-      const response = await fetch(`http://localhost:5000/api/profile/${uid}`)
-      const data = await response.json()
-      console.log('Profile data:', data)
+      const response = await axios.get(`/profile/${uid}`)
+      console.log('Profile data:', response.data)
       
-      if (data.success && data.profile) {
-        const profile = data.profile
+      if (response.data.success && response.data.profile) {
+        const profile = response.data.profile
         // Format profile data to match Usercard structure
         const userData = {
           name: `${profile.first_name} ${profile.last_name}`,
@@ -129,16 +128,15 @@ function Map() {
       try {
         // Fetch and display all user locations from database
         console.log('Fetching user locations...')
-        const response = await fetch('http://localhost:5000/api/location/all')
-        const data = await response.json()
-        console.log('Location data:', data)
+        const response = await axios.get('/location/all')
+        console.log('Location data:', response.data)
         
-        if (data.success && data.locations.length > 0) {
+        if (response.data.success && response.data.locations.length > 0) {
           // Clear existing markers
           markersRef.current.forEach(marker => marker.remove())
           markersRef.current = []
 
-          data.locations.forEach((location) => {
+          response.data.locations.forEach((location) => {
             console.log('Adding marker for:', location.uid, 'at:', location.longitude, location.latitude)
             const markerElement = document.createElement('div')
             markerElement.style.width = '30px'

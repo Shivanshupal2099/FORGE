@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaHandPaper, FaTimes, FaCheck } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
+import axios from '../api/axios';
 
 function Request({ onClose }) {
   const { user } = useAuth();
@@ -21,14 +22,9 @@ function Request({ onClose }) {
   useEffect(() => {
     const fetchIncomingRequests = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/connections/incoming', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        const data = await response.json();
-        if (data.success) {
-          setIncomingRequests(data.connections || []);
+        const response = await axios.get('/connections/incoming');
+        if (response.data.success) {
+          setIncomingRequests(response.data.connections || []);
         }
       } catch (error) {
         console.error('Error fetching incoming requests:', error);
@@ -42,14 +38,8 @@ function Request({ onClose }) {
 
   const handleAccept = async (connectionId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/connections/${connectionId}/accept`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
+      const response = await axios.put(`/connections/${connectionId}/accept`);
+      if (response.data.success) {
         setIncomingRequests(prev => prev.filter(req => req._id !== connectionId));
       }
     } catch (error) {
@@ -59,14 +49,8 @@ function Request({ onClose }) {
 
   const handleDecline = async (connectionId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/connections/${connectionId}/decline`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
+      const response = await axios.put(`/connections/${connectionId}/decline`);
+      if (response.data.success) {
         setIncomingRequests(prev => prev.filter(req => req._id !== connectionId));
       }
     } catch (error) {

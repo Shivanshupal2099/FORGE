@@ -7,6 +7,7 @@ import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
 import VerificationPopup from '../Components/VerificationPopup';
+import axios from '../api/axios';
 import maleImage from '../assets/male.png';
 import femaleImage from '../assets/female.png';
 
@@ -38,18 +39,13 @@ function ProfilePage() {
         const uid = user?.email;
         
         console.log('Fetching profile for UID:', uid);
-        const response = await fetch(`http://localhost:5000/api/profile/${uid}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        const data = await response.json();
-        console.log('Profile response:', data);
-        if (data.success) {
-          setProfile(data.profile);
-          console.log('Profile data set:', data.profile);
+        const response = await axios.get(`/profile/${uid}`);
+        console.log('Profile response:', response.data);
+        if (response.data.success) {
+          setProfile(response.data.profile);
+          console.log('Profile data set:', response.data.profile);
         } else {
-          console.log('Profile fetch failed:', data.message);
+          console.log('Profile fetch failed:', response.data.message);
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -63,18 +59,13 @@ function ProfilePage() {
         const uid = user?.email;
         
         console.log('Fetching surveys for UID:', uid);
-        const response = await fetch(`http://localhost:5000/api/survey/user/${uid}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        const data = await response.json();
-        console.log('Surveys response:', data);
-        if (data.success) {
-          setSurveys(data.surveys);
-          console.log('Surveys data set:', data.surveys);
+        const response = await axios.get(`/survey/user/${uid}`);
+        console.log('Surveys response:', response.data);
+        if (response.data.success) {
+          setSurveys(response.data.surveys);
+          console.log('Surveys data set:', response.data.surveys);
         } else {
-          console.log('Surveys fetch failed:', data.message);
+          console.log('Surveys fetch failed:', response.data.message);
         }
       } catch (error) {
         console.error('Error fetching surveys:', error);

@@ -13,6 +13,7 @@ import EditProfilePage from './pages/EditProfilePage';
 import UserEventsPage from './pages/UserEventsPage';
 import SettingPage from './pages/SettingPage';
 import Survey from './Components/Survey';
+import SurveyResultsPage from './pages/SurveyResultsPage';
 import AuthCallback from './pages/AuthCallback';
 import { AuthProvider } from './contexts/AuthContext';
 import GuestRoute from './Components/GuestRoute';
@@ -39,6 +40,7 @@ function App() {
             <Route path="/profile/events" element={<ProtectedRoute><UserEventsPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
             <Route path="/survey" element={<ProtectedRoute><Survey /></ProtectedRoute>} />
+            <Route path="/survey/:surveyId/results" element={<ProtectedRoute><SurveyResultsPage /></ProtectedRoute>} />
             <Route path="/auth/callback" element={<AuthCallback />} />
           </Routes>
       </BrowserRouter>

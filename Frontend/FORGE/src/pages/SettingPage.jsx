@@ -4,6 +4,7 @@ import { IoArrowBack, IoColorPaletteOutline, IoMoonOutline, IoSparklesOutline, I
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
+import axios from '../api/axios';
 const THEME_KEY = 'forge-theme';
 
 
@@ -54,17 +55,9 @@ function SettingPage() {
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/delete-account`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await axios.delete('/auth/delete-account');
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         // Clear local storage
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
@@ -76,7 +69,7 @@ function SettingPage() {
         // Redirect to home
         window.location.href = '/';
       } else {
-        alert('Failed to delete account: ' + data.message);
+        alert('Failed to delete account: ' + response.data.message);
       }
     } catch (error) {
       console.error('Error deleting account:', error);

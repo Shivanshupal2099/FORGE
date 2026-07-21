@@ -4,6 +4,7 @@ import { FaMapLocationDot } from 'react-icons/fa6';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
+import axios from '../api/axios';
 import maleImage from '../assets/male.png';
 import femaleImage from '../assets/female.png';
 
@@ -70,43 +71,38 @@ function EditProfilePage() {
           // Use the user's email as UID since that's what we store in MongoDB
           const uid = user.email;
           
-          const response = await fetch(`http://localhost:5000/api/profile/${uid}`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          const data = await response.json();
+          const response = await axios.get(`/profile/${uid}`);
           
-          if (data.success && data.profile) {
+          if (response.data.success && response.data.profile) {
             setProfileData({
-              name: `${data.profile.first_name} ${data.profile.last_name}`,
-              bio: data.profile.bio || '',
-              profession: data.profile.department || '',
-              domain: data.profile.domain || '',
-              lookingFor: data.profile.looking_for || [],
+              name: `${response.data.profile.first_name} ${response.data.profile.last_name}`,
+              bio: response.data.profile.bio || '',
+              profession: response.data.profile.department || '',
+              domain: response.data.profile.domain || '',
+              lookingFor: response.data.profile.looking_for || [],
               customLookingFor: '',
-              contactNumber: data.profile.contact_number || '',
-              gender: data.profile.gender || '',
-              location: data.profile.location || '',
+              contactNumber: response.data.profile.contact_number || '',
+              gender: response.data.profile.gender || '',
+              location: response.data.profile.location || '',
               locationCoordinates: null,
-              avatarUrl: data.profile.avatar_url || '',
-              isServiceProvider: data.profile.is_service_provider || false,
-              services: data.profile.services || [],
+              avatarUrl: response.data.profile.avatar_url || '',
+              isServiceProvider: response.data.profile.is_service_provider || false,
+              services: response.data.profile.services || [],
             });
-            setVisibilitySettings(data.profile.visibility_settings || {
+            setVisibilitySettings(response.data.profile.visibility_settings || {
               show_name: true,
               show_bio: true,
               show_looking_for: true,
               show_services: true
             });
-            setProfessionSearch(data.profile.department || '');
+            setProfessionSearch(response.data.profile.department || '');
             
             // Load social links
-            if (data.profile.github_url || data.profile.linkedin_url || data.profile.portfolio_url) {
+            if (response.data.profile.github_url || response.data.profile.linkedin_url || response.data.profile.portfolio_url) {
               const links = [];
-              if (data.profile.github_url) links.push({ title: 'GitHub', url: data.profile.github_url });
-              if (data.profile.linkedin_url) links.push({ title: 'LinkedIn', url: data.profile.linkedin_url });
-              if (data.profile.portfolio_url) links.push({ title: 'Portfolio', url: data.profile.portfolio_url });
+              if (response.data.profile.github_url) links.push({ title: 'GitHub', url: response.data.profile.github_url });
+              if (response.data.profile.linkedin_url) links.push({ title: 'LinkedIn', url: response.data.profile.linkedin_url });
+              if (response.data.profile.portfolio_url) links.push({ title: 'Portfolio', url: response.data.profile.portfolio_url });
               if (links.length > 0) {
                 setSocialLinks(links);
               }
@@ -529,37 +525,28 @@ function EditProfilePage() {
       console.log('Profile data:', profileData);
       console.log('Social links:', socialLinks);
       
-      const response = await fetch('http://localhost:5000/api/profile/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          uid: uid,
-          name: profileData.name,
-          bio: profileData.bio,
-          profession: profileData.profession,
-          domain: profileData.domain,
-          lookingFor: profileData.lookingFor,
-          contactNumber: profileData.contactNumber,
-          avatarUrl: profileData.avatarUrl,
-          gender: profileData.gender,
-          location: profileData.location,
-          latitude: profileData.locationCoordinates?.latitude || null,
-          longitude: profileData.locationCoordinates?.longitude || null,
-          socialLinks: socialLinks,
-          isServiceProvider: profileData.isServiceProvider,
-          services: profileData.services,
-          visibilitySettings: visibilitySettings
-        })
+      const response = await axios.put('/profile/update', {
+        uid: uid,
+        name: profileData.name,
+        bio: profileData.bio,
+        profession: profileData.profession,
+        domain: profileData.domain,
+        lookingFor: profileData.lookingFor,
+        contactNumber: profileData.contactNumber,
+        avatarUrl: profileData.avatarUrl,
+        gender: profileData.gender,
+        location: profileData.location,
+        latitude: profileData.locationCoordinates?.latitude || null,
+        longitude: profileData.locationCoordinates?.longitude || null,
+        socialLinks: socialLinks,
+        isServiceProvider: profileData.isServiceProvider,
+        services: profileData.services,
+        visibilitySettings: visibilitySettings
       });
 
-      console.log('Response status:', response.status);
-      const data = await response.json();
-      console.log('Response data:', data);
+      console.log('Response data:', response.data);
 
-      if (data.success) {
+      if (response.data.success) {
         setPopupMessage('Profile saved successfully!');
         setPopupType('success');
         setShowPopup(true);
@@ -568,7 +555,7 @@ function EditProfilePage() {
         }, 1500);
       } else {
         setError('Failed to save profile');
-        setPopupMessage('Failed to save profile: ' + (data.message || data.error || 'Unknown error'));
+        setPopupMessage('Failed to save profile: ' + (response.data.message || response.data.error || 'Unknown error'));
         setPopupType('error');
         setShowPopup(true);
       }

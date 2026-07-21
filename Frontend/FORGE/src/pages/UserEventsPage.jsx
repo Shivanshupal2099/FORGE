@@ -7,11 +7,13 @@ import { useAuth } from '../contexts/AuthContext';
 import Event from '../Components/Event';
 import ViewEvent from '../Components/ViewEvent';
 import FilterPopup from '../Components/FilterPopup';
+import axios from '../api/axios';
+
+
+const MODAL_Z_INDEX = 2000;  
 
 
 
-
-const MODAL_Z_INDEX = 2000;
 
 function UserEventsPage() {
   const { user } = useAuth();
@@ -29,6 +31,9 @@ function UserEventsPage() {
     paidOnly: false,
   });
 
+
+
+
   useEffect(() => {
     const loadCreatedEvents = async () => {
       try {
@@ -38,15 +43,10 @@ function UserEventsPage() {
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/events/user/${uid}`, {
-          headers: {
-            'Authorization': `Bearer ${user?.email}`
-          }
-        });
-        const data = await response.json();
+        const response = await axios.get(`/events/user/${uid}`);
         
-        if (data.success) {
-          setCreatedEvents(Array.isArray(data.events) ? data.events : []);
+        if (response.data.success) {
+          setCreatedEvents(Array.isArray(response.data.events) ? response.data.events : []);
         }
       } catch (error) {
         console.error('Error loading user events:', error);
@@ -84,34 +84,21 @@ function UserEventsPage() {
 
   const handleDeleteEvent = async (eventId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/events/${eventId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${user?.email}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await axios.delete(`/events/${eventId}`);
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         showNotification('Event deleted successfully!', 'success');
         // Refresh event list
         const uid = user?.email;
         if (uid) {
-          const eventsResponse = await fetch(`http://localhost:5000/api/events/user/${uid}`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-          const eventsData = await eventsResponse.json();
-          if (eventsData.success) {
-            setCreatedEvents(Array.isArray(eventsData.events) ? eventsData.events : []);
+          const eventsResponse = await axios.get(`/events/user/${uid}`);
+          if (eventsResponse.data.success) {
+            setCreatedEvents(Array.isArray(eventsResponse.data.events) ? eventsResponse.data.events : []);
           }
         }
         return true;
       } else {
-        showNotification(data.message || 'Failed to delete event', 'error');
+        showNotification(response.data.message || 'Failed to delete event', 'error');
         return false;
       }
     } catch (error) {
@@ -585,16 +572,14 @@ function UserEventsPage() {
             // Refresh event list
             const uid = user?.email;
             if (uid) {
-              fetch(`http://localhost:5000/api/events/user/${uid}`, {
-                headers: {
-                  'Authorization': `Bearer ${user?.email}`
+              axios.get(`/events/user/${uid}`)
+              .then(response => {
+                if (response.data.success) {
+                  setCreatedEvents(Array.isArray(response.data.events) ? response.data.events : []);
                 }
               })
-              .then(res => res.json())
-              .then(data => {
-                if (data.success) {
-                  setCreatedEvents(Array.isArray(data.events) ? data.events : []);
-                }
+              .catch(error => {
+                console.error('Error refreshing events:', error);
               });
             }
           }}
@@ -613,5 +598,3 @@ function UserEventsPage() {
 }
 
 export default UserEventsPage;
-
-

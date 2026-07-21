@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaPlus, FaTrash, FaArrowLeft, FaClipboardList } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaArrowLeft, FaClipboardList, FaEye, FaEdit, FaCopy } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
+import axios from '../api/axios';
 import './Survey.css';
 
 const createEmptyOption = () => ({
@@ -88,6 +90,7 @@ function PopupModal({ type, message, onClose, onConfirm }) {
 }
 
 function Survey() {
+  const { user } = useAuth();
   const [survey, setSurvey] = useState({
     title: '',
     description: '',
@@ -98,28 +101,63 @@ function Survey() {
   const [createdSurveys, setCreatedSurveys] = useState([]);
   const [expandedSurveyId, setExpandedSurveyId] = useState(null);
   const [popup, setPopup] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentSurveyId, setCurrentSurveyId] = useState(null);
 
   useEffect(() => {
-    const surveys = JSON.parse(localStorage.getItem('forge_surveys') || '[]');
-    setCreatedSurveys(surveys);
-  }, []);
+    loadSurveys();
+  }, [user]);
 
-  const loadSurveys = () => {
-    const surveys = JSON.parse(localStorage.getItem('forge_surveys') || '[]');
-    setCreatedSurveys(surveys);
+  const loadSurveys = async () => {
+    if (!user?.email) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get(`/survey/user/${user.email}`);
+      
+      console.log('Load surveys response:', response.data);
+      
+      if (response.data.success) {
+        setCreatedSurveys(response.data.surveys);
+      } else {
+        setError(response.data.message || 'Failed to load surveys');
+      }
+    } catch (err) {
+      setError('Error loading surveys');
+      console.error('Error loading surveys:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteSurvey = (surveyId) => {
+  const deleteSurvey = async (surveyId) => {
     setPopup({
       type: 'confirm',
-      message: 'Are you sure you want to delete this survey?',
-      onConfirm: () => {
-        const existingSurveys = JSON.parse(localStorage.getItem('forge_surveys') || '[]');
-        const updatedSurveys = existingSurveys.filter((s) => s.id !== surveyId);
-        localStorage.setItem('forge_surveys', JSON.stringify(updatedSurveys));
-        setCreatedSurveys(updatedSurveys);
-        if (expandedSurveyId === surveyId) {
-          setExpandedSurveyId(null);
+      message: 'Are you sure you want to delete this survey? This will delete all questions and responses.',
+      onConfirm: async () => {
+        try {
+          setLoading(true);
+          const response = await axios.delete(`/survey/${surveyId}`);
+          
+          if (response.data.success) {
+            setCreatedSurveys(createdSurveys.filter((s) => s._id !== surveyId));
+            if (expandedSurveyId === surveyId) {
+              setExpandedSurveyId(null);
+            }
+            setPopup({
+              type: 'alert',
+              message: 'Survey deleted successfully'
+            });
+          } else {
+            setError(response.data.message || 'Failed to delete survey');
+          }
+        } catch (err) {
+          setError('Error deleting survey');
+          console.error('Error deleting survey:', err);
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -309,31 +347,124 @@ function Survey() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     
-    const newSurvey = {
-      id: Date.now().toString(),
-      ...survey,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('token') || user.email;
+      
+      console.log('Creating survey with token:', token);
+      console.log('User email:', user.email);
+      console.log('Survey data:', survey);
+      
+      // Create survey first
+      const surveyResponse = await axios.post('/survey/create', {
+        uid: user.email,
+        title: survey.title,
+        description: survey.description,
+        target_responses: 100
+      });
+      
+      const surveyData = surveyResponse.data;
+      console.log('Survey creation response:', surveyData);
+      
+      if (!surveyData.success) {
+        setError(surveyData.message || 'Failed to create survey');
+        return;
+      }
+      
+      const surveyId = surveyData.survey._id;
+      console.log('Survey created with ID:', surveyId);
+      
+      // Create questions
+      const questionPromises = survey.questions.map((question, index) => {
+        const options = question.answerType !== 'text' 
+          ? question.options.map(opt => opt.value).filter(v => v.trim() !== '')
+          : [];
+        
+        console.log(`Creating question ${index}:`, question.questionText, 'Type:', question.answerType, 'Options:', options);
+        
+        return axios.post(`/survey/${surveyId}/questions`, {
+          question: question.questionText,
+          type: question.answerType,
+          required: false,
+          options: options,
+          order: index
+        });
+      });
+      
+      const questionResponses = await Promise.all(questionPromises);
+      console.log('Question creation responses:', questionResponses);
+      
+      setSurvey({
+        title: '',
+        description: '',
+        questions: [createEmptyQuestion()],
+      });
 
-    const existingSurveys = JSON.parse(localStorage.getItem('forge_surveys') || '[]');
-    const updatedSurveys = [...existingSurveys, newSurvey];
-    localStorage.setItem('forge_surveys', JSON.stringify(updatedSurveys));
+      await loadSurveys();
+      setActiveTab('list');
+      setPopup({
+        type: 'alert',
+        message: 'Survey created successfully!',
+      });
+    } catch (err) {
+      setError('Error creating survey');
+      console.error('Error creating survey:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setSurvey({
-      title: '',
-      description: '',
-      questions: [createEmptyQuestion()],
-    });
+  const publishSurvey = async (surveyId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Publishing survey:', surveyId);
+      
+      const response = await axios.put(`/survey/${surveyId}/publish`);
+      console.log('Publish response:', response.data);
+      
+      if (response.data.success) {
+        await loadSurveys();
+        setPopup({
+          type: 'alert',
+          message: 'Survey published successfully!'
+        });
+      } else {
+        setError(response.data.message || 'Failed to publish survey');
+      }
+    } catch (err) {
+      setError('Error publishing survey');
+      console.error('Error publishing survey:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    loadSurveys();
-    setActiveTab('list');
-    setPopup({
-      type: 'alert',
-      message: 'Survey created successfully!',
-    });
+  const closeSurvey = async (surveyId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.put(`/survey/${surveyId}/close`);
+      
+      if (response.data.success) {
+        await loadSurveys();
+        setPopup({
+          type: 'alert',
+          message: 'Survey closed successfully!'
+        });
+      } else {
+        setError(response.data.message || 'Failed to close survey');
+      }
+    } catch (err) {
+      setError('Error closing survey');
+      console.error('Error closing survey:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -545,7 +676,11 @@ function Survey() {
           </form>
         ) : (
           <div className="my-surveys-list">
-            {createdSurveys.length === 0 ? (
+            {loading ? (
+              <div className="survey-empty-state">
+                <p>Loading surveys...</p>
+              </div>
+            ) : createdSurveys.length === 0 ? (
               <div className="survey-empty-state">
                 <div className="survey-empty-state__icon">
                   <FaClipboardList />
@@ -562,30 +697,59 @@ function Survey() {
               </div>
             ) : (
               createdSurveys.map((createdSurvey) => {
-                const isExpanded = expandedSurveyId === createdSurvey.id;
+                const isExpanded = expandedSurveyId === createdSurvey._id;
                 return (
-                  <div key={createdSurvey.id} className="my-survey-card">
+                  <div key={createdSurvey._id} className="my-survey-card">
                     <div className="my-survey-card__header">
                       <div className="my-survey-card__title-section">
                         <h3 className="my-survey-card__title">{createdSurvey.title}</h3>
                         <div className="my-survey-card__meta">
-                          <span>Created: {formatDate(createdSurvey.createdAt)}</span>
+                          <span>Status: <span className={`badge-status badge-status--${createdSurvey.status}`}>{createdSurvey.status}</span></span>
                           <span>•</span>
-                          <span>{createdSurvey.questions.length} {createdSurvey.questions.length === 1 ? 'Question' : 'Questions'}</span>
+                          <span>Created: {formatDate(createdSurvey.created_at)}</span>
+                          <span>•</span>
+                          <span>{createdSurvey.current_responses} responses</span>
                         </div>
                       </div>
                       <div className="my-survey-card__actions">
                         <button
                           type="button"
                           className="button-secondary"
-                          onClick={() => toggleExpandSurvey(createdSurvey.id)}
+                          onClick={() => toggleExpandSurvey(createdSurvey._id)}
                         >
                           {isExpanded ? 'Hide Details' : 'View Details'}
                         </button>
+                        {createdSurvey.status === 'draft' && (
+                          <button
+                            type="button"
+                            className="button-primary"
+                            onClick={() => publishSurvey(createdSurvey._id)}
+                            disabled={loading}
+                          >
+                            Publish
+                          </button>
+                        )}
+                        {createdSurvey.status === 'active' && (
+                          <button
+                            type="button"
+                            className="button-secondary"
+                            onClick={() => closeSurvey(createdSurvey._id)}
+                            disabled={loading}
+                          >
+                            Close
+                          </button>
+                        )}
+                        <Link
+                          to={`/survey/${createdSurvey._id}/results`}
+                          className="button-secondary"
+                        >
+                          <FaEye /> Results
+                        </Link>
                         <button
                           type="button"
                           className="button-danger"
-                          onClick={() => deleteSurvey(createdSurvey.id)}
+                          onClick={() => deleteSurvey(createdSurvey._id)}
+                          disabled={loading}
                         >
                           <FaTrash aria-hidden="true" /> Delete
                         </button>
@@ -593,39 +757,6 @@ function Survey() {
                     </div>
                     {createdSurvey.description && (
                       <p className="my-survey-card__description">{createdSurvey.description}</p>
-                    )}
-                    {isExpanded && (
-                      <div className="my-survey-card__preview">
-                        <h4 className="my-survey-card__preview-title">Questions Preview</h4>
-                        <div className="my-survey-card__questions-list">
-                          {createdSurvey.questions.map((q, qIndex) => (
-                            <div key={q.id || qIndex} className="my-survey-card__question-item">
-                              <span className="question-item__number">Q{qIndex + 1}.</span>
-                              <div className="question-item__body">
-                                <div className="question-item__text">{q.questionText}</div>
-                                <div className="question-item__type">
-                                  Type: <span className="badge-type">{q.answerType}</span>
-                                </div>
-                                {q.answerType !== 'text' && q.options && (
-                                  <div className="question-item__options-preview">
-                                    {q.options.map((opt, optIndex) => (
-                                      <div key={opt.id || optIndex} className="question-item__option-preview-chip">
-                                        {q.optionType === 'image' && opt.value ? (
-                                          <div className="question-item__option-image-preview">
-                                            <img src={opt.value} alt={`Option preview ${optIndex}`} />
-                                          </div>
-                                        ) : (
-                                          <span>{opt.value || `Option ${optIndex + 1}`}</span>
-                                        )}
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
                     )}
                   </div>
                 );
