@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaSlidersH, FaTimes, FaChevronDown, FaChevronUp, FaCheck, FaMapMarkerAlt, FaBriefcase, FaUser, FaShieldAlt, FaClock } from "react-icons/fa";
+import { FaTimes, FaCheck, FaBriefcase, FaUser, FaShieldAlt, FaClock } from "react-icons/fa";
 
 const professionOptions = [
   "AI Agent Developer",
@@ -76,29 +76,13 @@ const onlineStatusOptions = ["Any", "Online now", "Active recently", "Offline"];
 function Filtersection() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
     const [filters, setFilters] = useState({
-        country: "",
         profession: "",
         gender: "Any",
         onlineStatus: "Any",
         verifiedOnly: false
     });
     const [saved, setSaved] = useState(false);
-    const [expandedSections, setExpandedSections] = useState({
-        basic: !isMobile,
-        advanced: false
-    });
 
-    useEffect(() => {
-        const handleResize = () => {
-            const mobile = window.innerWidth <= 600;
-            setIsMobile(mobile);
-            if (mobile) {
-                setExpandedSections({ basic: false, advanced: false });
-            }
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
 
     
@@ -112,14 +96,10 @@ function Filtersection() {
     };
 
 
-    const toggleSection = (section) => {
-        setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
-    };
 
 
     const resetFilters = () => {
         setFilters({
-            country: "",
             profession: "",
             gender: "Any",
             onlineStatus: "Any",
@@ -131,7 +111,6 @@ function Filtersection() {
 
     const getActiveFilterCount = () => {
         let count = 0;
-        if (filters.country) count++;
         if (filters.profession) count++;
         if (filters.gender !== "Any") count++;
         if (filters.onlineStatus !== "Any") count++;
@@ -164,122 +143,80 @@ function Filtersection() {
             </div>
 
 
-            {/* Basic Filters Section */}
-            <div style={{ ...styles.section, ...(isMobile ? styles.sectionMobile : {}) }}>
-                <button 
-                    style={{ ...styles.sectionHeader, ...(isMobile ? styles.sectionHeaderMobile : {}) }}
-                    onClick={() => toggleSection('basic')}
-                >
-                    <span style={{ ...styles.sectionTitle, ...(isMobile ? styles.sectionTitleMobile : {}) }}><FaSlidersH style={styles.sectionIcon} /> Basic Filters</span>
-                    {expandedSections.basic ? <FaChevronUp /> : <FaChevronDown />}
-                </button>
-                {expandedSections.basic && (
-                    <div style={{ ...styles.sectionContent, ...(isMobile ? styles.sectionContentMobile : {}) }}>
-                        <div style={{ ...styles.grid, ...(isMobile ? styles.gridMobile : {}) }}>
-                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaMapMarkerAlt style={styles.labelIcon} /> Country</span>
-                                <input
-                                    type="text"
-                                    name="country"
-                                    placeholder="Enter country"
-                                    value={filters.country}
-                                    onChange={handleChange}
-                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                                />
-                            </label>
+            <div style={{ ...styles.sectionContent, ...(isMobile ? styles.sectionContentMobile : {}) }}>
+                <div style={{ ...styles.grid, ...(isMobile ? styles.gridMobile : {}) }}>
+                    <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                        <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaBriefcase style={styles.labelIcon} /> People You're Looking For</span>
+                        <select
+                            name="profession"
+                            value={filters.profession}
+                            onChange={handleChange}
+                            style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
+                        >
+                            <option value="">Choose profession</option>
+                            {professionOptions.map((option) => (
+                                <option key={option} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
 
+                    <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                        <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaUser style={styles.labelIcon} /> Gender</span>
+                        <select
+                            name="gender"
+                            value={filters.gender}
+                            onChange={handleChange}
+                            style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
+                        >
+                            {genderOptions.map((option) => (
+                                <option key={option} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
 
-                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaBriefcase style={styles.labelIcon} /> People You're Looking For</span>
-                                <select
-                                    name="profession"
-                                    value={filters.profession}
-                                    onChange={handleChange}
-                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                                >
-                                    <option value="">Choose profession</option>
-                                    {professionOptions.map((option) => (
-                                        <option key={option} value={option}>
-                                            {option}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
+                    <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
+                        <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaClock style={styles.labelIcon} /> Online Status</span>
+                        <select
+                            name="onlineStatus"
+                            value={filters.onlineStatus}
+                            onChange={handleChange}
+                            style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
+                        >
+                            {onlineStatusOptions.map((option) => (
+                                <option key={option} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                </div>
 
-                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaUser style={styles.labelIcon} /> Gender</span>
-                                <select
-                                    name="gender"
-                                    value={filters.gender}
-                                    onChange={handleChange}
-                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                                >
-                                    {genderOptions.map((option) => (
-                                        <option key={option} value={option}>
-                                            {option}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                        </div>
-
+                {/* Verified Only Toggle */}
+                <label style={{ ...styles.toggleContainer, ...(isMobile ? styles.toggleContainerMobile : {}) }}>
+                    <div>
+                        <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaShieldAlt style={styles.labelIcon} /> Verified profiles only</span>
+                        <span style={{ ...styles.noteText, ...(isMobile ? styles.noteTextMobile : {}) }}>
+                            Show genuine users who are verified and interested in being part of something great
+                        </span>
                     </div>
-                )}
-            </div>
-
-            {/* Advanced Filters Section */}
-            <div style={{ ...styles.section, ...(isMobile ? styles.sectionMobile : {}) }}>
-                <button 
-                    style={{ ...styles.sectionHeader, ...(isMobile ? styles.sectionHeaderMobile : {}) }}
-                    onClick={() => toggleSection('advanced')}
-                >
-                    <span style={{ ...styles.sectionTitle, ...(isMobile ? styles.sectionTitleMobile : {}) }}><FaSlidersH style={styles.sectionIcon} /> Advanced Filters</span>
-                    {expandedSections.advanced ? <FaChevronUp /> : <FaChevronDown />}
-                </button>
-                {expandedSections.advanced && (
-                    <div style={{ ...styles.sectionContent, ...(isMobile ? styles.sectionContentMobile : {}) }}>
-                        <div style={{ ...styles.grid, ...(isMobile ? styles.gridMobile : {}) }}>
-                            <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaClock style={styles.labelIcon} /> Online Status</span>
-                                <select
-                                    name="onlineStatus"
-                                    value={filters.onlineStatus}
-                                    onChange={handleChange}
-                                    style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                                >
-                                    {onlineStatusOptions.map((option) => (
-                                        <option key={option} value={option}>
-                                            {option}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                        </div>
-
-                        {/* Verified Only Toggle */}
-                        <label style={{ ...styles.toggleContainer, ...(isMobile ? styles.toggleContainerMobile : {}) }}>
-                            <div>
-                                <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaShieldAlt style={styles.labelIcon} /> Verified profiles only</span>
-                                <span style={{ ...styles.noteText, ...(isMobile ? styles.noteTextMobile : {}) }}>
-                                    Show genuine users who are verified and interested in being part of something great
-                                </span>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => handleChange({ target: { name: 'verifiedOnly', type: 'checkbox', checked: !filters.verifiedOnly } })}
-                                style={{
-                                    ...styles.toggleButton,
-                                    ...(filters.verifiedOnly ? styles.toggleButtonActive : {})
-                                }}
-                            >
-                                <span style={{
-                                    ...styles.toggleSlider,
-                                    ...(filters.verifiedOnly ? styles.toggleSliderActive : {})
-                                }}></span>
-                            </button>
-                        </label>
-                    </div>
-                )}
+                    <button
+                        type="button"
+                        onClick={() => handleChange({ target: { name: 'verifiedOnly', type: 'checkbox', checked: !filters.verifiedOnly } })}
+                        style={{
+                            ...styles.toggleButton,
+                            ...(filters.verifiedOnly ? styles.toggleButtonActive : {})
+                        }}
+                    >
+                        <span style={{
+                            ...styles.toggleSlider,
+                            ...(filters.verifiedOnly ? styles.toggleSliderActive : {})
+                        }}></span>
+                    </button>
+                </label>
             </div>
 
 

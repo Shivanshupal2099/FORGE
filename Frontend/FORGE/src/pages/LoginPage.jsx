@@ -1,10 +1,11 @@
 
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '../contexts/AuthContext';
 
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { supabase } = useAuth();
 
     const signInWithGoogle = async () => {
@@ -22,28 +23,31 @@ function LoginPage() {
    };
 
    useEffect(() => {
+     // Get the intended destination from location state, default to home
+     const from = location.state?.from?.pathname || '/home';
+
      // Check if user is already authenticated
      supabase.auth.getSession().then(({ data: { session } }) => {
        if (session) {
-         // Redirect to home after 2 seconds
-         setTimeout(() => {
-           navigate('/home');
-         }, 2000);
+         console.log('LoginPage - User already authenticated, redirecting to:', from);
+         console.log('LoginPage - REDIRECT TRIGGERED from LoginPage useEffect');
+         // Redirect immediately to intended destination
+         navigate(from, { replace: true });
        }
      });
 
      // Listen for auth state changes
      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
        if (event === 'SIGNED_IN' && session) {
-         // Redirect to home after 2 seconds
-         setTimeout(() => {
-           navigate('/home');
-         }, 2000);
+         console.log('LoginPage - User signed in, redirecting to:', from);
+         console.log('LoginPage - REDIRECT TRIGGERED from LoginPage auth state change');
+         // Redirect immediately to intended destination
+         navigate(from, { replace: true });
        }
      });
 
      return () => subscription.unsubscribe();
-   }, [navigate]);
+   }, [navigate, location]);
 
 
    return (

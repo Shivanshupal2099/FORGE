@@ -88,7 +88,7 @@ exports.updateProfile = async (req, res) => {
             sharing_level: 'exact',
             updated_at: new Date()
           },
-          { upsert: true, new: true }
+          { upsert: true, returnDocument: 'after' }
         );
         console.log('User location saved to UserLocation database');
       }
@@ -152,7 +152,7 @@ exports.updateProfile = async (req, res) => {
             sharing_level: 'exact',
             updated_at: new Date()
           },
-          { upsert: true, new: true }
+          { upsert: true, returnDocument: 'after' }
         );
         console.log('User location saved to UserLocation database');
       }

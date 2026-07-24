@@ -55,7 +55,7 @@ function SettingPage() {
 
     setIsDeleting(true);
     try {
-      const response = await axios.delete('/auth/delete-account');
+      const response = await axios.delete('/api/auth/delete-account');
 
       if (response.data.success) {
         // Clear local storage

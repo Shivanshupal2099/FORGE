@@ -161,7 +161,7 @@ exports.updateSurvey = async (req, res) => {
         target_responses: target_responses || survey.target_responses,
         expires_at: expires_at !== undefined ? expires_at : survey.expires_at
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     res.json({
@@ -267,7 +267,7 @@ exports.publishSurvey = async (req, res) => {
     const updatedSurvey = await Survey.findByIdAndUpdate(
       id,
       { status: 'active' },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     res.json({
@@ -310,7 +310,7 @@ exports.closeSurvey = async (req, res) => {
     const updatedSurvey = await Survey.findByIdAndUpdate(
       id,
       { status: 'closed' },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     res.json({
@@ -465,7 +465,7 @@ exports.updateQuestion = async (req, res) => {
         required: required !== undefined ? required : questionDoc.required,
         options: options !== undefined ? options : questionDoc.options
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     res.json({

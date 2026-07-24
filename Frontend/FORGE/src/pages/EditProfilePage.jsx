@@ -71,7 +71,7 @@ function EditProfilePage() {
           // Use the user's email as UID since that's what we store in MongoDB
           const uid = user.email;
           
-          const response = await axios.get(`/profile/${uid}`);
+          const response = await axios.get(`/api/profile/${uid}`);
           
           if (response.data.success && response.data.profile) {
             setProfileData({
@@ -525,7 +525,7 @@ function EditProfilePage() {
       console.log('Profile data:', profileData);
       console.log('Social links:', socialLinks);
       
-      const response = await axios.put('/profile/update', {
+      const response = await axios.put('/api/profile/update', {
         uid: uid,
         name: profileData.name,
         bio: profileData.bio,
@@ -634,6 +634,14 @@ function EditProfilePage() {
     boxShadow: 'var(--app-soft-shadow)',
   };
 
+  const avatarSrc =
+    profileData.avatarUrl ||
+    (profileData.gender === 'Male'
+      ? maleImage
+      : profileData.gender === 'Female'
+        ? femaleImage
+        : null);
+
   return (
     <div
       className="page-shell"
@@ -724,11 +732,13 @@ function EditProfilePage() {
                 position: 'relative',
               }}
             >
-              <img
-                src={profileData.avatarUrl || (profileData.gender === 'Male' ? maleImage : profileData.gender === 'Female' ? femaleImage : '')}
-                alt={profileData.gender || 'Profile'}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+              {avatarSrc && (
+                <img
+                  src={avatarSrc}
+                  alt={profileData.gender || 'Profile'}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              )}
               <label
                 htmlFor="photo-upload"
                 style={{

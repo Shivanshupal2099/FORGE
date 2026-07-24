@@ -12,9 +12,36 @@ const locationRoutes=require('./routes/location.routes')
 const eventRoutes=require('./routes/event.routes')
 const { ConnectDB }=require('./config/database')
 const { activityMiddleware, markInactiveUsersOffline }=require('./middlewares/activity.middleware')
+const errorHandler = require('./middlewares/error.middleware')
 
 
-dotenv.config();
+
+
+const path = require('path');
+const fs = require('fs');
+
+// Load .env file with encoding fallback
+const envPath = path.resolve(__dirname, '.env');
+dotenv.config({ path: envPath });
+
+// Manual fallback if dotenv doesn't load variables (handles encoding issues)
+if (!process.env.MONGODB_URI) {
+  try {
+    let envContent = fs.readFileSync(envPath, 'utf8');
+    // Handle UTF-16 LE encoding with BOM
+    if (envContent.charCodeAt(0) === 0xFEFF || envContent.charCodeAt(0) === 0xFFFE || envContent.includes('��')) {
+      envContent = fs.readFileSync(envPath, 'utf16le');
+    }
+    envContent.split('\n').forEach(line => {
+      const [key, ...valueParts] = line.split('=');
+      if (key && valueParts.length > 0) {
+        process.env[key.trim()] = valueParts.join('=').trim();
+      }
+    });
+  } catch (err) {
+    console.error('Error reading .env file:', err.message);
+  }
+}
 
 
 
@@ -28,22 +55,22 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }))
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
-})
-app.use('/api/', limiter)
+// Rate limiting (disabled for development)
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // Limit each IP to 100 requests per windowMs
+//   message: 'Too many requests from this IP, please try again later.'
+// })
+// app.use('/api/auth', limiter)
 
-// Stricter rate limiting for auth routes
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 auth requests per windowMs
-  message: 'Too many authentication attempts, please try again later.'
-})
-app.use('/api/auth/google', authLimiter)
-app.use('/api/auth/sync', authLimiter)
+// Stricter rate limiting for auth routes (disabled for development)
+// const authLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 5, // Limit each IP to 5 auth requests per windowMs
+//   message: 'Too many authentication attempts, please try again later.'
+// })
+// app.use('/api/auth/google', authLimiter)
+// app.use('/api/auth/sync', authLimiter)
 
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
@@ -74,7 +101,9 @@ app.use('/api/auth',authRoutes)
 app.use('/api/profile',profileRoutes)
 app.use('/api/survey',surveyRoutes)
 app.use('/api/location',locationRoutes)
-app.use('/api/events',eventRoutes)
+app.use('/api/events',eventRoutes)                    
+// Error handling middleware (must be last)            
+app.use(errorHandler)
 
 
 

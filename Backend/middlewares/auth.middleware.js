@@ -14,31 +14,51 @@ const authMiddleware = async (req, res, next) => {
 
         const token = authHeader.split(" ")[1];
 
-        // Try to verify as JWT first
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = decoded;
-            return next();
-        } catch (jwtError) {
-            // If JWT verification fails, treat it as a Supabase token or email
-            // Try to find user by treating token as uid (Supabase user id) or email
-            let user = await User.findOne({ uid: token });
-            
-            // If not found by uid, try finding by email
-            if (!user) {
-                user = await User.findOne({ email: token });
+        // Verify backend-issued JWT
+        if (process.env.JWT_SECRET) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                req.user = decoded;
+                return next();
+            } catch (jwtError) {
+                // Fall through to Supabase token handling
             }
-            
-            if (!user) {
-                return res.status(401).json({
-                    success: false,
-                    message: "Invalid token or user not found"
-                });
-            }
-            
-            req.user = user;
-            return next();
         }
+
+        // Verify Supabase session JWT when configured
+        if (process.env.SUPABASE_JWT_SECRET) {
+            try {
+                const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
+                const email = decoded.email?.toLowerCase();
+
+                if (email) {
+                    const user = await User.findOne({ email });
+                    if (user) {
+                        req.user = user;
+                        return next();
+                    }
+                }
+            } catch (supabaseJwtError) {
+                // Fall through to legacy token lookup
+            }
+        }
+
+        // Legacy fallback: token stored as uid or email string
+        let user = await User.findOne({ uid: token });
+
+        if (!user) {
+            user = await User.findOne({ email: token.toLowerCase() });
+        }
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid token or user not found"
+            });
+        }
+
+        req.user = user;
+        return next();
     } catch (error) {
         return res.status(401).json({
             success: false,

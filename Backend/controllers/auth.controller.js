@@ -1,7 +1,20 @@
+const jwt = require('jsonwebtoken');
 const User = require('../models/Users.model');
 const Profile = require('../models/Profile.model');
 const UserSession = require('../models/UserSession.model');
 const { markUserOnline, markUserOffline, getUserOnlineStatus } = require('../middlewares/activity.middleware');
+
+const signBackendToken = (user) => {
+    return jwt.sign(
+        {
+            uid: user.uid,
+            email: user.email,
+            _id: user._id.toString(),
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+};
 
 exports.googleAuth = async (req, res) => {
     try {
@@ -75,7 +88,8 @@ exports.googleAuth = async (req, res) => {
                 uid: user.uid,
                 email: user.email,
                 _id: user._id
-            }
+            },
+            token: signBackendToken(user)
         });
     } catch (error) {
         console.error('Error in googleAuth:', error);
@@ -168,7 +182,8 @@ exports.syncUser = async (req, res) => {
                 uid: user.uid,
                 email: user.email,
                 _id: user._id
-            }
+            },
+            token: signBackendToken(user)
         });
     } catch (error) {
         console.error('Error in syncUser:', error);
@@ -344,9 +359,8 @@ exports.deleteAccount = async (req, res) => {
 
 exports.getUserStats = async (req, res) => {
     try {
-        const totalUsers = await User.countDocuments({ deleted_at: null });
+        const totalUsers = await User.countDocuments({});
         const activeUsers = await User.countDocuments({ 
-            deleted_at: null,
             is_online: true 
         });
 

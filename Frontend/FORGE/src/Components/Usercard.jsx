@@ -50,7 +50,7 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
 
       try {
         setLoadingStatus(true);
-        const response = await axios.get(`/auth/status/${user.email}`);
+        const response = await axios.get(`/api/auth/status/${user.email}`);
         if (response.data.success && response.data.status) {
           setIsOnline(response.data.status.is_online);
         }

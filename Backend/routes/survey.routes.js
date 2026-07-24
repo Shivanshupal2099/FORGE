@@ -1,70 +1,71 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middlewares/auth.middleware");
+const { surveyValidation, questionValidation, idValidation, uidValidation } = require("../middlewares/validation.middleware");
 
 const surveyController = require("../controllers/survey.controller");
 
 // ==================== Survey Routes ====================
 
 // Create a new survey
-router.post("/create", authMiddleware, surveyController.createSurvey);
+router.post("/create", authMiddleware, surveyValidation, surveyController.createSurvey);
 
 // Get all surveys created by a user
-router.get("/user/:uid", authMiddleware, surveyController.getUserSurveys);
+router.get("/user/:uid", authMiddleware, uidValidation, surveyController.getUserSurveys);
 
 // Get public surveys
 router.get("/public/all", surveyController.getPublicSurveys);
 
 // Get a single survey by ID
-router.get("/:id", authMiddleware, surveyController.getSurveyById);
+router.get("/:id", authMiddleware, idValidation, surveyController.getSurveyById);
 
 // Update survey
-router.put("/:id", authMiddleware, surveyController.updateSurvey);
+router.put("/:id", authMiddleware, idValidation, surveyValidation, surveyController.updateSurvey);
 
 // Delete survey with cascade delete
-router.delete("/:id", authMiddleware, surveyController.deleteSurvey);
+router.delete("/:id", authMiddleware, idValidation, surveyController.deleteSurvey);
 
 // Publish survey
-router.put("/:id/publish", authMiddleware, surveyController.publishSurvey);
+router.put("/:id/publish", authMiddleware, idValidation, surveyController.publishSurvey);
 
 // Close survey
-router.put("/:id/close", authMiddleware, surveyController.closeSurvey);
+router.put("/:id/close", authMiddleware, idValidation, surveyController.closeSurvey);
 
 // ==================== Question Routes ====================
 
 // Add question to survey
-router.post("/:surveyId/questions", authMiddleware, surveyController.addQuestion);
+router.post("/:surveyId/questions", authMiddleware, idValidation, questionValidation, surveyController.addQuestion);
 
 // Get survey questions
-router.get("/:surveyId/questions", authMiddleware, surveyController.getSurveyQuestions);
+router.get("/:surveyId/questions", authMiddleware, idValidation, surveyController.getSurveyQuestions);
 
 // Update question
-router.put("/questions/:questionId", authMiddleware, surveyController.updateQuestion);
+router.put("/questions/:questionId", authMiddleware, idValidation, questionValidation, surveyController.updateQuestion);
 
 // Delete question
-router.delete("/questions/:questionId", authMiddleware, surveyController.deleteQuestion);
+router.delete("/questions/:questionId", authMiddleware, idValidation, surveyController.deleteQuestion);
 
 // Reorder questions
-router.put("/:surveyId/questions/reorder", authMiddleware, surveyController.reorderQuestions);
+router.put("/:surveyId/questions/reorder", authMiddleware, idValidation, surveyController.reorderQuestions);
 
 // Duplicate question
-router.post("/questions/:questionId/duplicate", authMiddleware, surveyController.duplicateQuestion);
+router.post("/questions/:questionId/duplicate", authMiddleware, idValidation, surveyController.duplicateQuestion);
 
 // ==================== Response Routes ====================
 
 // Submit survey response
-router.post("/:surveyId/responses", authMiddleware, surveyController.submitSurveyResponse);
+router.post("/:surveyId/responses", authMiddleware, idValidation, surveyController.submitSurveyResponse);
 
 // Get survey responses
-router.get("/:surveyId/responses", authMiddleware, surveyController.getSurveyResponses);
+router.get("/:surveyId/responses", authMiddleware, idValidation, surveyController.getSurveyResponses);
 
 // Get single response with answers
-router.get("/responses/:responseId", authMiddleware, surveyController.getSingleResponse);
+router.get("/responses/:responseId", authMiddleware, idValidation, surveyController.getSingleResponse);
 
 // Delete response
-router.delete("/responses/:responseId", authMiddleware, surveyController.deleteResponse);
+router.delete("/responses/:responseId", authMiddleware, idValidation, surveyController.deleteResponse);
 
 // Export responses
-router.get("/:surveyId/responses/export", authMiddleware, surveyController.exportResponses);
+router.get("/:surveyId/responses/export", authMiddleware, idValidation, surveyController.exportResponses);
 
 module.exports = router;

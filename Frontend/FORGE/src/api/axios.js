@@ -5,7 +5,7 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: false,
+  withCredentials: true,
 });
 
 // Request interceptor to add authentication token
@@ -34,9 +34,10 @@ axiosInstance.interceptors.response.use(
       
       if (error.response.status === 401) {
         // Unauthorized - token might be expired
+        console.log('axios.js - 401 error detected, clearing tokens but not redirecting');
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
-        window.location.href = '/login';
+        // Removed automatic redirect to prevent forced navigation
       }
     } else if (error.request) {
       // Request made but no response received

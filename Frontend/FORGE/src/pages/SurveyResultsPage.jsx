@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { FaArrowLeft, FaDownload, FaTrash, FaEye } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
-import './Survey.css';
+import '../Components/Survey.css';
 
 function SurveyResultsPage() {
   const { surveyId } = useParams();
@@ -26,7 +26,7 @@ function SurveyResultsPage() {
       setLoading(true);
       console.log('Loading survey:', surveyId);
       
-      const response = await axios.get(`/survey/${surveyId}`);
+      const response = await axios.get(`/api/survey/${surveyId}`);
       console.log('Survey data response:', response.data);
       
       if (response.data.success) {
@@ -45,7 +45,7 @@ function SurveyResultsPage() {
       setLoading(true);
       console.log('Loading responses for survey:', surveyId);
       
-      const response = await axios.get(`/survey/${surveyId}/responses`);
+      const response = await axios.get(`/api/survey/${surveyId}/responses`);
       console.log('Responses data:', response.data);
       
       if (response.data.success) {
@@ -64,7 +64,7 @@ function SurveyResultsPage() {
   const viewResponse = async (responseId) => {
     try {
       setLoading(true);
-      const response = await axios.get(`/survey/responses/${responseId}`);
+      const response = await axios.get(`/api/survey/responses/${responseId}`);
       
       if (response.data.success) {
         setSelectedResponse(response.data.response);
@@ -86,7 +86,7 @@ function SurveyResultsPage() {
     
     try {
       setLoading(true);
-      const response = await axios.delete(`/survey/responses/${responseId}`);
+      const response = await axios.delete(`/api/survey/responses/${responseId}`);
       
       if (response.data.success) {
         await loadResponses();
@@ -104,7 +104,7 @@ function SurveyResultsPage() {
 
   const exportResponses = async () => {
     try {
-      const response = await axios.get(`/survey/${surveyId}/responses/export`, {
+      const response = await axios.get(`/api/survey/${surveyId}/responses/export`, {
         responseType: 'blob'
       });
       

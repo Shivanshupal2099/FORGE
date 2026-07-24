@@ -5,8 +5,12 @@ const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
+  console.log('ProtectedRoute - User:', user?.email, 'Loading:', loading, 'Path:', location.pathname);
+
   // Show loading state while checking authentication
+  // Do not redirect while auth state is initializing
   if (loading) {
+    console.log('ProtectedRoute - Still loading auth state, showing loading screen');
     return (
       <div style={{
         display: 'flex',
@@ -26,12 +30,16 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  // If user is not logged in, redirect to login
+  // After loading is complete, check if user is authenticated
+  // Only redirect to login if there is no active session
   if (!user) {
+    console.log('ProtectedRoute - No active session, redirecting to login');
+    console.log('ProtectedRoute - REDIRECT TRIGGERED to /login from ProtectedRoute');
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  // Otherwise, render the children (the protected page)
+  // User is authenticated, render the protected page
+  console.log('ProtectedRoute - User authenticated, rendering children');
   return children;
 };
 

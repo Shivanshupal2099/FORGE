@@ -14,14 +14,30 @@ export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Restore session from localStorage on mount for persistence
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const savedUserId = localStorage.getItem('userId');
+    console.log('AuthContext - Checking localStorage persistence:', !!token, !!savedUserId);
+    
+    if (token && savedUserId) {
+      // Token exists, but we still need to verify with Supabase
+      // This will be handled by the getSession call below
+    }
+  }, []);
+
   const syncUserToBackend = async (user) => {
     try {
-      await axios.post('/auth/sync', {
+      const response = await axios.post('/api/auth/sync', {
         uid: user.email,
         email: user.email,
         name: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
         picture: user.user_metadata?.avatar_url || null
       });
+
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
     } catch (error) {
       console.error('Error syncing user to backend:', error);
     }
@@ -37,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     const pingActivity = async () => {
       try {
         // Make a simple request to update activity timestamp
-        await axios.get(`/auth/status/${user.email}`);
+        await axios.get(`/api/auth/status/${user.email}`);
       } catch (error) {
         console.error('Error pinging activity:', error);
       }
@@ -77,36 +93,45 @@ export const AuthProvider = ({ children }) => {
   }, [user?.email]);
 
   useEffect(() => {
+    let mounted = true;
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-        setUserId(session.user.id);
-        localStorage.setItem('token', session.access_token);
-        localStorage.setItem('userId', session.user.id);
-        syncUserToBackend(session.user);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      console.log('AuthContext - Initial session check:', session?.user?.email, 'Loading:', mounted);
+      if (mounted) {
+        if (session?.user) {
+          setUser(session.user);
+          setUserId(session.user.id);
+          localStorage.setItem('userId', session.user.id);
+          await syncUserToBackend(session.user);
+        }
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        setUserId(session.user.id);
-        localStorage.setItem('token', session.access_token);
-        localStorage.setItem('userId', session.user.id);
-        await syncUserToBackend(session.user);
-      } else {
-        setUser(null);
-        setUserId(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
+      console.log('AuthContext - Auth state change:', _event, 'User:', session?.user?.email, 'Loading:', mounted);
+      if (mounted) {
+        if (session?.user) {
+          setUser(session.user);
+          setUserId(session.user.id);
+          localStorage.setItem('userId', session.user.id);
+          await syncUserToBackend(session.user);
+        } else {
+          setUser(null);
+          setUserId(null);
+          localStorage.removeItem('token');
+          localStorage.removeItem('userId');
+        }
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {

@@ -2,13 +2,8 @@ const UserLocation = require('../models/UserLocation.model');
 
 exports.getAllUserLocations = async (req, res) => {
   try {
-    const locations = await UserLocation.find({ 
-      sharing_level: { $ne: 'off' },
-      $or: [
-        { expires_at: null },
-        { expires_at: { $gt: new Date() } }
-      ]
-    });
+    // Return all locations from UserLocation collection without filters
+    const locations = await UserLocation.find({});
 
     res.json({
       success: true,
@@ -47,7 +42,7 @@ exports.saveUserLocation = async (req, res) => {
         virtual_city: virtual_city || null,
         updated_at: new Date()
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     res.json({

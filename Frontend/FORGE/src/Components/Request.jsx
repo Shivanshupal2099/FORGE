@@ -22,7 +22,7 @@ function Request({ onClose }) {
   useEffect(() => {
     const fetchIncomingRequests = async () => {
       try {
-        const response = await axios.get('/connections/incoming');
+        const response = await axios.get('/api/connections/incoming');
         if (response.data.success) {
           setIncomingRequests(response.data.connections || []);
         }
@@ -38,7 +38,7 @@ function Request({ onClose }) {
 
   const handleAccept = async (connectionId) => {
     try {
-      const response = await axios.put(`/connections/${connectionId}/accept`);
+      const response = await axios.put(`/api/connections/${connectionId}/accept`);
       if (response.data.success) {
         setIncomingRequests(prev => prev.filter(req => req._id !== connectionId));
       }
@@ -49,7 +49,7 @@ function Request({ onClose }) {
 
   const handleDecline = async (connectionId) => {
     try {
-      const response = await axios.put(`/connections/${connectionId}/decline`);
+      const response = await axios.put(`/api/connections/${connectionId}/decline`);
       if (response.data.success) {
         setIncomingRequests(prev => prev.filter(req => req._id !== connectionId));
       }

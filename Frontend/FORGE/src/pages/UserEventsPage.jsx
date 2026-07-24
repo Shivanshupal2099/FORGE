@@ -13,8 +13,6 @@ import axios from '../api/axios';
 const MODAL_Z_INDEX = 2000;  
 
 
-
-
 function UserEventsPage() {
   const { user } = useAuth();
   const [createdEvents, setCreatedEvents] = useState([]);
@@ -43,7 +41,7 @@ function UserEventsPage() {
           return;
         }
 
-        const response = await axios.get(`/events/user/${uid}`);
+        const response = await axios.get(`/api/events/user/${uid}`);
         
         if (response.data.success) {
           setCreatedEvents(Array.isArray(response.data.events) ? response.data.events : []);
@@ -84,14 +82,14 @@ function UserEventsPage() {
 
   const handleDeleteEvent = async (eventId) => {
     try {
-      const response = await axios.delete(`/events/${eventId}`);
+      const response = await axios.delete(`/api/events/${eventId}`);
 
       if (response.data.success) {
         showNotification('Event deleted successfully!', 'success');
         // Refresh event list
         const uid = user?.email;
         if (uid) {
-          const eventsResponse = await axios.get(`/events/user/${uid}`);
+          const eventsResponse = await axios.get(`/api/events/user/${uid}`);
           if (eventsResponse.data.success) {
             setCreatedEvents(Array.isArray(eventsResponse.data.events) ? eventsResponse.data.events : []);
           }
@@ -572,7 +570,7 @@ function UserEventsPage() {
             // Refresh event list
             const uid = user?.email;
             if (uid) {
-              axios.get(`/events/user/${uid}`)
+              axios.get(`/api/events/user/${uid}`)
               .then(response => {
                 if (response.data.success) {
                   setCreatedEvents(Array.isArray(response.data.events) ? response.data.events : []);

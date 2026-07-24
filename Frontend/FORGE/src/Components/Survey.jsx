@@ -115,7 +115,7 @@ function Survey() {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`/survey/user/${user.email}`);
+      const response = await axios.get(`/api/survey/user/${user.email}`);
       
       console.log('Load surveys response:', response.data);
       
@@ -139,7 +139,7 @@ function Survey() {
       onConfirm: async () => {
         try {
           setLoading(true);
-          const response = await axios.delete(`/survey/${surveyId}`);
+          const response = await axios.delete(`/api/survey/${surveyId}`);
           
           if (response.data.success) {
             setCreatedSurveys(createdSurveys.filter((s) => s._id !== surveyId));
@@ -360,7 +360,7 @@ function Survey() {
       console.log('Survey data:', survey);
       
       // Create survey first
-      const surveyResponse = await axios.post('/survey/create', {
+      const surveyResponse = await axios.post('/api/survey/create', {
         uid: user.email,
         title: survey.title,
         description: survey.description,
@@ -386,7 +386,7 @@ function Survey() {
         
         console.log(`Creating question ${index}:`, question.questionText, 'Type:', question.answerType, 'Options:', options);
         
-        return axios.post(`/survey/${surveyId}/questions`, {
+        return axios.post(`/api/survey/${surveyId}/questions`, {
           question: question.questionText,
           type: question.answerType,
           required: false,
@@ -424,7 +424,7 @@ function Survey() {
       setError(null);
       console.log('Publishing survey:', surveyId);
       
-      const response = await axios.put(`/survey/${surveyId}/publish`);
+      const response = await axios.put(`/api/survey/${surveyId}/publish`);
       console.log('Publish response:', response.data);
       
       if (response.data.success) {
@@ -448,7 +448,7 @@ function Survey() {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.put(`/survey/${surveyId}/close`);
+      const response = await axios.put(`/api/survey/${surveyId}/close`);
       
       if (response.data.success) {
         await loadSurveys();

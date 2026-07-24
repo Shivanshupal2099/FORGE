@@ -37,7 +37,7 @@ function Map() {
   useEffect(() => {
     const fetchUserStats = async () => {
       try {
-        const response = await axios.get('/auth/stats')
+        const response = await axios.get('/api/auth/stats')
         if (response.data.success) {
           setUserStats(response.data.stats)
         }
@@ -54,7 +54,7 @@ function Map() {
   const handleMarkerClick = async (uid) => {
     try {
       console.log('Fetching user profile for:', uid)
-      const response = await axios.get(`/profile/${uid}`)
+      const response = await axios.get(`/api/profile/${uid}`)
       console.log('Profile data:', response.data)
       
       if (response.data.success && response.data.profile) {
@@ -128,7 +128,7 @@ function Map() {
       try {
         // Fetch and display all user locations from database
         console.log('Fetching user locations...')
-        const response = await axios.get('/location/all')
+        const response = await axios.get('/api/location/all')
         console.log('Location data:', response.data)
         
         if (response.data.success && response.data.locations.length > 0) {
@@ -166,7 +166,7 @@ function Map() {
           
           // Center map on first location
           mapRef.current.flyTo({
-            center: [data.locations[0].longitude, data.locations[0].latitude],
+            center: [response.data.locations[0].longitude, response.data.locations[0].latitude],
             zoom: 10
           })
         }
@@ -479,7 +479,6 @@ function Map() {
             bottom: 0,
             width: 'min(920px, 100vw)',
             zIndex: 1200,
-            background: 'rgba(15, 23, 42, 0.35)',
             padding: '28px',
             overflowY: 'auto',
             scrollbarWidth: 'none',

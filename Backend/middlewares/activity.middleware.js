@@ -115,25 +115,41 @@ const markUserOffline = async (uid) => {
  * Should be run periodically (e.g., every minute)
  */
 const markInactiveUsersOffline = async () => {
-  try {
-    const inactivityThreshold = new Date(Date.now() - INACTIVITY_TIMEOUT);
-    
-    const result = await User.updateMany(
-      {
-        is_online: true,
-        last_activity_at: { $lt: inactivityThreshold }
-      },
-      {
-        is_online: false,
-        last_seen_at: new Date()
+  const maxRetries = 3;
+  let retryCount = 0;
+
+  while (retryCount < maxRetries) {
+    try {
+      const inactivityThreshold = new Date(Date.now() - INACTIVITY_TIMEOUT);
+      
+      const result = await User.updateMany(
+        {
+          is_online: true,
+          last_activity_at: { $lt: inactivityThreshold }
+        },
+        {
+          is_online: false,
+          last_seen_at: new Date()
+        }
+      );
+      
+      if (result.modifiedCount > 0) {
+        console.log(`Marked ${result.modifiedCount} inactive users as offline`);
       }
-    );
-    
-    if (result.modifiedCount > 0) {
-      console.log(`Marked ${result.modifiedCount} inactive users as offline`);
+      
+      return; // Success, exit retry loop
+    } catch (error) {
+      retryCount++;
+      console.error(`Error marking inactive users offline (attempt ${retryCount}/${maxRetries}):`, error.message);
+      
+      if (retryCount >= maxRetries) {
+        console.error('Max retries reached for marking inactive users offline');
+        return;
+      }
+      
+      // Wait before retry (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
     }
-  } catch (error) {
-    console.error('Error marking inactive users offline:', error);
   }
 };
 

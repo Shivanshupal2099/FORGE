@@ -15,7 +15,7 @@ import femaleImage from '../assets/female.png';
 
 
 function ProfilePage() {
-  const { user, userId, signOut } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const [profile, setProfile] = useState(null);
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,7 @@ function ProfilePage() {
         const uid = user?.email;
         
         console.log('Fetching profile for UID:', uid);
-        const response = await axios.get(`/profile/${uid}`);
+        const response = await axios.get(`/api/profile/${uid}`);
         console.log('Profile response:', response.data);
         if (response.data.success) {
           setProfile(response.data.profile);
@@ -59,7 +59,7 @@ function ProfilePage() {
         const uid = user?.email;
         
         console.log('Fetching surveys for UID:', uid);
-        const response = await axios.get(`/survey/user/${uid}`);
+        const response = await axios.get(`/api/survey/user/${uid}`);
         console.log('Surveys response:', response.data);
         if (response.data.success) {
           setSurveys(response.data.surveys);
@@ -72,11 +72,11 @@ function ProfilePage() {
       }
     };
 
-    if (user?.email) {
+    if (user?.email && !authLoading) {
       fetchProfile();
       fetchSurveys();
     }
-  }, [user?.email]);
+  }, [user?.email, authLoading]);
 
   const handleSignOut = async () => {
     await signOut();
