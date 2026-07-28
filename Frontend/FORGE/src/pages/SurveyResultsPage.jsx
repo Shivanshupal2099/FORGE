@@ -10,15 +10,15 @@ function SurveyResultsPage() {
   const { user } = useAuth();
   const [survey, setSurvey] = useState(null);
   const [responses, setResponses] = useState([]);
-  const [selectedResponse, setSelectedResponse] = useState(null);
-  const [answers, setAnswers] = useState([]);
+  const [responsesWithAnswers, setResponsesWithAnswers] = useState([]);
+  const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showResponseModal, setShowResponseModal] = useState(false);
 
   useEffect(() => {
     loadSurvey();
     loadResponses();
+    loadQuestions();
   }, [surveyId]);
 
   const loadSurvey = async () => {
@@ -40,6 +40,18 @@ function SurveyResultsPage() {
     }
   };
 
+  const loadQuestions = async () => {
+    try {
+      const response = await axios.get(`/api/survey/${surveyId}/questions`);
+      
+      if (response.data.success) {
+        setQuestions(response.data.questions);
+      }
+    } catch (err) {
+      console.error('Error loading questions:', err);
+    }
+  };
+
   const loadResponses = async () => {
     try {
       setLoading(true);
@@ -50,53 +62,33 @@ function SurveyResultsPage() {
       
       if (response.data.success) {
         setResponses(response.data.responses);
+        
+        // Load answers for all responses
+        const responsesWithAnswersData = await Promise.all(
+          response.data.responses.map(async (resp) => {
+            try {
+              const answersResponse = await axios.get(`/api/survey/responses/${resp._id}`);
+              if (answersResponse.data.success) {
+                return {
+                  ...resp,
+                  answers: answersResponse.data.answers
+                };
+              }
+              return resp;
+            } catch (err) {
+              console.error('Error loading answers for response:', resp._id, err);
+              return resp;
+            }
+          })
+        );
+        
+        setResponsesWithAnswers(responsesWithAnswersData);
       } else {
         setError(response.data.message || 'Failed to load responses');
       }
     } catch (err) {
       setError('Error loading responses');
       console.error('Error loading responses:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const viewResponse = async (responseId) => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`/api/survey/responses/${responseId}`);
-      
-      if (response.data.success) {
-        setSelectedResponse(response.data.response);
-        setAnswers(response.data.answers);
-        setShowResponseModal(true);
-      } else {
-        setError(response.data.message || 'Failed to load response');
-      }
-    } catch (err) {
-      setError('Error loading response');
-      console.error('Error loading response:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteResponse = async (responseId) => {
-    if (!confirm('Are you sure you want to delete this response?')) return;
-    
-    try {
-      setLoading(true);
-      const response = await axios.delete(`/api/survey/responses/${responseId}`);
-      
-      if (response.data.success) {
-        await loadResponses();
-        await loadSurvey();
-      } else {
-        setError(response.data.message || 'Failed to delete response');
-      }
-    } catch (err) {
-      setError('Error deleting response');
-      console.error('Error deleting response:', err);
     } finally {
       setLoading(false);
     }
@@ -170,7 +162,7 @@ function SurveyResultsPage() {
             </div>
             <h1 className="survey-form__title">Survey Results</h1>
             <p className="survey-form__subtitle">
-              {survey?.title}
+              Survey #{survey?._id?.slice(-6)}
             </p>
           </div>
           <div className="survey-form__header-actions">
@@ -188,107 +180,50 @@ function SurveyResultsPage() {
           </div>
         </div>
 
-        <div className="survey-stats">
-          <div className="survey-stat-card">
-            <div className="survey-stat-value">{survey?.current_responses || 0}</div>
-            <div className="survey-stat-label">Total Responses</div>
-          </div>
-          <div className="survey-stat-card">
-            <div className="survey-stat-value">{survey?.target_responses || 0}</div>
-            <div className="survey-stat-label">Target Responses</div>
-          </div>
-          <div className="survey-stat-card">
-            <div className="survey-stat-value">{survey?.status || 'N/A'}</div>
-            <div className="survey-stat-label">Status</div>
-          </div>
-        </div>
-
         <div className="responses-list">
-          {responses.length === 0 ? (
+          {responsesWithAnswers.length === 0 ? (
             <div className="survey-empty-state">
               <p>No responses yet</p>
             </div>
           ) : (
-            responses.map((response) => (
+            responsesWithAnswers.map((response) => (
               <div key={response._id} className="response-card">
                 <div className="response-card__header">
                   <div className="response-card__info">
                     <span className="response-card__date">
-                      {formatDate(response.submittedAt)}
+                      Response #{response._id.slice(-6)} - {formatDate(response.submittedAt)}
                     </span>
-                    <span className="response-card__submitter">
-                      {response.submittedBy?.email || 'Anonymous'}
-                    </span>
-                  </div>
-                  <div className="response-card__actions">
-                    <button
-                      type="button"
-                      className="button-secondary"
-                      onClick={() => viewResponse(response._id)}
-                    >
-                      <FaEye /> View
-                    </button>
-                    <button
-                      type="button"
-                      className="button-danger"
-                      onClick={() => deleteResponse(response._id)}
-                    >
-                      <FaTrash /> Delete
-                    </button>
                   </div>
                 </div>
+                
+                {response.answers && response.answers.length > 0 && (
+                  <div className="response-answers">
+                    {questions.map((question) => {
+                      const answer = response.answers.find(a => a.questionId === question._id);
+                      return (
+                        <div key={question._id} className="response-answer-item">
+                          <div className="response-answer-question">
+                            {question.question}
+                          </div>
+                          <div className="response-answer-value">
+                            {answer ? (
+                              Array.isArray(answer.answer) 
+                                ? answer.answer.join(', ') 
+                                : String(answer.answer)
+                            ) : (
+                              <span className="no-answer">No answer</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ))
           )}
         </div>
       </div>
-
-      {showResponseModal && (
-        <div className="survey-popup-overlay" onClick={() => setShowResponseModal(false)}>
-          <div className="survey-popup-card survey-popup-card--large" onClick={(e) => e.stopPropagation()}>
-            <div className="survey-popup-card__header">
-              <h3>Response Details</h3>
-              <button
-                type="button"
-                className="button-secondary"
-                onClick={() => setShowResponseModal(false)}
-              >
-                Close
-              </button>
-            </div>
-            <div className="survey-popup-card__content">
-              {selectedResponse && (
-                <div className="response-details">
-                  <div className="response-detail-row">
-                    <span className="response-detail-label">Submitted At:</span>
-                    <span className="response-detail-value">{formatDate(selectedResponse.submittedAt)}</span>
-                  </div>
-                  <div className="response-detail-row">
-                    <span className="response-detail-label">Submitted By:</span>
-                    <span className="response-detail-value">
-                      {selectedResponse.submittedBy?.email || 'Anonymous'}
-                    </span>
-                  </div>
-                  <div className="response-detail-row">
-                    <span className="response-detail-label">Anonymous:</span>
-                    <span className="response-detail-value">{selectedResponse.anonymous ? 'Yes' : 'No'}</span>
-                  </div>
-                  
-                  <h4 className="response-answers-title">Answers</h4>
-                  {answers.map((answer) => (
-                    <div key={answer._id} className="answer-item">
-                      <div className="answer-question">{answer.questionId?.question}</div>
-                      <div className="answer-value">
-                        {Array.isArray(answer.answer) ? answer.answer.join(', ') : String(answer.answer)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

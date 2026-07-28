@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middlewares/auth.middleware");
-const { surveyValidation, questionValidation, idValidation, uidValidation } = require("../middlewares/validation.middleware");
+const { surveyValidation, questionValidation, idValidation, uidValidation, surveyIdValidation } = require("../middlewares/validation.middleware");
 
 const surveyController = require("../controllers/survey.controller");
 
@@ -34,10 +34,10 @@ router.put("/:id/close", authMiddleware, idValidation, surveyController.closeSur
 // ==================== Question Routes ====================
 
 // Add question to survey
-router.post("/:surveyId/questions", authMiddleware, idValidation, questionValidation, surveyController.addQuestion);
+router.post("/:surveyId/questions", authMiddleware, surveyIdValidation, questionValidation, surveyController.addQuestion);
 
-// Get survey questions
-router.get("/:surveyId/questions", authMiddleware, idValidation, surveyController.getSurveyQuestions);
+// Get survey questions (public access for feed)
+router.get("/:surveyId/questions", surveyController.getSurveyQuestions);
 
 // Update question
 router.put("/questions/:questionId", authMiddleware, idValidation, questionValidation, surveyController.updateQuestion);
@@ -46,7 +46,7 @@ router.put("/questions/:questionId", authMiddleware, idValidation, questionValid
 router.delete("/questions/:questionId", authMiddleware, idValidation, surveyController.deleteQuestion);
 
 // Reorder questions
-router.put("/:surveyId/questions/reorder", authMiddleware, idValidation, surveyController.reorderQuestions);
+router.put("/:surveyId/questions/reorder", authMiddleware, surveyIdValidation, surveyController.reorderQuestions);
 
 // Duplicate question
 router.post("/questions/:questionId/duplicate", authMiddleware, idValidation, surveyController.duplicateQuestion);
@@ -54,10 +54,10 @@ router.post("/questions/:questionId/duplicate", authMiddleware, idValidation, su
 // ==================== Response Routes ====================
 
 // Submit survey response
-router.post("/:surveyId/responses", authMiddleware, idValidation, surveyController.submitSurveyResponse);
+router.post("/:surveyId/responses", authMiddleware, surveyIdValidation, surveyController.submitSurveyResponse);
 
 // Get survey responses
-router.get("/:surveyId/responses", authMiddleware, idValidation, surveyController.getSurveyResponses);
+router.get("/:surveyId/responses", authMiddleware, surveyIdValidation, surveyController.getSurveyResponses);
 
 // Get single response with answers
 router.get("/responses/:responseId", authMiddleware, idValidation, surveyController.getSingleResponse);
@@ -66,6 +66,6 @@ router.get("/responses/:responseId", authMiddleware, idValidation, surveyControl
 router.delete("/responses/:responseId", authMiddleware, idValidation, surveyController.deleteResponse);
 
 // Export responses
-router.get("/:surveyId/responses/export", authMiddleware, idValidation, surveyController.exportResponses);
+router.get("/:surveyId/responses/export", authMiddleware, surveyIdValidation, surveyController.exportResponses);
 
 module.exports = router;

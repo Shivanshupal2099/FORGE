@@ -3,15 +3,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
 
-// PWA Icon Generator using image.png
-// This script generates all required PWA icons from the image.png logo
+// PWA Icon Generator using forge.png
+// This script generates all required PWA icons from the forge.png logo
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
 const iconsDir = path.join(__dirname, '../public/icons');
-const sourceLogo = path.join(__dirname, '../public/image.png');
+const sourceLogo = path.join(__dirname, '../src/assets/forge.png');
 
 // Create icons directory if it doesn't exist
 if (!fs.existsSync(iconsDir)) {
@@ -19,14 +19,14 @@ if (!fs.existsSync(iconsDir)) {
   console.log('✅ Created icons directory:', iconsDir);
 }
 
-// Check if image.png exists
+// Check if forge.png exists
 if (!fs.existsSync(sourceLogo)) {
-  console.error('❌ Error: image.png not found in public directory');
-  console.log('Please ensure image.png exists at:', sourceLogo);
+  console.error('❌ Error: forge.png not found in assets directory');
+  console.log('Please ensure forge.png exists at:', sourceLogo);
   process.exit(1);
 }
 
-console.log('🎨 Generating PWA icons from image.png...');
+console.log('🎨 Generating PWA icons from forge.png...');
 console.log('Source:', sourceLogo);
 console.log('Output directory:', iconsDir);
 

@@ -114,99 +114,68 @@ function ProfilePage() {
               to="/profile/edit" 
               className="profile-card__edit-button"
               style={{
-                padding: isMobile ? '12px' : '10px 16px',
-                borderRadius: '12px',
-                background: '#111111',
+                padding: '14px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: '#ffffff',
-                fontWeight: '600',
-                fontSize: isMobile ? '0.9rem' : '0.85rem',
-                border: '2px solid #111111',
+                fontWeight: '700',
+                fontSize: '1.2rem',
+                border: '2px solid #667eea',
                 textDecoration: 'none',
-                boxShadow: '4px 4px 0 #111111',
+                boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: isMobile ? '0' : '8px',
+                justifyContent: 'center',
+                gap: '8px',
                 position: 'relative',
                 overflow: 'hidden',
-                minWidth: isMobile ? '44px' : 'auto',
+                minWidth: '48px',
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                e.target.style.boxShadow = '6px 6px 0 #111111';
+                e.target.style.transform = 'translateY(-3px) scale(1.05)';
+                e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.5)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '4px 4px 0 #111111';
+                e.target.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.4)';
               }}
             >
-              <FaRegEdit /> {!isMobile && 'Edit Profile'}
-            </Link>
-            <Link 
-              to="/profile/events" 
-              className="profile-card__edit-button"
-              style={{
-                padding: isMobile ? '12px' : '10px 16px',
-                borderRadius: '12px',
-                background: '#111111',
-                color: '#ffffff',
-                fontWeight: '600',
-                fontSize: isMobile ? '0.9rem' : '0.85rem',
-                border: '2px solid #111111',
-                textDecoration: 'none',
-                boxShadow: '4px 4px 0 #111111',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: isMobile ? '0' : '8px',
-                marginLeft: isMobile ? '8px' : '8px',
-                position: 'relative',
-                overflow: 'hidden',
-                minWidth: isMobile ? '44px' : 'auto',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                e.target.style.boxShadow = '6px 6px 0 #111111';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '4px 4px 0 #111111';
-              }}
-            >
-              <MdEvent /> {!isMobile && 'My Events'}
+              <FaRegEdit />
             </Link>
             {!profile?.is_verified && (
               <button
                 onClick={() => setShowVerificationPopup(true)}
                 style={{
-                  padding: isMobile ? '12px' : '10px 16px',
-                  borderRadius: '12px',
-                  background: '#111111',
-                  color: '#ffffff',
-                  fontWeight: '600',
-                  fontSize: isMobile ? '0.9rem' : '0.85rem',
-                  border: '2px solid #111111',
-                  boxShadow: '4px 4px 0 #111111',
+                  padding: '14px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #ffd700 0%, #ffeb3b 100%)',
+                  color: '#1a1a1a',
+                  fontWeight: '700',
+                  fontSize: '1.2rem',
+                  border: '2px solid #ffd700',
+                  boxShadow: '0 8px 24px rgba(255, 215, 0, 0.4)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: isMobile ? '0' : '8px',
-                  marginLeft: isMobile ? '8px' : '8px',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  marginLeft: '8px',
                   cursor: 'pointer',
                   position: 'relative',
                   overflow: 'hidden',
-                  minWidth: isMobile ? '44px' : 'auto',
+                  minWidth: '48px',
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px) scale(1.02)';
-                  e.target.style.boxShadow = '6px 6px 0 #111111';
+                  e.target.style.transform = 'translateY(-3px) scale(1.05)';
+                  e.target.style.boxShadow = '0 12px 32px rgba(255, 215, 0, 0.5)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '4px 4px 0 #111111';
+                  e.target.style.boxShadow = '0 8px 24px rgba(255, 215, 0, 0.4)';
                 }}
               >
-                <MdOutlineVerified /> {!isMobile && 'Get Verified'}
+                <MdOutlineVerified />
               </button>
             )}
             <Link 
@@ -313,7 +282,7 @@ function ProfilePage() {
                 <div key={survey._id} className="profile-card__detail-item">
                   <div className="profile-card__detail-content">
                     <span className="profile-card__label">Survey</span>
-                    <strong>{survey.title}</strong>
+                    <strong>Survey #{survey._id?.slice(-6)}</strong>
                     <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
                       Status: {survey.status} | Responses: {survey.current_responses}/{survey.target_responses}
                     </div>

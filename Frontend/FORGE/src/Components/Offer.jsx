@@ -38,7 +38,7 @@ function Offer({ onClose }) {
         description: newOffer.description,
         industry: newOffer.industry,
         targetAudience: newOffer.targetAudience,
-        vendor: newOffer.vendor || 'Forge Community',
+        vendor: newOffer.vendor || 'ForgeConnect Community',
         expires: newOffer.expires || 'TBD'
       };
       setOffers(prev => [offer, ...prev]);

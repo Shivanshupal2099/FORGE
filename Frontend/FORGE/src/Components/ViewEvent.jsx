@@ -115,24 +115,26 @@ function ViewEvent({ event, onClose, onEdit, onDelete }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                padding: '12px 20px',
+                padding: '14px 24px',
                 border: 'none',
-                borderRadius: '10px',
+                borderRadius: '12px',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: '#ffffff',
                 fontSize: '0.95rem',
                 fontWeight: '700',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-                transition: 'all 0.3s ease',
+                boxShadow: '0 6px 16px rgba(102, 126, 234, 0.35)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
+                e.target.style.transform = 'translateY(-3px)';
+                e.target.style.boxShadow = '0 10px 24px rgba(102, 126, 234, 0.45)';
+                e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+                e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.35)';
+                e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
               }}
             >
               <FaEdit /> Edit Event
@@ -145,24 +147,26 @@ function ViewEvent({ event, onClose, onEdit, onDelete }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                padding: '12px 20px',
+                padding: '14px 24px',
                 border: 'none',
-                borderRadius: '10px',
+                borderRadius: '12px',
                 background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                 color: '#ffffff',
                 fontSize: '0.95rem',
                 fontWeight: '700',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
-                transition: 'all 0.3s ease',
+                boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 20px rgba(239, 68, 68, 0.4)';
+                e.target.style.transform = 'translateY(-3px)';
+                e.target.style.boxShadow = '0 10px 24px rgba(239, 68, 68, 0.45)';
+                e.target.style.background = 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+                e.target.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.35)';
+                e.target.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
               }}
             >
               <FaTrash /> Delete Event
@@ -242,15 +246,30 @@ function ViewEvent({ event, onClose, onEdit, onDelete }) {
                   disabled={isDeleting}
                   style={{
                     flex: 1,
-                    padding: '12px 20px',
+                    padding: '14px 24px',
                     border: 'none',
-                    borderRadius: '10px',
+                    borderRadius: '12px',
                     background: isDeleting ? '#94a3b8' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                     color: '#ffffff',
                     fontSize: '0.95rem',
                     fontWeight: '700',
                     cursor: isDeleting ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.3s ease',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: isDeleting ? 'none' : '0 6px 16px rgba(239, 68, 68, 0.35)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isDeleting) {
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 10px 24px rgba(239, 68, 68, 0.45)';
+                      e.target.style.background = 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isDeleting) {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.35)';
+                      e.target.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                    }
                   }}
                 >
                   {isDeleting ? 'Deleting...' : 'Delete'}

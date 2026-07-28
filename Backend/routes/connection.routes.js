@@ -9,5 +9,6 @@ router.get('/incoming', controller.getIncomingRequests);
 router.get('/accepted', controller.getAcceptedConnections);
 router.put('/:connectionId/accept', controller.acceptRequest);
 router.put('/:connectionId/decline', controller.declineRequest);
+router.delete('/:connectionId', controller.disconnect);
 
 module.exports = router;

@@ -3,33 +3,37 @@ const User = require('../models/Users.model');
 const Question = require('../models/Question.model');
 const SurveyResponse = require('../models/SurveyResponse.model');
 const QuestionAnswer = require('../models/QuestionAnswer.model');
+const Profile = require('../models/Profile.model');
 
 // Create a new survey
 exports.createSurvey = async (req, res) => {
   try {
     console.log('Received survey creation request');
     console.log('Request body:', req.body);
+    console.log('Request user:', req.user);
     
-    const { uid, title, description, status, visibility, reward_amount, target_responses, target_filter, expires_at } = req.body;
+    const { uid, visibility, reward_amount, target_responses, target_filter, expires_at } = req.body;
 
     // Find user by UID
     const user = await User.findOne({ uid });
     
     if (!user) {
       console.log('User not found with UID:', uid);
+      console.log('Available users in database:');
+      const allUsers = await User.find({}, { uid: 1, email: 1 });
+      console.log(allUsers.map(u => ({ uid: u.uid, email: u.email })));
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
 
+    console.log('Found user:', user._id, user.email);
+
     // Create new survey
     const survey = await Survey.create({
       creator_id: user._id,
-      title,
-      description,
-      status: status || 'draft',
-      visibility: visibility || 'private',
+      visibility: visibility || 'public',
       reward_amount,
       target_responses,
       current_responses: 0,
@@ -38,6 +42,15 @@ exports.createSurvey = async (req, res) => {
     });
 
     console.log('Survey created successfully:', survey._id);
+
+    // Emit WebSocket event for real-time update
+    const io = req.app.get('io');
+    if (io) {
+      console.log('Emitting survey:created event via WebSocket');
+      io.emit('survey:created', survey);
+    } else {
+      console.log('Socket.io not available in app');
+    }
 
     res.json({
       success: true,
@@ -125,7 +138,7 @@ exports.getSurveyById = async (req, res) => {
 exports.updateSurvey = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, visibility, target_responses, expires_at } = req.body;
+    const { visibility, target_responses, expires_at } = req.body;
 
     const survey = await Survey.findById(id);
     
@@ -144,19 +157,9 @@ exports.updateSurvey = async (req, res) => {
       });
     }
 
-    // Only allow updates to draft surveys
-    if (survey.status !== 'draft') {
-      return res.status(400).json({
-        success: false,
-        message: 'Only draft surveys can be updated'
-      });
-    }
-
     const updatedSurvey = await Survey.findByIdAndUpdate(
       id,
       {
-        title: title || survey.title,
-        description: description !== undefined ? description : survey.description,
         visibility: visibility || survey.visibility,
         target_responses: target_responses || survey.target_responses,
         expires_at: expires_at !== undefined ? expires_at : survey.expires_at
@@ -219,6 +222,12 @@ exports.deleteSurvey = async (req, res) => {
     // Delete the survey
     await Survey.findByIdAndDelete(id);
 
+    // Emit WebSocket event for real-time update
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('survey:deleted', { surveyId: id });
+    }
+
     res.json({
       success: true,
       message: 'Survey and all related data deleted successfully'
@@ -233,7 +242,7 @@ exports.deleteSurvey = async (req, res) => {
   }
 };
 
-// Publish survey
+// Publish survey (deprecated - no longer needed with status removal)
 exports.publishSurvey = async (req, res) => {
   try {
     const { id } = req.params;
@@ -255,25 +264,11 @@ exports.publishSurvey = async (req, res) => {
       });
     }
 
-    // Check if survey has questions
-    const questionCount = await Question.countDocuments({ surveyId: id });
-    if (questionCount === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Survey must have at least one question before publishing'
-      });
-    }
-
-    const updatedSurvey = await Survey.findByIdAndUpdate(
-      id,
-      { status: 'active' },
-      { returnDocument: 'after' }
-    );
-
+    // Status concept removed - survey is always "published" when created
     res.json({
       success: true,
-      message: 'Survey published successfully',
-      survey: updatedSurvey
+      message: 'Survey is already active',
+      survey
     });
   } catch (error) {
     console.error('Error publishing survey:', error);
@@ -285,7 +280,7 @@ exports.publishSurvey = async (req, res) => {
   }
 };
 
-// Close survey
+// Close survey (deprecated - no longer needed with status removal)
 exports.closeSurvey = async (req, res) => {
   try {
     const { id } = req.params;
@@ -307,16 +302,11 @@ exports.closeSurvey = async (req, res) => {
       });
     }
 
-    const updatedSurvey = await Survey.findByIdAndUpdate(
-      id,
-      { status: 'closed' },
-      { returnDocument: 'after' }
-    );
-
+    // Status concept removed - surveys don't need to be closed
     res.json({
       success: true,
-      message: 'Survey closed successfully',
-      survey: updatedSurvey
+      message: 'Survey status management removed',
+      survey
     });
   } catch (error) {
     console.error('Error closing survey:', error);
@@ -328,18 +318,59 @@ exports.closeSurvey = async (req, res) => {
   }
 };
 
-// Get public surveys
+// Get public surveys with pagination
 exports.getPublicSurveys = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     const surveys = await Survey.find({
       visibility: 'public',
-      status: 'active',
-      expires_at: { $gt: new Date() }
-    }).sort({ created_at: -1 });
+      $or: [
+        { expires_at: { $gt: new Date() } },
+        { expires_at: null }
+      ]
+    })
+    .populate('creator_id', 'uid email')
+    .sort({ created_at: -1 })
+    .skip(skip)
+    .limit(limit);
+
+    // Fetch profile names for each survey creator
+    const surveysWithCreatorNames = await Promise.all(
+      surveys.map(async (survey) => {
+        if (survey.creator_id) {
+          const profile = await Profile.findOne({ user_id: survey.creator_id._id });
+          return {
+            ...survey.toObject(),
+            creator_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Anonymous'
+          };
+        }
+        return {
+          ...survey.toObject(),
+          creator_name: 'Anonymous'
+        };
+      })
+    );
+
+    const total = await Survey.countDocuments({
+      visibility: 'public',
+      $or: [
+        { expires_at: { $gt: new Date() } },
+        { expires_at: null }
+      ]
+    });
 
     res.json({
       success: true,
-      surveys
+      surveys: surveysWithCreatorNames,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
     });
   } catch (error) {
     console.error('Error fetching public surveys:', error);
@@ -373,14 +404,6 @@ exports.addQuestion = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to add questions to this survey'
-      });
-    }
-
-    // Only allow adding questions to draft surveys
-    if (survey.status !== 'draft') {
-      return res.status(400).json({
-        success: false,
-        message: 'Questions can only be added to draft surveys'
       });
     }
 
@@ -448,15 +471,6 @@ exports.updateQuestion = async (req, res) => {
       });
     }
 
-    // Check if survey is still in draft
-    const survey = await Survey.findById(questionDoc.surveyId);
-    if (survey.status !== 'draft') {
-      return res.status(400).json({
-        success: false,
-        message: 'Questions can only be updated in draft surveys'
-      });
-    }
-
     const updatedQuestion = await Question.findByIdAndUpdate(
       questionId,
       {
@@ -505,15 +519,6 @@ exports.deleteQuestion = async (req, res) => {
       });
     }
 
-    // Check if survey is still in draft
-    const survey = await Survey.findById(questionDoc.surveyId);
-    if (survey.status !== 'draft') {
-      return res.status(400).json({
-        success: false,
-        message: 'Questions can only be deleted from draft surveys'
-      });
-    }
-
     await Question.findByIdAndDelete(questionId);
 
     res.json({
@@ -550,14 +555,6 @@ exports.reorderQuestions = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to reorder questions in this survey'
-      });
-    }
-
-    // Check if survey is still in draft
-    if (survey.status !== 'draft') {
-      return res.status(400).json({
-        success: false,
-        message: 'Questions can only be reordered in draft surveys'
       });
     }
 
@@ -601,15 +598,6 @@ exports.duplicateQuestion = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to duplicate this question'
-      });
-    }
-
-    // Check if survey is still in draft
-    const survey = await Survey.findById(originalQuestion.surveyId);
-    if (survey.status !== 'draft') {
-      return res.status(400).json({
-        success: false,
-        message: 'Questions can only be duplicated in draft surveys'
       });
     }
 
@@ -657,7 +645,16 @@ exports.getSurveyQuestions = async (req, res) => {
     }
 
     // Check ownership or if survey is public
-    if (survey.creator_id.toString() !== req.user._id.toString() && survey.visibility !== 'public') {
+    // If no user (public access), only allow if survey is public
+    if (req.user && survey.creator_id.toString() !== req.user._id.toString() && survey.visibility !== 'public') {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to view questions in this survey'
+      });
+    }
+
+    // If no user (public access), only allow if survey is public
+    if (!req.user && survey.visibility !== 'public') {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to view questions in this survey'
@@ -697,20 +694,27 @@ exports.submitSurveyResponse = async (req, res) => {
       });
     }
 
-    // Check if survey is active
-    if (survey.status !== 'active') {
-      return res.status(400).json({
-        success: false,
-        message: 'Survey is not active for responses'
-      });
-    }
-
     // Check if survey has expired
     if (survey.expires_at && new Date(survey.expires_at) < new Date()) {
       return res.status(400).json({
         success: false,
         message: 'Survey has expired'
       });
+    }
+
+    // Check if user has already submitted a response (unless anonymous)
+    if (!anonymous && req.user._id) {
+      const existingResponse = await SurveyResponse.findOne({
+        surveyId,
+        submittedBy: req.user._id
+      });
+      
+      if (existingResponse) {
+        return res.status(400).json({
+          success: false,
+          message: 'You have already submitted a response to this survey'
+        });
+      }
     }
 
     // Get survey questions
@@ -790,11 +794,37 @@ exports.getSurveyResponses = async (req, res) => {
 
     const responses = await SurveyResponse.find({ surveyId })
       .sort({ submittedAt: -1 })
-      .populate('submittedBy', 'email');
+      .populate({
+        path: 'submittedBy',
+        select: 'email'
+      });
+
+    // Get profile names for each response
+    const Profile = require('../models/Profile.model');
+    const responsesWithNames = await Promise.all(
+      responses.map(async (response) => {
+        if (response.submittedBy) {
+          const profile = await Profile.findOne({ user_id: response.submittedBy._id });
+          return {
+            ...response.toObject(),
+            submittedBy: {
+              ...response.submittedBy.toObject(),
+              name: profile ? `${profile.first_name} ${profile.last_name}` : 'Anonymous'
+            }
+          };
+        }
+        return {
+          ...response.toObject(),
+          submittedBy: {
+            name: 'Anonymous'
+          }
+        };
+      })
+    );
 
     res.json({
       success: true,
-      responses
+      responses: responsesWithNames
     });
   } catch (error) {
     console.error('Error fetching survey responses:', error);
@@ -950,7 +980,7 @@ exports.exportResponses = async (req, res) => {
     const csvContent = [headers, ...allRows].map(row => row.join(',')).join('\n');
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${survey.title}_responses.csv"`);
+    res.setHeader('Content-Disposition', `attachment; filename="survey_${survey._id}_responses.csv"`);
     res.send(csvContent);
   } catch (error) {
     console.error('Error exporting responses:', error);

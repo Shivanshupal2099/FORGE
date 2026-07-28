@@ -54,7 +54,7 @@ function LoginPage() {
      <div className="page-shell landing-screen">
        <div className="auth-card">
          <div className="hero-badge">Welcome back</div>
-         <h2>Log in to FORGE</h2>
+         <h2>Log in to ForgeConnect</h2>
          <p>Access your workspace, keep momentum, and pick up where you left off.</p>
 
          <form className="form-stack" style={{ marginTop: "32px" }}>

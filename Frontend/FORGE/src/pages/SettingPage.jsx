@@ -142,7 +142,7 @@ function SettingPage() {
 
         <div className="settings-note">
           <IoSparklesOutline />
-          <span>The selected theme is saved on this device and applied across FORGE.</span>
+          <span>The selected theme is saved on this device and applied across ForgeConnect.</span>
         </div>
 
         <section className="settings-signout-zone" aria-label="Sign out">

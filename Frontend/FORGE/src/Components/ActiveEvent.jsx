@@ -1,10 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import EventFiltersection from './EventFiltersection';
 import axios from '../api/axios';
 
 function ActiveEvent({ onClose }) {
-  const [filters, setFilters] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,39 +36,6 @@ function ActiveEvent({ onClose }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const filteredEvents = useMemo(() => {
-    const f =
-      filters ||
-      ({
-        query: '',
-        category: 'Any',
-        tags: [],
-        freeOnly: false,
-        paidOnly: false,
-        dateDays: 30,
-      });
-
-    const q = (f.query || '').trim().toLowerCase();
-    const now = Date.now();
-    const maxTs = now + (f.dateDays || 30) * 24 * 60 * 60 * 1000;
-
-    return (events || []).filter((ev) => {
-      const title = (ev?.title || '').toLowerCase();
-      const desc = (ev?.description || '').toLowerCase();
-      const categoryOk = f.category === 'Any' ? true : (ev?.category || '') === f.category;
-
-      const qOk = !q ? true : title.includes(q) || desc.includes(q);
-
-      // There is no tags field persisted by Event.jsx currently; keep query-only filtering for now.
-      const freeOk = f.freeOnly ? ev?.priceType === 'Free' : true;
-      const paidOk = f.paidOnly ? ev?.priceType === 'Paid' : true;
-
-      const startAt = ev?.startAt ? new Date(ev.startAt).getTime() : null;
-      const dateOk = startAt == null ? true : startAt >= now && startAt <= maxTs;
-
-      return categoryOk && qOk && freeOk && paidOk && dateOk;
-    });
-  }, [events, filters]);
 
   return (
     <div className="home-popup-overlay" onClick={onClose} role="presentation">
@@ -111,13 +76,13 @@ function ActiveEvent({ onClose }) {
             <p style={{ margin: '10px 0', color: '#64748b', fontWeight: 700 }}>
               Loading events...
             </p>
-          ) : filteredEvents.length === 0 ? (
+          ) : events.length === 0 ? (
             <p style={{ margin: '10px 0', color: '#64748b', fontWeight: 700 }}>
               No published events found.
             </p>
           ) : (
             <ul className="home-popup-list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {filteredEvents.map((ev, idx) => {
+              {events.map((ev, idx) => {
                 const startText = ev.startAt
                   ? new Date(ev.startAt).toLocaleString('en-US', {
                       weekday: 'short',
@@ -137,8 +102,23 @@ function ActiveEvent({ onClose }) {
                       alignItems: 'flex-start',
                       justifyContent: 'space-between',
                       gap: 12,
-                      padding: '12px 0',
+                      padding: '16px',
                       borderBottom: '1px solid #eef2f7',
+                      background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%)',
+                      borderRadius: '12px',
+                      marginBottom: '8px',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      border: '1px solid rgba(102, 126, 234, 0.1)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.15)';
+                      e.target.style.borderColor = 'rgba(102, 126, 234, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = 'none';
+                      e.target.style.borderColor = 'rgba(102, 126, 234, 0.1)';
                     }}
                   >
                     <div className="home-popup-list__main" style={{ flex: 1 }}>
@@ -149,11 +129,13 @@ function ActiveEvent({ onClose }) {
                         <span
                           className="tag"
                           style={{
-                            padding: '6px 10px',
-                            borderRadius: 999,
-                            background: '#f1f5f9',
-                            fontWeight: 900,
-                            color: '#0f172a',
+                            padding: '6px 14px',
+                            borderRadius: '20px',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            fontWeight: '700',
+                            color: '#ffffff',
+                            fontSize: '0.75rem',
+                            boxShadow: '0 2px 8px rgba(102, 126, 234, 0.25)',
                           }}
                         >
                           {ev.category || 'Uncategorized'}
@@ -168,7 +150,7 @@ function ActiveEvent({ onClose }) {
                         </div>
                       ) : null}
                     </div>
-                    <div className="home-popup-list__value" style={{ whiteSpace: 'nowrap', fontWeight: 950 }}>
+                    <div className="home-popup-list__value" style={{ whiteSpace: 'nowrap', fontWeight: 700, padding: '6px 14px', borderRadius: '20px', background: ev.priceType === 'Paid' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', fontSize: '0.8rem', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)' }}>
                       {ev.priceType === 'Paid' ? 'Paid' : 'Free'}
                     </div>
                   </li>

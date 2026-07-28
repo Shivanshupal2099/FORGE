@@ -42,8 +42,7 @@ function SurveyQuestion({ survey, onAnswerSubmit }) {
       </div>
 
       <div className="survey-card__content">
-        <h3 className="survey-card__title">{survey.title}</h3>
-        <p className="survey-card__description">{survey.description}</p>
+        <h3 className="survey-card__title">Survey #{survey._id?.slice(-6)}</h3>
       </div>
 
       <div className="survey-card__questions">

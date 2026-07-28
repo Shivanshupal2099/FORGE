@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Usercard.css';
-import VerificationPopup from './VerificationPopup';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
+import { generateKeyPair, exportPublicKey } from '../utils/encryption';
 
 const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(true);
-  const [showVerificationPopup, setShowVerificationPopup] = useState(false);
+  const [connectionLoading, setConnectionLoading] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('idle'); // idle, sent, error
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionId, setConnectionId] = useState(null);
+  const [checkingConnection, setCheckingConnection] = useState(true);
 
   const settings = visibilitySettings || {
     show_name: true,
@@ -24,24 +30,57 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   // Check if this is the current user's own card
   const isOwnUser = user?.email === currentUserEmail;
 
-  const handleConnectClick = () => {
-    // Check if current user is verified
-    if (!currentUser?.user_metadata?.is_verified) {
-      setShowVerificationPopup(true);
+  const handleConnectClick = async () => {
+    // Prevent duplicate requests
+    if (connectionStatus === 'sent' || connectionLoading) {
       return;
     }
-    // TODO: Implement actual connection logic
-    console.log('Connect to user:', user.email);
+
+    try {
+      setConnectionLoading(true);
+      setConnectionStatus('idle');
+
+      // Generate key pair for E2E encryption
+      const keyPair = await generateKeyPair();
+      const publicKey = await exportPublicKey(keyPair);
+
+      // Store key pair in localStorage for later use (in production, use IndexedDB)
+      const privateKeyExported = await window.crypto.subtle.exportKey('jwk', keyPair.privateKey);
+      localStorage.setItem(`encryption_key_${user.email}`, JSON.stringify({
+        privateKey: privateKeyExported,
+        publicKey: publicKey
+      }));
+
+      const response = await axios.post('/api/connections', {
+        receiver_uid: user.email,
+        requester_public_key: publicKey
+      });
+
+      if (response.data.success) {
+        setConnectionStatus('sent');
+      } else {
+        setConnectionStatus('error');
+        console.error('Connection request failed:', response.data.message);
+      }
+    } catch (error) {
+      setConnectionStatus('error');
+      console.error('Error sending connection request:', error.response?.data?.message || error.message);
+    } finally {
+      setConnectionLoading(false);
+    }
   };
 
-  const handleMessageClick = () => {
-    // Check if current user is verified
-    if (!currentUser?.user_metadata?.is_verified) {
-      setShowVerificationPopup(true);
-      return;
+  const handleTalkClick = () => {
+    // Store the selected user info for ChatPage
+    if (connectionId) {
+      localStorage.setItem('selectedChatUser', JSON.stringify({
+        uid: user.email,
+        name: user.name,
+        connectionId: connectionId
+      }));
+      navigate('/chat');
+      onClose();
     }
-    // TODO: Implement actual messaging logic
-    console.log('Message user:', user.email);
   };
 
   useEffect(() => {
@@ -68,6 +107,39 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
     const intervalId = setInterval(fetchUserStatus, 30000);
 
     return () => clearInterval(intervalId);
+  }, [user?.email]);
+
+  // Check if user is already connected
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!user?.email) return;
+
+      try {
+        setCheckingConnection(true);
+        const response = await axios.get('/api/connections/accepted');
+        if (response.data.success) {
+          const connection = response.data.connections.find(conn => {
+            const partner = conn.collaborator;
+            return partner?.uid === user.email || partner?.email === user.email;
+          });
+          
+          if (connection) {
+            setIsConnected(true);
+            setConnectionId(connection._id);
+          } else {
+            setIsConnected(false);
+            setConnectionId(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking connection:', error);
+        setIsConnected(false);
+      } finally {
+        setCheckingConnection(false);
+      }
+    };
+
+    checkConnection();
   }, [user?.email]);
 
   if (!user) return null;
@@ -168,25 +240,32 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
         {/* Action Buttons */}
         {!isOwnUser && (
           <div className="usercard__actions">
-            <button 
-              className="usercard__actionButton usercard__actionButton--primary"
-              onClick={handleMessageClick}
-            >
-              Message
-            </button>
-            <button 
-              className="usercard__actionButton usercard__actionButton--secondary"
-              onClick={handleConnectClick}
-            >
-              Connect
-            </button>
+            {checkingConnection ? (
+              <button 
+                className="usercard__actionButton usercard__actionButton--primary"
+                disabled
+              >
+                Checking...
+              </button>
+            ) : isConnected ? (
+              <button 
+                className="usercard__actionButton usercard__actionButton--primary"
+                onClick={handleTalkClick}
+              >
+                Talk
+              </button>
+            ) : (
+              <button 
+                className="usercard__actionButton usercard__actionButton--primary"
+                onClick={handleConnectClick}
+                disabled={connectionLoading || connectionStatus === 'sent'}
+              >
+                {connectionLoading ? 'Sending...' : connectionStatus === 'sent' ? 'Request Sent' : connectionStatus === 'error' ? 'Try Again' : 'Connect'}
+              </button>
+            )}
           </div>
         )}
       </div>
-      
-      {showVerificationPopup && (
-        <VerificationPopup onClose={() => setShowVerificationPopup(false)} />
-      )}
     </div>
   );
 };

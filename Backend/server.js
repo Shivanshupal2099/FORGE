@@ -4,15 +4,20 @@ const mongoose=require('mongoose')
 const dotenv=require('dotenv')
 const cors=require('cors')
 const helmet=require('helmet')
-const rateLimit=require('express-rate-limit')
+const http=require('http')
+const { Server }=require('socket.io')
 const authRoutes=require('./routes/auth.routes')
 const profileRoutes=require('./routes/profile.routes')
 const surveyRoutes=require('./routes/survey.routes')
 const locationRoutes=require('./routes/location.routes')
 const eventRoutes=require('./routes/event.routes')
+const connectionRoutes=require('./routes/connection.routes')
+const chatRoutes=require('./routes/chat.routes')
 const { ConnectDB }=require('./config/database')
 const { activityMiddleware, markInactiveUsersOffline }=require('./middlewares/activity.middleware')
-const errorHandler = require('./middlewares/error.middleware')
+const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler.middleware')
+const { generalLimiter, authLimiter, surveyCreationLimiter, surveyResponseLimiter } = require('./middlewares/rateLimiter.middleware')
+const SurveySocketHandler = require('./socketHandlers/survey.socket')
 
 
 
@@ -45,32 +50,14 @@ if (!process.env.MONGODB_URI) {
 
 
 
-ConnectDB();
-
-
-
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP for development
   crossOriginEmbedderPolicy: false
 }))
 
-// Rate limiting (disabled for development)
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 100, // Limit each IP to 100 requests per windowMs
-//   message: 'Too many requests from this IP, please try again later.'
-// })
-// app.use('/api/auth', limiter)
-
-// Stricter rate limiting for auth routes (disabled for development)
-// const authLimiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 5, // Limit each IP to 5 auth requests per windowMs
-//   message: 'Too many authentication attempts, please try again later.'
-// })
-// app.use('/api/auth/google', authLimiter)
-// app.use('/api/auth/sync', authLimiter)
+// Apply general rate limiting
+app.use('/api', generalLimiter)
 
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
@@ -97,24 +84,117 @@ app.use(express.urlencoded({extended: true, limit: '10mb'}))
 // Apply activity tracking middleware to all routes
 app.use(activityMiddleware)
 
+// Apply stricter rate limiting to auth routes
+app.use('/api/auth', authLimiter)
+
+// Apply rate limiting to survey creation
+app.use('/api/survey/create', surveyCreationLimiter)
+
+// Apply rate limiting to survey responses
+app.use('/api/survey/:surveyId/responses', surveyResponseLimiter)
+
 app.use('/api/auth',authRoutes)
 app.use('/api/profile',profileRoutes)
 app.use('/api/survey',surveyRoutes)
 app.use('/api/location',locationRoutes)
-app.use('/api/events',eventRoutes)                    
-// Error handling middleware (must be last)            
+app.use('/api/events',eventRoutes)
+app.use('/api/connections',connectionRoutes)
+app.use('/api/chat',chatRoutes)
+
+// 404 handler (must be before error handler)
+app.use(notFoundHandler)
+
+// Error handling middleware (must be last)
 app.use(errorHandler)
 
+// Connect to database before starting server
+ConnectDB().then(() => {
+  console.log('Database connection established, starting server...');
+  
+  // Only start server after database is connected
+  const PORT = process.env.PORT || 5000
 
+  // Create HTTP server
+  const server = http.createServer(app)
 
+  // Configure Socket.io
+  const io = new Server(server, {
+      cors: {
+          origin: process.env.ALLOWED_ORIGINS 
+              ? process.env.ALLOWED_ORIGINS.split(',') 
+              : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+          credentials: true
+      }
+  })
 
-const PORT = process.env.PORT || 5000
-app.listen(PORT,()=>{
-    console.log(`Server is running on port ${PORT}`)
-})
+  // Initialize Survey Socket Handler
+  const surveySocketHandler = new SurveySocketHandler(io)
 
-// Schedule inactivity check - run every minute
-setInterval(() => {
-    markInactiveUsersOffline();
-}, 60 * 1000); // Every minute
+  // Store online users and their socket IDs
+  const onlineUsers = new Map()
+
+  // Socket.io connection handling
+  io.on('connection', (socket) => {
+      console.log('User connected:', socket.id)
+
+      // User joins with their user ID
+      socket.on('user:join', (userId) => {
+          onlineUsers.set(userId, socket.id)
+          socket.userId = userId
+          console.log(`User ${userId} joined with socket ${socket.id}`)
+          
+          // Broadcast to all users that this user is online
+          io.emit('user:online', { userId, socketId: socket.id })
+      })
+
+      // Join a specific connection room for private messaging
+      socket.on('join:connection', (connectionId) => {
+          socket.join(`connection:${connectionId}`)
+          console.log(`Socket ${socket.id} joined connection ${connectionId}`)
+      })
+
+      // Leave a connection room
+      socket.on('leave:connection', (connectionId) => {
+          socket.leave(`connection:${connectionId}`)
+          console.log(`Socket ${socket.id} left connection ${connectionId}`)
+      })
+
+      // Handle new message
+      socket.on('message:send', (data) => {
+          const { connectionId, message } = data
+          // Broadcast to all users in the connection room
+          io.to(`connection:${connectionId}`).emit('message:receive', message)
+          console.log(`Message sent to connection ${connectionId}`)
+      })
+
+      // Handle disconnection
+      socket.on('disconnect', () => {
+          if (socket.userId) {
+              onlineUsers.delete(socket.userId)
+              console.log(`User ${socket.userId} disconnected`)
+              // Broadcast that this user is offline
+              io.emit('user:offline', { userId: socket.userId })
+          }
+      })
+  })
+
+  // Make io accessible to routes for emitting survey events
+  app.set('io', io)
+  
+  // Make survey socket handler accessible to controllers
+  app.set('surveySocketHandler', surveySocketHandler)
+
+  server.listen(PORT,()=>{
+      console.log(`Server is running on port ${PORT}`)
+  })
+
+  // Schedule inactivity check - run every minute
+  setInterval(() => {
+      markInactiveUsersOffline();
+  }, 60 * 1000); // Every minute
+
+}).catch((err) => {
+  console.error('Failed to connect to database:', err);
+  process.exit(1);
+});
 

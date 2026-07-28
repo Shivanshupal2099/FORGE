@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from "@supabase/supabase-js";
 import axios from '../api/axios';
 
@@ -24,9 +24,9 @@ export const AuthProvider = ({ children }) => {
       // Token exists, but we still need to verify with Supabase
       // This will be handled by the getSession call below
     }
-  }, []);
+  }, []);    
 
-  const syncUserToBackend = async (user) => {
+  const syncUserToBackend = useCallback(async (user) => {
     try {
       const response = await axios.post('/api/auth/sync', {
         uid: user.email,
@@ -41,29 +41,31 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error syncing user to backend:', error);
     }
-  };
+  }, []);
 
   // Track user activity on the frontend
+  const pingActivity = useCallback(async (email) => {
+    try {
+      // Make a simple request to update activity timestamp
+      await axios.get(`/api/auth/status/${email}`);
+    } catch (error) {
+      console.error('Error pinging activity:', error);
+    }
+  }, []);
+
   useEffect(() => {
     if (!user?.email) return;
 
     const ACTIVITY_PING_INTERVAL = 2 * 60 * 1000; // 2 minutes
     let intervalId = null;
 
-    const pingActivity = async () => {
-      try {
-        // Make a simple request to update activity timestamp
-        await axios.get(`/api/auth/status/${user.email}`);
-      } catch (error) {
-        console.error('Error pinging activity:', error);
-      }
-    };
-
     // Initial ping
-    pingActivity();
+    pingActivity(user.email);
 
     // Set up interval for activity pings
-    intervalId = setInterval(pingActivity, ACTIVITY_PING_INTERVAL);
+    intervalId = setInterval(() => {
+      pingActivity(user.email);
+    }, ACTIVITY_PING_INTERVAL);
 
     // Track user interactions (mouse, keyboard, scroll, click)
     const handleUserActivity = () => {
@@ -71,8 +73,10 @@ export const AuthProvider = ({ children }) => {
       if (intervalId) {
         clearInterval(intervalId);
       }
-      pingActivity();
-      intervalId = setInterval(pingActivity, ACTIVITY_PING_INTERVAL);
+      pingActivity(user.email);
+      intervalId = setInterval(() => {
+        pingActivity(user.email);
+      }, ACTIVITY_PING_INTERVAL);
     };
 
     // Add event listeners for user activity
@@ -90,7 +94,7 @@ export const AuthProvider = ({ children }) => {
       window.removeEventListener('scroll', handleUserActivity);
       window.removeEventListener('click', handleUserActivity);
     };
-  }, [user?.email]);
+  }, [user?.email, pingActivity]);
 
   useEffect(() => {
     let mounted = true;
@@ -132,9 +136,9 @@ export const AuthProvider = ({ children }) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [syncUserToBackend]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('Error signing out:', error);
@@ -144,10 +148,19 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
     }
-  };
+  }, []);
+
+  // Memoize context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
+    user,
+    userId,
+    loading,
+    signOut,
+    supabase
+  }), [user, userId, loading, signOut]);
 
   return (
-    <AuthContext.Provider value={{ user, userId, loading, signOut, supabase }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

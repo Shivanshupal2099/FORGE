@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaPlus, FaTrash, FaArrowLeft, FaClipboardList, FaEye, FaEdit, FaCopy } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
+import { useSocket } from '../contexts/SocketContext';
 import axios from '../api/axios';
+import SuccessModal from './SuccessModal';
 import './Survey.css';
 
 const createEmptyOption = () => ({
   id: Date.now() + Math.floor(Math.random() * 1000),
   value: '',
-  imageFile: null,
 });
 
 const createEmptyQuestion = () => ({
   id: Date.now() + Math.floor(Math.random() * 1000),
   questionText: '',
   answerType: 'text',
-  optionType: 'text',
   options: [createEmptyOption()],
 });
 
@@ -91,9 +91,9 @@ function PopupModal({ type, message, onClose, onConfirm }) {
 
 function Survey() {
   const { user } = useAuth();
+  const { socket, isConnected } = useSocket();
+  const navigate = useNavigate();
   const [survey, setSurvey] = useState({
-    title: '',
-    description: '',
     questions: [createEmptyQuestion()],
   });
 
@@ -101,9 +101,12 @@ function Survey() {
   const [createdSurveys, setCreatedSurveys] = useState([]);
   const [expandedSurveyId, setExpandedSurveyId] = useState(null);
   const [popup, setPopup] = useState(null);
+  const [successModal, setSuccessModal] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentSurveyId, setCurrentSurveyId] = useState(null);
+  const [surveyResponses, setSurveyResponses] = useState({});
+  const [loadingResponses, setLoadingResponses] = useState({});
 
   useEffect(() => {
     loadSurveys();
@@ -139,10 +142,14 @@ function Survey() {
       onConfirm: async () => {
         try {
           setLoading(true);
+          
+          // Optimistic update - remove survey from local state immediately
+          const surveyToDelete = createdSurveys.find(s => s._id === surveyId);
+          setCreatedSurveys(prev => prev.filter((s) => s._id !== surveyId));
+          
           const response = await axios.delete(`/api/survey/${surveyId}`);
           
           if (response.data.success) {
-            setCreatedSurveys(createdSurveys.filter((s) => s._id !== surveyId));
             if (expandedSurveyId === surveyId) {
               setExpandedSurveyId(null);
             }
@@ -151,9 +158,18 @@ function Survey() {
               message: 'Survey deleted successfully'
             });
           } else {
+            // Revert optimistic update on failure
+            if (surveyToDelete) {
+              setCreatedSurveys(prev => [...prev, surveyToDelete]);
+            }
             setError(response.data.message || 'Failed to delete survey');
           }
         } catch (err) {
+          // Revert optimistic update on error
+          const surveyToDelete = createdSurveys.find(s => s._id === surveyId);
+          if (surveyToDelete) {
+            setCreatedSurveys(prev => [...prev, surveyToDelete]);
+          }
           setError('Error deleting survey');
           console.error('Error deleting survey:', err);
         } finally {
@@ -177,25 +193,26 @@ function Survey() {
     }
   };
 
-  const toggleExpandSurvey = (surveyId) => {
+  const toggleExpandSurvey = async (surveyId) => {
+    const isCurrentlyExpanded = expandedSurveyId === surveyId;
+    
+    if (!isCurrentlyExpanded && !surveyResponses[surveyId]) {
+      // Load responses when expanding for the first time
+      try {
+        setLoadingResponses(prev => ({ ...prev, [surveyId]: true }));
+        const response = await axios.get(`/api/survey/${surveyId}/responses`);
+        
+        if (response.data.success) {
+          setSurveyResponses(prev => ({ ...prev, [surveyId]: response.data.responses }));
+        }
+      } catch (err) {
+        console.error('Error loading survey responses:', err);
+      } finally {
+        setLoadingResponses(prev => ({ ...prev, [surveyId]: false }));
+      }
+    }
+    
     setExpandedSurveyId((prev) => (prev === surveyId ? null : surveyId));
-  };
-
-  useEffect(() => {
-    const imageUrls = survey.questions.flatMap((question) =>
-      question.options
-        .map((option) => option.value)
-        .filter((value) => value.startsWith('blob:'))
-    );
-
-    return () => {
-      imageUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [survey.questions]);
-
-  const updateSurveyField = (event) => {
-    const { name, value } = event.target;
-    setSurvey((prev) => ({ ...prev, [name]: value }));
   };
 
   const updateQuestionField = (questionId, field, value) => {
@@ -218,19 +235,6 @@ function Survey() {
           };
         }
 
-        if (field === 'optionType') {
-          question.options.forEach((option) => {
-            if (option.value.startsWith('blob:')) {
-              URL.revokeObjectURL(option.value);
-            }
-          });
-
-          return {
-            ...question,
-            optionType: value,
-            options: [createEmptyOption()],
-          };
-        }
 
         return { ...question, [field]: value };
       }),
@@ -255,42 +259,6 @@ function Survey() {
     }));
   };
 
-  const handleOptionImageUpload = (questionId, optionId, event) => {
-    const selectedFile = event.target.files?.[0];
-    if (!selectedFile) {
-      return;
-    }
-
-    setSurvey((prev) => ({
-      ...prev,
-      questions: prev.questions.map((question) => {
-        if (question.id !== questionId) {
-          return question;
-        }
-
-        return {
-          ...question,
-          options: question.options.map((option) => {
-            if (option.id !== optionId) {
-              return option;
-            }
-
-            if (option.value.startsWith('blob:')) {
-              URL.revokeObjectURL(option.value);
-            }
-
-            return {
-              ...option,
-              imageFile: selectedFile,
-              value: URL.createObjectURL(selectedFile),
-            };
-          }),
-        };
-      }),
-    }));
-
-    event.target.value = '';
-  };
 
   const addQuestion = () => {
     setSurvey((prev) => ({
@@ -300,19 +268,10 @@ function Survey() {
   };
 
   const removeQuestion = (questionId) => {
-    setSurvey((prev) => {
-      const questionToRemove = prev.questions.find((question) => question.id === questionId);
-      questionToRemove?.options.forEach((option) => {
-        if (option.value.startsWith('blob:')) {
-          URL.revokeObjectURL(option.value);
-        }
-      });
-
-      return {
-        ...prev,
-        questions: prev.questions.filter((question) => question.id !== questionId),
-      };
-    });
+    setSurvey((prev) => ({
+      ...prev,
+      questions: prev.questions.filter((question) => question.id !== questionId),
+    }));
   };
 
   const addOption = (questionId) => {
@@ -336,11 +295,6 @@ function Survey() {
           return question;
         }
 
-        const optionToRemove = question.options.find((option) => option.id === optionId);
-        if (optionToRemove?.value.startsWith('blob:')) {
-          URL.revokeObjectURL(optionToRemove.value);
-        }
-
         const nextOptions = question.options.filter((option) => option.id !== optionId);
         return { ...question, options: nextOptions.length ? nextOptions : [createEmptyOption()] };
       }),
@@ -359,11 +313,24 @@ function Survey() {
       console.log('User email:', user.email);
       console.log('Survey data:', survey);
       
+      // Optimistic update - add survey to local state immediately
+      const tempSurveyId = 'temp_' + Date.now();
+      const optimisticSurvey = {
+        _id: tempSurveyId,
+        creator_id: user._id,
+        visibility: 'public',
+        target_responses: 100,
+        current_responses: 0,
+        created_at: new Date().toISOString(),
+        questions: survey.questions
+      };
+
+      setCreatedSurveys(prev => [optimisticSurvey, ...prev]);
+      
       // Create survey first
       const surveyResponse = await axios.post('/api/survey/create', {
         uid: user.email,
-        title: survey.title,
-        description: survey.description,
+        visibility: 'public',
         target_responses: 100
       });
       
@@ -371,6 +338,8 @@ function Survey() {
       console.log('Survey creation response:', surveyData);
       
       if (!surveyData.success) {
+        // Revert optimistic update on failure
+        setCreatedSurveys(prev => prev.filter(s => s._id !== tempSurveyId));
         setError(surveyData.message || 'Failed to create survey');
         return;
       }
@@ -378,8 +347,19 @@ function Survey() {
       const surveyId = surveyData.survey._id;
       console.log('Survey created with ID:', surveyId);
       
+      // Update the optimistic survey with real data
+      setCreatedSurveys(prev => prev.map(s => 
+        s._id === tempSurveyId ? { ...s, _id: surveyId } : s
+      ));
+      
       // Create questions
       const questionPromises = survey.questions.map((question, index) => {
+        // Skip empty questions
+        if (!question.questionText || question.questionText.trim() === '') {
+          console.log(`Skipping empty question ${index}`);
+          return Promise.resolve(null);
+        }
+        
         const options = question.answerType !== 'text' 
           ? question.options.map(opt => opt.value).filter(v => v.trim() !== '')
           : [];
@@ -399,18 +379,38 @@ function Survey() {
       console.log('Question creation responses:', questionResponses);
       
       setSurvey({
-        title: '',
-        description: '',
         questions: [createEmptyQuestion()],
       });
 
       await loadSurveys();
       setActiveTab('list');
-      setPopup({
-        type: 'alert',
-        message: 'Survey created successfully!',
+      
+      setSuccessModal({
+        isOpen: true,
+        title: 'Survey Created Successfully!',
+        message: 'Your survey has been created and is now live on the platform.',
+        actions: [
+          {
+            label: 'View Survey',
+            icon: <FaEye />,
+            variant: 'primary',
+            onClick: () => {
+              // Navigate to survey view
+            }
+          },
+          {
+            label: 'My Surveys',
+            icon: <FaClipboardList />,
+            variant: 'secondary',
+            onClick: () => {
+              setActiveTab('list');
+            }
+          }
+        ]
       });
     } catch (err) {
+      // Revert optimistic update on error
+      setCreatedSurveys(prev => prev.filter(s => !s._id.startsWith('temp_')));
       setError('Error creating survey');
       console.error('Error creating survey:', err);
     } finally {
@@ -422,23 +422,20 @@ function Survey() {
     try {
       setLoading(true);
       setError(null);
-      console.log('Publishing survey:', surveyId);
-      
       const response = await axios.put(`/api/survey/${surveyId}/publish`);
-      console.log('Publish response:', response.data);
       
       if (response.data.success) {
         await loadSurveys();
         setPopup({
           type: 'alert',
-          message: 'Survey published successfully!'
+          message: 'Survey updated successfully'
         });
       } else {
-        setError(response.data.message || 'Failed to publish survey');
+        setError(response.data.message || 'Failed to update survey');
       }
     } catch (err) {
-      setError('Error publishing survey');
-      console.error('Error publishing survey:', err);
+      setError('Error updating survey');
+      console.error('Error updating survey:', err);
     } finally {
       setLoading(false);
     }
@@ -454,14 +451,14 @@ function Survey() {
         await loadSurveys();
         setPopup({
           type: 'alert',
-          message: 'Survey closed successfully!'
+          message: 'Survey updated successfully'
         });
       } else {
-        setError(response.data.message || 'Failed to close survey');
+        setError(response.data.message || 'Failed to update survey');
       }
     } catch (err) {
-      setError('Error closing survey');
-      console.error('Error closing survey:', err);
+      setError('Error updating survey');
+      console.error('Error updating survey:', err);
     } finally {
       setLoading(false);
     }
@@ -507,35 +504,6 @@ function Survey() {
 
         {activeTab === 'create' ? (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-            <div className="survey-info-card">
-              <div className="form-group">
-                <label htmlFor="survey-title">Survey Title</label>
-                <input
-                  type="text"
-                  id="survey-title"
-                  name="title"
-                  value={survey.title}
-                  onChange={updateSurveyField}
-                  placeholder="e.g. Campus Event Feedback"
-                  required
-                  className="input-field"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="survey-description">Description</label>
-                <textarea
-                  id="survey-description"
-                  name="description"
-                  value={survey.description}
-                  onChange={updateSurveyField}
-                  placeholder="Write a short survey description..."
-                  rows={3}
-                  className="input-field"
-                />
-              </div>
-            </div>
-
             {survey.questions.map((question, questionIndex) => (
               <section key={question.id} className="survey-question">
                 <div className="survey-question__header">
@@ -577,17 +545,6 @@ function Survey() {
                     ]}
                   />
 
-                  {question.answerType !== 'text' && (
-                    <ToggleGroup
-                      label="Option Format"
-                      value={question.optionType}
-                      onChange={(value) => updateQuestionField(question.id, 'optionType', value)}
-                      options={[
-                        { value: 'text', label: 'Text', icon: 'T' },
-                        { value: 'image', label: 'Image', icon: '🖼' },
-                      ]}
-                    />
-                  )}
                 </div>
 
                 {question.answerType !== 'text' && (
@@ -608,46 +565,15 @@ function Survey() {
                             </button>
                           </div>
 
-                          {question.optionType === 'text' ? (
-                            <input
-                              type="text"
-                              value={option.value}
-                              onChange={(event) =>
-                                updateOptionText(question.id, option.id, event.target.value)
-                              }
-                              placeholder={`Enter option ${optionIndex + 1}`}
-                              className="input-field"
-                            />
-                          ) : (
-                            <div>
-                              {option.value ? (
-                                <div className="survey-option__preview">
-                                  <img
-                                    src={option.value}
-                                    alt={`Option ${optionIndex + 1} preview`}
-                                  />
-                                </div>
-                              ) : (
-                                <div className="survey-option__upload-placeholder">
-                                  <span className="survey-option__upload-icon">📷</span>
-                                  <span>No image selected</span>
-                                  <span className="survey-option__upload-hint">
-                                    PNG, JPG, or WEBP
-                                  </span>
-                                </div>
-                              )}
-
-                              <label className="survey-option__upload-btn">
-                                {option.value ? 'Change Image' : 'Upload Image'}
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(event) => handleOptionImageUpload(question.id, option.id, event)}
-                                  style={{ display: 'none' }}
-                                />
-                              </label>
-                            </div>
-                          )}
+                          <input
+                            type="text"
+                            value={option.value}
+                            onChange={(event) =>
+                              updateOptionText(question.id, option.id, event.target.value)
+                            }
+                            placeholder={`Enter option ${optionIndex + 1}`}
+                            className="input-field"
+                          />
                         </div>
                       ))}
                     </div>
@@ -702,10 +628,8 @@ function Survey() {
                   <div key={createdSurvey._id} className="my-survey-card">
                     <div className="my-survey-card__header">
                       <div className="my-survey-card__title-section">
-                        <h3 className="my-survey-card__title">{createdSurvey.title}</h3>
+                        <h3 className="my-survey-card__title">Survey #{createdSurvey._id.slice(-6)}</h3>
                         <div className="my-survey-card__meta">
-                          <span>Status: <span className={`badge-status badge-status--${createdSurvey.status}`}>{createdSurvey.status}</span></span>
-                          <span>•</span>
                           <span>Created: {formatDate(createdSurvey.created_at)}</span>
                           <span>•</span>
                           <span>{createdSurvey.current_responses} responses</span>
@@ -719,32 +643,13 @@ function Survey() {
                         >
                           {isExpanded ? 'Hide Details' : 'View Details'}
                         </button>
-                        {createdSurvey.status === 'draft' && (
-                          <button
-                            type="button"
-                            className="button-primary"
-                            onClick={() => publishSurvey(createdSurvey._id)}
-                            disabled={loading}
-                          >
-                            Publish
-                          </button>
-                        )}
-                        {createdSurvey.status === 'active' && (
-                          <button
-                            type="button"
-                            className="button-secondary"
-                            onClick={() => closeSurvey(createdSurvey._id)}
-                            disabled={loading}
-                          >
-                            Close
-                          </button>
-                        )}
-                        <Link
-                          to={`/survey/${createdSurvey._id}/results`}
+                        <button
+                          type="button"
                           className="button-secondary"
+                          onClick={() => navigate(`/survey/${createdSurvey._id}/results`)}
                         >
                           <FaEye /> Results
-                        </Link>
+                        </button>
                         <button
                           type="button"
                           className="button-danger"
@@ -755,8 +660,33 @@ function Survey() {
                         </button>
                       </div>
                     </div>
-                    {createdSurvey.description && (
-                      <p className="my-survey-card__description">{createdSurvey.description}</p>
+                    
+                    {isExpanded && (
+                      <div className="my-survey-card__preview">
+                        <h4 className="my-survey-card__preview-title">Survey Responses</h4>
+                        {loadingResponses[createdSurvey._id] ? (
+                          <p>Loading responses...</p>
+                        ) : surveyResponses[createdSurvey._id] && surveyResponses[createdSurvey._id].length > 0 ? (
+                          <div className="survey-responses-list">
+                            {surveyResponses[createdSurvey._id].map((response) => (
+                              <div key={response._id} className="response-card">
+                                <div className="response-card__header">
+                                  <div className="response-card__info">
+                                    <div className="response-card__submitter">
+                                      {response.submittedBy?.name || 'Anonymous'}
+                                    </div>
+                                    <div className="response-card__date">
+                                      {formatDate(response.submittedAt)}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p>No responses yet for this survey.</p>
+                        )}
+                      </div>
                     )}
                   </div>
                 );
@@ -772,6 +702,18 @@ function Survey() {
           message={popup.message}
           onConfirm={popup.onConfirm}
           onClose={() => setPopup(null)}
+        />
+      )}
+
+      {successModal && (
+        <SuccessModal
+          isOpen={successModal.isOpen}
+          onClose={() => setSuccessModal(null)}
+          title={successModal.title}
+          message={successModal.message}
+          actions={successModal.actions}
+          autoClose={true}
+          autoCloseDelay={4000}
         />
       )}
     </div>

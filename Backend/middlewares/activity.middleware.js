@@ -158,7 +158,7 @@ const markInactiveUsersOffline = async () => {
  */
 const getUserOnlineStatus = async (uid) => {
   try {
-    const user = await User.findOne({ uid }).select('is_online last_activity_at last_seen_at');
+    const user = await User.findOne({ uid }).select('is_online last_activity_at last_seen_at').maxTimeMS(5000);
     
     if (!user) {
       return { is_online: false, last_activity_at: null, last_seen_at: null };
@@ -181,7 +181,7 @@ const getUserOnlineStatus = async (uid) => {
       last_seen_at: user.last_seen_at
     };
   } catch (error) {
-    console.error('Error getting user online status:', error);
+    console.error('Error getting user online status:', error.message);
     return { is_online: false, last_activity_at: null, last_seen_at: null };
   }
 };

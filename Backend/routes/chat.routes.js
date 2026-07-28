@@ -6,5 +6,6 @@ const router = express.Router();
 router.use(authMiddleware);
 router.get('/:connectionId/messages', controller.getMessages);
 router.post('/:connectionId/messages', controller.sendMessage);
+router.delete('/:connectionId/messages', controller.clearChat);
 
 module.exports = router;

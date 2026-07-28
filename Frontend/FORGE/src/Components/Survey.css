@@ -7,32 +7,6 @@
   padding: 40px 16px 120px;
 }
 
-/* Status Badge */
-.badge-status {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.badge-status--draft {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.badge-status--active {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.badge-status--closed {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
 /* Survey Stats */
 .survey-stats {
   display: grid;
@@ -76,10 +50,7 @@
 }
 
 .response-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
+  margin-bottom: 12px;
 }
 
 .response-card__info {
@@ -88,9 +59,95 @@
   gap: 4px;
 }
 
+.response-card__submitter {
+  font-weight: 600;
+  color: #000000;
+  font-size: 0.95rem;
+}
+
 .response-card__date {
   font-size: 0.85rem;
   color: #666666;
+}
+
+.survey-responses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.my-survey-card__preview {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.my-survey-card__preview-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 12px 0;
+}
+
+.response-answers {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.response-answer-item {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.response-answer-item:last-child {
+  margin-bottom: 0;
+}
+
+.response-answer-question {
+  font-weight: 700;
+  color: #000000;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.response-answer-question::before {
+  content: 'Q: ';
+  color: #10b981;
+  font-weight: 800;
+}
+
+.response-answer-value {
+  color: #333333;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  border-left: 3px solid #10b981;
+}
+
+.response-answer-value::before {
+  content: 'A: ';
+  color: #666666;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-right: 4px;
+}
+
+.no-answer {
+  color: #999999;
+  font-style: italic;
+  padding: 10px 12px;
+  background: rgba(255, 0, 0, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #ef4444;
 }
 
 .response-card__submitter {

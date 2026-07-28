@@ -7,6 +7,7 @@ import Request from '../Components/Request';
 import Tokens from '../Components/Tokens';
 import Offer from '../Components/Offer';
 import WelcomeCard from '../Components/WelcomeCard';
+import SurveyRotator from '../Components/SurveyRotator';
 import { useAuth } from '../contexts/AuthContext';
 
 
@@ -43,9 +44,9 @@ function HomePage() {
       }}
     >
       <Header />
-      <div style={{ flex: 1, position: 'relative' }}>
-        <div className="home-top-bar">
-          <div className="home-action-dock">
+      <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', overflowY: 'auto' }}>
+        <div className="home-top-bar" style={{ width: '100%', maxWidth: '1200px', position: 'relative', top: '0', right: 'auto', left: 'auto', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', padding: '10px 0' }}>
+          <div className="home-action-dock" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             {topActions.map(({ label, icon: Icon, popup }) => (
               <button
                 key={label}
@@ -75,8 +76,8 @@ function HomePage() {
               <span />
               <span />
             </div>
-            <span className="home-empty-state__badge">FORGE dashboard</span>
-            <h3>Welcome to FORGE</h3>
+            <span className="home-empty-state__badge">ForgeConnect dashboard</span>
+            <h3>Welcome to ForgeConnect</h3>
             <p>Please log in to unlock requests, tokens, offers, and people near you.</p>
             <div className="home-empty-state__actions">
               <Link to="/login" className="button-primary home-empty-state__cta">
@@ -86,6 +87,13 @@ function HomePage() {
                 Learn More
               </Link>
             </div>
+          </div>
+        )}
+
+        {/* Survey Card - shown in center like feed */}
+        {user && (
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <SurveyRotator />
           </div>
         )}
       </div>

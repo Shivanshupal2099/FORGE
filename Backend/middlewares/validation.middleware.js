@@ -45,9 +45,9 @@ const eventValidation = [
 
 // Survey validation rules
 const surveyValidation = [
-  body('title').trim().isLength({ min: 1, max: 255 }).withMessage('Title must be 1-255 characters'),
+  body('uid').trim().notEmpty().withMessage('UID is required'),
+  body('title').optional().trim().isLength({ max: 255 }).withMessage('Title must be 255 characters or less'),
   body('description').optional().trim().isLength({ max: 2000 }),
-  body('status').optional().isIn(['draft', 'active', 'closed']),
   body('visibility').optional().isIn(['private', 'public']),
   body('target_responses').optional().isInt({ min: 1 }),
   validate
@@ -74,6 +74,12 @@ const uidValidation = [
   validate
 ];
 
+// Survey ID parameter validation
+const surveyIdValidation = [
+  param('surveyId').isMongoId().withMessage('Invalid survey ID format'),
+  validate
+];
+
 module.exports = {
   validate,
   profileValidation,
@@ -81,5 +87,6 @@ module.exports = {
   surveyValidation,
   questionValidation,
   idValidation,
-  uidValidation
+  uidValidation,
+  surveyIdValidation
 };

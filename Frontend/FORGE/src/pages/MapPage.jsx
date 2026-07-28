@@ -136,17 +136,23 @@ function Map() {
           markersRef.current.forEach(marker => marker.remove())
           markersRef.current = []
 
-          response.data.locations.forEach((location) => {
+          response.data.locations.forEach((location, index) => {
             console.log('Adding marker for:', location.uid, 'at:', location.longitude, location.latitude)
             const markerElement = document.createElement('div')
             markerElement.style.width = '30px'
             markerElement.style.height = '30px'
-            markerElement.style.backgroundColor = '#22c55e'
+            
+            // Generate unique color for each marker based on user ID
+            const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#14b8a6', '#a855f7']
+            const colorIndex = index % colors.length
+            const markerColor = !location.is_online ? '#ef4444' : colors[colorIndex]
+            
+            markerElement.style.backgroundColor = markerColor
             markerElement.style.borderRadius = '50%'
             markerElement.style.border = '3px solid white'
             markerElement.style.cursor = 'pointer'
             markerElement.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)'
-            markerElement.style.transition = 'width 0.3s ease, height 0.3s ease'
+            markerElement.style.transition = 'width 0.3s ease, height 0.3s ease, background-color 0.3s ease'
             
             markerElement.addEventListener('click', () => {
               handleMarkerClick(location.uid)
@@ -186,10 +192,11 @@ function Map() {
   }, [])
 
   const buttonCommon = {
-    border: '1px solid rgba(255, 255, 255, 0.22)',
-    boxShadow: '0 10px 26px rgba(0, 0, 0, 0.35)',
-    backdropFilter: 'blur(10px)',
-    WebkitBackdropFilter: 'blur(10px)'
+    border: '1px solid rgba(255, 255, 255, 0.3)',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   }
 
   const filterBtnStyle = {
@@ -200,8 +207,8 @@ function Map() {
     zIndex: 1100,
     width: isMobile ? '56px' : '86px',
     height: isMobile ? '56px' : '86px',
-    borderRadius: '24px',
-    background: 'linear-gradient(135deg, #fb923c, #f97316)',
+    borderRadius: '20px',
+    background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)',
     color: 'white',
     cursor: 'pointer',
     display: 'flex',
@@ -218,8 +225,8 @@ function Map() {
     zIndex: 1100,
     width: isMobile ? '56px' : '86px',
     height: isMobile ? '56px' : '86px',
-    borderRadius: '24px',
-    background: 'linear-gradient(135deg, #34d399, #10b981)',
+    borderRadius: '20px',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     color: 'white',
     cursor: 'pointer',
     display: 'flex',
@@ -236,9 +243,9 @@ function Map() {
     zIndex: 1100,
     width: isMobile ? '56px' : '86px',
     height: isMobile ? '56px' : '86px',
-    borderRadius: '24px',
-    background: 'linear-gradient(135deg, #f472b6, #ec4899)',
-    color: 'white',
+    borderRadius: '20px',
+    background: 'linear-gradient(135deg, #ffd700 0%, #ffeb3b 100%)',
+    color: '#1a1a1a',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
@@ -319,123 +326,22 @@ function Map() {
 
 
   return (
-    <div style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, boxSizing: 'border-box', position: 'relative', overflow: 'hidden', backgroundImage: 'var(--app-theme-gradient)' }}>
+    <div className="map-page" style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, boxSizing: 'border-box', position: 'relative', overflow: 'hidden', backgroundImage: 'var(--app-theme-gradient)' }}>
       <Header />
       
       {/* User Stats Display */}
-      <div style={{
-        position: 'fixed',
-        top: isMobile ? '72px' : '90px',
-        left: isMobile ? '12px' : '24px',
-        right: isMobile ? '12px' : 'auto',
-        zIndex: 999,
-        display: 'flex',
-        flexDirection: isMobile ? 'row' : 'row',
-        gap: isMobile ? '8px' : '12px',
-        alignItems: 'center',
-        justifyContent: isMobile ? 'space-between' : 'flex-start'
-      }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1))',
-          backdropFilter: 'blur(30px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-          borderRadius: isMobile ? '12px' : '14px',
-          padding: isMobile ? '6px 10px' : '8px 14px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
-          border: '1px solid rgba(255, 255, 255, 0.6)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: isMobile ? '6px' : '8px',
-          flex: isMobile ? 1 : 'auto',
-          minWidth: isMobile ? '0' : 'auto',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05))',
-            opacity: 0.5,
-            pointerEvents: 'none'
-          }} />
-          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative', zIndex: 1 }}>
-            <span style={{
-              fontSize: isMobile ? '7px' : '9px',
-              color: 'rgba(255, 255, 255, 0.85)',
-              fontWeight: '600',
-              textTransform: 'uppercase',
-              letterSpacing: '0.2px',
-              whiteSpace: 'nowrap'
-            }}>
-              Total Users
-            </span>
-            <span style={{
-              fontSize: isMobile ? '12px' : '16px',
-              fontWeight: '800',
-              color: '#ffffff',
-              lineHeight: 1.1,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-            }}>
-              {userStats.totalUsers.toLocaleString()}
-            </span>
+      <div className="map-page__stats">
+        <div className="map-page__stat-card map-page__stat-card--total">
+          <div className="map-page__stat-content">
+            <span className="map-page__stat-label">Total Users</span>
+            <span className="map-page__stat-value">{userStats.totalUsers.toLocaleString()}</span>
           </div>
         </div>
 
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1))',
-          backdropFilter: 'blur(30px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-          borderRadius: isMobile ? '12px' : '14px',
-          padding: isMobile ? '6px 10px' : '8px 14px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
-          border: '1px solid rgba(255, 255, 255, 0.6)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: isMobile ? '6px' : '8px',
-          flex: isMobile ? 1 : 'auto',
-          minWidth: isMobile ? '0' : 'auto',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05))',
-            opacity: 0.5,
-            pointerEvents: 'none'
-          }} />
-          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative', zIndex: 1 }}>
-            <span style={{
-              fontSize: isMobile ? '7px' : '9px',
-              color: 'rgba(255, 255, 255, 0.85)',
-              fontWeight: '600',
-              textTransform: 'uppercase',
-              letterSpacing: '0.2px',
-              whiteSpace: 'nowrap'
-            }}>
-              Active Now
-            </span>
-            <span style={{
-              fontSize: isMobile ? '12px' : '16px',
-              fontWeight: '800',
-              color: '#ffffff',
-              lineHeight: 1.1,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-            }}>
-              {userStats.activeUsers.toLocaleString()}
-            </span>
+        <div className="map-page__stat-card map-page__stat-card--active">
+          <div className="map-page__stat-content">
+            <span className="map-page__stat-label">Active Now</span>
+            <span className="map-page__stat-value">{userStats.activeUsers.toLocaleString()}</span>
           </div>
         </div>
       </div>

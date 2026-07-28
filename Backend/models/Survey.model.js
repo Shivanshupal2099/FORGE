@@ -8,28 +8,10 @@ const surveySchema = new mongoose.Schema(
       required: true
     },
 
-    title: {
-      type: String,
-      required: true,
-      maxlength: 255,
-      trim: true
-    },
-
-    description: {
-      type: String,
-      default: null
-    },
-
-    status: {
-      type: String,
-      enum: ["draft", "active", "closed"],
-      default: "draft"
-    },
-
     visibility: {
       type: String,
-      enum: ["private", "public"],
-      default: "private"
+      enum: ["public"],
+      default: "public"
     },
 
     reward_amount: {
@@ -68,8 +50,14 @@ const surveySchema = new mongoose.Schema(
   }
 );
 
-surveySchema.index({ creator_id: 1 });
-surveySchema.index({ status: 1 });
-surveySchema.index({ expires_at: 1 });
+// Optimized indexes for query performance
+surveySchema.index({ creator_id: 1, created_at: -1 });
+surveySchema.index({ visibility: 1, created_at: -1 });
+surveySchema.index({ expires_at: 1, created_at: -1 });
+surveySchema.index({ creator_id: 1, visibility: 1 });
+surveySchema.index({ created_at: -1 }); // For sorting in feed
+
+// Compound index for public surveys query
+surveySchema.index({ visibility: 1, expires_at: 1, created_at: -1 });
 
 module.exports = mongoose.model("Survey", surveySchema);

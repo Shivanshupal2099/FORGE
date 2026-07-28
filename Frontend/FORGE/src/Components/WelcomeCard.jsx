@@ -51,6 +51,8 @@ function WelcomeCard({ onClose }) {
           width: '100%',
           maxHeight: '90vh',
           overflowY: 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
           position: 'relative',
           animation: 'slideUp 0.4s ease',
@@ -115,7 +117,7 @@ function WelcomeCard({ onClose }) {
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
             }}>
-              Welcome to Forge Connect!
+              Welcome to ForgeConnect!
             </h1>
             <p style={{
               margin: '0',

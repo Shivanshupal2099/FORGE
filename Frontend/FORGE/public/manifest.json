@@ -1,6 +1,6 @@
 {
-  "name": "Forge - Community Platform",
-  "short_name": "Forge",
+  "name": "ForgeConnect - Community Platform",
+  "short_name": "ForgeConnect",
   "description": "A community platform for startups, connections, and collaboration using Forge tokens",
   "start_url": "/",
   "display": "standalone",

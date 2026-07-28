@@ -151,7 +151,7 @@ function AccountPage()
           e.currentTarget.style.boxShadow = "0 20px 50px rgba(0,0,0,0.18)";
         }}
       >
-        <h2 style={{ marginBottom: "18px", textAlign: "center", color: "#000000", fontSize: "2rem", fontWeight: 800, letterSpacing: "1px" }}>Create Your Forge Account</h2>
+        <h2 style={{ marginBottom: "18px", textAlign: "center", color: "#000000", fontSize: "2rem", fontWeight: 800, letterSpacing: "1px" }}>Create Your ForgeConnect Account</h2>
 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "28px" }}>
           <label style={{ width: "120px", height: "120px", borderRadius: "50%", border: "3px solid #000000", display: "flex", justifyContent: "center", alignItems: "center", background: "#FFFFFF", cursor: "pointer", fontWeight: "700", color: "#000000", textAlign: "center", fontSize: "0.95rem", flexDirection: "column", padding: "12px" }}>
@@ -220,14 +220,14 @@ function AccountPage()
         <div style={{ display: "flex", alignItems: "flex-start", gap: "14px", padding: "18px", borderRadius: "18px", background: "#FFFFFF", border: "2px solid #000000", marginBottom: "24px" }}>
           <input type="checkbox" id="terms" checked={terms} onChange={(e) => setTerms(e.target.checked)} required style={{ width: "18px", height: "18px", marginTop: "4px" }} />
           <label htmlFor="terms" style={{ color: "#000000", fontSize: "0.95rem", lineHeight: "1.55" }}>
-            I agree to FORGE’s <strong>Terms of Service</strong> and <strong>Privacy Policy</strong>. I confirm I am a student or builder looking to connect and create.
+            I agree to ForgeConnect’s <strong>Terms of Service</strong> and <strong>Privacy Policy</strong>. I confirm I am a student or builder looking to connect and create.
           </label>
           {errors.terms && <div style={{ color: "#dc2626", fontSize: "0.8rem", marginTop: "8px" }}>{errors.terms}</div>}
         </div>
 
         {errors.submit && <div style={{ color: "#dc2626", fontSize: "0.95rem", marginBottom: "16px", textAlign: "center", padding: "12px", borderRadius: "12px", background: "rgba(220, 38, 38, 0.1)" }}>{errors.submit}</div>}
         <button type="submit" disabled={isSubmitting} style={{ width: "100%", padding: "16px", background: isSubmitting ? "#666666" : "var(--app-theme-gradient)", color: "#000000", border: "2px solid #000000", borderRadius: "18px", cursor: isSubmitting ? "not-allowed" : "pointer", fontWeight: "800", fontSize: "1rem", letterSpacing: "0.8px", boxShadow: "0 12px 28px rgba(0,0,0,0.24)", opacity: isSubmitting ? 0.7 : 1 }}>
-          {isSubmitting ? 'Creating Account...' : 'Create My Forge Account'}
+          {isSubmitting ? 'Creating Account...' : 'Create My ForgeConnect Account'}
         </button>
 
         <div className="account-footer" style={{ marginTop: "20px", textAlign: "center", color: "#000000", fontSize: "0.95rem" }}>

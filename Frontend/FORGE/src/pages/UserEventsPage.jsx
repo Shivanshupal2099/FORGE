@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { IoArrowBack, IoCalendarOutline, IoPeopleOutline, IoLocationOutline, IoTimeOutline, IoAdd, IoFilter, IoCreateOutline, IoTrashOutline } from 'react-icons/io5';
+import { IoArrowBack, IoCalendarOutline, IoPeopleOutline, IoLocationOutline, IoTimeOutline, IoAdd, IoCreateOutline, IoTrashOutline } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
 import Event from '../Components/Event';
 import ViewEvent from '../Components/ViewEvent';
-import FilterPopup from '../Components/FilterPopup';
 import axios from '../api/axios';
 
 
@@ -18,16 +17,10 @@ function UserEventsPage() {
   const [createdEvents, setCreatedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateEvent, setShowCreateEvent] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showViewEvent, setShowViewEvent] = useState(false);
   const [eventToEdit, setEventToEdit] = useState(null);
   const [notification, setNotification] = useState(null);
-  const [eventFilters, setEventFilters] = useState({
-    category: 'Any',
-    freeOnly: false,
-    paidOnly: false,
-  });
 
 
 
@@ -68,12 +61,6 @@ function UserEventsPage() {
     });
   };
 
-  const filteredEvents = createdEvents.filter(event => {
-    const categoryMatch = eventFilters.category === 'Any' || event.category === eventFilters.category;
-    const freeMatch = !eventFilters.freeOnly || event.priceType === 'Free';
-    const paidMatch = !eventFilters.paidOnly || event.priceType === 'Paid';
-    return categoryMatch && freeMatch && paidMatch;
-  });
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
@@ -238,24 +225,26 @@ function UserEventsPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
-                padding: '8px 12px',
+                padding: '10px 14px',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: '#ffffff',
                 fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
-                fontWeight: '600',
+                fontWeight: '700',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)',
-                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.35)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-1px)';
-                e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.45)';
+                e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
+                e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.35)';
+                e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
               }}
             >
               <IoCreateOutline /> Edit
@@ -272,24 +261,26 @@ function UserEventsPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
-                padding: '8px 12px',
+                padding: '10px 14px',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                 color: '#ffffff',
                 fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
-                fontWeight: '600',
+                fontWeight: '700',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
-                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.35)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-1px)';
-                e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.45)';
+                e.target.style.background = 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.3)';
+                e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.35)';
+                e.target.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
               }}
             >
               <IoTrashOutline /> Delete
@@ -366,50 +357,13 @@ function UserEventsPage() {
       <div className="events-section-wrapper" style={{ maxWidth: '1200px', margin: '0 auto', padding: 'clamp(16px, 3vw, 24px)', position: 'relative' }}>
         <div className="action-buttons-container" style={{ display: 'flex', gap: '12px', flexShrink: 0 }}>
           <button
-            onClick={() => setShowFilter(!showFilter)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              padding: '16px 28px',
-              border: showFilter ? 'none' : '2px solid var(--app-card-border)',
-              borderRadius: '16px',
-              background: showFilter ? 'linear-gradient(135deg, #34d399 0%, #10b981 100%)' : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
-              color: showFilter ? '#ffffff' : 'var(--app-text)',
-              fontSize: '1.05rem',
-              fontWeight: '800',
-              cursor: 'pointer',
-              boxShadow: showFilter ? '0 12px 32px rgba(16, 185, 129, 0.6)' : '0 8px 24px rgba(0, 0, 0, 0.12)',
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              whiteSpace: 'nowrap',
-              letterSpacing: '0.02em',
-            }}
-            onMouseEnter={(e) => {
-              if (!showFilter) {
-                e.target.style.transform = 'translateY(-3px) scale(1.02)';
-                e.target.style.boxShadow = '0 16px 40px rgba(0, 0, 0, 0.18)';
-                e.target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(248, 250, 252, 1) 100%)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!showFilter) {
-                e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.12)';
-                e.target.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)';
-              }
-            }}
-          >
-            <IoFilter style={{ fontSize: '1.2rem' }} /> Filter
-          </button>
-          <button
             onClick={() => setShowCreateEvent(true)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '10px',
-              padding: '16px 28px',
+              padding: '16px 32px',
               border: '2px solid transparent',
               borderRadius: '16px',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -417,19 +371,19 @@ function UserEventsPage() {
               fontSize: '1.05rem',
               fontWeight: '800',
               cursor: 'pointer',
-              boxShadow: '0 12px 32px rgba(102, 126, 234, 0.6)',
+              boxShadow: '0 12px 32px rgba(102, 126, 234, 0.5)',
               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               whiteSpace: 'nowrap',
               letterSpacing: '0.02em',
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = 'translateY(-3px) scale(1.02)';
-              e.target.style.boxShadow = '0 20px 48px rgba(102, 126, 234, 0.7)';
+              e.target.style.boxShadow = '0 20px 48px rgba(102, 126, 234, 0.6)';
               e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0) scale(1)';
-              e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.6)';
+              e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.5)';
               e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
             }}
           >
@@ -478,19 +432,15 @@ function UserEventsPage() {
             <p style={{ textAlign: 'center', color: '#64748b', fontWeight: '700', padding: 'clamp(32px, 5vw, 40px)' }}>
               Loading events...
             </p>
-          ) : filteredEvents.length === 0 ? (
+          ) : createdEvents.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 'clamp(32px, 5vw, 40px)' }}>
               <IoCalendarOutline style={{ fontSize: 'clamp(36px, 6vw, 48px)', color: '#cbd5e1', marginBottom: 'clamp(12px, 2vw, 16px)' }} />
               <p style={{ color: '#64748b', fontWeight: '700', fontSize: 'clamp(1rem, 2.5vw, 1.1rem)' }}>
-                {createdEvents.length === 0 ? 'No events created yet' : 'No events match your filters'}
+                No events created yet
               </p>
               <p style={{ color: '#94a3b8', fontWeight: '500', marginTop: 'clamp(6px, 1.5vw, 8px)' }}>
-                {createdEvents.length === 0 ? 'Create your first event to get started!' : 'Try adjusting your filters'}
+                Create your first event to get started!
               </p>
-
-
-
-
             </div>
           ) : (
             <div>
@@ -526,7 +476,7 @@ function UserEventsPage() {
                   <IoArrowBack />
                 </Link>
                 <h3 style={{ margin: '0', color: 'var(--app-text)', fontSize: 'clamp(1.1rem, 2.5vw, 1.25rem)', fontWeight: '700' }}>
-                  EVENTS {filteredEvents.length !== createdEvents.length && `(${filteredEvents.length} of ${createdEvents.length})`}
+                  EVENTS
                 </h3>
               </div>
               <div style={{ 
@@ -534,7 +484,7 @@ function UserEventsPage() {
                 gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
                 gap: 'clamp(16px, 3vw, 24px)'
               }}>
-                {filteredEvents.map((event, index) => (
+                {createdEvents.map((event, index) => (
                   <EventCard key={event._id || index} event={event} />
                 ))}
               </div>
@@ -543,17 +493,6 @@ function UserEventsPage() {
         </div>
       </div>
       </div>
-      
-      {showFilter && (
-        <FilterPopup
-          initialFilters={eventFilters}
-          onApply={(next) => {
-            setEventFilters(next);
-            setShowFilter(false);
-          }}
-          onClose={() => setShowFilter(false)}
-        />
-      )}
       
       <NavigationBar />
       

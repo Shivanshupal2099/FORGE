@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const connectionSchema = new mongoose.Schema(
   {
@@ -44,6 +44,16 @@ const connectionSchema = new mongoose.Schema(
     responded_at: {
       type: Date,
       default: null
+    },
+
+    // Public keys for end-to-end encryption
+    requester_public_key: {
+      type: String,
+      default: null
+    },
+    receiver_public_key: {
+      type: String,
+      default: null
     }
   },
   {
@@ -64,4 +74,4 @@ connectionSchema.index(
 connectionSchema.index({ receiver_id: 1, status: 1 });
 connectionSchema.index({ requester_id: 1, status: 1 });
 
-export default mongoose.model("Connection", connectionSchema);
+module.exports = mongoose.model("Connection", connectionSchema);

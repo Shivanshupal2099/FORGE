@@ -50,8 +50,11 @@ const questionSchema = new mongoose.Schema(
   }
 );
 
+// Optimized indexes for query performance
 questionSchema.index({ surveyId: 1, order: 1 });
 questionSchema.index({ ownerId: 1 });
 questionSchema.index({ surveyId: 1 });
+questionSchema.index({ surveyId: 1, ownerId: 1 });
+questionSchema.index({ type: 1 }); // For filtering by question type
 
 module.exports = mongoose.model("Question", questionSchema);

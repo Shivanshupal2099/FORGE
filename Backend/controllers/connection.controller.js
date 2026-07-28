@@ -1,7 +1,6 @@
 const Connection = require('../models/Connection.model');
 const Profile = require('../models/Profile.model');
 const User = require('../models/Users.model');
-const { getCurrentUser } = require('../utils/currentUser');
 
 const userId = (value) => value?._id?.toString?.() || value?.toString?.();
 
@@ -12,7 +11,7 @@ async function profilesFor(users) {
 }
 
 function presentUser(user, profile) {
-  const firstName = profile?.first_name || user.email?.split('@')[0] || 'FORGE user';
+  const firstName = profile?.first_name || user.email?.split('@')[0] || 'ForgeConnect user';
   const lastName = profile?.last_name || '';
   return {
     id: user._id.toString(),
@@ -54,9 +53,10 @@ async function decorateConnections(connections, currentUserId) {
 
 exports.createRequest = async (req, res) => {
   try {
-    const currentUser = await getCurrentUser(req);
+    const currentUser = req.user;
     const receiverUid = req.body.receiver_uid || req.body.receiverUid || req.body.receiver_email;
     const intent = typeof req.body.intent === 'string' ? req.body.intent.trim() : null;
+    const requesterPublicKey = req.body.requester_public_key || null;
 
     if (!currentUser) return res.status(401).json({ success: false, message: 'User not authenticated' });
     if (!receiverUid) return res.status(400).json({ success: false, message: 'A collaborator is required' });
@@ -85,7 +85,8 @@ exports.createRequest = async (req, res) => {
     const connection = await Connection.create({
       requester_id: currentUser._id,
       receiver_id: receiver._id,
-      requester_intent: intent || null
+      requester_intent: intent || null,
+      requester_public_key: requesterPublicKey
     });
     res.status(201).json({ success: true, connection, message: 'Collaboration request sent' });
   } catch (error) {
@@ -96,7 +97,7 @@ exports.createRequest = async (req, res) => {
 
 exports.getIncomingRequests = async (req, res) => {
   try {
-    const currentUser = await getCurrentUser(req);
+    const currentUser = req.user;
     if (!currentUser) return res.status(401).json({ success: false, message: 'User not authenticated' });
 
     const connections = await Connection.find({ receiver_id: currentUser._id, status: 'pending' })
@@ -110,12 +111,18 @@ exports.getIncomingRequests = async (req, res) => {
 
 async function respondToRequest(req, res, status) {
   try {
-    const currentUser = await getCurrentUser(req);
+    const currentUser = req.user;
     if (!currentUser) return res.status(401).json({ success: false, message: 'User not authenticated' });
+
+    const receiverPublicKey = req.body.receiver_public_key || null;
 
     const connection = await Connection.findOneAndUpdate(
       { _id: req.params.connectionId, receiver_id: currentUser._id, status: 'pending' },
-      { status, responded_at: new Date() },
+      { 
+        status, 
+        responded_at: new Date(),
+        ...(receiverPublicKey && { receiver_public_key: receiverPublicKey })
+      },
       { new: true }
     );
     if (!connection) return res.status(404).json({ success: false, message: 'Pending request not found' });
@@ -131,7 +138,7 @@ exports.declineRequest = (req, res) => respondToRequest(req, res, 'declined');
 
 exports.getAcceptedConnections = async (req, res) => {
   try {
-    const currentUser = await getCurrentUser(req);
+    const currentUser = req.user;
     if (!currentUser) return res.status(401).json({ success: false, message: 'User not authenticated' });
     const connections = await Connection.find({
       status: 'accepted',
@@ -141,5 +148,39 @@ exports.getAcceptedConnections = async (req, res) => {
   } catch (error) {
     console.error('Error loading accepted connections:', error);
     res.status(500).json({ success: false, message: 'Could not load collaborators' });
+  }
+};
+
+exports.disconnect = async (req, res) => {
+  try {
+    const currentUser = req.user;
+    if (!currentUser) return res.status(401).json({ success: false, message: 'User not authenticated' });
+
+    const connection = await Connection.findOne({
+      _id: req.params.connectionId,
+      status: 'accepted',
+      $or: [{ requester_id: currentUser._id }, { receiver_id: currentUser._id }]
+    });
+
+    if (!connection) {
+      return res.status(404).json({ success: false, message: 'Connection not found' });
+    }
+
+    // Delete the connection
+    await Connection.deleteOne({ _id: req.params.connectionId });
+
+    // Emit Socket.io event to notify both users
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`connection:${connection._id}`).emit('connection:disconnected', {
+        connectionId: connection._id,
+        disconnectedBy: currentUser._id.toString()
+      });
+    }
+
+    res.json({ success: true, message: 'Disconnected successfully' });
+  } catch (error) {
+    console.error('Error disconnecting:', error);
+    res.status(500).json({ success: false, message: 'Could not disconnect' });
   }
 };

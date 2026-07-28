@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { IoIosChatboxes } from 'react-icons/io'
 import { FaMapMarkedAlt } from 'react-icons/fa'
 import { FaUserCircle } from 'react-icons/fa'
 import { FaHome } from 'react-icons/fa'
+import { MdEvent } from 'react-icons/md'
 
 function NavigationBar() {
   const [isMobile, setIsMobile] = useState(false)
@@ -104,6 +104,7 @@ function NavigationBar() {
       {renderNavItem('/home', FaHome, 'Home', '1.25rem')}
       {renderNavItem('/chat', IoIosChatboxes, 'Chat', '1.25rem')}
       {renderNavItem('/map', FaMapMarkedAlt, 'Map', '1.35rem')}
+      {renderNavItem('/events', MdEvent, 'Events', '1.25rem')}
       {renderNavItem('/profile', FaUserCircle, 'Profile', '1.25rem')}
     </div>
   )
