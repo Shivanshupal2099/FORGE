@@ -18,6 +18,7 @@ const { activityMiddleware, markInactiveUsersOffline }=require('./middlewares/ac
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler.middleware')
 const { generalLimiter, authLimiter, surveyCreationLimiter, surveyResponseLimiter } = require('./middlewares/rateLimiter.middleware')
 const SurveySocketHandler = require('./socketHandlers/survey.socket')
+const { deleteExpiredEvents } = require('./utils/eventCleanup')
 
 
 
@@ -192,6 +193,14 @@ ConnectDB().then(() => {
   setInterval(() => {
       markInactiveUsersOffline();
   }, 60 * 1000); // Every minute
+
+  // Schedule expired event cleanup - run daily
+  setInterval(() => {
+      deleteExpiredEvents();
+  }, 24 * 60 * 60 * 1000); // Every 24 hours
+
+  // Run event cleanup immediately on server start
+  deleteExpiredEvents();
 
 }).catch((err) => {
   console.error('Failed to connect to database:', err);

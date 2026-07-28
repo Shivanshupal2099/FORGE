@@ -30,16 +30,21 @@ const profileValidation = [
 
 // Event validation rules
 const eventValidation = [
-  body('title').trim().isLength({ min: 1, max: 255 }).withMessage('Title must be 1-255 characters'),
-  body('description').optional().trim().isLength({ max: 5000 }),
-  body('category').optional().trim().isLength({ max: 100 }),
+  body('title').trim().notEmpty().withMessage('Title is required'),
+  body('description').optional().trim(),
+  body('category').optional().trim(),
   body('onlineType').optional().isIn(['Online', 'Offline', 'Hybrid']),
-  body('locationOrLink').optional().trim().isLength({ max: 500 }),
-  body('organizer').optional().trim().isLength({ max: 255 }),
-  body('maxAttendees').optional().isInt({ min: 1 }),
+  body('locationOrLink').optional().trim(),
+  body('startAt').optional(),
+  body('endAt').optional(),
+  body('organizer').optional().trim(),
+  body('registrationRequired').optional().isBoolean(),
+  body('maxAttendees').optional(),
   body('visibility').optional().isIn(['Public', 'Private']),
   body('priceType').optional().isIn(['Free', 'Paid']),
-  body('status').optional().isIn(['draft', 'published', 'cancelled']),
+  body('contactInformation').optional().trim(),
+  body('imageUrl').optional().trim(),
+  body('status').optional().isIn(['published']),
   validate
 ];
 

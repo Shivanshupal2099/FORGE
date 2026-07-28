@@ -1,12 +1,10 @@
 const Event = require('../models/Event.model');
 const User = require('../models/Users.model');
+const EventAttendees = require('../models/EventAttendees.model');
 
 // Create a new event
 exports.createEvent = async (req, res) => {
   try {
-    console.log('Received event creation request');
-    console.log('Request body:', req.body);
-    
     // Get authenticated user from middleware
     const user = req.user;
     
@@ -52,11 +50,9 @@ exports.createEvent = async (req, res) => {
       visibility: visibility || 'Public',
       priceType: priceType || 'Free',
       contactInformation,
-      status: status || 'draft',
+      status: 'published',
       imageUrl
     });
-
-    console.log('Event created successfully:', event._id);
 
     res.json({
       success: true,
@@ -82,17 +78,74 @@ exports.getAllEvents = async (req, res) => {
     const events = await Event.find()
       .sort({ created_at: -1 });
 
-    // Add ownership information to each event
-    const eventsWithOwnership = events.map(event => ({
-      ...event.toObject(),
-      isOwner: req.user && event.uid === req.user.uid
+    // Filter events based on registration limit and user registration status
+    let filteredEvents = events;
+    if (req.user) {
+      filteredEvents = await Promise.all(events.map(async (event) => {
+        // If event has max attendees and requires registration
+        if (event.registrationRequired && event.maxAttendees) {
+          const currentAttendees = await EventAttendees.countDocuments({
+            event_id: event._id,
+            status: 'registered'
+          });
+
+          // Check if event is full
+          if (currentAttendees >= event.maxAttendees) {
+            // Check if user is already registered
+            const userRegistered = await EventAttendees.findOne({
+              event_id: event._id,
+              user_id: req.user._id,
+              status: 'registered'
+            });
+
+            // Only show event if user is registered or is the owner
+            if (!userRegistered && event.uid !== req.user.uid) {
+              return null; // Don't show this event
+            }
+          }
+        }
+        return event;
+      }));
+
+      // Filter out null values
+      filteredEvents = filteredEvents.filter(event => event !== null);
+    }
+
+    // Add ownership and registration information to each event
+    const eventsWithInfo = await Promise.all(filteredEvents.map(async (event) => {
+      let isRegistered = false;
+      let attendeeCount = 0;
+
+      if (req.user) {
+        const registration = await EventAttendees.findOne({
+          event_id: event._id,
+          user_id: req.user._id,
+          status: 'registered'
+        });
+        isRegistered = !!registration;
+      }
+
+      if (event.registrationRequired) {
+        attendeeCount = await EventAttendees.countDocuments({
+          event_id: event._id,
+          status: 'registered'
+        });
+      }
+
+      return {
+        ...event.toObject(),
+        isOwner: req.user && event.uid === req.user.uid,
+        isRegistered,
+        attendeeCount,
+        spotsRemaining: event.maxAttendees ? event.maxAttendees - attendeeCount : null
+      };
     }));
 
-    console.log(`Found ${events.length} events`);
+    console.log(`Found ${eventsWithInfo.length} events after filtering`);
 
     res.json({
       success: true,
-      events: eventsWithOwnership
+      events: eventsWithInfo
     });
   } catch (error) {
     console.error('Error fetching events:', error);
@@ -118,11 +171,36 @@ exports.getEventById = async (req, res) => {
       });
     }
 
+    // Check registration status and attendee count
+    let isRegistered = false;
+    let attendeeCount = 0;
+    let spotsRemaining = null;
+
+    if (req.user) {
+      const registration = await EventAttendees.findOne({
+        event_id: event._id,
+        user_id: req.user._id,
+        status: 'registered'
+      });
+      isRegistered = !!registration;
+    }
+
+    if (event.registrationRequired) {
+      attendeeCount = await EventAttendees.countDocuments({
+        event_id: event._id,
+        status: 'registered'
+      });
+      spotsRemaining = event.maxAttendees ? event.maxAttendees - attendeeCount : null;
+    }
+
     res.json({
       success: true,
       event: {
         ...event.toObject(),
-        isOwner: req.user && event.uid === req.user.uid
+        isOwner: req.user && event.uid === req.user.uid,
+        isRegistered,
+        attendeeCount,
+        spotsRemaining
       }
     });
   } catch (error) {
@@ -310,6 +388,167 @@ exports.deleteEvent = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error deleting event',
+      error: error.message
+    });
+  }
+};
+
+// Register for an event
+exports.registerForEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    const event = await Event.findById(id);
+
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
+    // Check if registration is required
+    if (!event.registrationRequired) {
+      return res.status(400).json({
+        success: false,
+        message: 'This event does not require registration'
+      });
+    }
+
+    // Check if event has reached max attendees
+    if (event.maxAttendees) {
+      const currentAttendees = await EventAttendees.countDocuments({
+        event_id: id,
+        status: 'registered'
+      });
+
+      if (currentAttendees >= event.maxAttendees) {
+        return res.status(400).json({
+          success: false,
+          message: 'Event registration is full'
+        });
+      }
+    }
+
+    // Check if user is already registered
+    const existingRegistration = await EventAttendees.findOne({
+      event_id: id,
+      user_id: user._id,
+      status: 'registered'
+    });
+
+    if (existingRegistration) {
+      return res.status(400).json({
+        success: false,
+        message: 'You are already registered for this event'
+      });
+    }
+
+    // Create registration
+    const registration = await EventAttendees.create({
+      event_id: id,
+      user_id: user._id,
+      uid: user.uid,
+      status: 'registered'
+    });
+
+    res.json({
+      success: true,
+      message: 'Successfully registered for the event',
+      registration
+    });
+  } catch (error) {
+    console.error('Error registering for event:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error registering for event',
+      error: error.message
+    });
+  }
+};
+
+// Check registration status for an event
+exports.checkRegistrationStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    const registration = await EventAttendees.findOne({
+      event_id: id,
+      user_id: user._id,
+      status: 'registered'
+    });
+
+    res.json({
+      success: true,
+      isRegistered: !!registration,
+      registration
+    });
+  } catch (error) {
+    console.error('Error checking registration status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error checking registration status',
+      error: error.message
+    });
+  }
+};
+
+// Cancel registration for an event
+exports.cancelRegistration = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    const registration = await EventAttendees.findOneAndUpdate(
+      {
+        event_id: id,
+        user_id: user._id,
+        status: 'registered'
+      },
+      {
+        status: 'cancelled'
+      }
+    );
+
+    if (!registration) {
+      return res.status(404).json({
+        success: false,
+        message: 'Registration not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Registration cancelled successfully'
+    });
+  } catch (error) {
+    console.error('Error cancelling registration:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error cancelling registration',
       error: error.message
     });
   }

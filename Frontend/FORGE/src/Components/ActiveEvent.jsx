@@ -1,30 +1,110 @@
 import { useEffect, useState } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaShareAlt, FaCopy, FaCheck, FaUserPlus } from 'react-icons/fa';
 import axios from '../api/axios';
+import Toast from './Toast';
 
 function ActiveEvent({ onClose }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [shareModal, setShareModal] = useState({ show: false, eventId: null, eventTitle: '' });
+  const [toast, setToast] = useState(null);
+  const [registering, setRegistering] = useState({});
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
+
+  const handleShare = (eventId, eventTitle) => {
+    const shareUrl = `${window.location.origin}/event/${eventId}`;
+    setShareModal({ show: true, eventId, eventTitle, shareUrl });
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareModal.shareUrl);
+      showToast('Link copied to clipboard!', 'success');
+    } catch (err) {
+      showToast('Failed to copy link', 'error');
+    }
+  };
+
+  const handleNativeShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: shareModal.eventTitle,
+          url: shareModal.shareUrl
+        });
+        showToast('Shared successfully!', 'success');
+      } else {
+        copyToClipboard();
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        showToast('Failed to share', 'error');
+      }
+    }
+  };
+
+  const handleRegister = async (eventId) => {
+    // Find the event to check registration status
+    const event = events.find(ev => ev._id === eventId);
+    
+    // Prevent registration if already registered
+    if (event && event.isRegistered === true) {
+      showToast('You are already registered for this event', 'info');
+      return;
+    }
+
+    setRegistering(prev => ({ ...prev, [eventId]: true }));
+    try {
+      const response = await axios.post(`/api/events/${eventId}/register`);
+      if (response.data.success) {
+        showToast('Successfully registered for the event!', 'success');
+        // Update local state immediately to show registered status
+        setEvents(events.map(ev => 
+          ev._id === eventId 
+            ? { ...ev, isRegistered: true, attendeeCount: (ev.attendeeCount || 0) + 1, spotsRemaining: ev.spotsRemaining ? ev.spotsRemaining - 1 : null }
+            : ev
+        ));
+      } else {
+        // If backend returns success: false, show the message
+        showToast(response.data.message || 'Failed to register', 'error');
+      }
+    } catch (error) {
+      // Handle the error - if它 says already registered, update local state
+      if (error.response?.data?.message === 'You are already registered for this event') {
+        setEvents(events.map(ev => 
+          ev._id === eventId 
+            ? { ...ev, isRegistered: true }
+            : ev
+        ));
+        showToast('You are already registered for this event', 'info');
+      } else {
+        showToast(error.response?.data?.message || 'Failed to register', 'error');
+      }
+    } finally {
+      setRegistering(prev => ({ ...prev, [eventId]: false }));
+    }
+  };
+
+  const loadEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/events');
+      
+      if (response.data.success) {
+        setEvents(Array.isArray(response.data.events) ? response.data.events : []);
+      }
+    } catch (error) {
+      console.error('Error loading events:', error);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Load events from backend API
-    const loadEvents = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get('/events');
-        
-        if (response.data.success) {
-          // Only keep published events
-          setEvents(Array.isArray(response.data.events) ? response.data.events.filter((e) => e?.status === 'published') : []);
-        }
-      } catch (error) {
-        console.error('Error loading events:', error);
-        setEvents([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadEvents();
   }, []);
 
@@ -81,82 +161,338 @@ function ActiveEvent({ onClose }) {
               No published events found.
             </p>
           ) : (
-            <ul className="home-popup-list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+              gap: '16px',
+              maxHeight: '500px',
+              overflowY: 'auto',
+              paddingRight: '8px'
+            }}>
               {events.map((ev, idx) => {
-                const startText = ev.startAt
-                  ? new Date(ev.startAt).toLocaleString('en-US', {
+                const startDate = ev.startAt ? new Date(ev.startAt) : null;
+                const startText = startDate
+                  ? startDate.toLocaleDateString('en-US', {
                       weekday: 'short',
                       month: 'short',
                       day: 'numeric',
+                    })
+                  : 'TBD';
+                const startTime = startDate
+                  ? startDate.toLocaleTimeString('en-US', {
                       hour: '2-digit',
                       minute: '2-digit',
                     })
-                  : 'TBD';
+                  : '';
 
                 return (
-                  <li
+                  <div
                     key={ev._id || ev.title || idx}
-                    className="home-popup-list__item"
                     style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-between',
-                      gap: 12,
-                      padding: '16px',
-                      borderBottom: '1px solid #eef2f7',
-                      background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%)',
-                      borderRadius: '12px',
-                      marginBottom: '8px',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      border: '1px solid rgba(102, 126, 234, 0.1)',
+                      background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+                      borderRadius: '16px',
+                      padding: '20px',
+                      border: '1px solid rgba(102, 126, 234, 0.15)',
+                      boxShadow: '0 4px 12px rgba(102, 126, 234, 0.08)',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      overflow: 'hidden',
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.15)';
-                      e.target.style.borderColor = 'rgba(102, 126, 234, 0.3)';
+                      e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.2)';
+                      e.currentTarget.style.borderColor = 'rgba(102, 126, 234, 0.4)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = 'none';
-                      e.target.style.borderColor = 'rgba(102, 126, 234, 0.1)';
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.08)';
+                      e.currentTarget.style.borderColor = 'rgba(102, 126, 234, 0.15)';
                     }}
                   >
-                    <div className="home-popup-list__main" style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                        <span className="home-popup-list__label" style={{ fontWeight: 900 }}>
-                          {ev.title || 'Untitled Event'}
+                    {/* Decorative gradient overlay */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                    }} />
+
+                    {/* Category Badge */}
+                    <div style={{
+                      display: 'inline-block',
+                      padding: '6px 16px',
+                      borderRadius: '20px',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: '#ffffff',
+                      fontSize: '0.75rem',
+                      fontWeight: '800',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      marginBottom: '12px',
+                      boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                    }}>
+                      {ev.category || 'Event'}
+                    </div>
+
+                    {/* Title */}
+                    <h4 style={{
+                      fontSize: '1.1rem',
+                      fontWeight: '800',
+                      color: '#1e293b',
+                      marginBottom: '12px',
+                      lineHeight: '1.4',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}>
+                      {ev.title || 'Untitled Event'}
+                    </h4>
+
+                    {/* Registration Stats - Only show for owners when registration is required */}
+                    {ev.isOwner && ev.registrationRequired && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        marginBottom: '8px',
+                        padding: '6px 10px',
+                        borderRadius: '8px',
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                      }}>
+                        <FaUsers style={{ color: '#10b981', fontSize: '0.9rem' }} />
+                        <span style={{
+                          fontSize: '0.85rem',
+                          fontWeight: '700',
+                          color: '#10b981',
+                        }}>
+                          {ev.attendeeCount || 0} registered
                         </span>
-                        <span
-                          className="tag"
-                          style={{
-                            padding: '6px 14px',
-                            borderRadius: '20px',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            fontWeight: '700',
-                            color: '#ffffff',
+                        {ev.maxAttendees && (
+                          <span style={{
                             fontSize: '0.75rem',
-                            boxShadow: '0 2px 8px rgba(102, 126, 234, 0.25)',
+                            fontWeight: '600',
+                            color: '#64748b',
+                          }}>
+                            ({ev.spotsRemaining || 0} spots left)
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Date & Time */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '8px',
+                      color: '#475569',
+                      fontSize: '0.85rem',
+                      fontWeight: '600',
+                    }}>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        background: 'rgba(102, 126, 234, 0.1)',
+                        color: '#667eea',
+                        fontWeight: '700',
+                      }}>
+                        {startText}
+                      </span>
+                      {startTime && (
+                        <span style={{ color: '#64748b' }}>
+                          at {startTime}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Location */}
+                    {ev.locationOrLink && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        marginBottom: '12px',
+                        color: '#64748b',
+                        fontSize: '0.8rem',
+                        fontWeight: '500',
+                      }}>
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '50%',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          color: '#ef4444',
+                          fontSize: '0.7rem',
+                        }}>
+                          {ev.onlineType === 'Online' ? '🌐' : '📍'}
+                        </span>
+                        <span style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}>
+                          {ev.locationOrLink}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Footer */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginTop: '16px',
+                      paddingTop: '12px',
+                      borderTop: '1px solid rgba(102, 126, 234, 0.1)',
+                    }}>
+                      {/* Event Type */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        color: '#64748b',
+                      }}>
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          background: ev.onlineType === 'Online' 
+                            ? 'rgba(59, 130, 246, 0.1)' 
+                            : 'rgba(16, 185, 129, 0.1)',
+                          color: ev.onlineType === 'Online' ? '#3b82f6' : '#10b981',
+                        }}>
+                          {ev.onlineType || 'Offline'}
+                        </span>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {/* Share Button */}
+                        <button
+                          onClick={() => handleShare(ev._id, ev.title)}
+                          style={{
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid rgba(102, 126, 234, 0.2)',
+                            background: 'rgba(102, 126, 234, 0.1)',
+                            color: '#667eea',
+                            fontSize: '0.8rem',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.background = 'rgba(102, 126, 234, 0.2)';
+                            e.target.style.transform = 'translateY(-2px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.background = 'rgba(102, 126, 234, 0.1)';
+                            e.target.style.transform = 'translateY(0)';
                           }}
                         >
-                          {ev.category || 'Uncategorized'}
-                        </span>
-                      </div>
-                      <div style={{ color: '#475569', fontWeight: 700, marginTop: 6 }}>
-                        {startText} • {ev.onlineType || 'Offline'} • {ev.priceType || 'Free'}
-                      </div>
-                      {ev.locationOrLink ? (
-                        <div style={{ color: '#64748b', fontWeight: 700, marginTop: 6 }}>
-                          {ev.locationOrLink}
+                          <FaShareAlt style={{ fontSize: '0.9rem' }} />
+                          Share
+                        </button>
+
+                        {/* Register Button */}
+                        {ev.registrationRequired && (ev.isRegistered === false || ev.isRegistered === undefined) && ev.spotsRemaining !== 0 && (
+                          <button
+                            onClick={() => handleRegister(ev._id)}
+                            disabled={registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true}
+                            style={{
+                              padding: '8px 16px',
+                              borderRadius: '8px',
+                              border: 'none',
+                              background: registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true
+                                ? '#94a3b8'
+                                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              color: '#ffffff',
+                              fontSize: '0.8rem',
+                              fontWeight: '700',
+                              cursor: registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true
+                                ? 'not-allowed'
+                                : 'pointer',
+                              transition: 'all 0.2s ease',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              boxShadow: registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true
+                                ? 'none'
+                                : '0 3px 10px rgba(102, 126, 234, 0.3)',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!registering[ev._id] && ev.spotsRemaining !== 0 && ev.isRegistered !== true) {
+                                e.target.style.transform = 'translateY(-2px)';
+                                e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!registering[ev._id] && ev.spotsRemaining !== 0 && ev.isRegistered !== true) {
+                                e.target.style.transform = 'translateY(0)';
+                                e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                              }
+                            }}
+                          >
+                            <FaUserPlus style={{ fontSize: '0.9rem' }} />
+                            {registering[ev._id] ? 'Registering...' : ev.spotsRemaining === 0 ? 'Full' : 'Register'}
+                          </button>
+                        )}
+
+                        {/* Registered Badge */}
+                        {ev.isRegistered && (
+                          <div style={{
+                            padding: '8px 16px',
+                            borderRadius: '8px',
+                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                            color: '#ffffff',
+                            fontSize: '0.8rem',
+                            fontWeight: '700',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)',
+                          }}>
+                            <FaCheck style={{ fontSize: '0.9rem' }} />
+                            Registered
+                          </div>
+                        )}
+
+                        {/* Price Badge */}
+                        <div style={{
+                          padding: '6px 14px',
+                          borderRadius: '20px',
+                          background: ev.priceType === 'Paid' 
+                            ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' 
+                            : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          color: '#ffffff',
+                          fontSize: '0.75rem',
+                          fontWeight: '800',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          boxShadow: ev.priceType === 'Paid' 
+                            ? '0 3px 10px rgba(245, 158, 11, 0.3)' 
+                            : '0 3px 10px rgba(16, 185, 129, 0.3)',
+                        }}>
+                          {ev.priceType || 'Free'}
                         </div>
-                      ) : null}
+                      </div>
                     </div>
-                    <div className="home-popup-list__value" style={{ whiteSpace: 'nowrap', fontWeight: 700, padding: '6px 14px', borderRadius: '20px', background: ev.priceType === 'Paid' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', fontSize: '0.8rem', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)' }}>
-                      {ev.priceType === 'Paid' ? 'Paid' : 'Free'}
-                    </div>
-                  </li>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
           )}
         </div>
 
@@ -166,6 +502,190 @@ function ActiveEvent({ onClose }) {
           </button>
         </div>
       </div>
+
+      {/* Share Modal */}
+      {shareModal.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.6)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+        }}
+          onClick={() => setShareModal({ show: false, eventId: null, eventTitle: '', shareUrl: '' })}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '20px',
+              padding: '32px',
+              maxWidth: '450px',
+              width: '90%',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '800',
+                color: '#1e293b',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+              }}>
+                <FaShareAlt style={{ color: '#667eea' }} />
+                Share Event
+              </h3>
+              <p style={{
+                fontSize: '0.95rem',
+                color: '#64748b',
+                fontWeight: '500',
+                margin: 0,
+              }}>
+                {shareModal.eventTitle}
+              </p>
+            </div>
+
+            <div style={{
+              marginBottom: '24px',
+            }}>
+              <label style={{
+                display: 'block',
+                fontSize: '0.85rem',
+                fontWeight: '700',
+                color: '#475569',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                Event Link
+              </label>
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+              }}>
+                <input
+                  type="text"
+                  value={shareModal.shareUrl}
+                  readOnly
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: '2px solid #e2e8f0',
+                    background: '#f8fafc',
+                    fontSize: '0.9rem',
+                    color: '#475569',
+                    fontWeight: '600',
+                  }}
+                />
+                <button
+                  onClick={copyToClipboard}
+                  style={{
+                    padding: '12px 20px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: '#ffffff',
+                    fontSize: '0.9rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+                  }}
+                >
+                  <FaCopy />
+                  Copy
+                </button>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+            }}>
+              <button
+                onClick={handleNativeShare}
+                style={{
+                  flex: 1,
+                  padding: '14px 24px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+                }}
+              >
+                Share via {navigator.share ? 'Native Share' : 'Copy Link'}
+              </button>
+              <button
+                onClick={() => setShareModal({ show: false, eventId: null, eventTitle: '', shareUrl: '' })}
+                style={{
+                  padding: '14px 24px',
+                  borderRadius: '12px',
+                  border: '2px solid #e2e8f0',
+                  background: '#ffffff',
+                  color: '#64748b',
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#f8fafc';
+                  e.target.style.borderColor = '#cbd5e1';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#ffffff';
+                  e.target.style.borderColor = '#e2e8f0';
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

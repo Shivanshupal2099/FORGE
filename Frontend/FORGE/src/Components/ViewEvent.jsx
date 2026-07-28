@@ -15,11 +15,94 @@ import {
   FaEnvelope,
   FaEdit,
   FaTrash,
+  FaShareAlt,
+  FaCopy,
+  FaCheck,
+  FaUserPlus,
 } from 'react-icons/fa';
+import axios from '../api/axios';
+import Toast from './Toast';
 
-function ViewEvent({ event, onClose, onEdit, onDelete }) {
+function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [shareModal, setShareModal] = useState({ show: false, eventId: null, eventTitle: '' });
+  const [toast, setToast] = useState(null);
+  const [registering, setRegistering] = useState(false);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
+
+  const handleShare = (eventId, eventTitle) => {
+    const shareUrl = `${window.location.origin}/event/${eventId}`;
+    setShareModal({ show: true, eventId, eventTitle, shareUrl });
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareModal.shareUrl);
+      showToast('Link copied to clipboard!', 'success');
+    } catch (err) {
+      showToast('Failed to copy link', 'error');
+    }
+  };
+
+  const handleNativeShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: shareModal.eventTitle,
+          url: shareModal.shareUrl
+        });
+        showToast('Shared successfully!', 'success');
+      } else {
+        copyToClipboard();
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        showToast('Failed to share', 'error');
+      }
+    }
+  };
+
+  const handleRegister = async () => {
+    // Prevent registration if already registered
+    if (event.isRegistered === true) {
+      showToast('You are already registered for this event', 'info');
+      return;
+    }
+
+    setRegistering(true);
+    try {
+      const response = await axios.post(`/api/events/${event._id}/register`);
+      if (response.data.success) {
+        showToast('Successfully registered for the event!', 'success');
+        // Refresh event data from server
+        if (onEventUpdated) {
+          onEventUpdated();
+        }
+      } else {
+        // If backend returns success: false, show the message
+        showToast(response.data.message || 'Failed to register', 'error');
+      }
+    } catch (error) {
+      // Handle the error - if it says already registered, refresh data to update UI
+      const errorMessage = error.response?.data?.message || error.message;
+      if (errorMessage === 'You are already registered for this event' || 
+          errorMessage.includes('already registered')) {
+        showToast('You are already registered for this event', 'info');
+        // Refresh event data from server to get updated status
+        if (onEventUpdated) {
+          onEventUpdated();
+        }
+      } else {
+        showToast(errorMessage || 'Failed to register', 'error');
+      }
+    } finally {
+      setRegistering(false);
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -96,21 +179,55 @@ function ViewEvent({ event, onClose, onEdit, onDelete }) {
           </div>
         </div>
 
-        {/* Action Buttons - Only show for owner */}
-        {event.isOwner && (
-          <div style={{ 
-            display: 'flex', 
-            gap: '12px', 
-            marginBottom: '24px',
-            padding: '16px',
-            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
-            borderRadius: '12px',
-            border: '1px solid rgba(102, 126, 234, 0.2)'
-          }}>
+        {/* Action Buttons */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          marginBottom: '24px',
+          padding: '16px',
+          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+          borderRadius: '12px',
+          border: '1px solid rgba(102, 126, 234, 0.2)',
+          flexWrap: 'wrap'
+        }}>
+          {/* Share Button - Always show */}
+          <button
+            onClick={() => handleShare(event._id, event.title)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '14px 24px',
+              border: '2px solid rgba(102, 126, 234, 0.3)',
+              borderRadius: '12px',
+              background: 'rgba(102, 126, 234, 0.1)',
+              color: '#667eea',
+              fontSize: '0.95rem',
+              fontWeight: '700',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-3px)';
+              e.target.style.background = 'rgba(102, 126, 234, 0.2)';
+              e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.background = 'rgba(102, 126, 234, 0.1)';
+              e.target.style.borderColor = 'rgba(102, 126, 234, 0.3)';
+            }}
+          >
+            <FaShareAlt /> Share Event
+          </button>
+
+          {/* Register Button - Show if registration required and not registered */}
+          {event.registrationRequired && (event.isRegistered === false || event.isRegistered === undefined) && event.spotsRemaining !== 0 && (
             <button
-              onClick={handleEdit}
+              onClick={handleRegister}
+              disabled={registering || event.spotsRemaining === 0 || event.isRegistered === true}
               style={{
-                flex: 1,
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -118,61 +235,128 @@ function ViewEvent({ event, onClose, onEdit, onDelete }) {
                 padding: '14px 24px',
                 border: 'none',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: registering || event.spotsRemaining === 0 || event.isRegistered === true
+                  ? '#94a3b8'
+                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: '#ffffff',
                 fontSize: '0.95rem',
                 fontWeight: '700',
-                cursor: 'pointer',
-                boxShadow: '0 6px 16px rgba(102, 126, 234, 0.35)',
+                cursor: registering || event.spotsRemaining === 0 || event.isRegistered === true
+                  ? 'not-allowed'
+                  : 'pointer',
+                boxShadow: registering || event.spotsRemaining === 0 || event.isRegistered === true
+                  ? 'none'
+                  : '0 6px 16px rgba(102, 126, 234, 0.35)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-3px)';
-                e.target.style.boxShadow = '0 10px 24px rgba(102, 126, 234, 0.45)';
-                e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
+                if (!registering && event.spotsRemaining !== 0 && event.isRegistered !== true) {
+                  e.target.style.transform = 'translateY(-3px)';
+                  e.target.style.boxShadow = '0 10px 24px rgba(102, 126, 234, 0.45)';
+                  e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
+                }
               }}
               onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.35)';
-                e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                if (!registering && event.spotsRemaining !== 0) {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.35)';
+                  e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                }
               }}
             >
-              <FaEdit /> Edit Event
+              <FaUserPlus /> {registering ? 'Registering...' : event.spotsRemaining === 0 ? 'Registration Full' : 'Register for Event'}
             </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              style={{
-                flex: 1,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '14px 24px',
-                border: 'none',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                color: '#ffffff',
-                fontSize: '0.95rem',
-                fontWeight: '700',
-                cursor: 'pointer',
-                boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-3px)';
-                e.target.style.boxShadow = '0 10px 24px rgba(239, 68, 68, 0.45)';
-                e.target.style.background = 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.35)';
-                e.target.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-              }}
-            >
-              <FaTrash /> Delete Event
-            </button>
-          </div>
-        )}
+          )}
+
+          {/* Registered Badge - Show if already registered */}
+          {event.isRegistered && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '14px 24px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: '#ffffff',
+              fontSize: '0.95rem',
+              fontWeight: '700',
+              boxShadow: '0 6px 16px rgba(16, 185, 129, 0.35)',
+            }}>
+              <FaCheck /> You are Registered
+            </div>
+          )}
+
+          {/* Owner Actions - Only show for owner */}
+          {event.isOwner && (
+            <>
+              <button
+                onClick={handleEdit}
+                style={{
+                  flex: 1,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '14px 24px',
+                  border: 'none',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 16px rgba(102, 126, 234, 0.35)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-3px)';
+                  e.target.style.boxShadow = '0 10px 24px rgba(102, 126, 234, 0.45)';
+                  e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.35)';
+                  e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                }}
+              >
+                <FaEdit /> Edit Event
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                style={{
+                  flex: 1,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '14px 24px',
+                  border: 'none',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-3px)';
+                  e.target.style.boxShadow = '0 10px 24px rgba(239, 68, 68, 0.45)';
+                  e.target.style.background = 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.35)';
+                  e.target.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                }}
+              >
+                <FaTrash /> Delete Event
+              </button>
+            </>
+          )}
+        </div>
 
         {/* Delete Confirmation Dialog */}
         {showDeleteConfirm && (
@@ -367,6 +551,38 @@ function ViewEvent({ event, onClose, onEdit, onDelete }) {
             gap: '16px',
             marginBottom: '24px'
           }}>
+            {/* Registration Info - Only show for owners when registration is required */}
+            {event.isOwner && event.registrationRequired && (
+              <div style={{ 
+                padding: '16px', 
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                borderRadius: '12px',
+                border: '1px solid rgba(16, 185, 129, 0.2)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <FaUsers style={{ color: '#10b981', fontSize: '1.2rem' }} />
+                  <span style={{ 
+                    fontSize: '0.85rem', 
+                    fontWeight: '700', 
+                    color: '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                  }}>
+                    Registration Stats
+                  </span>
+                </div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e293b', marginBottom: '4px' }}>
+                  {event.attendeeCount || 0}
+                </div>
+                <div style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: '500' }}>
+                  {event.maxAttendees 
+                    ? `${event.spotsRemaining || 0} spots remaining`
+                    : 'No limit on attendees'
+                  }
+                </div>
+              </div>
+            )}
+
             {/* Start Date & Time */}
             <div style={{ 
               padding: '16px', 
@@ -632,6 +848,190 @@ function ViewEvent({ event, onClose, onEdit, onDelete }) {
           </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      {shareModal.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.6)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+        }}
+          onClick={() => setShareModal({ show: false, eventId: null, eventTitle: '', shareUrl: '' })}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '20px',
+              padding: '32px',
+              maxWidth: '450px',
+              width: '90%',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '800',
+                color: '#1e293b',
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+              }}>
+                <FaShareAlt style={{ color: '#667eea' }} />
+                Share Event
+              </h3>
+              <p style={{
+                fontSize: '0.95rem',
+                color: '#64748b',
+                fontWeight: '500',
+                margin: 0,
+              }}>
+                {shareModal.eventTitle}
+              </p>
+            </div>
+
+            <div style={{
+              marginBottom: '24px',
+            }}>
+              <label style={{
+                display: 'block',
+                fontSize: '0.85rem',
+                fontWeight: '700',
+                color: '#475569',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                Event Link
+              </label>
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+              }}>
+                <input
+                  type="text"
+                  value={shareModal.shareUrl}
+                  readOnly
+                  style={{
+                    flex: 1,
+                    padding: '12px 16px',
+                    borderRadius: '10px',
+                    border: '2px solid #e2e8f0',
+                    background: '#f8fafc',
+                    fontSize: '0.9rem',
+                    color: '#475569',
+                    fontWeight: '600',
+                  }}
+                />
+                <button
+                  onClick={copyToClipboard}
+                  style={{
+                    padding: '12px 20px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: '#ffffff',
+                    fontSize: '0.9rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+                  }}
+                >
+                  <FaCopy />
+                  Copy
+                </button>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+            }}>
+              <button
+                onClick={handleNativeShare}
+                style={{
+                  flex: 1,
+                  padding: '14px 24px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+                }}
+              >
+                Share via {navigator.share ? 'Native Share' : 'Copy Link'}
+              </button>
+              <button
+                onClick={() => setShareModal({ show: false, eventId: null, eventTitle: '', shareUrl: '' })}
+                style={{
+                  padding: '14px 24px',
+                  borderRadius: '12px',
+                  border: '2px solid #e2e8f0',
+                  background: '#ffffff',
+                  color: '#64748b',
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#f8fafc';
+                  e.target.style.borderColor = '#cbd5e1';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#ffffff';
+                  e.target.style.borderColor = '#e2e8f0';
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

@@ -73,8 +73,8 @@ const eventSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["draft", "published"],
-      default: "draft"
+      enum: ["published"],
+      default: "published"
     },
     imageUrl: {
       type: String,

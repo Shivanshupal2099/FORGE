@@ -49,8 +49,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
 
   const [contactInformation, setContactInformation] = useState(eventToEdit?.contactInformation || '');
 
-  const [draftStatus, setDraftStatus] = useState(eventToEdit?.status || 'draft');
-
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -108,11 +106,11 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
       endAt: computedEnd != null ? new Date(computedEnd).toISOString() : null,
       organizer: organizer.trim() || null,
       registrationRequired,
-      maxAttendees: registrationRequired ? Number(maxAttendees) : null,
+      maxAttendees: registrationRequired && maxAttendees ? Number(maxAttendees) : null,
       visibility,
       priceType,
       contactInformation: contactInformation.trim() || null,
-      status: draftStatus,
+      status: 'published',
     };
 
     return payload;
@@ -123,8 +121,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
       setIsLoading(true);
       
       const url = isEditMode 
-        ? `/events/${eventToEdit._id}`
-        : '/events';
+        ? `/api/events/${eventToEdit._id}`
+        : '/api/events';
       
       const method = isEditMode ? 'put' : 'post';
       
@@ -143,8 +141,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
     }
   };
 
-  const handleAction = async (status) => {
-    setDraftStatus(status);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     const err = validate();
     if (err) {
@@ -153,16 +151,11 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
     }
 
     const payload = buildPayload();
-    payload.status = status;
 
     try {
       await persistEvent(payload);
 
-      alert(
-        status === 'published'
-          ? `Event "${payload.title}" ${isEditMode ? 'updated and' : ''} published successfully!`
-          : `Event "${payload.title}" ${isEditMode ? 'updated and' : ''} saved as draft successfully!`
-      );
+      alert(`Event "${payload.title}" ${isEditMode ? 'updated and' : ''} published successfully!`);
 
       if (isEditMode && onEventUpdated) {
         onEventUpdated();
@@ -184,18 +177,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
         setVisibility('Public');
         setPriceType('Free');
         setContactInformation('');
-        setDraftStatus('draft');
       }
 
       onClose?.();
     } catch (error) {
-      alert(`Failed to ${status === 'published' ? 'publish' : 'save'} event: ${error.message}`);
+      alert(`Failed to publish event: ${error.message}`);
     }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await handleAction('published');
   };
 
   return (
@@ -996,16 +983,15 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   ) : null}
                 </div>
               </div>
-            </form>
 
-            <div style={{
-              display: 'flex',
-              gap: isMobile ? '8px' : '12px',
-              marginTop: isMobile ? '24px' : '32px',
-              paddingTop: isMobile ? '20px' : '24px',
-              borderTop: '1px solid var(--app-card-border)',
-              flexDirection: isMobile ? 'column' : 'row',
-            }}>
+              <div style={{
+                display: 'flex',
+                gap: isMobile ? '8px' : '12px',
+                marginTop: isMobile ? '24px' : '32px',
+                paddingTop: isMobile ? '20px' : '24px',
+                borderTop: '1px solid var(--app-card-border)',
+                flexDirection: isMobile ? 'column' : 'row',
+              }}>
               <button
                 type="button"
                 onClick={onClose}
@@ -1039,39 +1025,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 }}
               >
                 Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleAction('draft')}
-                disabled={isLoading}
-                style={{
-                  padding: isMobile ? '14px 20px' : '14px 28px',
-                  borderRadius: '14px',
-                  border: '2px solid #f59e0b',
-                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                  color: '#ffffff',
-                  fontSize: isMobile ? '14px' : '15px',
-                  fontWeight: '700',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  width: isMobile ? '100%' : 'auto',
-                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isLoading) {
-                    e.target.style.background = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(245, 158, 11, 0.4)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
-                }}
-              >
-                {isLoading ? 'Saving...' : 'Save as Draft'}
               </button>
 
               <button
@@ -1111,6 +1064,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 {isLoading ? 'Publishing...' : 'Publish Event'}
               </button>
             </div>
+            </form>
           </div>
         </div>
       </div>
