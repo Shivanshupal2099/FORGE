@@ -217,7 +217,9 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
           aria-modal="true"
           aria-labelledby="event-popup-title"
           style={{
-            background: 'var(--app-card-bg)',
+            background: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
             borderRadius: isMobile ? '24px 24px 0 0' : '24px',
             maxWidth: '900px',
             width: '100%',
@@ -225,9 +227,9 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
             overflow: 'auto',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
-            boxShadow: 'var(--app-soft-shadow)',
+            boxShadow: '0 16px 48px rgba(17, 17, 17, 0.12)',
             position: 'relative',
-            border: '2px solid var(--app-card-border)',
+            border: '1px solid rgba(255, 255, 255, 0.5)',
           }}
         >
           <button
@@ -240,9 +242,9 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
               right: '20px',
               width: '44px',
               height: '44px',
-              borderRadius: '14px',
-              border: '2px solid var(--app-card-border)',
-              background: 'var(--app-surface)',
+              borderRadius: '999px',
+              border: 'none',
+              background: 'rgba(255, 215, 0, 0.15)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -251,17 +253,15 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
               zIndex: 10,
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = 'var(--app-surface-strong)';
+              e.target.style.background = 'rgba(255, 215, 0, 0.25)';
               e.target.style.transform = 'scale(1.1)';
-              e.target.style.borderColor = 'var(--app-accent-bg)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'var(--app-surface)';
+              e.target.style.background = 'rgba(255, 215, 0, 0.15)';
               e.target.style.transform = 'scale(1)';
-              e.target.style.borderColor = 'var(--app-card-border)';
             }}
           >
-            <FaTimes style={{ fontSize: '20px', color: 'var(--app-text)' }} />
+            <FaTimes style={{ fontSize: '20px', color: '#111111' }} />
           </button>
 
           <div style={{ padding: isMobile ? '24px' : '40px' }}>
@@ -270,21 +270,21 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{
                   width: '56px',
                   height: '56px',
-                  borderRadius: '16px',
-                  background: 'var(--app-accent-bg)',
+                  borderRadius: '999px',
+                  background: 'rgba(255, 215, 0, 0.2)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+                  boxShadow: '0 8px 16px rgba(17, 17, 17, 0.08)',
                 }}>
-                  <FaCalendarAlt style={{ fontSize: '24px', color: 'var(--app-accent-text)' }} />
+                  <FaCalendarAlt style={{ fontSize: '24px', color: '#111111' }} />
                 </div>
                 <div>
                   <h2 id="event-popup-title" style={{
                     margin: 0,
                     fontSize: isMobile ? '24px' : '28px',
-                    fontWeight: '800',
-                    color: 'var(--app-text)',
+                    fontWeight: '600',
+                    color: '#111111',
                     letterSpacing: '-0.5px',
                   }}>
                     {isEditMode ? 'Edit Event' : 'Create Event'}
@@ -292,8 +292,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <p style={{
                     margin: '4px 0 0',
                     fontSize: isMobile ? '13px' : '14px',
-                    color: 'var(--app-muted-text)',
-                    fontWeight: '500',
+                    color: '#666666',
+                    fontWeight: '400',
                   }}>
                     {isEditMode ? 'Update your event details and settings.' : 'Organize community events and reward participants with Forge tokens.'}
                   </p>
@@ -306,13 +306,13 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                   <label htmlFor="event-title" style={{
                     fontSize: isMobile ? '13px' : '14px',
-                    fontWeight: '700',
-                    color: 'var(--app-text)',
+                    fontWeight: '500',
+                    color: '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaCalendarAlt style={{ color: 'var(--app-accent-bg)', fontSize: '14px' }} />
+                    <FaCalendarAlt style={{ color: '#111111', fontSize: '14px' }} />
                     Event Title *
                   </label>
                   <input
@@ -324,20 +324,22 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     required
                     style={{
                       padding: isMobile ? '12px 14px' : '14px 18px',
-                      borderRadius: '12px',
-                      border: '2px solid var(--app-card-border)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       fontSize: isMobile ? '14px' : '15px',
                       outline: 'none',
                       transition: 'all 0.2s ease',
-                      background: 'var(--app-surface)',
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = 'var(--app-accent-bg)';
-                      e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                      e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'var(--app-card-border)';
-                      e.target.style.boxShadow = 'none';
+                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                     }}
                   />
                 </div>
@@ -345,8 +347,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                   <label htmlFor="event-description" style={{
                     fontSize: isMobile ? '13px' : '14px',
-                    fontWeight: '700',
-                    color: 'var(--app-text)',
+                    fontWeight: '500',
+                    color: '#666666',
                   }}>
                     Description
                   </label>
@@ -358,23 +360,25 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     rows="4"
                     style={{
                       padding: isMobile ? '12px 14px' : '14px 18px',
-                      borderRadius: '12px',
-                      border: '2px solid var(--app-card-border)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       fontSize: isMobile ? '14px' : '15px',
                       outline: 'none',
                       transition: 'all 0.2s ease',
-                      background: 'var(--app-surface)',
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                       resize: 'vertical',
                       fontFamily: 'inherit',
-                      color: 'var(--app-text)',
+                      color: '#111111',
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = 'var(--app-accent-bg)';
-                      e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                      e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'var(--app-card-border)';
-                      e.target.style.boxShadow = 'none';
+                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                     }}
                   />
                 </div>
@@ -382,13 +386,13 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                   <label htmlFor="event-category" style={{
                     fontSize: isMobile ? '13px' : '14px',
-                    fontWeight: '700',
-                    color: 'var(--app-text)',
+                    fontWeight: '500',
+                    color: '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaTag style={{ color: 'var(--app-accent-bg)', fontSize: '14px' }} />
+                    <FaTag style={{ color: '#111111', fontSize: '14px' }} />
                     Category
                   </label>
                   <select
@@ -397,22 +401,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     onChange={(e) => setCategory(e.target.value)}
                     style={{
                       padding: isMobile ? '12px 14px' : '14px 18px',
-                      borderRadius: '12px',
-                      border: '2px solid var(--app-card-border)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       fontSize: isMobile ? '14px' : '15px',
                       outline: 'none',
                       transition: 'all 0.2s ease',
-                      background: 'var(--app-surface)',
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                       cursor: 'pointer',
-                      color: 'var(--app-text)',
+                      color: '#111111',
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = 'var(--app-accent-bg)';
-                      e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                      e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'var(--app-card-border)';
-                      e.target.style.boxShadow = 'none';
+                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                     }}
                   >
                     <option value="">Select category</option>
@@ -430,8 +436,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                     <label htmlFor="event-start-date" style={{
                       fontSize: isMobile ? '13px' : '14px',
-                      fontWeight: '700',
-                      color: 'var(--app-text)',
+                      fontWeight: '500',
+                      color: '#666666',
                     }}>
                       Start date *
                     </label>
@@ -443,29 +449,31 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       required
                       style={{
                         padding: isMobile ? '12px 14px' : '14px 18px',
-                        borderRadius: '12px',
-                        border: '2px solid var(--app-card-border)',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
                         fontSize: isMobile ? '14px' : '15px',
                         outline: 'none',
                         transition: 'all 0.2s ease',
-                        background: 'var(--app-surface)',
+                        background: 'rgba(255, 255, 255, 0.5)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
                         cursor: 'pointer',
                       }}
                       onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--app-accent-bg)';
-                        e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                        e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'var(--app-card-border)';
-                        e.target.style.boxShadow = 'none';
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                       }}
                     />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                     <label htmlFor="event-start-time" style={{
                       fontSize: isMobile ? '13px' : '14px',
-                      fontWeight: '700',
-                      color: 'var(--app-text)',
+                      fontWeight: '500',
+                      color: '#666666',
                     }}>
                       Start time *
                     </label>
@@ -477,21 +485,23 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       required
                       style={{
                         padding: isMobile ? '12px 14px' : '14px 18px',
-                        borderRadius: '12px',
-                        border: '2px solid var(--app-card-border)',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
                         fontSize: isMobile ? '14px' : '15px',
                         outline: 'none',
                         transition: 'all 0.2s ease',
-                        background: 'var(--app-surface)',
+                        background: 'rgba(255, 255, 255, 0.5)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
                         cursor: 'pointer',
                       }}
                       onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--app-accent-bg)';
-                        e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                        e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'var(--app-card-border)';
-                        e.target.style.boxShadow = 'none';
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                       }}
                     />
                   </div>
@@ -501,8 +511,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                     <label htmlFor="event-end-date" style={{
                       fontSize: isMobile ? '13px' : '14px',
-                      fontWeight: '700',
-                      color: 'var(--app-text)',
+                      fontWeight: '500',
+                      color: '#666666',
                     }}>
                       End date
                     </label>
@@ -513,29 +523,31 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       onChange={(e) => setEndDate(e.target.value)}
                       style={{
                         padding: isMobile ? '12px 14px' : '14px 18px',
-                        borderRadius: '12px',
-                        border: '2px solid var(--app-card-border)',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
                         fontSize: isMobile ? '14px' : '15px',
                         outline: 'none',
                         transition: 'all 0.2s ease',
-                        background: 'var(--app-surface)',
+                        background: 'rgba(255, 255, 255, 0.5)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
                         cursor: 'pointer',
                       }}
                       onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--app-accent-bg)';
-                        e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                        e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'var(--app-card-border)';
-                        e.target.style.boxShadow = 'none';
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                       }}
                     />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                     <label htmlFor="event-end-time" style={{
                       fontSize: isMobile ? '13px' : '14px',
-                      fontWeight: '700',
-                      color: 'var(--app-text)',
+                      fontWeight: '500',
+                      color: '#666666',
                     }}>
                       End time
                     </label>
@@ -546,21 +558,23 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       onChange={(e) => setEndTime(e.target.value)}
                       style={{
                         padding: isMobile ? '12px 14px' : '14px 18px',
-                        borderRadius: '12px',
-                        border: '2px solid var(--app-card-border)',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
                         fontSize: isMobile ? '14px' : '15px',
                         outline: 'none',
                         transition: 'all 0.2s ease',
-                        background: 'var(--app-surface)',
+                        background: 'rgba(255, 255, 255, 0.5)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
                         cursor: 'pointer',
                       }}
                       onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--app-accent-bg)';
-                        e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                        e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'var(--app-card-border)';
-                        e.target.style.boxShadow = 'none';
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                       }}
                     />
                   </div>
@@ -569,13 +583,13 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                   <label htmlFor="event-online-type" style={{
                     fontSize: isMobile ? '13px' : '14px',
-                    fontWeight: '700',
-                    color: 'var(--app-text)',
+                    fontWeight: '500',
+                    color: '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaGlobe style={{ color: 'var(--app-accent-bg)', fontSize: '14px' }} />
+                    <FaGlobe style={{ color: '#111111', fontSize: '14px' }} />
                     Event Format
                   </label>
                   <select
@@ -584,22 +598,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     onChange={(e) => setOnlineType(e.target.value)}
                     style={{
                       padding: isMobile ? '12px 14px' : '14px 18px',
-                      borderRadius: '12px',
-                      border: '2px solid var(--app-card-border)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       fontSize: isMobile ? '14px' : '15px',
                       outline: 'none',
                       transition: 'all 0.2s ease',
-                      background: 'var(--app-surface)',
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                       cursor: 'pointer',
-                      color: 'var(--app-text)',
+                      color: '#111111',
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = 'var(--app-accent-bg)';
-                      e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                      e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'var(--app-card-border)';
-                      e.target.style.boxShadow = 'none';
+                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                     }}
                   >
                     <option value="Online">Online</option>
@@ -611,13 +627,13 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                   <label htmlFor="event-location-or-link" style={{
                     fontSize: isMobile ? '13px' : '14px',
-                    fontWeight: '700',
-                    color: 'var(--app-text)',
+                    fontWeight: '500',
+                    color: '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaMapMarkerAlt style={{ color: 'var(--app-accent-bg)', fontSize: '14px' }} />
+                    <FaMapMarkerAlt style={{ color: '#111111', fontSize: '14px' }} />
                     Location (or meeting link)
                   </label>
                   <input
@@ -632,20 +648,22 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     }
                     style={{
                       padding: isMobile ? '12px 14px' : '14px 18px',
-                      borderRadius: '12px',
-                      border: '2px solid var(--app-card-border)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       fontSize: isMobile ? '14px' : '15px',
                       outline: 'none',
                       transition: 'all 0.2s ease',
-                      background: 'var(--app-surface)',
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = 'var(--app-accent-bg)';
-                      e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                      e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'var(--app-card-border)';
-                      e.target.style.boxShadow = 'none';
+                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                     }}
                   />
                 </div>
@@ -653,13 +671,13 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                   <label htmlFor="event-organizer" style={{
                     fontSize: isMobile ? '13px' : '14px',
-                    fontWeight: '700',
-                    color: 'var(--app-text)',
+                    fontWeight: '500',
+                    color: '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaUserTie style={{ color: 'var(--app-accent-bg)', fontSize: '14px' }} />
+                    <FaUserTie style={{ color: '#111111', fontSize: '14px' }} />
                     Organizer
                   </label>
                   <input
@@ -670,20 +688,22 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     placeholder="Organizer name"
                     style={{
                       padding: isMobile ? '12px 14px' : '14px 18px',
-                      borderRadius: '12px',
-                      border: '2px solid var(--app-card-border)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       fontSize: isMobile ? '14px' : '15px',
                       outline: 'none',
                       transition: 'all 0.2s ease',
-                      background: 'var(--app-surface)',
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = 'var(--app-accent-bg)';
-                      e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                      e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'var(--app-card-border)';
-                      e.target.style.boxShadow = 'none';
+                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                     }}
                   />
                 </div>
@@ -691,13 +711,13 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                   <label htmlFor="event-registration-required" style={{
                     fontSize: isMobile ? '13px' : '14px',
-                    fontWeight: '700',
-                    color: 'var(--app-text)',
+                    fontWeight: '500',
+                    color: '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaUsers style={{ color: 'var(--app-accent-bg)', fontSize: '14px' }} />
+                    <FaUsers style={{ color: '#111111', fontSize: '14px' }} />
                     Registration required
                   </label>
                   <select
@@ -706,22 +726,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     onChange={(e) => setRegistrationRequired(e.target.value === 'Yes')}
                     style={{
                       padding: isMobile ? '12px 14px' : '14px 18px',
-                      borderRadius: '12px',
-                      border: '2px solid var(--app-card-border)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       fontSize: isMobile ? '14px' : '15px',
                       outline: 'none',
                       transition: 'all 0.2s ease',
-                      background: 'var(--app-surface)',
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                       cursor: 'pointer',
-                      color: 'var(--app-text)',
+                      color: '#111111',
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = 'var(--app-accent-bg)';
-                      e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                      e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'var(--app-card-border)';
-                      e.target.style.boxShadow = 'none';
+                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                     }}
                   >
                     <option value="No">No</option>
@@ -733,8 +755,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                     <label htmlFor="event-max-attendees" style={{
                       fontSize: isMobile ? '13px' : '14px',
-                      fontWeight: '700',
-                      color: 'var(--app-text)',
+                      fontWeight: '500',
+                      color: '#666666',
                     }}>
                       Maximum attendees *
                     </label>
@@ -747,20 +769,22 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       min={1}
                       style={{
                         padding: isMobile ? '12px 14px' : '14px 18px',
-                        borderRadius: '12px',
-                        border: '2px solid var(--app-card-border)',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
                         fontSize: isMobile ? '14px' : '15px',
                         outline: 'none',
                         transition: 'all 0.2s ease',
-                        background: 'var(--app-surface)',
+                        background: 'rgba(255, 255, 255, 0.5)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
                       }}
                       onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--app-accent-bg)';
-                        e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                        e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'var(--app-card-border)';
-                        e.target.style.boxShadow = 'none';
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                       }}
                     />
                   </div>
@@ -770,8 +794,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                     <label htmlFor="event-visibility" style={{
                       fontSize: isMobile ? '13px' : '14px',
-                      fontWeight: '700',
-                      color: 'var(--app-text)',
+                      fontWeight: '500',
+                      color: '#666666',
                     }}>
                       Visibility
                     </label>
@@ -781,21 +805,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       onChange={(e) => setVisibility(e.target.value)}
                       style={{
                         padding: isMobile ? '12px 14px' : '14px 18px',
-                        borderRadius: '12px',
-                        border: '2px solid var(--app-card-border)',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
                         fontSize: isMobile ? '14px' : '15px',
                         outline: 'none',
                         transition: 'all 0.2s ease',
-                        background: 'var(--app-surface)',
+                        background: 'rgba(255, 255, 255, 0.5)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
                         cursor: 'pointer',
+                        color: '#111111',
                       }}
                       onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--app-accent-bg)';
-                        e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                        e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'var(--app-card-border)';
-                        e.target.style.boxShadow = 'none';
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                       }}
                     >
                       <option value="Public">Public</option>
@@ -805,13 +832,13 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                     <label htmlFor="event-price" style={{
                       fontSize: isMobile ? '13px' : '14px',
-                      fontWeight: '700',
-                      color: 'var(--app-text)',
+                      fontWeight: '500',
+                      color: '#666666',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
                     }}>
-                      <FaTicketAlt style={{ color: 'var(--app-accent-bg)', fontSize: '14px' }} />
+                      <FaTicketAlt style={{ color: '#111111', fontSize: '14px' }} />
                       Price Type
                     </label>
                     <select
@@ -820,21 +847,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       onChange={(e) => setPriceType(e.target.value)}
                       style={{
                         padding: isMobile ? '12px 14px' : '14px 18px',
-                        borderRadius: '12px',
-                        border: '2px solid var(--app-card-border)',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
                         fontSize: isMobile ? '14px' : '15px',
                         outline: 'none',
                         transition: 'all 0.2s ease',
-                        background: 'var(--app-surface)',
+                        background: 'rgba(255, 255, 255, 0.5)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
                         cursor: 'pointer',
+                        color: '#111111',
                       }}
                       onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--app-accent-bg)';
-                        e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                        e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'var(--app-card-border)';
-                        e.target.style.boxShadow = 'none';
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                       }}
                     >
                       <option value="Free">Free</option>
@@ -846,8 +876,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '8px' }}>
                   <label htmlFor="event-contact-info" style={{
                     fontSize: isMobile ? '13px' : '14px',
-                    fontWeight: '700',
-                    color: 'var(--app-text)',
+                    fontWeight: '500',
+                    color: '#666666',
                   }}>
                     Contact information
                   </label>
@@ -859,20 +889,22 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     placeholder="Public contact (email/phone)"
                     style={{
                       padding: isMobile ? '12px 14px' : '14px 18px',
-                      borderRadius: '12px',
-                      border: '2px solid var(--app-card-border)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
                       fontSize: isMobile ? '14px' : '15px',
                       outline: 'none',
                       transition: 'all 0.2s ease',
-                      background: 'var(--app-surface)',
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = 'var(--app-accent-bg)';
-                      e.target.style.boxShadow = '0 0 0 3px var(--app-ring)';
+                      e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'var(--app-card-border)';
-                      e.target.style.boxShadow = 'none';
+                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.5)';
                     }}
                   />
                 </div>
@@ -880,28 +912,28 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
 
               <div style={{ display: isMobile ? 'none' : 'flex', flexDirection: 'column', gap: isMobile ? '16px' : '20px' }}>
                 <div style={{
-                  background: 'var(--app-accent-bg)',
+                  background: 'rgba(255, 215, 0, 0.15)',
                   borderRadius: '16px',
                   padding: '24px',
-                  color: 'var(--app-accent-text)',
-                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
+                  color: '#111111',
+                  boxShadow: '0 8px 24px rgba(17, 17, 17, 0.08)',
                 }}>
                   <div style={{
                     width: '48px',
                     height: '48px',
-                    borderRadius: '12px',
-                    background: 'rgba(255, 255, 255, 0.2)',
+                    borderRadius: '999px',
+                    background: 'rgba(255, 215, 0, 0.3)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: '16px',
                   }}>
-                    <FaCalendarAlt style={{ fontSize: '20px', color: 'var(--app-accent-text)' }} />
+                    <FaCalendarAlt style={{ fontSize: '20px', color: '#111111' }} />
                   </div>
                   <p style={{
                     margin: '0 0 12px',
                     fontSize: '18px',
-                    fontWeight: '800',
+                    fontWeight: '600',
                     lineHeight: '1.3',
                   }}>
                     {title || 'Event Title'}
@@ -910,7 +942,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     <p style={{
                       margin: '0 0 8px',
                       fontSize: '13px',
-                      fontWeight: '600',
+                      fontWeight: '400',
                       opacity: 0.9,
                     }}>
                       {new Date(startDate).toLocaleDateString('en-US', {
@@ -925,7 +957,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     <p style={{
                       margin: '0 0 8px',
                       fontSize: '13px',
-                      fontWeight: '600',
+                      fontWeight: '400',
                       opacity: 0.9,
                     }}>
                       Ends{' '}
@@ -944,28 +976,28 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   }}>
                     <span style={{
                       padding: '4px 12px',
-                      borderRadius: '20px',
-                      background: 'rgba(255, 255, 255, 0.2)',
+                      borderRadius: '999px',
+                      background: 'rgba(255, 255, 255, 0.4)',
                       fontSize: '11px',
-                      fontWeight: '700',
+                      fontWeight: '500',
                     }}>
                       {onlineType}
                     </span>
                     <span style={{
                       padding: '4px 12px',
-                      borderRadius: '20px',
-                      background: 'rgba(255, 255, 255, 0.2)',
+                      borderRadius: '999px',
+                      background: 'rgba(255, 255, 255, 0.4)',
                       fontSize: '11px',
-                      fontWeight: '700',
+                      fontWeight: '500',
                     }}>
                       {visibility}
                     </span>
                     <span style={{
                       padding: '4px 12px',
-                      borderRadius: '20px',
-                      background: 'rgba(255, 255, 255, 0.2)',
+                      borderRadius: '999px',
+                      background: 'rgba(255, 255, 255, 0.4)',
                       fontSize: '11px',
-                      fontWeight: '700',
+                      fontWeight: '500',
                     }}>
                       {priceType}
                     </span>
@@ -974,7 +1006,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     <p style={{
                       margin: '12px 0 0',
                       fontSize: '12px',
-                      fontWeight: '600',
+                      fontWeight: '400',
                       opacity: 0.85,
                       wordBreak: 'break-word',
                     }}>
@@ -989,7 +1021,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 gap: isMobile ? '8px' : '12px',
                 marginTop: isMobile ? '24px' : '32px',
                 paddingTop: isMobile ? '20px' : '24px',
-                borderTop: '1px solid var(--app-card-border)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.3)',
                 flexDirection: isMobile ? 'column' : 'row',
               }}>
               <button
@@ -998,30 +1030,32 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 disabled={isLoading}
                 style={{
                   padding: isMobile ? '14px 20px' : '14px 28px',
-                  borderRadius: '14px',
-                  border: '2px solid var(--app-card-border)',
-                  background: 'var(--app-surface)',
-                  color: 'var(--app-muted-text)',
+                  borderRadius: '999px',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  background: 'rgba(255, 255, 255, 0.5)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  color: '#666666',
                   fontSize: isMobile ? '14px' : '15px',
-                  fontWeight: '700',
+                  fontWeight: '500',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   width: isMobile ? '100%' : 'auto',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                  boxShadow: '0 4px 12px rgba(17, 17, 17, 0.05)',
                 }}
                 onMouseEnter={(e) => {
                   if (!isLoading) {
-                    e.target.style.background = 'var(--app-surface-strong)';
-                    e.target.style.borderColor = 'var(--app-card-border)';
+                    e.target.style.background = 'rgba(255, 255, 255, 0.7)';
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
                     e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.1)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(17, 17, 17, 0.08)';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = 'var(--app-surface)';
-                  e.target.style.borderColor = 'var(--app-card-border)';
+                  e.target.style.background = 'rgba(255, 255, 255, 0.5)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.05)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(17, 17, 17, 0.05)';
                 }}
               >
                 Cancel
@@ -1033,15 +1067,15 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 style={{
                   flex: 1,
                   padding: isMobile ? '14px 20px' : '14px 28px',
-                  borderRadius: '14px',
+                  borderRadius: '999px',
                   border: 'none',
-                  background: 'var(--app-accent-bg)',
-                  color: 'var(--app-accent-text)',
+                  background: '#FF6B00',
+                  color: '#111111',
                   fontSize: isMobile ? '14px' : '15px',
-                  fontWeight: '800',
+                  fontWeight: '600',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 8px 24px var(--app-ring)',
+                  boxShadow: '0 8px 24px rgba(255, 107, 0, 0.25)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1050,14 +1084,14 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 onMouseEnter={(e) => {
                   if (!isLoading) {
                     e.target.style.transform = 'translateY(-3px)';
-                    e.target.style.boxShadow = '0 12px 32px var(--app-ring)';
-                    e.target.style.filter = 'brightness(1.1)';
+                    e.target.style.background = '#FF8533';
+                    e.target.style.boxShadow = '0 12px 32px rgba(255, 107, 0, 0.35)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 8px 24px var(--app-ring)';
-                  e.target.style.filter = 'brightness(1)';
+                  e.target.style.background = '#FF6B00';
+                  e.target.style.boxShadow = '0 8px 24px rgba(255, 107, 0, 0.25)';
                 }}
               >
                 <FaCalendarAlt style={{ fontSize: '16px' }} />

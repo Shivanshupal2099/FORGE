@@ -1,13 +1,38 @@
 const UserLocation = require('../models/UserLocation.model');
+const Profile = require('../models/Profile.model');
+const User = require('../models/Users.model');
 
 exports.getAllUserLocations = async (req, res) => {
   try {
-    // Return all locations from UserLocation collection without filters
+    // Return all locations from UserLocation collection with profile data and user online status
     const locations = await UserLocation.find({});
+
+    // Fetch profile data and user online status for each location
+    const locationsWithProfiles = await Promise.all(
+      locations.map(async (location) => {
+        try {
+          const profile = await Profile.findOne({ uid: location.uid });
+          const user = await User.findOne({ uid: location.uid }).select('is_online');
+          
+          return {
+            ...location.toObject(),
+            profile: profile || null,
+            is_online: user ? user.is_online : false
+          };
+        } catch (error) {
+          console.error('Error fetching profile/user for:', location.uid, error);
+          return {
+            ...location.toObject(),
+            profile: null,
+            is_online: false
+          };
+        }
+      })
+    );
 
     res.json({
       success: true,
-      locations
+      locations: locationsWithProfiles
     });
   } catch (error) {
     console.error('Error fetching user locations:', error);
@@ -44,6 +69,21 @@ exports.saveUserLocation = async (req, res) => {
       },
       { upsert: true, returnDocument: 'after' }
     );
+
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    const locationSocketHandler = req.app.get('locationSocketHandler');
+    if (io && locationSocketHandler) {
+      // Fetch profile data and user online status for the location
+      const profile = await Profile.findOne({ uid });
+      const user = await User.findOne({ uid }).select('is_online');
+      const locationWithProfile = {
+        ...location.toObject(),
+        profile: profile || null,
+        is_online: user ? user.is_online : false
+      };
+      locationSocketHandler.emitLocationUpdated(locationWithProfile);
+    }
 
     res.json({
       success: true,

@@ -241,3 +241,103 @@ exports.getProfile = async (req, res) => {
     });
   }
 };
+
+exports.updateLocation = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const { latitude, longitude } = req.body;
+
+    if (!uid) {
+      return res.status(400).json({
+        success: false,
+        message: 'UID is required'
+      });
+    }
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({
+        success: false,
+        message: 'Latitude and longitude are required'
+      });
+    }
+
+    console.log('Updating location for UID:', uid, 'to:', { latitude, longitude });
+
+    // Find or create profile
+    let profile = await Profile.findOne({ uid: uid });
+
+    if (profile) {
+      // Update existing profile
+      profile.latitude = latitude;
+      profile.longitude = longitude;
+      await profile.save();
+      console.log('Profile location updated successfully');
+    } else {
+      console.log('Profile not found, creating new profile for UID:', uid);
+      
+      // Find or create user first
+      let mongoUser = await User.findOne({ uid: uid });
+      
+      if (!mongoUser) {
+        console.log('Creating new user for UID:', uid);
+        mongoUser = await User.create({
+          uid: uid,
+          email: uid,
+          auth_provider: 'google',
+          is_verified: true,
+          last_login_at: new Date()
+        });
+      }
+
+      // Create new profile with location
+      profile = await Profile.create({
+        uid: uid,
+        user_id: mongoUser._id,
+        first_name: 'User',
+        last_name: 'User',
+        bio: '',
+        department: '',
+        contact_number: '',
+        looking_for: [],
+        avatar_url: '',
+        gender: 'Other',
+        location: '',
+        latitude: latitude,
+        longitude: longitude,
+        is_service_provider: false,
+        services: [],
+        is_verified: false,
+        payment_date: null,
+      });
+      console.log('New profile created with location:', profile._id);
+    }
+
+    // Save location to UserLocation database
+    await UserLocation.findOneAndUpdate(
+      { uid: uid },
+      {
+        uid: uid,
+        latitude,
+        longitude,
+        sharing_level: 'exact',
+        updated_at: new Date()
+      },
+      { upsert: true, returnDocument: 'after' }
+    );
+    console.log('User location saved to UserLocation database');
+
+    res.json({
+      success: true,
+      message: 'Location updated successfully',
+      profile
+    });
+  } catch (error) {
+    console.error('Error updating location:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating location',
+      error: error.message
+    });
+  }
+};

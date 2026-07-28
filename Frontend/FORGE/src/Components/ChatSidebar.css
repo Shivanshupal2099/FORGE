@@ -3,11 +3,12 @@
   min-width: 292px;
   max-width: 360px;
   min-height: calc(100vh - 150px);
-  border-radius: 28px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 0.84);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(18px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 16px 48px rgba(17, 17, 17, 0.12);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -15,8 +16,10 @@
 
 .chat-sidebar__top {
   padding: 20px 20px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.72);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .chat-sidebar__brand {
@@ -28,14 +31,14 @@
 .chat-sidebar__brandIcon {
   width: 48px;
   height: 48px;
-  border-radius: 16px;
-  background: #111111;
-  color: #ffffff;
+  border-radius: 999px;
+  background: rgba(255, 215, 0, 0.25);
+  color: #111111;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.45rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2);
 }
 
 .chat-sidebar__brandText {
@@ -43,15 +46,15 @@
 }
 
 .chat-sidebar__brandTitle {
-  font-weight: 900;
+  font-weight: 600;
   font-size: 1.35rem;
   color: #111111;
   line-height: 1.1;
 }
 
 .chat-sidebar__brandSub {
-  color: rgba(0, 0, 0, 0.6);
-  font-weight: 700;
+  color: #666666;
+  font-weight: 400;
   font-size: 0.9rem;
   margin-top: 3px;
 }
@@ -75,22 +78,25 @@
   width: 100%;
   border-radius: 16px;
   padding: 13px 14px 13px 42px;
-  border: 1px solid rgba(0, 0, 0, 0.14);
-  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: #111111;
-  font-weight: 600;
+  font-weight: 400;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .chat-sidebar__search:focus {
-  border-color: #111111;
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08);
+  border-color: rgba(255, 215, 0, 0.5);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.1);
 }
 
 .chat-sidebar__search::placeholder {
-  color: rgba(0, 0, 0, 0.5);
-  font-weight: 700;
+  color: #666666;
+  font-weight: 400;
 }
 
 .chat-sidebar__list {
@@ -104,9 +110,9 @@
 }
 
 .chat-sidebar__list::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(17, 17, 17, 0.15);
   border-radius: 999px;
-  border: 3px solid rgba(255, 255, 255, 0.72);
+  border: 3px solid rgba(255, 255, 255, 0.7);
 }
 
 .chat-sidebar__thread {
@@ -125,22 +131,22 @@
 }
 
 .chat-sidebar__thread:hover {
-  border-color: rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.76);
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 18px rgba(17, 17, 17, 0.08);
 }
 
 .chat-sidebar__thread--active {
-  border-color: rgba(0, 0, 0, 0.16);
-  background: #111111;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  border-color: rgba(255, 215, 0, 0.3);
+  background: rgba(255, 215, 0, 0.25);
+  box-shadow: 0 12px 24px rgba(255, 215, 0, 0.2);
 }
 
 .chat-sidebar__thread--active .chat-sidebar__threadName,
 .chat-sidebar__thread--active .chat-sidebar__threadTime,
 .chat-sidebar__thread--active .chat-sidebar__threadPreview {
-  color: #ffffff;
+  color: #111111;
 }
 
 .chat-sidebar__thread--active .chat-sidebar__threadPreview,
@@ -149,7 +155,7 @@
 }
 
 .chat-sidebar__thread--active .chat-sidebar__avatar {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.8);
   color: #111111;
 }
 
@@ -166,8 +172,8 @@
   height: 13px;
   border-radius: 50%;
   background: #22c55e;
-  border: 3px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(17, 17, 17, 0.1);
 }
 
 .chat-sidebar__unreadBadge {
@@ -177,9 +183,9 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #dc2626;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background: #FF6B00;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(17, 17, 17, 0.1);
 }
 
 .chat-sidebar__empty {
@@ -194,18 +200,18 @@
 .chat-sidebar__emptyIcon {
   display: inline-flex;
   font-size: 2.7rem;
-  color: rgba(0, 0, 0, 0.58);
+  color: #666666;
 }
 
 .chat-sidebar__emptyText {
   color: #111111;
-  font-weight: 900;
+  font-weight: 600;
   font-size: 1.05rem;
 }
 
 .chat-sidebar__emptySub {
-  color: rgba(0, 0, 0, 0.58);
-  font-weight: 600;
+  color: #666666;
+  font-weight: 400;
   font-size: 0.9rem;
 }
 
@@ -222,7 +228,7 @@
 }
 
 .chat-sidebar__threadName {
-  font-weight: 850;
+  font-weight: 600;
   color: #111111;
   white-space: nowrap;
   overflow: hidden;
@@ -231,16 +237,16 @@
 }
 
 .chat-sidebar__threadTime {
-  font-weight: 800;
-  color: rgba(0, 0, 0, 0.58);
+  font-weight: 400;
+  color: #666666;
   white-space: nowrap;
   font-size: 0.78rem;
 }
 
 .chat-sidebar__threadPreview {
   margin-top: 4px;
-  color: rgba(0, 0, 0, 0.58);
-  font-weight: 650;
+  color: #666666;
+  font-weight: 400;
   font-size: 0.86rem;
   white-space: nowrap;
   overflow: hidden;
@@ -250,14 +256,16 @@
 .chat-sidebar__avatar {
   width: 46px;
   height: 46px;
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: #111111;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.12rem;
-  font-weight: 900;
+  font-weight: 600;
   flex-shrink: 0;
 }
 
@@ -273,26 +281,28 @@
   min-width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #111111;
-  color: #ffffff;
-  font-weight: 900;
+  background: #FF6B00;
+  color: #111111;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 7px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 12px rgba(255, 107, 0, 0.25);
   font-size: 0.78rem;
 }
 
 .chat-sidebar__thread--active .chat-sidebar__unread {
-  background: #ffffff;
-  color: #111111;
+  background: #111111;
+  color: #ffffff;
 }
 
 .chat-sidebar__footer {
   padding: 16px 20px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.72);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .chat-sidebar__tips {
@@ -304,8 +314,8 @@
 .chat-sidebar__tipsIcon {
   width: 32px;
   height: 32px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 215, 0, 0.15);
   color: #111111;
   display: flex;
   align-items: center;
@@ -315,8 +325,8 @@
 }
 
 .chat-sidebar__tipsText {
-  color: rgba(0, 0, 0, 0.64);
-  font-weight: 700;
+  color: #666666;
+  font-weight: 400;
   font-size: 0.9rem;
   line-height: 1.4;
 }

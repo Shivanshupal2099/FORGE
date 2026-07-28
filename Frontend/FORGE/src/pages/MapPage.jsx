@@ -7,6 +7,7 @@ import Header from '../Components/Header'
 import Filtersection from '../Components/Filtersection'
 import Usercard from '../Components/Usercard'
 import { useAuth } from '../contexts/AuthContext'
+import { useSocket } from '../contexts/SocketContext'
 import axios from '../api/axios'
 // import { MAPBOX_ACCESS_TOKEN, MAPBOX_STYLE_URI } from '../mapboxConfig'
 
@@ -18,6 +19,7 @@ const MAPBOX_STYLE_URI=import.meta.env.VITE_MAPBOX_STYLE_URI;
 
 function Map() {
   const { user } = useAuth();
+  const { socket, isConnected } = useSocket();
   const mapRef = useRef()
   const mapContainerRef = useRef()
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -25,6 +27,14 @@ function Map() {
   const [selectedUser, setSelectedUser] = useState(null)
   const markersRef = useRef([])
   const [userStats, setUserStats] = useState({ totalUsers: 0, activeUsers: 0 })
+  const [allLocations, setAllLocations] = useState([])
+  const [filteredLocations, setFilteredLocations] = useState([])
+  const [filters, setFilters] = useState({
+    profession: "",
+    gender: "Any",
+    onlineStatus: "Any",
+    verifiedOnly: false
+  })
 
   useEffect(() => {
     const handleResize = () => {
@@ -33,6 +43,82 @@ function Map() {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  // Join location updates room when socket is connected
+  useEffect(() => {
+    if (socket && isConnected) {
+      socket.emit('location:join');
+      console.log('Joined location updates room');
+
+      // Listen for location updates
+      socket.on('location:updated', handleLocationUpdate);
+      socket.on('location:added', handleLocationAdded);
+      socket.on('location:removed', handleLocationRemoved);
+      socket.on('user:online_status_changed', handleOnlineStatusChanged);
+
+      return () => {
+        socket.emit('location:leave');
+        socket.off('location:updated', handleLocationUpdate);
+        socket.off('location:added', handleLocationAdded);
+        socket.off('location:removed', handleLocationRemoved);
+        socket.off('user:online_status_changed', handleOnlineStatusChanged);
+      };
+    }
+  }, [socket, isConnected]);
+
+  const handleLocationUpdate = (updatedLocation) => {
+    console.log('Location updated via WebSocket:', updatedLocation);
+    setAllLocations(prev => {
+      const index = prev.findIndex(loc => loc.uid === updatedLocation.uid);
+      if (index !== -1) {
+        const newLocations = [...prev];
+        newLocations[index] = updatedLocation;
+        // Re-apply current filters to update filtered locations
+        const filtered = filterLocations(newLocations, filters);
+        setFilteredLocations(filtered);
+        return newLocations;
+      }
+      return prev;
+    });
+  };
+
+  const handleLocationAdded = (newLocation) => {
+    console.log('Location added via WebSocket:', newLocation);
+    setAllLocations(prev => {
+      const newLocations = [...prev, newLocation];
+      // Re-apply current filters to update filtered locations
+      const filtered = filterLocations(newLocations, filters);
+      setFilteredLocations(filtered);
+      return newLocations;
+    });
+  };
+
+  const handleLocationRemoved = ({ locationId }) => {
+    console.log('Location removed via WebSocket:', locationId);
+    setAllLocations(prev => {
+      const newLocations = prev.filter(loc => loc._id !== locationId);
+      // Re-apply current filters to update filtered locations
+      const filtered = filterLocations(newLocations, filters);
+      setFilteredLocations(filtered);
+      return newLocations;
+    });
+  };
+
+  const handleOnlineStatusChanged = ({ uid, isOnline }) => {
+    console.log('User online status changed:', uid, isOnline);
+    setAllLocations(prev => {
+      const index = prev.findIndex(loc => loc.uid === uid);
+      if (index !== -1) {
+        const newLocations = [...prev];
+        newLocations[index].is_online = isOnline;
+        // Re-apply current filters to update filtered locations
+        const filtered = filterLocations(newLocations, filters);
+        setFilteredLocations(filtered);
+        return newLocations;
+      }
+      return prev;
+    });
+  };
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -93,6 +179,110 @@ function Map() {
     }
   }
 
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+  const handleApplyFilters = () => {
+    console.log('Applying filters:', filters);
+    const filtered = filterLocations(allLocations, filters);
+    setFilteredLocations(filtered);
+    setIsFilterOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      profession: "",
+      gender: "Any",
+      onlineStatus: "Any",
+      verifiedOnly: false
+    };
+    setFilters(defaultFilters);
+    setFilteredLocations(allLocations);
+  };
+
+  const filterLocations = (locations, filterCriteria) => {
+    const filtered = locations.filter(location => {
+      const profile = location.profile || {};
+      
+      // Filter by profession (department)
+      if (filterCriteria.profession && profile.department !== filterCriteria.profession) {
+        return false;
+      }
+      
+      // Filter by gender
+      if (filterCriteria.gender !== "Any" && profile.gender !== filterCriteria.gender) {
+        return false;
+      }
+      
+      // Filter by verified status
+      if (filterCriteria.verifiedOnly && !profile.is_verified) {
+        return false;
+      }
+      
+      // Filter by online status
+      if (filterCriteria.onlineStatus !== "Any") {
+        if (filterCriteria.onlineStatus === "Online now" && !location.is_online) {
+          return false;
+        }
+        if (filterCriteria.onlineStatus === "Offline" && location.is_online) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+    
+    return filtered;
+  };
+
+  // Removed auto-filtering - filters only applied when Apply button is clicked
+
+  useEffect(() => {
+    if (mapRef.current) {
+      renderMarkers(filteredLocations);
+    }
+  }, [filteredLocations]);
+
+  const renderMarkers = (locations) => {
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.remove())
+    markersRef.current = []
+
+    locations.forEach((location, index) => {
+      const markerElement = document.createElement('div')
+      markerElement.style.width = '30px'
+      markerElement.style.height = '30px'
+      
+      // Generate unique color for each marker based on user ID
+      const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#14b8a6', '#a855f7']
+      const colorIndex = index % colors.length
+      const markerColor = !location.is_online ? '#ef4444' : colors[colorIndex]
+      
+      markerElement.style.backgroundColor = markerColor
+      markerElement.style.borderRadius = '50%'
+      markerElement.style.border = '3px solid white'
+      markerElement.style.cursor = 'pointer'
+      markerElement.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)'
+      markerElement.style.transition = 'width 0.3s ease, height 0.3s ease, background-color 0.3s ease'
+      
+      markerElement.addEventListener('click', () => {
+        handleMarkerClick(location.uid)
+      })
+      
+      const marker = new mapboxgl.Marker(markerElement)
+        .setLngLat([location.longitude, location.latitude])
+        .addTo(mapRef.current)
+      
+      // Store marker reference with its element
+      marker.element = markerElement
+      markersRef.current.push(marker)
+    })
+    
+    // Update marker sizes based on current zoom
+    updateMarkerSizes(mapRef.current.getZoom())
+  };
+
   const updateMarkerSizes = (zoom) => {
     // Calculate marker size based on zoom level
     // Global view (zoom 0-3): small markers
@@ -132,43 +322,11 @@ function Map() {
         console.log('Location data:', response.data)
         
         if (response.data.success && response.data.locations.length > 0) {
-          // Clear existing markers
-          markersRef.current.forEach(marker => marker.remove())
-          markersRef.current = []
-
-          response.data.locations.forEach((location, index) => {
-            console.log('Adding marker for:', location.uid, 'at:', location.longitude, location.latitude)
-            const markerElement = document.createElement('div')
-            markerElement.style.width = '30px'
-            markerElement.style.height = '30px'
-            
-            // Generate unique color for each marker based on user ID
-            const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#14b8a6', '#a855f7']
-            const colorIndex = index % colors.length
-            const markerColor = !location.is_online ? '#ef4444' : colors[colorIndex]
-            
-            markerElement.style.backgroundColor = markerColor
-            markerElement.style.borderRadius = '50%'
-            markerElement.style.border = '3px solid white'
-            markerElement.style.cursor = 'pointer'
-            markerElement.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)'
-            markerElement.style.transition = 'width 0.3s ease, height 0.3s ease, background-color 0.3s ease'
-            
-            markerElement.addEventListener('click', () => {
-              handleMarkerClick(location.uid)
-            })
-            
-            const marker = new mapboxgl.Marker(markerElement)
-              .setLngLat([location.longitude, location.latitude])
-              .addTo(mapRef.current)
-            
-            // Store marker reference with its element
-            marker.element = markerElement
-            markersRef.current.push(marker)
-          })
+          // Store all locations with profile data (now included from backend)
+          setAllLocations(response.data.locations);
           
-          // Update marker sizes based on current zoom
-          updateMarkerSizes(mapRef.current.getZoom())
+          // Initially show all markers (no filters applied)
+          setFilteredLocations(response.data.locations);
           
           // Center map on first location
           mapRef.current.flyTo({
@@ -409,7 +567,12 @@ function Map() {
               ×
             </button>
 
-            <Filtersection />
+            <Filtersection 
+              onFilterChange={handleApplyFilters}
+              initialFilters={filters}
+              onReset={handleResetFilters}
+              onApply={handleApplyFilters}
+            />
           </div>
         </div>
       )}

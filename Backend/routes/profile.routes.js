@@ -7,6 +7,9 @@ const { uidValidation } = require("../middlewares/validation.middleware");
 // Update user profile (no auth middleware for now, using UID from request)
 router.put("/update", profileController.updateProfile);
 
+// Update user location
+router.put("/:uid/location", uidValidation, profileController.updateLocation);
+
 // Get user profile
 router.get("/me", profileController.getProfile);
 

@@ -28,11 +28,12 @@ function NavigationBar() {
     alignItems: 'center',
     gap: '8px',
     padding: '8px',
-    background: 'var(--app-surface-strong)',
-    backdropFilter: 'blur(18px)',
-    border: '1px solid var(--app-card-border)',
+    background: 'rgba(255, 255, 255, 0.8)',
+    backdropFilter: 'blur(20px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+    border: '1px solid rgba(255, 255, 255, 0.5)',
     borderRadius: '999px',
-    boxShadow: 'var(--app-soft-shadow)',
+    boxShadow: '0 8px 32px rgba(17, 17, 17, 0.12)',
     maxWidth: 'min(92vw, 520px)',
     width: 'calc(100% - 16px)',
     zIndex: 1000
@@ -45,15 +46,17 @@ function NavigationBar() {
     padding: '16px 18px',
     borderRadius: '999px',
     textDecoration: 'none',
-    color: 'var(--app-muted-text)',
-    background: 'var(--app-surface)',
+    color: '#666666',
+    background: 'rgba(255, 255, 255, 0.5)',
+    backdropFilter: 'blur(10px)',
+    WebkitBackdropFilter: 'blur(10px)',
     transition: 'transform 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, padding 0.25s ease',
-    boxShadow: 'inset 0 0 0 1px rgba(36,23,0,0.06)',
+    boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.3)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     gap: '8px',
-    fontWeight: 700,
+    fontWeight: '500',
     fontSize: '1rem',
     overflow: 'hidden',
     minHeight: '56px'
@@ -63,9 +66,9 @@ function NavigationBar() {
 
 
   const activeStyle = {
-    background: 'var(--app-accent-bg)',
-    color: 'var(--app-accent-text)',
-    boxShadow: 'var(--app-soft-shadow)',
+    background: 'rgba(255, 215, 0, 0.25)',
+    color: '#111111',
+    boxShadow: '0 4px 16px rgba(255, 215, 0, 0.2)',
     transform: 'translateY(-2px) scale(1.03)',
     padding: '12px 16px'
   }

@@ -1,7 +1,42 @@
+:root {
+  /* Design System Colors */
+  --forge-yellow: #FFD700;
+  --forge-yellow-light: #FFE44D;
+  --forge-yellow-dark: #E6C200;
+  --forge-orange: #FF6B00;
+  --forge-orange-light: #FF8533;
+  --forge-black: #111111;
+  --forge-black-light: #1A1A1A;
+  --forge-warm-white: #FFFDF0;
+  --forge-white: #FFFFFF;
+  --forge-gray-light: #F5F5F0;
+  --forge-gray-medium: #E0E0D8;
+  --forge-gray-dark: #A0A098;
+  
+  /* Shadows */
+  --forge-soft-shadow: 0 8px 32px rgba(17, 17, 17, 0.08);
+  --forge-soft-shadow-lg: 0 16px 48px rgba(17, 17, 17, 0.12);
+  --forge-yellow-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
+  
+  /* Border Radius */
+  --forge-radius-sm: 12px;
+  --forge-radius-md: 16px;
+  --forge-radius-lg: 24px;
+  --forge-radius-xl: 32px;
+  --forge-radius-full: 999px;
+  
+  /* Typography */
+  --forge-font-light: 300;
+  --forge-font-normal: 400;
+  --forge-font-medium: 500;
+  --forge-font-semibold: 600;
+  --forge-font-bold: 700;
+}
+
 .page-shell {
   min-height: 100vh;
   padding: 24px 16px 110px;
-  background: transparent;
+  background: var(--forge-warm-white);
 }
 
 .landing-screen {
@@ -341,14 +376,17 @@
   justify-content: center;
   padding: 5px;
   border-radius: clamp(16px, 3vw, 22px);
-  background: var(--app-card-bg);
-  border: 2px solid var(--app-card-border);
-  box-shadow: 5px 5px 0 #111111;
-  transition: box-shadow 0.22s ease, transform 0.22s ease;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(17, 17, 17, 0.12);
+  transition: box-shadow 0.22s ease, transform 0.22s ease, background 0.22s ease;
 }
 
 .app-header-logo:hover .app-header-logo__frame {
-  box-shadow: 7px 7px 0 #111111;
+  box-shadow: 0 12px 40px rgba(255, 215, 0, 0.25);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .app-header-logo__image {
@@ -356,7 +394,7 @@
   height: var(--header-logo-size);
   object-fit: contain;
   border-radius: clamp(12px, 2vw, 16px);
-  background: #ffffff;
+  background: var(--forge-warm-white);
   padding: clamp(5px, 1vw, 8px);
   display: block;
 }
@@ -376,23 +414,20 @@
 }
 
 .app-header-logo--map .app-header-logo__frame {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    0 8px 28px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(17, 17, 17, 0.15);
 }
 
 .app-header-logo--map:hover .app-header-logo__frame {
-  box-shadow:
-    0 10px 32px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  box-shadow: 0 12px 40px rgba(255, 215, 0, 0.3);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .app-header-logo--map .app-header-logo__image {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--forge-warm-white);
 }
 
 @media (max-width: 480px) {

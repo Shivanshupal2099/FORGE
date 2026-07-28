@@ -104,12 +104,14 @@ function UserEventsPage() {
       className="profile-card__detail-item" 
       style={{ 
         padding: '0',
-        border: '1px solid var(--app-card-border)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
         borderRadius: '20px',
         marginBottom: '0',
-        background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        background: 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow: '0 8px 32px rgba(17, 17, 17, 0.08)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         cursor: 'pointer',
         height: '100%',
         display: 'flex',
@@ -123,17 +125,17 @@ function UserEventsPage() {
         setShowViewEvent(true);
       }}
       onMouseEnter={(e) => {
-        e.target.style.transform = 'translateY(-8px) scale(1.02)';
-        e.target.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15)';
+        e.target.style.transform = 'translateY(-4px)';
+        e.target.style.boxShadow = '0 16px 48px rgba(17, 17, 17, 0.12)';
       }}
       onMouseLeave={(e) => {
-        e.target.style.transform = 'translateY(0) scale(1)';
-        e.target.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+        e.target.style.transform = 'translateY(0)';
+        e.target.style.boxShadow = '0 8px 32px rgba(17, 17, 17, 0.08)';
       }}>
       {/* Top Accent Bar */}
       <div style={{ 
         height: '4px',
-        background: 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f59e0b 100%)',
+        background: 'rgba(255, 215, 0, 0.5)',
         width: '100%',
       }} />
       
@@ -144,27 +146,26 @@ function UserEventsPage() {
           width: '80px',
           height: '80px',
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: 'rgba(255, 215, 0, 0.2)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: '20px',
-          boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
+          boxShadow: '0 8px 24px rgba(17, 17, 17, 0.08)',
         }}>
-          <IoCalendarOutline style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', color: '#ffffff' }} />
+          <IoCalendarOutline style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', color: '#111111' }} />
         </div>
         
         {/* Event Type Badge */}
         <div style={{ 
-          padding: '8px 20px',
-          borderRadius: '25px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: '#ffffff',
-          fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-          fontWeight: '800',
+          padding: '6px 16px',
+          borderRadius: '999px',
+          background: 'rgba(255, 215, 0, 0.15)',
+          color: '#111111',
+          fontSize: 'clamp(0.75rem, 1.8vw, 0.85rem)',
+          fontWeight: '500',
           textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+          letterSpacing: '0.08em',
           marginBottom: '16px',
         }}>
           {event.category || 'Event'}
@@ -174,34 +175,27 @@ function UserEventsPage() {
         <h4 style={{ 
           margin: '0', 
           fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)', 
-          fontWeight: '800', 
-          color: 'var(--app-text)', 
+          fontWeight: '600', 
+          color: '#111111', 
           letterSpacing: '-0.02em', 
           lineHeight: '1.3',
           marginBottom: '12px',
-          background: 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
         }}>
           {event.title || 'Untitled Event'}
         </h4>
         
         {/* Status Badge */}
         <div style={{ 
-          padding: '6px 16px',
-          borderRadius: '20px',
+          padding: '4px 12px',
+          borderRadius: '999px',
           background: event.status === 'published' 
-            ? 'linear-gradient(135deg, #34d399 0%, #10b981 100%)' 
-            : 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)',
-          color: '#ffffff',
-          fontSize: 'clamp(0.75rem, 1.6vw, 0.85rem)',
-          fontWeight: '700',
+            ? 'rgba(255, 215, 0, 0.15)' 
+            : 'rgba(255, 107, 0, 0.15)',
+          color: '#111111',
+          fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)',
+          fontWeight: '500',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
-          boxShadow: event.status === 'published' 
-            ? '0 2px 8px rgba(52, 211, 153, 0.3)' 
-            : '0 2px 8px rgba(100, 116, 139, 0.3)',
         }}>
           {event.status || 'Draft'}
         </div>
@@ -227,24 +221,21 @@ function UserEventsPage() {
                 gap: '6px',
                 padding: '10px 14px',
                 border: 'none',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#ffffff',
+                borderRadius: '999px',
+                background: 'rgba(255, 215, 0, 0.15)',
+                color: '#111111',
                 fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
-                fontWeight: '700',
+                fontWeight: '500',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.35)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.45)';
-                e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
+                e.target.style.background = 'rgba(255, 215, 0, 0.25)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.35)';
-                e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                e.target.style.background = 'rgba(255, 215, 0, 0.15)';
               }}
             >
               <IoCreateOutline /> Edit
@@ -263,24 +254,21 @@ function UserEventsPage() {
                 gap: '6px',
                 padding: '10px 14px',
                 border: 'none',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                color: '#ffffff',
+                borderRadius: '999px',
+                background: 'rgba(255, 107, 0, 0.15)',
+                color: '#111111',
                 fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
-                fontWeight: '700',
+                fontWeight: '500',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.35)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.45)';
-                e.target.style.background = 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)';
+                e.target.style.background = 'rgba(255, 107, 0, 0.25)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.35)';
-                e.target.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                e.target.style.background = 'rgba(255, 107, 0, 0.15)';
               }}
             >
               <IoTrashOutline /> Delete
@@ -528,6 +516,22 @@ function UserEventsPage() {
           onClose={() => setShowViewEvent(false)} 
           onEdit={handleEditEvent}
           onDelete={handleDeleteEvent}
+          onEventUpdated={async () => {
+            // Refresh the event data from the server
+            try {
+              const response = await axios.get(`/api/events/${selectedEvent._id}`);
+              if (response.data.success) {
+                setSelectedEvent(response.data.event);
+                // Also refresh the events list
+                const eventsResponse = await axios.get(`/api/events/user/${user?.email}`);
+                if (eventsResponse.data.success) {
+                  setCreatedEvents(Array.isArray(eventsResponse.data.events) ? eventsResponse.data.events : []);
+                }
+              }
+            } catch (error) {
+              console.error('Error refreshing event:', error);
+            }
+          }}
         />
       )}
     </div>

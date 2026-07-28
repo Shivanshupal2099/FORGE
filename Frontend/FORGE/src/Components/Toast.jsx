@@ -19,20 +19,24 @@ function Toast({ message, type = 'success', onClose, duration = 3000 }) {
 
   const colors = {
     success: {
-      bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-      border: 'rgba(16, 185, 129, 0.3)'
+      bg: 'rgba(255, 215, 0, 0.15)',
+      border: 'rgba(255, 215, 0, 0.3)',
+      icon: '#111111'
     },
     error: {
-      bg: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-      border: 'rgba(239, 68, 68, 0.3)'
+      bg: 'rgba(255, 107, 0, 0.15)',
+      border: 'rgba(255, 107, 0, 0.3)',
+      icon: '#111111'
     },
     info: {
-      bg: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-      border: 'rgba(59, 130, 246, 0.3)'
+      bg: 'rgba(255, 215, 0, 0.15)',
+      border: 'rgba(255, 215, 0, 0.3)',
+      icon: '#111111'
     },
     warning: {
-      bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-      border: 'rgba(245, 158, 11, 0.3)'
+      bg: 'rgba(255, 107, 0, 0.15)',
+      border: 'rgba(255, 107, 0, 0.3)',
+      icon: '#111111'
     }
   };
 
@@ -47,19 +51,21 @@ function Toast({ message, type = 'success', onClose, duration = 3000 }) {
         alignItems: 'center',
         gap: '12px',
         padding: '16px 20px',
-        borderRadius: '12px',
+        borderRadius: '16px',
         background: colors[type].bg,
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
         border: `1px solid ${colors[type].border}`,
-        color: '#ffffff',
+        color: '#111111',
         fontSize: '0.95rem',
-        fontWeight: '600',
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
+        fontWeight: '500',
+        boxShadow: '0 8px 32px rgba(17, 17, 17, 0.12)',
         animation: 'slideIn 0.3s ease-out',
         minWidth: '300px',
         maxWidth: '400px'
       }}
     >
-      <span style={{ fontSize: '1.2rem' }}>
+      <span style={{ fontSize: '1.2rem', color: colors[type].icon }}>
         {icons[type]}
       </span>
       <span style={{ flex: 1 }}>
@@ -68,23 +74,25 @@ function Toast({ message, type = 'success', onClose, duration = 3000 }) {
       <button
         onClick={onClose}
         style={{
-          background: 'rgba(255, 255, 255, 0.2)',
+          background: 'rgba(255, 255, 255, 0.3)',
           border: 'none',
-          color: '#ffffff',
+          color: '#111111',
           fontSize: '1.2rem',
           cursor: 'pointer',
           padding: '4px 8px',
-          borderRadius: '6px',
+          borderRadius: '999px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          transition: 'background 0.2s ease'
+          transition: 'all 0.2s ease'
         }}
         onMouseEnter={(e) => {
-          e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+          e.target.style.background = 'rgba(255, 255, 255, 0.5)';
+          e.target.style.transform = 'scale(1.1)';
         }}
         onMouseLeave={(e) => {
-          e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+          e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+          e.target.style.transform = 'scale(1)';
         }}
       >
         <FaTimes />

@@ -67,8 +67,9 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
   };
 
   const handleRegister = async () => {
-    // Prevent registration if already registered
-    if (event.isRegistered === true) {
+    // Prevent registration if already registered - multiple checks for safety
+    if (event.isRegistered === true || event.isRegistered === 'true') {
+      console.log('User already registered, blocking registration attempt');
       showToast('You are already registered for this event', 'info');
       return;
     }
@@ -89,8 +90,11 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
     } catch (error) {
       // Handle the error - if it says already registered, refresh data to update UI
       const errorMessage = error.response?.data?.message || error.message;
+      console.log('Registration error:', errorMessage);
+      
       if (errorMessage === 'You are already registered for this event' || 
-          errorMessage.includes('already registered')) {
+          errorMessage.includes('already registered') ||
+          errorMessage.includes('duplicate')) {
         showToast('You are already registered for this event', 'info');
         // Refresh event data from server to get updated status
         if (onEventUpdated) {
@@ -185,9 +189,11 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
           gap: '12px', 
           marginBottom: '24px',
           padding: '16px',
-          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
-          borderRadius: '12px',
-          border: '1px solid rgba(102, 126, 234, 0.2)',
+          background: 'rgba(255, 255, 255, 0.5)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          borderRadius: '16px',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
           flexWrap: 'wrap'
         }}>
           {/* Share Button - Always show */}
@@ -199,24 +205,22 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
               justifyContent: 'center',
               gap: '8px',
               padding: '14px 24px',
-              border: '2px solid rgba(102, 126, 234, 0.3)',
-              borderRadius: '12px',
-              background: 'rgba(102, 126, 234, 0.1)',
-              color: '#667eea',
+              border: 'none',
+              borderRadius: '999px',
+              background: 'rgba(255, 215, 0, 0.15)',
+              color: '#111111',
               fontSize: '0.95rem',
-              fontWeight: '700',
+              fontWeight: '500',
               cursor: 'pointer',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = 'translateY(-3px)';
-              e.target.style.background = 'rgba(102, 126, 234, 0.2)';
-              e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)';
+              e.target.style.background = 'rgba(255, 215, 0, 0.25)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0)';
-              e.target.style.background = 'rgba(102, 126, 234, 0.1)';
-              e.target.style.borderColor = 'rgba(102, 126, 234, 0.3)';
+              e.target.style.background = 'rgba(255, 215, 0, 0.15)';
             }}
           >
             <FaShareAlt /> Share Event
@@ -234,33 +238,31 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
                 gap: '8px',
                 padding: '14px 24px',
                 border: 'none',
-                borderRadius: '12px',
+                borderRadius: '999px',
                 background: registering || event.spotsRemaining === 0 || event.isRegistered === true
-                  ? '#94a3b8'
-                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#ffffff',
+                  ? '#E0E0D8'
+                  : '#FF6B00',
+                color: '#111111',
                 fontSize: '0.95rem',
-                fontWeight: '700',
+                fontWeight: '600',
                 cursor: registering || event.spotsRemaining === 0 || event.isRegistered === true
                   ? 'not-allowed'
                   : 'pointer',
                 boxShadow: registering || event.spotsRemaining === 0 || event.isRegistered === true
                   ? 'none'
-                  : '0 6px 16px rgba(102, 126, 234, 0.35)',
+                  : '0 6px 16px rgba(255, 107, 0, 0.25)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
               onMouseEnter={(e) => {
                 if (!registering && event.spotsRemaining !== 0 && event.isRegistered !== true) {
                   e.target.style.transform = 'translateY(-3px)';
-                  e.target.style.boxShadow = '0 10px 24px rgba(102, 126, 234, 0.45)';
-                  e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
+                  e.target.style.background = '#FF8533';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!registering && event.spotsRemaining !== 0) {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.35)';
-                  e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                  e.target.style.background = '#FF6B00';
                 }
               }}
             >
@@ -271,17 +273,15 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
           {/* Registered Badge - Show if already registered */}
           {event.isRegistered && (
             <div style={{
+              padding: '14px 24px',
+              borderRadius: '999px',
+              background: 'rgba(255, 215, 0, 0.2)',
+              color: '#111111',
+              fontSize: '0.95rem',
+              fontWeight: '500',
               display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'center',
               gap: '8px',
-              padding: '14px 24px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              color: '#ffffff',
-              fontSize: '0.95rem',
-              fontWeight: '700',
-              boxShadow: '0 6px 16px rgba(16, 185, 129, 0.35)',
             }}>
               <FaCheck /> You are Registered
             </div>
@@ -300,24 +300,21 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
                   gap: '8px',
                   padding: '14px 24px',
                   border: 'none',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: '#ffffff',
+                  borderRadius: '999px',
+                  background: 'rgba(255, 215, 0, 0.15)',
+                  color: '#111111',
                   fontSize: '0.95rem',
-                  fontWeight: '700',
+                  fontWeight: '500',
                   cursor: 'pointer',
-                  boxShadow: '0 6px 16px rgba(102, 126, 234, 0.35)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-3px)';
-                  e.target.style.boxShadow = '0 10px 24px rgba(102, 126, 234, 0.45)';
-                  e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
+                  e.target.style.background = 'rgba(255, 215, 0, 0.25)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.35)';
-                  e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                  e.target.style.background = 'rgba(255, 215, 0, 0.15)';
                 }}
               >
                 <FaEdit /> Edit Event
@@ -332,24 +329,21 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
                   gap: '8px',
                   padding: '14px 24px',
                   border: 'none',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                  color: '#ffffff',
+                  borderRadius: '999px',
+                  background: 'rgba(255, 107, 0, 0.15)',
+                  color: '#111111',
                   fontSize: '0.95rem',
-                  fontWeight: '700',
+                  fontWeight: '500',
                   cursor: 'pointer',
-                  boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-3px)';
-                  e.target.style.boxShadow = '0 10px 24px rgba(239, 68, 68, 0.45)';
-                  e.target.style.background = 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)';
+                  e.target.style.background = 'rgba(255, 107, 0, 0.25)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.35)';
-                  e.target.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                  e.target.style.background = 'rgba(255, 107, 0, 0.15)';
                 }}
               >
                 <FaTrash /> Delete Event
@@ -479,50 +473,50 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Status and Category Badges */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
               <span style={{ 
-                padding: '6px 14px',
-                borderRadius: '20px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#ffffff',
-                fontSize: '0.85rem',
-                fontWeight: '700',
+                padding: '4px 12px',
+                borderRadius: '999px',
+                background: 'rgba(255, 215, 0, 0.15)',
+                color: '#111111',
+                fontSize: '0.75rem',
+                fontWeight: '500',
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em',
+                letterSpacing: '0.08em',
               }}>
                 {event.category || 'Uncategorized'}
               </span>
               <span style={{ 
-                padding: '6px 14px',
-                borderRadius: '20px',
-                background: event.status === 'published' ? 'linear-gradient(135deg, #34d399 0%, #10b981 100%)' : '#f1f5f9',
-                color: event.status === 'published' ? '#ffffff' : '#64748b',
-                fontSize: '0.85rem',
-                fontWeight: '700',
+                padding: '4px 12px',
+                borderRadius: '999px',
+                background: event.status === 'published' ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 107, 0, 0.15)',
+                color: '#111111',
+                fontSize: '0.75rem',
+                fontWeight: '500',
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em',
+                letterSpacing: '0.08em',
               }}>
                 {event.status || 'Draft'}
               </span>
               <span style={{ 
-                padding: '6px 14px',
-                borderRadius: '20px',
-                background: event.priceType === 'Free' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                color: '#ffffff',
-                fontSize: '0.85rem',
-                fontWeight: '700',
+                padding: '4px 12px',
+                borderRadius: '999px',
+                background: event.priceType === 'Free' ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 107, 0, 0.15)',
+                color: '#111111',
+                fontSize: '0.75rem',
+                fontWeight: '500',
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em',
+                letterSpacing: '0.08em',
               }}>
                 {event.priceType || 'Free'}
               </span>
               <span style={{ 
-                padding: '6px 14px',
-                borderRadius: '20px',
-                background: event.visibility === 'Public' ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-                color: '#ffffff',
-                fontSize: '0.85rem',
-                fontWeight: '700',
+                padding: '4px 12px',
+                borderRadius: '999px',
+                background: 'rgba(255, 215, 0, 0.15)',
+                color: '#111111',
+                fontSize: '0.75rem',
+                fontWeight: '500',
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em',
+                letterSpacing: '0.08em',
               }}>
                 {event.visibility || 'Public'}
               </span>
@@ -531,11 +525,11 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
 
           {/* Description */}
           {event.description && (
-            <div style={{ marginBottom: '24px', padding: '16px', background: 'rgba(248, 250, 252, 0.5)', borderRadius: '12px' }}>
+            <div style={{ marginBottom: '24px', padding: '16px', background: 'rgba(255, 255, 255, 0.5)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
               <p style={{ 
-                color: '#475569', 
+                color: '#666666', 
                 fontSize: '1rem', 
-                fontWeight: '500', 
+                fontWeight: '400', 
                 lineHeight: '1.6',
                 margin: '0'
               }}>
@@ -555,26 +549,28 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.isOwner && event.registrationRequired && (
               <div style={{ 
                 padding: '16px', 
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
-                borderRadius: '12px',
-                border: '1px solid rgba(16, 185, 129, 0.2)'
+                background: 'rgba(255, 255, 255, 0.5)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <FaUsers style={{ color: '#10b981', fontSize: '1.2rem' }} />
+                  <FaUsers style={{ color: '#111111', fontSize: '1.2rem' }} />
                   <span style={{ 
-                    fontSize: '0.85rem', 
-                    fontWeight: '700', 
-                    color: '#64748b',
+                    fontSize: '0.75rem', 
+                    fontWeight: '500', 
+                    color: '#666666',
                     textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
+                    letterSpacing: '0.08em'
                   }}>
                     Registration Stats
                   </span>
                 </div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e293b', marginBottom: '4px' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: '600', color: '#111111', marginBottom: '4px' }}>
                   {event.attendeeCount || 0}
                 </div>
-                <div style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: '500' }}>
+                <div style={{ fontSize: '0.9rem', color: '#666666', fontWeight: '400' }}>
                   {event.maxAttendees 
                     ? `${event.spotsRemaining || 0} spots remaining`
                     : 'No limit on attendees'
@@ -586,20 +582,22 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Start Date & Time */}
             <div style={{ 
               padding: '16px', 
-              background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
-              borderRadius: '12px',
-              border: '1px solid rgba(102, 126, 234, 0.2)'
+              background: 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <FaCalendarAlt style={{ color: '#667eea', fontSize: '1.2rem' }} />
-                <span style={{ fontWeight: '700', color: '#667eea', fontSize: '0.9rem' }}>START DATE</span>
+                <FaCalendarAlt style={{ color: '#111111', fontSize: '1.2rem' }} />
+                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>START DATE</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--app-text)', fontSize: '0.95rem', fontWeight: '600' }}>
-                <FaClock style={{ color: '#667eea', fontSize: '0.9rem' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#111111', fontSize: '0.95rem', fontWeight: '500' }}>
+                <FaClock style={{ color: '#111111', fontSize: '0.9rem' }} />
                 <span>{formatDate(event.startAt)}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--app-text)', fontSize: '0.9rem', fontWeight: '500', marginTop: '4px' }}>
-                <span style={{ color: '#667eea' }}>Time:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666666', fontSize: '0.9rem', fontWeight: '400', marginTop: '4px' }}>
+                <span style={{ color: '#111111' }}>Time:</span>
                 <span>{formatTime(event.startAt)}</span>
               </div>
             </div>
@@ -608,20 +606,22 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.endAt && (
               <div style={{ 
                 padding: '16px', 
-                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%)',
-                borderRadius: '12px',
-                border: '1px solid rgba(245, 158, 11, 0.2)'
+                background: 'rgba(255, 255, 255, 0.5)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <FaCalendarAlt style={{ color: '#f59e0b', fontSize: '1.2rem' }} />
-                  <span style={{ fontWeight: '700', color: '#f59e0b', fontSize: '0.9rem' }}>END DATE</span>
+                  <FaCalendarAlt style={{ color: '#111111', fontSize: '1.2rem' }} />
+                  <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>END DATE</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--app-text)', fontSize: '0.95rem', fontWeight: '600' }}>
-                  <FaClock style={{ color: '#f59e0b', fontSize: '0.9rem' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#111111', fontSize: '0.95rem', fontWeight: '500' }}>
+                  <FaClock style={{ color: '#111111', fontSize: '0.9rem' }} />
                   <span>{formatDate(event.endAt)}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--app-text)', fontSize: '0.9rem', fontWeight: '500', marginTop: '4px' }}>
-                  <span style={{ color: '#f59e0b' }}>Time:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666666', fontSize: '0.9rem', fontWeight: '400', marginTop: '4px' }}>
+                  <span style={{ color: '#111111' }}>Time:</span>
                   <span>{formatTime(event.endAt)}</span>
                 </div>
               </div>
@@ -631,24 +631,26 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.locationOrLink && (
               <div style={{ 
                 padding: '16px', 
-                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)',
-                borderRadius: '12px',
-                border: '1px solid rgba(239, 68, 68, 0.2)'
+                background: 'rgba(255, 255, 255, 0.5)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                   {event.onlineType === 'Online' ? (
-                    <FaGlobe style={{ color: '#ef4444', fontSize: '1.2rem' }} />
+                    <FaGlobe style={{ color: '#111111', fontSize: '1.2rem' }} />
                   ) : (
-                    <FaMapMarkerAlt style={{ color: '#ef4444', fontSize: '1.2rem' }} />
+                    <FaMapMarkerAlt style={{ color: '#111111', fontSize: '1.2rem' }} />
                   )}
-                  <span style={{ fontWeight: '700', color: '#ef4444', fontSize: '0.9rem' }}>
+                  <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     {event.onlineType === 'Online' ? 'ONLINE LINK' : 'LOCATION'}
                   </span>
                 </div>
                 <p style={{ 
-                  color: 'var(--app-text)', 
+                  color: '#111111', 
                   fontSize: '0.95rem', 
-                  fontWeight: '600',
+                  fontWeight: '500',
                   margin: '0',
                   wordBreak: 'break-word'
                 }}>
@@ -660,18 +662,20 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Event Type */}
             <div style={{ 
               padding: '16px', 
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
-              borderRadius: '12px',
-              border: '1px solid rgba(16, 185, 129, 0.2)'
+              background: 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <FaGlobe style={{ color: '#10b981', fontSize: '1.2rem' }} />
-                <span style={{ fontWeight: '700', color: '#10b981', fontSize: '0.9rem' }}>EVENT TYPE</span>
+                <FaGlobe style={{ color: '#111111', fontSize: '1.2rem' }} />
+                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>EVENT TYPE</span>
               </div>
               <p style={{ 
-                color: 'var(--app-text)', 
+                color: '#111111', 
                 fontSize: '0.95rem', 
-                fontWeight: '600',
+                fontWeight: '500',
                 margin: '0'
               }}>
                 {event.onlineType || 'Offline'}
@@ -681,18 +685,20 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Visibility */}
             <div style={{ 
               padding: '16px', 
-              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)',
-              borderRadius: '12px',
-              border: '1px solid rgba(59, 130, 246, 0.2)'
+              background: 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <FaEye style={{ color: '#3b82f6', fontSize: '1.2rem' }} />
-                <span style={{ fontWeight: '700', color: '#3b82f6', fontSize: '0.9rem' }}>VISIBILITY</span>
+                <FaEye style={{ color: '#111111', fontSize: '1.2rem' }} />
+                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>VISIBILITY</span>
               </div>
               <p style={{ 
-                color: 'var(--app-text)', 
+                color: '#111111', 
                 fontSize: '0.95rem', 
-                fontWeight: '600',
+                fontWeight: '500',
                 margin: '0'
               }}>
                 {event.visibility || 'Public'}
@@ -702,18 +708,20 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Price */}
             <div style={{ 
               padding: '16px', 
-              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%)',
-              borderRadius: '12px',
-              border: '1px solid rgba(245, 158, 11, 0.2)'
+              background: 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <FaDollarSign style={{ color: '#f59e0b', fontSize: '1.2rem' }} />
-                <span style={{ fontWeight: '700', color: '#f59e0b', fontSize: '0.9rem' }}>PRICE TYPE</span>
+                <FaDollarSign style={{ color: '#111111', fontSize: '1.2rem' }} />
+                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>PRICE TYPE</span>
               </div>
               <p style={{ 
-                color: 'var(--app-text)', 
+                color: '#111111', 
                 fontSize: '0.95rem', 
-                fontWeight: '600',
+                fontWeight: '500',
                 margin: '0'
               }}>
                 {event.priceType || 'Free'}
@@ -724,18 +732,20 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.maxAttendees && (
               <div style={{ 
                 padding: '16px', 
-                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%)',
-                borderRadius: '12px',
-                border: '1px solid rgba(139, 92, 246, 0.2)'
+                background: 'rgba(255, 255, 255, 0.5)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <FaUsers style={{ color: '#8b5cf6', fontSize: '1.2rem' }} />
-                  <span style={{ fontWeight: '700', color: '#8b5cf6', fontSize: '0.9rem' }}>MAX ATTENDEES</span>
+                  <FaUsers style={{ color: '#111111', fontSize: '1.2rem' }} />
+                  <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>MAX ATTENDEES</span>
                 </div>
                 <p style={{ 
-                  color: 'var(--app-text)', 
+                  color: '#111111', 
                   fontSize: '0.95rem', 
-                  fontWeight: '600',
+                  fontWeight: '500',
                   margin: '0'
                 }}>
                   {event.maxAttendees}
@@ -747,18 +757,20 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.organizer && (
               <div style={{ 
                 padding: '16px', 
-                background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(219, 39, 119, 0.1) 100%)',
-                borderRadius: '12px',
-                border: '1px solid rgba(236, 72, 153, 0.2)'
+                background: 'rgba(255, 255, 255, 0.5)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <FaUserTie style={{ color: '#ec4899', fontSize: '1.2rem' }} />
-                  <span style={{ fontWeight: '700', color: '#ec4899', fontSize: '0.9rem' }}>ORGANIZER</span>
+                  <FaUserTie style={{ color: '#111111', fontSize: '1.2rem' }} />
+                  <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>ORGANIZER</span>
                 </div>
                 <p style={{ 
-                  color: 'var(--app-text)', 
+                  color: '#111111', 
                   fontSize: '0.95rem', 
-                  fontWeight: '600',
+                  fontWeight: '500',
                   margin: '0'
                 }}>
                   {event.organizer}
@@ -769,18 +781,20 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Registration Required */}
             <div style={{ 
               padding: '16px', 
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
-              borderRadius: '12px',
-              border: '1px solid rgba(16, 185, 129, 0.2)'
+              background: 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <FaTicketAlt style={{ color: '#10b981', fontSize: '1.2rem' }} />
-                <span style={{ fontWeight: '700', color: '#10b981', fontSize: '0.9rem' }}>REGISTRATION</span>
+                <FaTicketAlt style={{ color: '#111111', fontSize: '1.2rem' }} />
+                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>REGISTRATION</span>
               </div>
               <p style={{ 
-                color: 'var(--app-text)', 
+                color: '#111111', 
                 fontSize: '0.95rem', 
-                fontWeight: '600',
+                fontWeight: '500',
                 margin: '0'
               }}>
                 {event.registrationRequired ? 'Required' : 'Not Required'}
@@ -793,16 +807,18 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             <div style={{ 
               marginBottom: '24px',
               padding: '16px', 
-              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)',
-              borderRadius: '12px',
-              border: '1px solid rgba(59, 130, 246, 0.2)'
+              background: 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                <FaEnvelope style={{ color: '#3b82f6', fontSize: '1.2rem' }} />
-                <span style={{ fontWeight: '700', color: '#3b82f6', fontSize: '0.9rem' }}>CONTACT INFORMATION</span>
+                <FaEnvelope style={{ color: '#111111', fontSize: '1.2rem' }} />
+                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>CONTACT INFORMATION</span>
               </div>
               <p style={{ 
-                color: 'var(--app-text)', 
+                color: '#111111', 
                 fontSize: '0.95rem', 
                 fontWeight: '600',
                 margin: '0',

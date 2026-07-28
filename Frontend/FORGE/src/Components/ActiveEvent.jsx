@@ -50,8 +50,9 @@ function ActiveEvent({ onClose }) {
     // Find the event to check registration status
     const event = events.find(ev => ev._id === eventId);
     
-    // Prevent registration if already registered
-    if (event && event.isRegistered === true) {
+    // Prevent registration if already registered - multiple checks for safety
+    if (event && (event.isRegistered === true || event.isRegistered === 'true')) {
+      console.log('User already registered, blocking registration attempt');
       showToast('You are already registered for this event', 'info');
       return;
     }
@@ -72,8 +73,13 @@ function ActiveEvent({ onClose }) {
         showToast(response.data.message || 'Failed to register', 'error');
       }
     } catch (error) {
-      // Handle the error - if它 says already registered, update local state
-      if (error.response?.data?.message === 'You are already registered for this event') {
+      // Handle the error - if it says already registered, update local state
+      const errorMessage = error.response?.data?.message || error.message;
+      console.log('Registration error:', errorMessage);
+      
+      if (errorMessage === 'You are already registered for this event' || 
+          errorMessage.includes('already registered') ||
+          errorMessage.includes('duplicate')) {
         setEvents(events.map(ev => 
           ev._id === eventId 
             ? { ...ev, isRegistered: true }
@@ -81,7 +87,7 @@ function ActiveEvent({ onClose }) {
         ));
         showToast('You are already registered for this event', 'info');
       } else {
-        showToast(error.response?.data?.message || 'Failed to register', 'error');
+        showToast(errorMessage || 'Failed to register', 'error');
       }
     } finally {
       setRegistering(prev => ({ ...prev, [eventId]: false }));
@@ -189,50 +195,41 @@ function ActiveEvent({ onClose }) {
                   <div
                     key={ev._id || ev.title || idx}
                     style={{
-                      background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
-                      borderRadius: '16px',
+                      background: 'rgba(255, 255, 255, 0.7)',
+                      backdropFilter: 'blur(20px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                      borderRadius: '20px',
                       padding: '20px',
-                      border: '1px solid rgba(102, 126, 234, 0.15)',
-                      boxShadow: '0 4px 12px rgba(102, 126, 234, 0.08)',
-                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      border: '1px solid rgba(255, 255, 255, 0.5)',
+                      boxShadow: '0 8px 32px rgba(17, 17, 17, 0.08)',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       cursor: 'pointer',
                       position: 'relative',
                       overflow: 'hidden',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
-                      e.currentTarget.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.2)';
-                      e.currentTarget.style.borderColor = 'rgba(102, 126, 234, 0.4)';
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = '0 16px 48px rgba(17, 17, 17, 0.12)';
+                      e.currentTarget.style.borderColor = 'rgba(255, 215, 0, 0.3)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.08)';
-                      e.currentTarget.style.borderColor = 'rgba(102, 126, 234, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 8px 32px rgba(17, 17, 17, 0.08)';
+                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
                     }}
                   >
-                    {/* Decorative gradient overlay */}
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: '4px',
-                      background: 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-                    }} />
-
                     {/* Category Badge */}
                     <div style={{
                       display: 'inline-block',
-                      padding: '6px 16px',
-                      borderRadius: '20px',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      color: '#ffffff',
-                      fontSize: '0.75rem',
-                      fontWeight: '800',
+                      padding: '4px 12px',
+                      borderRadius: '999px',
+                      background: 'rgba(255, 215, 0, 0.15)',
+                      color: '#111111',
+                      fontSize: '0.7rem',
+                      fontWeight: '500',
                       textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
+                      letterSpacing: '0.08em',
                       marginBottom: '12px',
-                      boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
                     }}>
                       {ev.category || 'Event'}
                     </div>
@@ -240,8 +237,8 @@ function ActiveEvent({ onClose }) {
                     {/* Title */}
                     <h4 style={{
                       fontSize: '1.1rem',
-                      fontWeight: '800',
-                      color: '#1e293b',
+                      fontWeight: '600',
+                      color: '#111111',
                       marginBottom: '12px',
                       lineHeight: '1.4',
                       display: '-webkit-box',
@@ -260,25 +257,24 @@ function ActiveEvent({ onClose }) {
                         gap: '6px',
                         marginBottom: '8px',
                         padding: '6px 10px',
-                        borderRadius: '8px',
-                        background: 'rgba(16, 185, 129, 0.1)',
-                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                        borderRadius: '999px',
+                        background: 'rgba(255, 215, 0, 0.1)',
                       }}>
-                        <FaUsers style={{ color: '#10b981', fontSize: '0.9rem' }} />
+                        <FaUsers style={{ color: '#111111', fontSize: '0.9rem' }} />
                         <span style={{
                           fontSize: '0.85rem',
-                          fontWeight: '700',
-                          color: '#10b981',
+                          fontWeight: '500',
+                          color: '#111111',
                         }}>
-                          {ev.attendeeCount || 0} registered
+                          {ev.attendeeCount || 0}
                         </span>
                         {ev.maxAttendees && (
                           <span style={{
                             fontSize: '0.75rem',
-                            fontWeight: '600',
-                            color: '#64748b',
+                            fontWeight: '400',
+                            color: '#666666',
                           }}>
-                            ({ev.spotsRemaining || 0} spots left)
+                            / {ev.maxAttendees}
                           </span>
                         )}
                       </div>
@@ -290,21 +286,22 @@ function ActiveEvent({ onClose }) {
                       alignItems: 'center',
                       gap: '8px',
                       marginBottom: '8px',
-                      color: '#475569',
+                      color: '#666666',
                       fontSize: '0.85rem',
-                      fontWeight: '600',
+                      fontWeight: '400',
                     }}>
                       <span style={{
                         padding: '4px 10px',
-                        borderRadius: '8px',
-                        background: 'rgba(102, 126, 234, 0.1)',
-                        color: '#667eea',
-                        fontWeight: '700',
+                        borderRadius: '999px',
+                        background: 'rgba(255, 215, 0, 0.1)',
+                        color: '#111111',
+                        fontSize: '0.75rem',
+                        fontWeight: '500',
                       }}>
                         {startText}
                       </span>
                       {startTime && (
-                        <span style={{ color: '#64748b' }}>
+                        <span style={{ color: '#666666', fontWeight: '400' }}>
                           at {startTime}
                         </span>
                       )}
@@ -317,9 +314,9 @@ function ActiveEvent({ onClose }) {
                         alignItems: 'center',
                         gap: '6px',
                         marginBottom: '12px',
-                        color: '#64748b',
+                        color: '#666666',
                         fontSize: '0.8rem',
-                        fontWeight: '500',
+                        fontWeight: '400',
                       }}>
                         <span style={{
                           display: 'inline-flex',
@@ -328,8 +325,8 @@ function ActiveEvent({ onClose }) {
                           width: '20px',
                           height: '20px',
                           borderRadius: '50%',
-                          background: 'rgba(239, 68, 68, 0.1)',
-                          color: '#ef4444',
+                          background: 'rgba(255, 215, 0, 0.1)',
+                          color: '#111111',
                           fontSize: '0.7rem',
                         }}>
                           {ev.onlineType === 'Online' ? '🌐' : '📍'}
@@ -351,7 +348,7 @@ function ActiveEvent({ onClose }) {
                       justifyContent: 'space-between',
                       marginTop: '16px',
                       paddingTop: '12px',
-                      borderTop: '1px solid rgba(102, 126, 234, 0.1)',
+                      borderTop: '1px solid rgba(255, 255, 255, 0.3)',
                     }}>
                       {/* Event Type */}
                       <div style={{
@@ -359,7 +356,7 @@ function ActiveEvent({ onClose }) {
                         alignItems: 'center',
                         gap: '6px',
                         fontSize: '0.75rem',
-                        fontWeight: '600',
+                        fontWeight: '400',
                         color: '#64748b',
                       }}>
                         <span style={{
@@ -381,12 +378,12 @@ function ActiveEvent({ onClose }) {
                           onClick={() => handleShare(ev._id, ev.title)}
                           style={{
                             padding: '8px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(102, 126, 234, 0.2)',
-                            background: 'rgba(102, 126, 234, 0.1)',
-                            color: '#667eea',
+                            borderRadius: '999px',
+                            border: 'none',
+                            background: 'rgba(255, 215, 0, 0.15)',
+                            color: '#111111',
                             fontSize: '0.8rem',
-                            fontWeight: '700',
+                            fontWeight: '500',
                             cursor: 'pointer',
                             transition: 'all 0.2s ease',
                             display: 'flex',
@@ -394,11 +391,11 @@ function ActiveEvent({ onClose }) {
                             gap: '6px',
                           }}
                           onMouseEnter={(e) => {
-                            e.target.style.background = 'rgba(102, 126, 234, 0.2)';
+                            e.target.style.background = 'rgba(255, 215, 0, 0.25)';
                             e.target.style.transform = 'translateY(-2px)';
                           }}
                           onMouseLeave={(e) => {
-                            e.target.style.background = 'rgba(102, 126, 234, 0.1)';
+                            e.target.style.background = 'rgba(255, 215, 0, 0.15)';
                             e.target.style.transform = 'translateY(0)';
                           }}
                         >
@@ -413,14 +410,14 @@ function ActiveEvent({ onClose }) {
                             disabled={registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true}
                             style={{
                               padding: '8px 16px',
-                              borderRadius: '8px',
+                              borderRadius: '999px',
                               border: 'none',
                               background: registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true
-                                ? '#94a3b8'
-                                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                              color: '#ffffff',
+                                ? '#E0E0D8'
+                                : '#FF6B00',
+                              color: '#111111',
                               fontSize: '0.8rem',
-                              fontWeight: '700',
+                              fontWeight: '600',
                               cursor: registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true
                                 ? 'not-allowed'
                                 : 'pointer',
@@ -430,18 +427,18 @@ function ActiveEvent({ onClose }) {
                               gap: '6px',
                               boxShadow: registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true
                                 ? 'none'
-                                : '0 3px 10px rgba(102, 126, 234, 0.3)',
+                                : '0 4px 12px rgba(255, 107, 0, 0.25)',
                             }}
                             onMouseEnter={(e) => {
                               if (!registering[ev._id] && ev.spotsRemaining !== 0 && ev.isRegistered !== true) {
                                 e.target.style.transform = 'translateY(-2px)';
-                                e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
+                                e.target.style.background = '#FF8533';
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (!registering[ev._id] && ev.spotsRemaining !== 0 && ev.isRegistered !== true) {
                                 e.target.style.transform = 'translateY(0)';
-                                e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                                e.target.style.background = '#FF6B00';
                               }
                             }}
                           >
@@ -454,15 +451,14 @@ function ActiveEvent({ onClose }) {
                         {ev.isRegistered && (
                           <div style={{
                             padding: '8px 16px',
-                            borderRadius: '8px',
-                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                            color: '#ffffff',
+                            borderRadius: '999px',
+                            background: 'rgba(255, 215, 0, 0.2)',
+                            color: '#111111',
                             fontSize: '0.8rem',
-                            fontWeight: '700',
+                            fontWeight: '500',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '6px',
-                            boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)',
                           }}>
                             <FaCheck style={{ fontSize: '0.9rem' }} />
                             Registered
@@ -472,18 +468,15 @@ function ActiveEvent({ onClose }) {
                         {/* Price Badge */}
                         <div style={{
                           padding: '6px 14px',
-                          borderRadius: '20px',
+                          borderRadius: '999px',
                           background: ev.priceType === 'Paid' 
-                            ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' 
-                            : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                          color: '#ffffff',
+                            ? 'rgba(255, 107, 0, 0.15)' 
+                            : 'rgba(255, 215, 0, 0.15)',
+                          color: '#111111',
                           fontSize: '0.75rem',
-                          fontWeight: '800',
+                          fontWeight: '500',
                           textTransform: 'uppercase',
                           letterSpacing: '0.05em',
-                          boxShadow: ev.priceType === 'Paid' 
-                            ? '0 3px 10px rgba(245, 158, 11, 0.3)' 
-                            : '0 3px 10px rgba(16, 185, 129, 0.3)',
                         }}>
                           {ev.priceType || 'Free'}
                         </div>

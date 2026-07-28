@@ -68,20 +68,26 @@ const professionOptions = [
   "Military Officer",
   "Social Worker"
 ];
-const genderOptions = ["Any", "Male", "Female", "Non-binary"];
+const genderOptions = ["Any", "Male", "Female", "Other"];
 const onlineStatusOptions = ["Any", "Online now", "Active recently", "Offline"];
 
 
 
-function Filtersection() {
+function Filtersection({ onFilterChange, initialFilters = null, onReset, onApply }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState(initialFilters || {
         profession: "",
         gender: "Any",
         onlineStatus: "Any",
         verifiedOnly: false
     });
     const [saved, setSaved] = useState(false);
+
+    useEffect(() => {
+        if (initialFilters) {
+            setFilters(initialFilters);
+        }
+    }, [initialFilters]);
 
 
 
@@ -95,17 +101,18 @@ function Filtersection() {
         setSaved(false);
     };
 
-
-
-
     const resetFilters = () => {
-        setFilters({
+        const defaultFilters = {
             profession: "",
             gender: "Any",
             onlineStatus: "Any",
             verifiedOnly: false
-        });
+        };
+        setFilters(defaultFilters);
         setSaved(false);
+        if (onReset) {
+            onReset();
+        }
     };
 
 
@@ -121,6 +128,16 @@ function Filtersection() {
 
     const handleSave = () => {
         setSaved(true);
+        // Auto-hide success message after 2 seconds
+        setTimeout(() => setSaved(false), 2000);
+        // Send current filters to parent on apply
+        if (onFilterChange) {
+            onFilterChange(filters);
+        }
+        // Call onApply callback to close popup
+        if (onApply) {
+            onApply();
+        }
     };
 
     return (
@@ -229,7 +246,7 @@ function Filtersection() {
             {saved && (
                 <div style={{ ...styles.successMessage, ...(isMobile ? styles.successMessageMobile : {}) }}>
                     <FaCheck style={styles.successIcon} />
-                    <span>Filters applied successfully! Found {Math.floor(Math.random() * 100) + 10} people matching your criteria.</span>
+                    <span>Filters applied successfully!</span>
                 </div>
             )}
         </div>
@@ -241,11 +258,13 @@ const styles = {
         maxWidth: 720,
         margin: "24px auto",
         padding: "32px",
-        borderRadius: "28px",
-        background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
-        boxShadow: "0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08)",
+        borderRadius: "24px",
+        background: "rgba(255, 255, 255, 0.7)",
+        backdropFilter: "blur(20px) saturate(180%)",
+        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+        boxShadow: "0 16px 48px rgba(17, 17, 17, 0.12)",
         fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        border: "1px solid #e8e8e8"
+        border: "1px solid rgba(255, 255, 255, 0.5)"
     },
     header: {
         display: "flex",
@@ -253,7 +272,7 @@ const styles = {
         alignItems: "center",
         marginBottom: "20px",
         paddingBottom: "20px",
-        borderBottom: "2px solid #f0f0f0"
+        borderBottom: "1px solid rgba(255, 255, 255, 0.3)"
     },
     headerActions: {
         display: "flex",
@@ -263,30 +282,32 @@ const styles = {
     title: {
         margin: 0,
         fontSize: "28px",
-        color: "#1a1a1a",
-        fontWeight: 800,
+        color: "#111111",
+        fontWeight: "600",
         letterSpacing: "-0.5px"
     },
     subtitle: {
         margin: "6px 0 0",
         fontSize: "15px",
         color: "#666666",
-        fontWeight: 400
+        fontWeight: "400"
     },
     badge: {
         padding: "8px 16px",
         borderRadius: "999px",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "#ffffff",
+        background: "rgba(255, 215, 0, 0.25)",
+        color: "#111111",
         fontSize: "13px",
-        fontWeight: 700,
-        boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)"
+        fontWeight: "500",
+        boxShadow: "0 4px 12px rgba(255, 215, 0, 0.15)"
     },
     resetButton: {
         padding: "8px",
-        borderRadius: "50%",
-        border: "2px solid #e0e0e0",
-        background: "#ffffff",
+        borderRadius: "999px",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+        background: "rgba(255, 255, 255, 0.5)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
         cursor: "pointer",
         transition: "all 0.2s ease",
         display: "flex",
@@ -300,12 +321,12 @@ const styles = {
     presetsSection: {
         marginBottom: "24px",
         paddingBottom: "20px",
-        borderBottom: "2px solid #f0f0f0"
+        borderBottom: "1px solid rgba(255, 255, 255, 0.3)"
     },
     presetsLabel: {
         fontSize: "13px",
-        fontWeight: 600,
-        color: "#888888",
+        fontWeight: "500",
+        color: "#666666",
         marginBottom: "12px",
         display: "block"
     },
@@ -317,14 +338,16 @@ const styles = {
     presetButton: {
         padding: "10px 18px",
         borderRadius: "999px",
-        border: "2px solid #e0e0e0",
-        background: "#ffffff",
-        color: "#555555",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+        background: "rgba(255, 255, 255, 0.5)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        color: "#111111",
         cursor: "pointer",
-        fontWeight: 600,
+        fontWeight: "500",
         fontSize: "13px",
         transition: "all 0.2s ease",
-        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)"
+        boxShadow: "0 2px 6px rgba(17, 17, 17, 0.05)"
     },
     section: {
         marginBottom: "16px"
@@ -336,28 +359,30 @@ const styles = {
         alignItems: "center",
         padding: "16px 20px",
         borderRadius: "16px",
-        background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
-        border: "none",
+        background: "rgba(255, 255, 255, 0.5)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
         cursor: "pointer",
         transition: "all 0.2s ease",
         marginBottom: "8px"
     },
     sectionTitle: {
         fontSize: "16px",
-        fontWeight: 700,
-        color: "#333333",
+        fontWeight: "600",
+        color: "#111111",
         display: "flex",
         alignItems: "center",
         gap: "10px"
     },
     sectionIcon: {
-        color: "#667eea"
+        color: "#FFD700"
     },
     sectionContent: {
         padding: "20px",
-        background: "#fafafa",
+        background: "rgba(255, 255, 255, 0.3)",
         borderRadius: "16px",
-        border: "1px solid #e8e8e8"
+        border: "1px solid rgba(255, 255, 255, 0.3)"
     },
     grid: {
         display: "grid",
@@ -377,32 +402,34 @@ const styles = {
     },
     label: {
         fontSize: "14px",
-        fontWeight: 700,
-        color: "#333333",
+        fontWeight: "500",
+        color: "#111111",
         display: "flex",
         alignItems: "center",
         gap: "8px"
     },
     labelIcon: {
-        color: "#667eea",
+        color: "#FFD700",
         fontSize: "12px"
     },
     input: {
         width: "100%",
         padding: "14px 16px",
-        border: "2px solid #e8e8e8",
-        borderRadius: "12px",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+        borderRadius: "16px",
         fontSize: "15px",
         outline: "none",
-        background: "#ffffff",
+        background: "rgba(255, 255, 255, 0.5)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
         boxSizing: "border-box",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+        boxShadow: "0 2px 8px rgba(17, 17, 17, 0.04)",
         transition: "all 0.2s ease",
-        color: "#333333"
+        color: "#111111"
     },
     range: {
         width: "100%",
-        accentColor: "#667eea",
+        accentColor: "#FFD700",
         height: "6px",
         borderRadius: "3px",
         cursor: "pointer"
@@ -420,23 +447,25 @@ const styles = {
     tagButton: {
         padding: "10px 18px",
         borderRadius: "999px",
-        border: "2px solid #e0e0e0",
-        background: "#ffffff",
-        color: "#555555",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+        background: "rgba(255, 255, 255, 0.5)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        color: "#111111",
         cursor: "pointer",
-        fontWeight: 600,
+        fontWeight: "500",
         fontSize: "13px",
         transition: "all 0.2s ease",
-        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.06)",
+        boxShadow: "0 2px 6px rgba(17, 17, 17, 0.06)",
         display: "flex",
         alignItems: "center",
         gap: "6px"
     },
     tagButtonActive: {
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "#ffffff",
-        borderColor: "#667eea",
-        boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)"
+        background: "rgba(255, 215, 0, 0.25)",
+        color: "#111111",
+        borderColor: "rgba(255, 215, 0, 0.3)",
+        boxShadow: "0 4px 12px rgba(255, 215, 0, 0.2)"
     },
     tagCheckIcon: {
         fontSize: "10px"
@@ -444,11 +473,11 @@ const styles = {
     languageTag: {
         padding: "8px 14px",
         borderRadius: "999px",
-        border: "2px solid #667eea",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "#ffffff",
+        border: "1px solid rgba(255, 215, 0, 0.3)",
+        background: "rgba(255, 215, 0, 0.25)",
+        color: "#111111",
         cursor: "pointer",
-        fontWeight: 600,
+        fontWeight: "500",
         fontSize: "12px",
         transition: "all 0.2s ease",
         display: "flex",
@@ -464,14 +493,16 @@ const styles = {
         alignItems: "center",
         marginTop: "16px",
         padding: "16px",
-        background: "#ffffff",
-        borderRadius: "12px",
-        border: "2px solid #e8e8e8"
+        background: "rgba(255, 255, 255, 0.5)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        borderRadius: "16px",
+        border: "1px solid rgba(255, 255, 255, 0.3)"
     },
     noteText: {
         fontSize: "12px",
         color: "#666666",
-        fontWeight: 400,
+        fontWeight: "400",
         marginTop: "4px",
         display: "block"
     },
@@ -479,16 +510,18 @@ const styles = {
         width: "52px",
         height: "28px",
         borderRadius: "999px",
-        border: "2px solid #e0e0e0",
-        background: "#f5f5f5",
+        border: "1px solid rgba(255, 255, 255, 0.3)",
+        background: "rgba(255, 255, 255, 0.5)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
         cursor: "pointer",
         transition: "all 0.3s ease",
         position: "relative",
         padding: 0
     },
     toggleButtonActive: {
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        borderColor: "#667eea"
+        background: "rgba(255, 215, 0, 0.25)",
+        borderColor: "rgba(255, 215, 0, 0.3)"
     },
     toggleSlider: {
         position: "absolute",
@@ -498,7 +531,7 @@ const styles = {
         height: "18px",
         borderRadius: "50%",
         background: "#ffffff",
-        boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+        boxShadow: "0 2px 6px rgba(17, 17, 17, 0.2)",
         transition: "all 0.3s ease"
     },
     toggleSliderActive: {
@@ -513,13 +546,13 @@ const styles = {
         flex: 1,
         padding: "16px 24px",
         border: "none",
-        borderRadius: "14px",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        color: "#ffffff",
+        borderRadius: "999px",
+        background: "#FF6B00",
+        color: "#111111",
         cursor: "pointer",
-        fontWeight: 700,
+        fontWeight: "600",
         fontSize: "16px",
-        boxShadow: "0 6px 20px rgba(102, 126, 234, 0.4)",
+        boxShadow: "0 8px 24px rgba(255, 107, 0, 0.25)",
         transition: "all 0.3s ease",
         display: "flex",
         alignItems: "center",
@@ -532,15 +565,15 @@ const styles = {
     successMessage: {
         marginTop: "16px",
         padding: "16px 20px",
-        borderRadius: "12px",
-        background: "linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)",
-        color: "#155724",
+        borderRadius: "16px",
+        background: "rgba(34, 197, 94, 0.15)",
+        color: "#22c55e",
         fontSize: "14px",
-        fontWeight: 600,
+        fontWeight: "500",
         display: "flex",
         alignItems: "center",
         gap: "10px",
-        border: "2px solid #c3e6cb"
+        border: "1px solid rgba(34, 197, 94, 0.3)"
     },
     successIcon: {
         fontSize: "16px"

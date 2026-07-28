@@ -18,6 +18,7 @@ const { activityMiddleware, markInactiveUsersOffline }=require('./middlewares/ac
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler.middleware')
 const { generalLimiter, authLimiter, surveyCreationLimiter, surveyResponseLimiter } = require('./middlewares/rateLimiter.middleware')
 const SurveySocketHandler = require('./socketHandlers/survey.socket')
+const LocationSocketHandler = require('./socketHandlers/location.socket')
 const { deleteExpiredEvents } = require('./utils/eventCleanup')
 
 
@@ -131,6 +132,9 @@ ConnectDB().then(() => {
   // Initialize Survey Socket Handler
   const surveySocketHandler = new SurveySocketHandler(io)
 
+  // Initialize Location Socket Handler
+  const locationSocketHandler = new LocationSocketHandler(io)
+
   // Store online users and their socket IDs
   const onlineUsers = new Map()
 
@@ -184,6 +188,9 @@ ConnectDB().then(() => {
   
   // Make survey socket handler accessible to controllers
   app.set('surveySocketHandler', surveySocketHandler)
+
+  // Make location socket handler accessible to controllers
+  app.set('locationSocketHandler', locationSocketHandler)
 
   server.listen(PORT,()=>{
       console.log(`Server is running on port ${PORT}`)
