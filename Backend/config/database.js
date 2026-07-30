@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const ConnectDB = async () => {
   // Database connection with MongoDB Atlas
-  const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URL;
+  const mongoUri = process.env.MONGODB_URI;
   
   if (!mongoUri) {
-    console.error('❌ MONGODB_URI or MONGO_URL not found in environment variables');
-    console.error('Please check your .env file and ensure MONGODB_URI is set');
+    console.error('❌ MONGODB_URI not found in environment variables');
+    console.error('Please check your Render environment variables and ensure MONGODB_URI is set');
     process.exit(1);
   }
   
@@ -14,25 +14,15 @@ const ConnectDB = async () => {
   console.log('MongoDB URI loaded from environment');
 
   const options = {
-    serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
-    socketTimeoutMS: 60000, // Increase socket timeout to 60 seconds
-    connectTimeoutMS: 30000, // Connection timeout
-    maxPoolSize: 10, // Maximum connection pool size
-    minPoolSize: 2, // Minimum connection pool size
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10,
+    minPoolSize: 2,
     retryWrites: true,
     retryReads: true,
-    maxIdleTimeMS: 10000, // Close idle connections after 10 seconds
-    waitQueueTimeoutMS: 5000, // Timeout for connection from pool
-    ssl: true, // Enable SSL for MongoDB Atlas
-    tls: true, // Enable TLS
-    tlsAllowInvalidCertificates: false, // Don't allow invalid certificates
-    tlsAllowInvalidHostnames: false, // Don't allow invalid hostnames
-    // Add connection resilience options
-    heartbeatFrequencyMS: 10000, // Send heartbeat every 10 seconds
-    monitorCommands: true, // Enable command monitoring
-    autoIndex: false, // Disable auto index creation in production
-    // Add query timeout
-    maxTimeMS: 30000, // Default query timeout of 30 seconds
+    ssl: true,
+    tls: true,
   };
 
   // Retry logic for connection
@@ -42,26 +32,26 @@ const ConnectDB = async () => {
   for (let i = 0; i < maxRetries; i++) {
     try {
       await mongoose.connect(mongoUri, options);
-      console.log("✅ Database Connected successfully");
+      console.log("✅ MongoDB connected successfully");
       console.log(`📊 Database: ${mongoose.connection.name}`);
       console.log(`🔗 Connection Host: ${mongoose.connection.host}`);
       return;
     } catch (err) {
-      console.log(`❌ Database Connection Error (Attempt ${i + 1}/${maxRetries}):`, err.message);
+      console.log(`❌ MongoDB Atlas Connection Error (Attempt ${i + 1}/${maxRetries}):`);
+      console.log(`   Error: ${err.message}`);
+      console.log(`   Error Name: ${err.name}`);
       
       if (i < maxRetries - 1) {
         console.log(`⏳ Retrying in ${retryDelay / 1000} seconds...`);
         await new Promise(resolve => setTimeout(resolve, retryDelay));
       } else {
-        console.log("❌ Max retries reached. Database connection failed.");
-        console.log("Please check your MONGODB_URI in .env file");
-        console.log("Make sure MongoDB Atlas is accessible and credentials are correct");
-        console.log("Common issues:");
-        console.log("- IP not whitelisted in MongoDB Atlas Network Access");
-        console.log("- Incorrect username/password in connection string");
-        console.log("- SSL/TLS configuration issues");
-        console.log("- MongoDB Atlas cluster is down or undergoing maintenance");
-        console.log("Check MongoDB Atlas status: https://status.mongodb.com/");
+        console.log("❌ Max retries reached. MongoDB Atlas connection failed.");
+        console.log("Please check:");
+        console.log("1. MONGODB_URI environment variable in Render");
+        console.log("2. MongoDB Atlas Network Access (whitelist 0.0.0.0/0)");
+        console.log("3. Database user has read/write permissions");
+        console.log("4. Username and password in URI are correct");
+        console.log("5. MongoDB Atlas cluster status: https://status.mongodb.com/");
         throw err;
       }
     }
