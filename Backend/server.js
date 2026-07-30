@@ -4,7 +4,6 @@ const mongoose=require('mongoose')
 const dotenv=require('dotenv')
 const cors=require('cors')
 const helmet=require('helmet')
-const mongoSanitize=require('express-mongo-sanitize')
 const http=require('http')
 const { Server }=require('socket.io')
 const authRoutes=require('./routes/auth.routes')
@@ -116,17 +115,12 @@ app.use((req, res, next) => {
   next();
 });
 
+
 // Apply activity tracking middleware to all routes
 app.use(activityMiddleware)
 
 // Apply stricter rate limiting to auth routes
 app.use('/api/auth', authLimiter)
-
-// Apply rate limiting to survey creation
-app.use('/api/survey/create', surveyCreationLimiter)
-
-// Apply rate limiting to survey responses
-app.use('/api/survey/:surveyId/responses', surveyResponseLimiter)
 
 app.use('/api/auth',authRoutes)
 app.use('/api/profile',profileRoutes)
