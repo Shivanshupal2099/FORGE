@@ -8,19 +8,9 @@ export default defineConfig({
   ],
   
   build: {
-    // Enable code splitting
+    // Chunk file naming for better caching
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunks for better caching
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'supabase-vendor': ['@supabase/supabase-js', '@supabase/ssr'],
-          'mapbox-vendor': ['mapbox-gl'],
-          'socket-vendor': ['socket.io-client'],
-          'axios-vendor': ['axios'],
-          'icons-vendor': ['react-icons'],
-        },
-        // Chunk file naming for better caching
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
