@@ -31,6 +31,8 @@ const ConnectDB = async () => {
     heartbeatFrequencyMS: 10000, // Send heartbeat every 10 seconds
     monitorCommands: true, // Enable command monitoring
     autoIndex: false, // Disable auto index creation in production
+    // Add query timeout
+    maxTimeMS: 30000, // Default query timeout of 30 seconds
   };
 
   // Retry logic for connection
@@ -68,10 +70,13 @@ const ConnectDB = async () => {
   // Handle connection events
   mongoose.connection.on('connected', () => {
     console.log('✅ Mongoose connected to database');
+    console.log(`📊 Database Name: ${mongoose.connection.name}`);
+    console.log(`🔗 Connection Host: ${mongoose.connection.host}`);
   });
 
   mongoose.connection.on('error', (err) => {
     console.log('❌ Mongoose connection error:', err.message);
+    console.log('Error details:', err);
   });
 
   mongoose.connection.on('disconnected', () => {
@@ -81,6 +86,9 @@ const ConnectDB = async () => {
   mongoose.connection.on('reconnected', () => {
     console.log('🔄 Mongoose reconnected to database');
   });
+
+  // Log query errors
+  mongoose.set('debug', process.env.NODE_ENV === 'development');
 };
 
 module.exports = { ConnectDB };
