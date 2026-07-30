@@ -3,16 +3,17 @@ const router = express.Router();
 
 const authController = require("../controllers/auth.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
+const { authValidation } = require("../middlewares/validation.middleware");
 
 // ===========================
 // Google Authentication
 // ===========================
 
 // Login/Register with Google
-router.post("/google", authController.googleAuth);
+router.post("/google", authValidation.googleAuth, authController.googleAuth);
 
 // Sync user from Supabase to MongoDB
-router.post("/sync", authController.syncUser);
+router.post("/sync", authValidation.syncUser, authController.syncUser);
 
 // Get current logged-in user
 router.get("/me", authMiddleware, authController.getCurrentUser);
@@ -41,5 +42,12 @@ router.delete("/sessions/:sessionId", authMiddleware, authController.revokeSessi
 
 // Revoke all sessions except current
 router.post("/sessions/revoke-others", authMiddleware, authController.revokeOtherSessions);
+
+// ===========================
+// Refresh Token Management
+// ===========================
+
+// Refresh access token using refresh token
+router.post("/refresh-token", authController.refreshToken);
 
 module.exports = router;

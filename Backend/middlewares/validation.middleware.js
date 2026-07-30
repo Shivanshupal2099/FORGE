@@ -13,6 +13,21 @@ const validate = (req, res, next) => {
   next();
 };
 
+// Authentication validation rules
+const authValidation = {
+  googleAuth: [
+    body('idToken').notEmpty().withMessage('Google ID token is required'),
+    body('email').optional().isEmail().withMessage('Invalid email format').normalizeEmail(),
+    validate
+  ],
+  syncUser: [
+    body('uid').notEmpty().withMessage('UID is required'),
+    body('email').isEmail().withMessage('Invalid email format').normalizeEmail(),
+    body('name').optional().trim().isLength({ max: 255 }),
+    validate
+  ]
+};
+
 // Profile validation rules
 const profileValidation = [
   body('uid').optional().isString().trim(),
@@ -87,6 +102,7 @@ const surveyIdValidation = [
 
 module.exports = {
   validate,
+  authValidation,
   profileValidation,
   eventValidation,
   surveyValidation,

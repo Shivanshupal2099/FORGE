@@ -1,10 +1,12 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../models/Users.model');
 const Profile = require('../models/Profile.model');
 const UserSession = require('../models/UserSession.model');
+const RefreshToken = require('../models/RefreshToken.model');
 const { markUserOnline, markUserOffline, getUserOnlineStatus } = require('../middlewares/activity.middleware');
 
-const signBackendToken = (user) => {
+const signAccessToken = (user) => {
     return jwt.sign(
         {
             uid: user.uid,
@@ -12,8 +14,33 @@ const signBackendToken = (user) => {
             _id: user._id.toString(),
         },
         process.env.JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: '15m' }
     );
+};
+
+const generateRefreshToken = () => {
+    return crypto.randomBytes(40).toString('hex');
+};
+
+const createRefreshToken = async (user, req) => {
+    const token = generateRefreshToken();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    
+    const deviceInfo = {
+        userAgent: req.headers['user-agent'] || '',
+        ip: req.ip || req.connection.remoteAddress || null
+    };
+
+    await RefreshToken.create({
+        user_id: user._id,
+        uid: user.uid,
+        token,
+        expires_at: expiresAt,
+        ip_address: deviceInfo.ip,
+        user_agent: deviceInfo.userAgent
+    });
+
+    return token;
 };
 
 exports.googleAuth = async (req, res) => {
@@ -89,7 +116,8 @@ exports.googleAuth = async (req, res) => {
                 email: user.email,
                 _id: user._id
             },
-            token: signBackendToken(user)
+            accessToken: signAccessToken(user),
+            refreshToken: await createRefreshToken(user, req)
         });
     } catch (error) {
         console.error('Error in googleAuth:', error);
@@ -183,7 +211,8 @@ exports.syncUser = async (req, res) => {
                 email: user.email,
                 _id: user._id
             },
-            token: signBackendToken(user)
+            accessToken: signAccessToken(user),
+            refreshToken: await createRefreshToken(user, req)
         });
     } catch (error) {
         console.error('Error in syncUser:', error);
@@ -208,6 +237,12 @@ exports.logout = async (req, res) => {
             await UserSession.updateMany(
                 { uid: uid, is_active: true },
                 { is_active: false }
+            );
+
+            // Revoke all refresh tokens for this user
+            await RefreshToken.updateMany(
+                { uid: uid, revoked: false },
+                { revoked: true, revoked_at: new Date() }
             );
         }
 
@@ -460,6 +495,75 @@ exports.revokeOtherSessions = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to revoke other sessions',
+            error: error.message
+        });
+    }
+};
+
+// ===========================
+// Refresh Token Management
+// ===========================
+
+exports.refreshToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(400).json({
+                success: false,
+                message: 'Refresh token is required'
+            });
+        }
+
+        // Find the refresh token in database
+        const tokenDoc = await RefreshToken.findOne({ token: refreshToken });
+
+        if (!tokenDoc) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid refresh token'
+            });
+        }
+
+        // Check if token is valid
+        if (!tokenDoc.isValid()) {
+            return res.status(401).json({
+                success: false,
+                message: 'Refresh token is expired or revoked'
+            });
+        }
+
+        // Get user
+        const user = await User.findById(tokenDoc.user_id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Generate new access token
+        const newAccessToken = signAccessToken(user);
+
+        // Generate new refresh token and revoke old one
+        const newRefreshToken = await createRefreshToken(user, req);
+        await RefreshToken.findByIdAndUpdate(tokenDoc._id, {
+            revoked: true,
+            revoked_at: new Date()
+        });
+
+        res.json({
+            success: true,
+            message: 'Token refreshed successfully',
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken
+        });
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to refresh token',
             error: error.message
         });
     }

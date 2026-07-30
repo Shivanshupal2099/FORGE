@@ -27,6 +27,11 @@ const ConnectDB = async () => {
     tls: true, // Enable TLS
     tlsAllowInvalidCertificates: false, // Don't allow invalid certificates
     tlsAllowInvalidHostnames: false, // Don't allow invalid hostnames
+    // Add connection resilience options
+    heartbeatFrequencyMS: 10000, // Send heartbeat every 10 seconds
+    maxStaleSeconds: 90, // Allow stale connections up to 90 seconds
+    monitorCommands: true, // Enable command monitoring
+    autoIndex: false, // Disable auto index creation in production
   };
 
   // Retry logic for connection

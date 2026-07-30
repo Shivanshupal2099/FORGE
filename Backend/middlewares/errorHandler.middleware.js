@@ -5,15 +5,12 @@ const { AppError } = require('../utils/errors');
  * Centralized error handling middleware
  */
 const errorHandler = (err, req, res, next) => {
-  // Log error for debugging
+  // Log error for debugging (without sensitive data)
   console.error('Error occurred:', {
     message: err.message,
-    stack: err.stack,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
     url: req.url,
     method: req.method,
-    body: req.body,
-    query: req.query,
-    params: req.params,
     user: req.user?._id
   });
 
