@@ -4,7 +4,15 @@ import axios from '../api/axios';
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+  {
+    auth: {
+      redirectURL: window.location.origin,
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true,
+    }
+  }
 );
 
 const AuthContext = createContext();

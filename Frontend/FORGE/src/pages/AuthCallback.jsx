@@ -7,6 +7,7 @@ function AuthCallback() {
   const { supabase } = useAuth();
 
   useEffect(() => {
+    // Handle OAuth callback
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         navigate('/home');
@@ -15,12 +16,19 @@ function AuthCallback() {
       }
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log('AuthCallback - Auth state change:', _event, 'Session:', !!session);
+      
+      if (_event === 'SIGNED_IN' && session) {
+        // User successfully signed in
         navigate('/home');
-      } else {
+      } else if (_event === 'SIGNED_OUT') {
+        // User signed out
         navigate('/');
+      } else if (_event === 'TOKEN_REFRESHED') {
+        // Token was refreshed, no redirect needed
+        console.log('AuthCallback - Token refreshed');
       }
     });
 
