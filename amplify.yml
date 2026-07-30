@@ -1,0 +1,18 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd Frontend/FORGE
+        - npm install
+    build:
+      commands:
+        - cd Frontend/FORGE
+        - npm run build
+  artifacts:
+    baseDirectory: Frontend/FORGE/dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - Frontend/FORGE/node_modules/**/*
