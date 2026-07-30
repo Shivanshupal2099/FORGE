@@ -5,7 +5,7 @@ frontend:
     preBuild:
       commands:
         - pwd
-        - ls
+        - ls -la
         - cat package.json
         - npm install
 
@@ -17,3 +17,7 @@ frontend:
     baseDirectory: dist
     files:
       - '**/*'
+
+  cache:
+    paths:
+      - node_modules/**/*
