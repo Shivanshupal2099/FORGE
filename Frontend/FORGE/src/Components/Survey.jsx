@@ -16,7 +16,7 @@ const createEmptyQuestion = () => ({
   id: Date.now() + Math.floor(Math.random() * 1000),
   questionText: '',
   answerType: 'text',
-  options: [createEmptyOption()],
+  options: [createEmptyOption(), createEmptyOption(), createEmptyOption()],
 });
 
 
@@ -228,6 +228,17 @@ function Survey() {
             return { ...question, answerType: value, options: [createEmptyOption()] };
           }
 
+          // For checkbox, radio - ensure 3 options
+          if (['checkbox', 'radio'].includes(value)) {
+            if (question.options.length < 3) {
+              return {
+                ...question,
+                answerType: value,
+                options: [createEmptyOption(), createEmptyOption(), createEmptyOption()],
+              };
+            }
+          }
+
           return {
             ...question,
             answerType: value,
@@ -261,6 +272,10 @@ function Survey() {
 
 
   const addQuestion = () => {
+    // Maximum 2 questions per survey
+    if (survey.questions.length >= 2) {
+      return;
+    }
     setSurvey((prev) => ({
       ...prev,
       questions: [...prev.questions, createEmptyQuestion()],
@@ -279,6 +294,11 @@ function Survey() {
       ...prev,
       questions: prev.questions.map((question) => {
         if (question.id !== questionId) {
+          return question;
+        }
+
+        // Maximum 4 options
+        if (question.options.length >= 4) {
           return question;
         }
 
@@ -360,9 +380,16 @@ function Survey() {
           return Promise.resolve(null);
         }
         
-        const options = question.answerType !== 'text' 
-          ? question.options.map(opt => opt.value).filter(v => v.trim() !== '')
-          : [];
+        // For radio, checkbox - ensure options are provided
+        let options = [];
+        if (['radio', 'checkbox'].includes(question.answerType)) {
+          options = question.options.map(opt => opt.value).filter(v => v.trim() !== '');
+          // If no valid options, skip this question
+          if (options.length === 0) {
+            console.log(`Skipping question ${index} - no valid options for ${question.answerType}`);
+            return Promise.resolve(null);
+          }
+        }
         
         console.log(`Creating question ${index}:`, question.questionText, 'Type:', question.answerType, 'Options:', options);
         
@@ -378,17 +405,27 @@ function Survey() {
       const questionResponses = await Promise.all(questionPromises);
       console.log('Question creation responses:', questionResponses);
       
+      // Check if any questions were successfully created
+      const successfulQuestions = questionResponses.filter(r => r && r.data && r.data.success);
+      const failedQuestions = questionResponses.filter(r => r && r.data && !r.data.success);
+      
+      console.log('Successfully created questions:', successfulQuestions.length);
+      console.log('Failed questions:', failedQuestions.length);
+      
+      // Reset survey form
       setSurvey({
         questions: [createEmptyQuestion()],
       });
 
+      // Reload surveys and switch to list tab
       await loadSurveys();
       setActiveTab('list');
       
+      // Always show success modal as long as survey was created
       setSuccessModal({
         isOpen: true,
         title: 'Survey Created Successfully!',
-        message: 'Your survey has been created and is now live on the platform.',
+        message: `Your survey has been created with ${successfulQuestions.length} question(s)${failedQuestions.length > 0 ? ` (${failedQuestions.length} question(s) skipped due to missing options)` : ''} and is now live on the platform.`,
         actions: [
           {
             label: 'View Survey',
@@ -413,6 +450,7 @@ function Survey() {
       setCreatedSurveys(prev => prev.filter(s => !s._id.startsWith('temp_')));
       setError('Error creating survey');
       console.error('Error creating survey:', err);
+      console.error('Error details:', err.response?.data);
     } finally {
       setLoading(false);
     }
@@ -582,6 +620,11 @@ function Survey() {
                       type="button"
                       onClick={() => addOption(question.id)}
                       className="button-secondary survey-question__add-option"
+                      disabled={question.options.length >= 4}
+                      style={{
+                        opacity: question.options.length >= 4 ? 0.5 : 1,
+                        cursor: question.options.length >= 4 ? 'not-allowed' : 'pointer'
+                      }}
                     >
                       <FaPlus aria-hidden="true" /> Add Option
                     </button>
@@ -591,7 +634,16 @@ function Survey() {
             ))}
 
             <div className="survey-form__actions">
-              <button type="button" onClick={addQuestion} className="button-secondary">
+              <button 
+                type="button" 
+                onClick={addQuestion} 
+                className="button-secondary"
+                disabled={survey.questions.length >= 2}
+                style={{
+                  opacity: survey.questions.length >= 2 ? 0.5 : 1,
+                  cursor: survey.questions.length >= 2 ? 'not-allowed' : 'pointer'
+                }}
+              >
                 <FaPlus aria-hidden="true" /> Add Question
               </button>
 

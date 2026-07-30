@@ -4,6 +4,7 @@ const Question = require('../models/Question.model');
 const SurveyResponse = require('../models/SurveyResponse.model');
 const QuestionAnswer = require('../models/QuestionAnswer.model');
 const Profile = require('../models/Profile.model');
+const { awardSurveyTokens } = require('./token.controller');
 
 // Create a new survey
 exports.createSurvey = async (req, res) => {
@@ -264,6 +265,15 @@ exports.publishSurvey = async (req, res) => {
       });
     }
 
+    // Check minimum question requirement (at least 1 question)
+    const questionsCount = await Question.countDocuments({ surveyId: id });
+    if (questionsCount < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Survey must have at least 1 question to be published'
+      });
+    }
+
     // Status concept removed - survey is always "published" when created
     res.json({
       success: true,
@@ -407,6 +417,15 @@ exports.addQuestion = async (req, res) => {
       });
     }
 
+    // Check if survey already has maximum questions (2)
+    const existingQuestionsCount = await Question.countDocuments({ surveyId });
+    if (existingQuestionsCount >= 2) {
+      return res.status(400).json({
+        success: false,
+        message: 'Maximum limit of 2 questions per survey reached'
+      });
+    }
+
     // Validate question type
     const validTypes = ['text', 'paragraph', 'radio', 'checkbox', 'dropdown', 'rating', 'yes_no', 'date', 'number', 'email'];
     if (!validTypes.includes(type)) {
@@ -414,6 +433,16 @@ exports.addQuestion = async (req, res) => {
         success: false,
         message: 'Invalid question type'
       });
+    }
+
+    // Validate that radio and checkbox questions have options
+    if (['radio', 'checkbox'].includes(type)) {
+      if (!options || !Array.isArray(options) || options.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: `${type} questions must have at least one option`
+        });
+      }
     }
 
     // Get the next order if not provided
@@ -755,10 +784,24 @@ exports.submitSurveyResponse = async (req, res) => {
       $inc: { current_responses: 1 }
     });
 
+    // Award tokens for survey completion (only for non-anonymous responses)
+    let tokenAward = null;
+    if (!anonymous && req.user.email) {
+      try {
+        tokenAward = await awardSurveyTokens(req.user.email, surveyId);
+        console.log('Tokens awarded:', tokenAward);
+      } catch (tokenError) {
+        console.error('Error awarding tokens:', tokenError);
+        // Don't fail the response submission if token awarding fails
+      }
+    }
+
     res.json({
       success: true,
       message: 'Survey response submitted successfully',
-      responseId: response._id
+      responseId: response._id,
+      tokensAwarded: tokenAward ? tokenAward.amount : null,
+      totalTokens: tokenAward ? tokenAward.total_tokens : null
     });
   } catch (error) {
     console.error('Error submitting survey response:', error);
@@ -923,6 +966,44 @@ exports.deleteResponse = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error deleting response',
+      error: error.message
+    });
+  }
+};
+
+// Report survey
+exports.reportSurvey = async (req, res) => {
+  try {
+    const { surveyId } = req.params;
+    const { reason } = req.body;
+
+    const survey = await Survey.findById(surveyId);
+    
+    if (!survey) {
+      return res.status(404).json({
+        success: false,
+        message: 'Survey not found'
+      });
+    }
+
+    // Create survey report
+    const SurveyReport = require('../models/SurveyReport.model');
+    await SurveyReport.create({
+      surveyId,
+      reportedBy: req.user._id,
+      reason,
+      reportedAt: new Date()
+    });
+
+    res.json({
+      success: true,
+      message: 'Survey reported successfully'
+    });
+  } catch (error) {
+    console.error('Error reporting survey:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error reporting survey',
       error: error.message
     });
   }

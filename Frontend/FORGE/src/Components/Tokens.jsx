@@ -1,7 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FaCoins, FaTimes } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
+import axios from '../api/axios';
 
 function Tokens({ onClose }) {
+  const { user } = useAuth();
+  const [tokenData, setTokenData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -13,7 +20,46 @@ function Tokens({ onClose }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const earnedTokens = [];
+  useEffect(() => {
+    const fetchTokens = async () => {
+      if (!user?.email) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await axios.get(`/api/tokens/user/${user.email}`);
+        
+        if (response.data.success) {
+          setTokenData(response.data.tokens);
+        } else {
+          setError('Failed to load tokens');
+        }
+      } catch (err) {
+        console.error('Error fetching tokens:', err);
+        setError('Error loading tokens');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTokens();
+  }, [user]);
+
+  const formatDate = (isoString) => {
+    try {
+      return new Date(isoString).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch (e) {
+      return isoString;
+    }
+  };
+
+  const earnedTokens = tokenData?.token_history || [];
 
   return (
     <div className="home-popup-overlay" onClick={onClose} role="presentation">
@@ -49,24 +95,34 @@ function Tokens({ onClose }) {
 
         <div className="home-popup-highlight">
           <span className="home-popup-highlight__label">Total earned</span>
-          <span className="home-popup-highlight__value">0</span>
+          <span className="home-popup-highlight__value">
+            {loading ? '...' : error ? '0' : tokenData?.total_tokens || 0}
+          </span>
         </div>
 
         <div className="home-popup-section">
           <h3 className="home-popup-section__title">Recent earnings</h3>
-          <ul className="home-popup-list">
-            {earnedTokens.map(({ id, label, amount, date }) => (
-              <li key={id} className="home-popup-list__item">
-                <div className="home-popup-list__main">
-                  <span className="home-popup-list__label">{label}</span>
-                  <span className="home-popup-list__meta">{date}</span>
-                </div>
-                <span className="home-popup-list__value home-popup-list__value--gain">
-                  {amount}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {loading ? (
+            <p style={{ textAlign: 'center', padding: '20px' }}>Loading tokens...</p>
+          ) : error ? (
+            <p style={{ textAlign: 'center', padding: '20px', color: '#ef6f96' }}>{error}</p>
+          ) : earnedTokens.length === 0 ? (
+            <p style={{ textAlign: 'center', padding: '20px' }}>No tokens earned yet. Complete surveys to earn tokens!</p>
+          ) : (
+            <ul className="home-popup-list">
+              {earnedTokens.slice().reverse().map((entry) => (
+                <li key={entry._id || entry.earned_at} className="home-popup-list__item">
+                  <div className="home-popup-list__main">
+                    <span className="home-popup-list__label">{entry.description}</span>
+                    <span className="home-popup-list__meta">{formatDate(entry.earned_at)}</span>
+                  </div>
+                  <span className="home-popup-list__value home-popup-list__value--gain">
+                    +{entry.amount}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

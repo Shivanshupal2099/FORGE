@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import './Usercard.css';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
-import { generateKeyPair, exportPublicKey } from '../utils/encryption';
 
 const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   const { user: currentUser } = useAuth();
@@ -40,31 +39,49 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
       setConnectionLoading(true);
       setConnectionStatus('idle');
 
-      // Generate key pair for E2E encryption
-      const keyPair = await generateKeyPair();
-      const publicKey = await exportPublicKey(keyPair);
-
-      // Store key pair in localStorage for later use (in production, use IndexedDB)
-      const privateKeyExported = await window.crypto.subtle.exportKey('jwk', keyPair.privateKey);
-      localStorage.setItem(`encryption_key_${user.email}`, JSON.stringify({
-        privateKey: privateKeyExported,
-        publicKey: publicKey
-      }));
-
+      console.log('Sending connection request to:', user.email);
       const response = await axios.post('/api/connections', {
-        receiver_uid: user.email,
-        requester_public_key: publicKey
+        receiver_uid: user.email
       });
+
+      console.log('Connection request response:', response.data);
 
       if (response.data.success) {
         setConnectionStatus('sent');
       } else {
-        setConnectionStatus('error');
-        console.error('Connection request failed:', response.data.message);
+        // Check if the error is due to an existing request
+        const errorMessage = response.data.message?.toLowerCase() || '';
+        const isExistingRequest = errorMessage.includes('already') || 
+                                  errorMessage.includes('pending') || 
+                                  errorMessage.includes('connected') ||
+                                  response.status === 409;
+        
+        if (isExistingRequest) {
+          // If request already exists, treat it as sent
+          console.log('Connection request already exists, treating as sent');
+          setConnectionStatus('sent');
+        } else {
+          setConnectionStatus('error');
+          console.error('Connection request failed:', response.data.message);
+        }
       }
     } catch (error) {
-      setConnectionStatus('error');
-      console.error('Error sending connection request:', error.response?.data?.message || error.message);
+      console.error('Connection request error:', error.response?.data);
+      // Check if the error is due to an existing request
+      const errorMessage = error.response?.data?.message?.toLowerCase() || '';
+      const isExistingRequest = errorMessage.includes('already') || 
+                                errorMessage.includes('pending') || 
+                                errorMessage.includes('connected') ||
+                                error.response?.status === 409;
+      
+      if (isExistingRequest) {
+        // If request already exists, treat it as sent
+        console.log('Connection request already exists (error case), treating as sent');
+        setConnectionStatus('sent');
+      } else {
+        setConnectionStatus('error');
+        console.error('Error sending connection request:', error.response?.data?.message || error.message);
+      }
     } finally {
       setConnectionLoading(false);
     }

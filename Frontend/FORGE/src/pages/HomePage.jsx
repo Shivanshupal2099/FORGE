@@ -9,6 +9,7 @@ import Offer from '../Components/Offer';
 import WelcomeCard from '../Components/WelcomeCard';
 import SurveyRotator from '../Components/SurveyRotator';
 import { useAuth } from '../contexts/AuthContext';
+import axios from '../api/axios';
 
 
 
@@ -22,6 +23,7 @@ const topActions = [
 function HomePage() {
   const [activePopup, setActivePopup] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [pendingRequests, setPendingRequests] = useState(0);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -32,6 +34,47 @@ function HomePage() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Fetch pending requests count
+  useEffect(() => {
+    const fetchPendingRequests = async () => {
+      if (!user) return;
+      
+      try {
+        const response = await axios.get('/api/connections/incoming');
+        if (response.data.success) {
+          setPendingRequests(response.data.connections?.length || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching pending requests:', error);
+      }
+    };
+
+    fetchPendingRequests();
+    
+    // Poll for new requests every 30 seconds
+    const interval = setInterval(fetchPendingRequests, 30000);
+    
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const handleRequestUpdate = () => {
+    // Refresh pending requests count
+    const fetchPendingRequests = async () => {
+      if (!user) return;
+      
+      try {
+        const response = await axios.get('/api/connections/incoming');
+        if (response.data.success) {
+          setPendingRequests(response.data.connections?.length || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching pending requests:', error);
+      }
+    };
+
+    fetchPendingRequests();
+  };
 
   return (
     <div
@@ -44,6 +87,18 @@ function HomePage() {
       }}
     >
       <Header />
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.2);
+          }
+        }
+      `}</style>
       <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', overflowY: 'auto' }}>
         <div className="home-top-bar" style={{ width: '100%', maxWidth: '1200px', position: 'relative', top: '0', right: 'auto', left: 'auto', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', padding: '10px 0' }}>
           <div className="home-action-dock" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -55,10 +110,27 @@ function HomePage() {
                 onClick={() => setActivePopup(popup)}
                 style={{
                   padding: isMobile ? '12px' : '11px 16px',
+                  position: 'relative',
                 }}
               >
                 <Icon aria-hidden="true" />
                 {!isMobile && <span>{label}</span>}
+                {label === 'Request' && pendingRequests > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: isMobile ? '6px' : '4px',
+                      right: isMobile ? '6px' : '4px',
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      background: '#ff0000',
+                      border: '2px solid rgba(255, 255, 255, 0.8)',
+                      boxShadow: '0 2px 8px rgba(255, 0, 0, 0.4)',
+                      animation: 'pulse 2s infinite',
+                    }}
+                  />
+                )}
               </button>
             ))}
           </div>
@@ -101,7 +173,7 @@ function HomePage() {
 
       <WelcomeCard />
       
-      {activePopup === 'request' && <Request onClose={() => setActivePopup(null)} />}
+      {activePopup === 'request' && <Request onClose={() => setActivePopup(null)} onConnectionAccepted={handleRequestUpdate} />}
       {activePopup === 'tokens' && <Tokens onClose={() => setActivePopup(null)} />}
       {activePopup === 'offer' && <Offer onClose={() => setActivePopup(null)} />}
     </div>

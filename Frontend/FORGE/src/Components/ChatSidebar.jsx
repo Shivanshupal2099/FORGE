@@ -17,19 +17,50 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
     if (!socket || !isConnected) return;
 
     const handleNewMessage = (data) => {
-      const { message } = data;
+      console.log('ChatSidebar received message data:', data);
+      
+      // Handle different data formats from socket
+      const message = data?.message || data;
+      
+      if (!message || typeof message !== 'object') {
+        console.log('ChatSidebar - no valid message data found');
+        return;
+      }
+
+      // Check if message has required properties
+      if (!message.connection_id && !message.connectionId) {
+        console.log('ChatSidebar - message missing connection_id');
+        return;
+      }
+
+      console.log('ChatSidebar processing message:', message);
+      
       // Update the user's last message in the sidebar
-      setUsersWithMessages(prev => prev.map(user => {
-        if (user.connectionId === message.connection_id) {
-          return {
-            ...user,
-            lastMessage: message.body,
-            lastMessageTime: new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            unread: user.uid !== message.sender_id
-          };
+      setUsersWithMessages(prev => {
+        if (!Array.isArray(prev)) {
+          console.log('ChatSidebar - prev is not an array');
+          return prev;
         }
-        return user;
-      }));
+        
+        return prev.map(user => {
+          if (!user || !user.connectionId) {
+            return user;
+          }
+          
+          const messageConnectionId = message.connection_id?.toString() || message.connectionId?.toString();
+          const userConnectionId = user.connectionId?.toString();
+          
+          if (userConnectionId === messageConnectionId) {
+            return {
+              ...user,
+              lastMessage: message.body || '',
+              lastMessageTime: message.created_at ? new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+              unread: user.uid !== message.sender_id
+            };
+          }
+          return user;
+        });
+      });
     };
 
     socket.on('message:receive', handleNewMessage);

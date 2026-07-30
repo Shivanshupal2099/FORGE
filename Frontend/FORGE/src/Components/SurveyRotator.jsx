@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { FaClipboardList, FaArrowLeft, FaArrowRight, FaCheck, FaSpinner } from 'react-icons/fa';
+import { FaClipboardList, FaArrowLeft, FaArrowRight, FaCheck, FaSpinner, FaFlag, FaShareAlt } from 'react-icons/fa';
 import axios from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
@@ -14,9 +14,52 @@ function SurveyRotator() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [userResponses, setUserResponses] = useState({});
+  const [dailySurveysShown, setDailySurveysShown] = useState([]);
+  const [reportPopup, setReportPopup] = useState({ isOpen: false, surveyId: null, reason: '', status: 'initial', message: '' });
+  const [submissionPopup, setSubmissionPopup] = useState({ isOpen: false, tokensEarned: 0 });
+  const [rateLimitPopup, setRateLimitPopup] = useState({ isOpen: false });
+  const [alreadySubmittedPopup, setAlreadySubmittedPopup] = useState({ isOpen: false });
+  const [sharePopup, setSharePopup] = useState({ isOpen: false, surveyId: null, link: '', copied: false });
   const { user } = useAuth(); 
   const { socket, isConnected } = useSocket();
   const touchStartRef = useRef(null);
+
+  // Get today's date key for daily tracking
+  const getTodayKey = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+
+  // Load daily surveys shown from localStorage
+  useEffect(() => {
+    if (user?.email) {
+      const todayKey = getTodayKey();
+      const storageKey = `dailySurveys_${user.email}`;
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data.date === todayKey) {
+          setDailySurveysShown(data.surveyIds || []);
+        } else {
+          // New day, clear previous day's data
+          localStorage.removeItem(storageKey);
+          setDailySurveysShown([]);
+        }
+      }
+    }
+  }, [user?.email]);
+
+  // Save daily surveys shown to localStorage
+  const saveDailySurveys = (surveyIds) => {
+    if (user?.email) {
+      const todayKey = getTodayKey();
+      const storageKey = `dailySurveys_${user.email}`;
+      localStorage.setItem(storageKey, JSON.stringify({
+        date: todayKey,
+        surveyIds
+      }));
+      setDailySurveysShown(surveyIds);
+    }
+  };
 
   useEffect(() => {
     fetchPublicSurveys();
@@ -72,21 +115,34 @@ function SurveyRotator() {
       }
       
       console.log(`Fetching public surveys page ${pageNum}...`);
-      const response = await axios.get(`/api/survey/public/all?page=${pageNum}&limit=10`);
+      const response = await axios.get(`/api/survey/public/all?page=${pageNum}&limit=50`);
       
       console.log('Public surveys response:', response.data);
       
       if (response.data.success) {
-        const newSurveys = response.data.surveys;
-        const pagination = response.data.pagination;
+        const allSurveys = response.data.surveys;
         
-        setSurveys(prev => append ? [...prev, ...newSurveys] : newSurveys);
-        setHasMore(pagination.page < pagination.pages);
+        // Filter out surveys that user has already submitted
+        const unsubmittedSurveys = allSurveys.filter(survey => !userResponses[survey._id]);
+        
+        // Filter out surveys already shown today
+        const newSurveys = unsubmittedSurveys.filter(survey => !dailySurveysShown.includes(survey._id));
+        
+        // Randomly shuffle all surveys for equal opportunity
+        const shuffled = [...newSurveys].sort(() => 0.5 - Math.random());
+        const selectedSurveys = shuffled;
+        
+        // Save selected surveys to daily tracking
+        const selectedIds = selectedSurveys.map(s => s._id);
+        saveDailySurveys([...dailySurveysShown, ...selectedIds]);
+        
+        setSurveys(prev => append ? [...prev, ...selectedSurveys] : selectedSurveys);
+        setHasMore(newSurveys.length >= 50); // Check if more surveys might be available
         setPage(pageNum);
         
         // Initialize states for new surveys
         const initialStates = {};
-        newSurveys.forEach(survey => {
+        selectedSurveys.forEach(survey => {
           if (survey?._id && !surveyStates[survey._id]) {
             initialStates[survey._id] = {
               currentQuestionIndex: 0,
@@ -100,7 +156,7 @@ function SurveyRotator() {
         }
         
         // Fetch questions for new surveys only
-        const questionsPromises = newSurveys
+        const questionsPromises = selectedSurveys
           .filter(survey => survey?._id)
           .map(survey => {
             console.log(`Fetching questions for survey ${survey._id}`);
@@ -112,7 +168,7 @@ function SurveyRotator() {
         
         const newQuestionsMap = {};
         
-        newSurveys.forEach((survey, index) => {
+        selectedSurveys.forEach((survey, index) => {
           if (survey?._id && questionsResponses[index]?.data?.success) {
             console.log(`Survey ${survey._id} has ${questionsResponses[index].data.questions.length} questions`);
             newQuestionsMap[survey._id] = questionsResponses[index].data.questions;
@@ -246,29 +302,100 @@ function SurveyRotator() {
     }));
   };
 
+  const handleReportSubmit = async () => {
+    if (!reportPopup.reason.trim()) {
+      setReportPopup({ ...reportPopup, message: 'Please provide a reason for reporting this survey' });
+      return;
+    }
+
+    try {
+      setReportPopup({ ...reportPopup, status: 'submitting' });
+
+      await axios.post(`/api/survey/${reportPopup.surveyId}/report`, {
+        reason: reportPopup.reason
+      });
+
+      setReportPopup({ ...reportPopup, status: 'success', message: 'Survey reported successfully' });
+    } catch (error) {
+      console.error('Error reporting survey:', error);
+      setReportPopup({ ...reportPopup, status: 'error', message: 'Failed to report survey. Please try again.' });
+    }
+  };
+
+  const handleShareClick = (surveyId) => {
+    const surveyLink = `${window.location.origin}/survey/view/${surveyId}`;
+    setSharePopup({ isOpen: true, surveyId, link: surveyLink, copied: false });
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(sharePopup.link);
+      setSharePopup({ ...sharePopup, copied: true });
+      setTimeout(() => {
+        setSharePopup({ ...sharePopup, copied: false });
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy link:', error);
+    }
+  };
+
   const handleSubmit = async (surveyId) => {
     const state = surveyStates[surveyId];
     if (!state) return;
 
+    // Check if user is authenticated
+    if (!user?.email) {
+      console.error('User not authenticated');
+      return;
+    }
+
     try {
       setSubmitting(prev => ({ ...prev, [surveyId]: true }));
 
-      await axios.post(`/api/survey/${surveyId}/responses`, {
+      const response = await axios.post(`/api/survey/${surveyId}/responses`, {
         answers: state.answers,
         anonymous: false
       });
 
-      // Reset survey state after submission
-      setSurveyStates(prev => ({
-        ...prev,
-        [surveyId]: {
-          currentQuestionIndex: 0,
-          answers: {}
-        }
-      }));
+      if (response.data.success) {
+        // Mark survey as submitted
+        setUserResponses(prev => ({
+          ...prev,
+          [surveyId]: true
+        }));
+
+        // Remove survey from the list immediately
+        setSurveys(prev => prev.filter(s => s._id !== surveyId));
+
+        // Remove survey questions from state
+        setSurveyQuestions(prev => {
+          const newState = { ...prev };
+          delete newState[surveyId];
+          return newState;
+        });
+
+        // Reset survey state after submission
+        setSurveyStates(prev => {
+          const newState = { ...prev };
+          delete newState[surveyId];
+          return newState;
+        });
+
+        // Show submission popup with tokens earned
+        const tokensEarned = response.data.tokensAwarded || 0;
+        setSubmissionPopup({ isOpen: true, tokensEarned });
+
+        // Refresh user responses in background
+        fetchUserResponses();
+      }
 
     } catch (error) {
       console.error('Error submitting survey:', error);
+      if (error.response?.status === 429) {
+        setRateLimitPopup({ isOpen: true });
+      } else if (error.response?.status === 400 && error.response?.data?.message?.includes('already submitted')) {
+        setAlreadySubmittedPopup({ isOpen: true });
+      }
     } finally {
       setSubmitting(prev => ({ ...prev, [surveyId]: false }));
     }
@@ -332,7 +459,7 @@ function SurveyRotator() {
         </div>
         <h3 style={{
           margin: '0 0 8px',
-          fontSize: '1.2rem',
+          fontSize: '1.4rem',
           fontWeight: '700',
           color: 'var(--app-text)',
         }}>
@@ -393,20 +520,22 @@ function SurveyRotator() {
     <div
       style={{
         width: '100%',
-        maxWidth: '700px',
+        maxWidth: '800px',
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '24px',
-        paddingBottom: '100px',
+        gap: '20px',
+        paddingBottom: '120px',
+        padding: '0 16px',
       }}
     >
       <h2 style={{
-        margin: '0 0 20px',
-        fontSize: '1.5rem',
+        margin: '0 0 24px',
+        fontSize: 'clamp(1.3rem, 4vw, 1.8rem)',
         fontWeight: '700',
         color: 'var(--app-text)',
         textAlign: 'center',
+        letterSpacing: '-0.5px',
       }}>
         Community Surveys
       </h2>
@@ -432,64 +561,145 @@ function SurveyRotator() {
           <div
             key={survey._id}
             style={{
-              background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
-              borderRadius: '20px',
-              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.1)',
-              padding: '24px',
-              transition: 'all 0.3s ease',
+              background: '#ffffff',
+              borderRadius: '24px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+              padding: 'clamp(20px, 5vw, 28px)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              border: '2px solid rgba(245, 158, 11, 0.15)',
             }}
           >
             {/* Header */}
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '24px' }}>
               <div style={{
                 display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
+                alignItems: 'flex-start',
+                gap: 'clamp(10px, 3vw, 16px)',
                 marginBottom: '16px',
               }}>
                 <div style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '12px',
-                  background: userResponses[survey._id] 
-                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  width: 'clamp(40px, 10vw, 48px)',
+                  height: 'clamp(40px, 10vw, 48px)',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  flexShrink: 0,
+                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
                 }}>
-                  {userResponses[survey._id] ? (
-                    <FaCheck style={{ fontSize: '1.3rem', color: '#ffffff' }} />
-                  ) : (
-                    <FaClipboardList style={{ fontSize: '1.3rem', color: '#ffffff' }} />
-                  )}
+                  <FaClipboardList style={{ 
+                    fontSize: 'clamp(1.1rem, 3vw, 1.4rem)', 
+                    color: '#ffffff' 
+                  }} />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{
-                    margin: 0,
-                    fontSize: '1.1rem',
-                    fontWeight: '700',
-                    color: 'var(--app-text)',
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                    <h3 style={{
+                      margin: 0,
+                      fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+                      fontWeight: '700',
+                      color: 'var(--app-text)',
+                      lineHeight: '1.4',
+                      letterSpacing: '-0.3px',
+                    }}>
+                      {survey.title || 'Survey'}
+                    </h3>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleShareClick(survey._id)}
+                        style={{
+                          background: 'rgba(59, 130, 246, 0.1)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '8px',
+                          borderRadius: '10px',
+                          color: '#3b82f6',
+                          transition: 'all 0.2s',
+                          flexShrink: 0,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = 'rgba(59, 130, 246, 0.2)';
+                          e.target.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = 'rgba(59, 130, 246, 0.1)';
+                          e.target.style.transform = 'scale(1)';
+                        }}
+                        title="Share survey"
+                      >
+                        <FaShareAlt style={{ fontSize: '0.85rem' }} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setReportPopup({ isOpen: true, surveyId: survey._id, reason: '', status: 'initial', message: '' })}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '8px',
+                          borderRadius: '10px',
+                          color: '#ef4444',
+                          transition: 'all 0.2s',
+                          flexShrink: 0,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = 'rgba(239, 68, 68, 0.2)';
+                          e.target.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+                          e.target.style.transform = 'scale(1)';
+                        }}
+                        title="Report survey"
+                      >
+                        <FaFlag style={{ fontSize: '0.85rem' }} />
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                    marginTop: '8px',
+                    alignItems: 'center',
                   }}>
-                    {survey.title || `Survey by ${survey.creator_name || 'Anonymous'}`}
-                  </h3>
-                  <p style={{
-                    margin: '4px 0 0',
-                    fontSize: '0.85rem',
-                    color: '#64748b',
-                  }}>
-                    {questions.length} question{questions.length !== 1 ? 's' : ''}
+                    <span style={{
+                      fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
+                      color: '#64748b',
+                      fontWeight: '500',
+                    }}>
+                      {questions.length} question{questions.length !== 1 ? 's' : ''}
+                    </span>
+                    {questions.length > 0 && (
+                      <span style={{
+                        fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
+                        color: '#f59e0b',
+                        fontWeight: '600',
+                        background: 'rgba(245, 158, 11, 0.1)',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                      }}>
+                        {questions.map(q => {
+                          const typeLabels = {
+                            'text': 'Text',
+                            'radio': 'Radio',
+                            'checkbox': 'Checkbox'
+                          };
+                          return typeLabels[q.type] || q.type;
+                        }).join(', ')}
+                      </span>
+                    )}
                     {survey.creator_name && (
-                      <span style={{ marginLeft: '8px' }}>
-                        • by {survey.creator_name}
+                      <span style={{
+                        fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
+                        color: '#64748b',
+                      }}>
+                        by {survey.creator_name}
                       </span>
                     )}
-                    {userResponses[survey._id] && (
-                      <span style={{ color: '#10b981', fontWeight: '600', marginLeft: '8px' }}>
-                        • Submitted
-                      </span>
-                    )}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -497,16 +707,30 @@ function SurveyRotator() {
             {/* Show submitted message or form */}
             {userResponses[survey._id] ? (
               <div style={{
-                padding: '24px',
+                padding: 'clamp(20px, 5vw, 28px)',
                 background: 'rgba(16, 185, 129, 0.1)',
-                borderRadius: '12px',
-                border: '2px solid #10b981',
+                borderRadius: '16px',
+                border: '2px solid rgba(16, 185, 129, 0.2)',
                 textAlign: 'center',
               }}>
-                <FaCheck style={{ fontSize: '3rem', color: '#10b981', marginBottom: '12px' }} />
+                <div style={{
+                  width: 'clamp(48px, 12vw, 64px)',
+                  height: 'clamp(48px, 12vw, 64px)',
+                  borderRadius: '50%',
+                  background: 'rgba(16, 185, 129, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
+                }}>
+                  <FaCheck style={{ 
+                    fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', 
+                    color: '#10b981' 
+                  }} />
+                </div>
                 <h4 style={{
                   margin: '0 0 8px',
-                  fontSize: '1.1rem',
+                  fontSize: 'clamp(1rem, 3vw, 1.2rem)',
                   fontWeight: '700',
                   color: '#10b981',
                 }}>
@@ -514,7 +738,7 @@ function SurveyRotator() {
                 </h4>
                 <p style={{
                   margin: 0,
-                  fontSize: '0.9rem',
+                  fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
                   color: '#64748b',
                 }}>
                   You have already responded to this survey
@@ -523,20 +747,21 @@ function SurveyRotator() {
             ) : (
               <>
                 {/* All Questions - Vertical Scroll */}
-                <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {questions.map((question, qIndex) => (
                     <div key={question._id} style={{
-                      padding: '16px',
-                      background: 'rgba(0, 0, 0, 0.02)',
-                      borderRadius: '12px',
-                      border: '1px solid rgba(0, 0, 0, 0.05)',
+                      padding: 'clamp(16px, 4vw, 20px)',
+                      background: 'rgba(0, 0, 0, 0.03)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(0, 0, 0, 0.06)',
                     }}>
                       <h4 style={{
-                        margin: '0 0 12px',
-                        fontSize: '1rem',
+                        margin: '0 0 14px',
+                        fontSize: 'clamp(0.95rem, 2.8vw, 1.05rem)',
                         fontWeight: '600',
                         color: 'var(--app-text)',
                         lineHeight: '1.5',
+                        letterSpacing: '-0.2px',
                       }}>
                         {qIndex + 1}. {question.question}
                       </h4>
@@ -551,23 +776,29 @@ function SurveyRotator() {
                           disabled={isSubmitting}
                           style={{
                             width: '100%',
-                            padding: '12px 14px',
+                            padding: 'clamp(12px, 3vw, 14px)',
                             border: '2px solid #e2e8f0',
-                            borderRadius: '10px',
-                            fontSize: '0.95rem',
-                            fontFamily: 'inherit',
-                            transition: 'border-color 0.2s ease',
+                            borderRadius: '12px',
+                            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                            background: 'var(--app-bg)',
+                            color: 'var(--app-text)',
                             outline: 'none',
-                            cursor: isSubmitting ? 'not-allowed' : 'text',
+                            transition: 'all 0.2s',
                           }}
-                          onFocus={(e) => !isSubmitting && (e.target.style.borderColor = '#667eea')}
-                          onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = '#f59e0b';
+                            e.target.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.1)';
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = '#e2e8f0';
+                            e.target.style.boxShadow = 'none';
+                          }}
                         />
                       )}
 
                       {/* Radio options */}
                       {question.type === 'radio' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 2vw, 8px)' }}>
                           {question.options.map((option, idx) => {
                             const isSelected = state.answers[question._id] === option;
                             return (
@@ -578,16 +809,16 @@ function SurveyRotator() {
                                 disabled={isSubmitting}
                                 style={{
                                   width: '100%',
-                                  padding: '12px 16px',
+                                  padding: 'clamp(10px, 3vw, 12px) clamp(14px, 4vw, 16px)',
                                   border: isSelected 
-                                    ? '2px solid #667eea' 
+                                    ? '2px solid #f59e0b' 
                                     : '2px solid #e2e8f0',
-                                  borderRadius: '10px',
+                                  borderRadius: '12px',
                                   background: isSelected
-                                    ? 'rgba(102, 126, 234, 0.1)'
-                                    : '#ffffff',
+                                    ? 'rgba(245, 158, 11, 0.1)'
+                                    : 'var(--app-bg)',
                                   color: 'var(--app-text)',
-                                  fontSize: '0.95rem',
+                                  fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
                                   fontWeight: '500',
                                   textAlign: 'left',
                                   cursor: isSubmitting ? 'not-allowed' : 'pointer',
@@ -598,20 +829,20 @@ function SurveyRotator() {
                                 }}
                                 onMouseEnter={(e) => {
                                   if (!isSubmitting) {
-                                    e.target.style.borderColor = '#667eea';
-                                    e.target.style.background = 'rgba(102, 126, 234, 0.05)';
+                                    e.target.style.borderColor = '#f59e0b';
+                                    e.target.style.background = 'rgba(245, 158, 11, 0.05)';
                                   }
                                 }}
                                 onMouseLeave={(e) => {
                                   if (!isSelected) {
                                     e.target.style.borderColor = '#e2e8f0';
-                                    e.target.style.background = '#ffffff';
+                                    e.target.style.background = 'var(--app-bg)';
                                   }
                                 }}
                               >
                                 <span>{option}</span>
                                 {isSelected && (
-                                  <FaCheck style={{ color: '#667eea' }} />
+                                  <FaCheck style={{ color: '#f59e0b' }} />
                                 )}
                               </button>
                             );
@@ -621,7 +852,7 @@ function SurveyRotator() {
 
                       {/* Checkbox options */}
                       {question.type === 'checkbox' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 2vw, 8px)' }}>
                           {question.options.map((option, idx) => {
                             const selectedValues = Array.isArray(state.answers[question._id]) 
                               ? state.answers[question._id] 
@@ -642,16 +873,16 @@ function SurveyRotator() {
                                 disabled={isSubmitting}
                                 style={{
                                   width: '100%',
-                                  padding: '12px 16px',
+                                  padding: 'clamp(10px, 3vw, 12px) clamp(14px, 4vw, 16px)',
                                   border: isSelected 
-                                    ? '2px solid #667eea' 
+                                    ? '2px solid #f59e0b' 
                                     : '2px solid #e2e8f0',
-                                  borderRadius: '10px',
+                                  borderRadius: '12px',
                                   background: isSelected
-                                    ? 'rgba(102, 126, 234, 0.1)'
-                                    : '#ffffff',
+                                    ? 'rgba(245, 158, 11, 0.1)'
+                                    : 'var(--app-bg)',
                                   color: 'var(--app-text)',
-                                  fontSize: '0.95rem',
+                                  fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
                                   fontWeight: '500',
                                   textAlign: 'left',
                                   cursor: isSubmitting ? 'not-allowed' : 'pointer',
@@ -662,20 +893,20 @@ function SurveyRotator() {
                                 }}
                                 onMouseEnter={(e) => {
                                   if (!isSubmitting) {
-                                    e.target.style.borderColor = '#667eea';
-                                    e.target.style.background = 'rgba(102, 126, 234, 0.05)';
+                                    e.target.style.borderColor = '#f59e0b';
+                                    e.target.style.background = 'rgba(245, 158, 11, 0.05)';
                                   }
                                 }}
                                 onMouseLeave={(e) => {
                                   if (!isSelected) {
                                     e.target.style.borderColor = '#e2e8f0';
-                                    e.target.style.background = '#ffffff';
+                                    e.target.style.background = 'var(--app-bg)';
                                   }
                                 }}
                               >
                                 <span>{option}</span>
                                 {isSelected && (
-                                  <FaCheck style={{ color: '#667eea' }} />
+                                  <FaCheck style={{ color: '#f59e0b' }} />
                                 )}
                               </button>
                             );
@@ -693,14 +924,14 @@ function SurveyRotator() {
                   disabled={!allAnswered || isSubmitting}
                   style={{
                     width: '100%',
-                    padding: '14px 24px',
+                    padding: 'clamp(12px, 3vw, 14px) clamp(20px, 5vw, 24px)',
                     border: 'none',
-                    borderRadius: '12px',
+                    borderRadius: '14px',
                     background: !allAnswered || isSubmitting
                       ? '#cbd5e1'
-                      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      : '#f59e0b',
                     color: '#ffffff',
-                    fontSize: '1rem',
+                    fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                     fontWeight: '600',
                     cursor: !allAnswered || isSubmitting ? 'not-allowed' : 'pointer',
                     transition: 'all 0.2s ease',
@@ -708,11 +939,12 @@ function SurveyRotator() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px',
+                    letterSpacing: '-0.3px',
                   }}
                   onMouseEnter={(e) => {
                     if (allAnswered && !isSubmitting) {
                       e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)';
+                      e.target.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.4)';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -745,8 +977,803 @@ function SurveyRotator() {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
           }
+          @keyframes popupSlideIn {
+            from {
+              opacity: 0;
+              transform: translateY(20px) scale(0.95);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+          @keyframes successPulse {
+            0% {
+              transform: scale(0.8);
+              opacity: 0;
+            }
+            50% {
+              transform: scale(1.1);
+            }
+            100% {
+              transform: scale(1);
+              opacity: 1;
+            }
+          }
         `}
       </style>
+
+      {/* Report Popup */}
+      {reportPopup.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.6)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px',
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '24px',
+            padding: 'clamp(24px, 5vw, 40px)',
+            maxWidth: '520px',
+            width: '100%',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+            animation: 'popupSlideIn 0.3s ease-out',
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              marginBottom: '20px',
+            }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+              }}>
+                <FaFlag style={{ fontSize: '1.3rem', color: '#ffffff' }} />
+              </div>
+              <div>
+                <h3 style={{
+                  margin: '0 0 4px',
+                  fontSize: 'clamp(1.2rem, 3vw, 1.4rem)',
+                  fontWeight: '800',
+                  color: 'var(--app-text)',
+                  letterSpacing: '-0.3px',
+                }}>
+                  Report Survey
+                </h3>
+                <p style={{
+                  margin: 0,
+                  fontSize: '0.85rem',
+                  color: '#64748b',
+                  fontWeight: '500',
+                }}>
+                  Help us improve the community
+                </p>
+              </div>
+            </div>
+            
+            {reportPopup.status === 'initial' && (
+              <>
+                <p style={{
+                  margin: '0 0 24px',
+                  fontSize: '0.95rem',
+                  color: '#64748b',
+                  lineHeight: '1.6',
+                }}>
+                  Please provide a reason for reporting this survey. This helps us understand and address the issue appropriately.
+                </p>
+                {reportPopup.message && (
+                  <div style={{
+                    padding: '12px 16px',
+                    marginBottom: '20px',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: '12px',
+                  }}>
+                    <p style={{
+                      margin: 0,
+                      fontSize: '0.9rem',
+                      color: '#ef4444',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}>
+                      <span style={{ fontSize: '1.1rem' }}>⚠️</span>
+                      {reportPopup.message}
+                    </p>
+                  </div>
+                )}
+                <textarea
+                  value={reportPopup.reason}
+                  onChange={(e) => setReportPopup({ ...reportPopup, reason: e.target.value, message: '' })}
+                  placeholder="Describe why you're reporting this survey..."
+                  style={{
+                    width: '100%',
+                    minHeight: '140px',
+                    padding: '16px',
+                    border: '2px solid #e2e8f0',
+                    borderRadius: '14px',
+                    fontSize: '1rem',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    marginBottom: '24px',
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                    background: '#f8fafc',
+                    color: 'var(--app-text)',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#ef4444';
+                    e.target.style.background = '#ffffff';
+                    e.target.style.boxShadow = '0 0 0 4px rgba(239, 68, 68, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e2e8f0';
+                    e.target.style.background = '#f8fafc';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+                <div style={{
+                  display: 'flex',
+                  gap: '12px',
+                  justifyContent: 'flex-end',
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => setReportPopup({ isOpen: false, surveyId: null, reason: '', status: 'initial', message: '' })}
+                    style={{
+                      padding: '14px 28px',
+                      border: '2px solid #e2e8f0',
+                      borderRadius: '12px',
+                      background: '#ffffff',
+                      color: '#64748b',
+                      fontSize: '0.95rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.borderColor = '#94a3b8';
+                      e.target.style.background = '#f8fafc';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.borderColor = '#e2e8f0';
+                      e.target.style.background = '#ffffff';
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleReportSubmit}
+                    style={{
+                      padding: '14px 28px',
+                      border: 'none',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                      color: '#ffffff',
+                      fontSize: '0.95rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 8px 24px rgba(239, 68, 68, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+                    }}
+                  >
+                    Submit Report
+                  </button>
+                </div>
+              </>
+            )}
+
+            {reportPopup.status === 'submitting' && (
+              <div style={{
+                textAlign: 'center',
+                padding: '60px 20px',
+              }}>
+                <div style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 20px',
+                }}>
+                  <FaSpinner style={{
+                    fontSize: '1.8rem',
+                    color: '#ef4444',
+                    animation: 'spin 1s linear infinite',
+                  }} />
+                </div>
+                <p style={{
+                  margin: 0,
+                  fontSize: '1.1rem',
+                  color: '#64748b',
+                  fontWeight: '600',
+                }}>
+                  Submitting report...
+                </p>
+              </div>
+            )}
+
+            {reportPopup.status === 'success' && (
+              <div style={{
+                textAlign: 'center',
+                padding: '40px 20px',
+              }}>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 24px',
+                  animation: 'successPulse 0.6s ease-out',
+                }}>
+                  <FaCheck style={{
+                    fontSize: '2.5rem',
+                    color: '#10b981',
+                  }} />
+                </div>
+                <h4 style={{
+                  margin: '0 0 12px',
+                  fontSize: '1.3rem',
+                  color: '#10b981',
+                  fontWeight: '800',
+                }}>
+                  Report Submitted
+                </h4>
+                <p style={{
+                  margin: '0 0 28px',
+                  fontSize: '0.95rem',
+                  color: '#64748b',
+                  lineHeight: '1.6',
+                }}>
+                  Thank you for helping us keep the community safe. We'll review your report shortly.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setReportPopup({ isOpen: false, surveyId: null, reason: '', status: 'initial', message: '' })}
+                  style={{
+                    padding: '14px 32px',
+                    border: 'none',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    color: '#ffffff',
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 8px 24px rgba(16, 185, 129, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+            )}
+
+            {reportPopup.status === 'error' && (
+              <div style={{
+                textAlign: 'center',
+                padding: '40px 20px',
+              }}>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 24px',
+                }}>
+                  <span style={{ fontSize: '2.5rem' }}>😕</span>
+                </div>
+                <h4 style={{
+                  margin: '0 0 12px',
+                  fontSize: '1.3rem',
+                  color: '#ef4444',
+                  fontWeight: '800',
+                }}>
+                  Something went wrong
+                </h4>
+                <p style={{
+                  margin: '0 0 28px',
+                  fontSize: '0.95rem',
+                  color: '#64748b',
+                  lineHeight: '1.6',
+                }}>
+                  {reportPopup.message}
+                </p>
+                <div style={{
+                  display: 'flex',
+                  gap: '12px',
+                  justifyContent: 'center',
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => setReportPopup({ isOpen: false, surveyId: null, reason: '', status: 'initial', message: '' })}
+                    style={{
+                      padding: '14px 24px',
+                      border: '2px solid #e2e8f0',
+                      borderRadius: '12px',
+                      background: '#ffffff',
+                      color: '#64748b',
+                      fontSize: '0.95rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.borderColor = '#94a3b8';
+                      e.target.style.background = '#f8fafc';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.borderColor = '#e2e8f0';
+                      e.target.style.background = '#ffffff';
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setReportPopup({ ...reportPopup, status: 'initial', message: '' })}
+                    style={{
+                      padding: '14px 24px',
+                      border: 'none',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                      color: '#ffffff',
+                      fontSize: '0.95rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 8px 24px rgba(239, 68, 68, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+                    }}
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Share Popup */}
+      {sharePopup.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '32px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+          }}>
+            <h3 style={{
+              margin: '0 0 16px',
+              fontSize: '1.3rem',
+              fontWeight: '700',
+              color: 'var(--app-text)',
+            }}>
+              Share Survey
+            </h3>
+            
+            <p style={{
+              margin: '0 0 20px',
+              fontSize: '0.95rem',
+              color: '#64748b',
+            }}>
+              Copy the link below to share this survey with others:
+            </p>
+            
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginBottom: '20px',
+            }}>
+              <input
+                type="text"
+                value={sharePopup.link}
+                readOnly
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '0.9rem',
+                  background: '#f8fafc',
+                  color: '#64748b',
+                  outline: 'none',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                style={{
+                  padding: '12px 20px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  background: sharePopup.copied
+                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                    : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                {sharePopup.copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            
+            <button
+              type="button"
+              onClick={() => setSharePopup({ isOpen: false, surveyId: null, link: '', copied: false })}
+              style={{
+                width: '100%',
+                padding: '12px 24px',
+                border: '2px solid #e2e8f0',
+                borderRadius: '8px',
+                background: '#ffffff',
+                color: '#64748b',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = '#3b82f6';
+                e.target.style.color = '#3b82f6';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#e2e8f0';
+                e.target.style.color = '#64748b';
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Submission Success Popup */}
+      {submissionPopup.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '20px',
+            padding: '40px',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+            border: '2px solid rgba(245, 158, 11, 0.2)',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+              boxShadow: '0 8px 20px rgba(245, 158, 11, 0.4)',
+            }}>
+              <FaCheck style={{ fontSize: '2.5rem', color: '#ffffff' }} />
+            </div>
+            <h3 style={{
+              margin: '0 0 12px',
+              fontSize: '1.5rem',
+              fontWeight: '700',
+              color: 'var(--app-text)',
+            }}>
+              Survey Submitted!
+            </h3>
+            <p style={{
+              margin: '0 0 20px',
+              fontSize: '1rem',
+              color: '#64748b',
+            }}>
+              Thank you for your response
+            </p>
+            <div style={{
+              background: 'rgba(245, 158, 11, 0.1)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '24px',
+              border: '2px solid rgba(245, 158, 11, 0.2)',
+            }}>
+              <p style={{
+                margin: '0 0 4px',
+                fontSize: '0.9rem',
+                color: '#64748b',
+                fontWeight: '500',
+              }}>
+                Tokens Earned
+              </p>
+              <p style={{
+                margin: 0,
+                fontSize: '2rem',
+                fontWeight: '700',
+                color: '#f59e0b',
+                letterSpacing: '-1px',
+              }}>
+                +{submissionPopup.tokensEarned}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSubmissionPopup({ isOpen: false, tokensEarned: 0 })}
+              style={{
+                width: '100%',
+                padding: '14px 24px',
+                border: 'none',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                color: '#ffffff',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Rate Limit Popup */}
+      {rateLimitPopup.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: 'var(--app-bg)',
+            borderRadius: '20px',
+            padding: '40px',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+            border: '2px solid rgba(239, 68, 68, 0.2)',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+              boxShadow: '0 8px 20px rgba(239, 68, 68, 0.4)',
+            }}>
+              <FaSpinner style={{ fontSize: '2.5rem', color: '#ffffff' }} />
+            </div>
+            <h3 style={{
+              margin: '0 0 12px',
+              fontSize: '1.5rem',
+              fontWeight: '700',
+              color: 'var(--app-text)',
+            }}>
+              Rate Limit Exceeded
+            </h3>
+            <p style={{
+              margin: '0 0 24px',
+              fontSize: '1rem',
+              color: '#64748b',
+              lineHeight: '1.6',
+            }}>
+              You've reached the maximum number of survey submissions for this hour. Please try again later.
+            </p>
+            <button
+              type="button"
+              onClick={() => setRateLimitPopup({ isOpen: false })}
+              style={{
+                width: '100%',
+                padding: '14px 24px',
+                border: 'none',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                color: '#ffffff',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 20px rgba(239, 68, 68, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}
+            >
+              Got It
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Already Submitted Popup */}
+      {alreadySubmittedPopup.isOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: 'var(--app-bg)',
+            borderRadius: '20px',
+            padding: '40px',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+            border: '2px solid rgba(245, 158, 11, 0.2)',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+              boxShadow: '0 8px 20px rgba(245, 158, 11, 0.4)',
+            }}>
+              <FaCheck style={{ fontSize: '2.5rem', color: '#ffffff' }} />
+            </div>
+            <h3 style={{
+              margin: '0 0 12px',
+              fontSize: '1.5rem',
+              fontWeight: '700',
+              color: 'var(--app-text)',
+            }}>
+              Already Submitted
+            </h3>
+            <p style={{
+              margin: '0 0 24px',
+              fontSize: '1rem',
+              color: '#64748b',
+              lineHeight: '1.6',
+            }}>
+              You have already submitted a response to this survey.
+            </p>
+            <button
+              type="button"
+              onClick={() => setAlreadySubmittedPopup({ isOpen: false })}
+              style={{
+                width: '100%',
+                padding: '14px 24px',
+                border: 'none',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                color: '#ffffff',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}
+            >
+              Got It
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

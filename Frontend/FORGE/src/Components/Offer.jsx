@@ -5,11 +5,7 @@ function Offer({ onClose }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newOffer, setNewOffer] = useState({
     title: '',
-    description: '',
-    industry: '',
-    targetAudience: '',
-    vendor: '',
-    expires: ''
+    description: ''
   });
   const [offers, setOffers] = useState([]);
 
@@ -31,24 +27,16 @@ function Offer({ onClose }) {
 
   const handleCreateOffer = (e) => {
     e.preventDefault();
-    if (newOffer.title && newOffer.description && newOffer.industry && newOffer.targetAudience) {
+    if (newOffer.title && newOffer.description) {
       const offer = {
         id: offers.length + 1,
         title: newOffer.title,
-        description: newOffer.description,
-        industry: newOffer.industry,
-        targetAudience: newOffer.targetAudience,
-        vendor: newOffer.vendor || 'ForgeConnect Community',
-        expires: newOffer.expires || 'TBD'
+        description: newOffer.description
       };
       setOffers(prev => [offer, ...prev]);
       setNewOffer({
         title: '',
-        description: '',
-        industry: '',
-        targetAudience: '',
-        vendor: '',
-        expires: ''
+        description: ''
       });
       setShowCreateForm(false);
     }
@@ -124,52 +112,6 @@ function Offer({ onClose }) {
                   rows="3"
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="industry">Industry/Sector *</label>
-                <input
-                  type="text"
-                  id="industry"
-                  name="industry"
-                  value={newOffer.industry}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="e.g., Technology, Healthcare, Education"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="targetAudience">Target Audience *</label>
-                <input
-                  type="text"
-                  id="targetAudience"
-                  name="targetAudience"
-                  value={newOffer.targetAudience}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="e.g., Students, Professionals, Small Businesses"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="vendor">Vendor</label>
-                <input
-                  type="text"
-                  id="vendor"
-                  name="vendor"
-                  value={newOffer.vendor}
-                  onChange={handleInputChange}
-                  placeholder="Vendor name"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="expires">Expiration Date</label>
-                <input
-                  type="text"
-                  id="expires"
-                  name="expires"
-                  value={newOffer.expires}
-                  onChange={handleInputChange}
-                  placeholder="e.g., Jul 15"
-                />
-              </div>
               <button type="submit" className="button-primary">
                 Create Offer
               </button>
@@ -180,21 +122,12 @@ function Offer({ onClose }) {
         <div className="home-popup-section">
           <h3 className="home-popup-section__title">Available offers</h3>
           <ul className="home-popup-list">
-            {offers.map(({ id, title, vendor, expires, description, industry, targetAudience }) => (
+            {offers.map(({ id, title, description }) => (
               <li key={id} className="home-popup-list__item">
                 <div className="home-popup-list__main">
                   <span className="home-popup-list__label">{title}</span>
-                  <span className="home-popup-list__meta">
-                    {vendor} · Expires {expires}
-                  </span>
                   {description && (
                     <span className="home-popup-list__description">{description}</span>
-                  )}
-                  {(industry || targetAudience) && (
-                    <span className="home-popup-list__tags">
-                      {industry && <span className="tag">{industry}</span>}
-                      {targetAudience && <span className="tag">{targetAudience}</span>}
-                    </span>
                   )}
                 </div>
               </li>

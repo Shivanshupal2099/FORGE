@@ -186,55 +186,6 @@
   color: var(--app-muted-text);
 }
 
-.landing-hero__features {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-@media (min-width: 600px) {
-  .landing-hero__features {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.landing-hero__feature {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 18px;
-  border: 2px solid var(--app-card-border);
-  background: var(--app-card-bg);
-  box-shadow: 5px 5px 0 #111111;
-  text-align: left;
-  animation: landing-fade-up 0.6s ease both;
-}
-
-.landing-hero__feature-icon {
-  font-size: 1.35rem;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.landing-hero__feature strong {
-  display: block;
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--app-text);
-  margin-bottom: 2px;
-}
-
-.landing-hero__feature span {
-  display: block;
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: var(--app-muted-text);
-}
-
 .landing-hero__actions {
   display: flex;
   flex-direction: column;
@@ -247,27 +198,27 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 15px 32px;
+  padding: 18px 40px;
   border: 2px solid var(--app-card-border);
   border-radius: 16px;
-  background: #111111;
-  color: #ffffff;
-  font-size: 1rem;
-  font-weight: 800;
+  background: linear-gradient(135deg, #f072b6 0%, #fee140 100%);
+  color: #111111;
+  font-size: 1.1rem;
+  font-weight: 900;
   letter-spacing: 0.02em;
   cursor: pointer;
-  box-shadow: 6px 6px 0 rgba(17, 17, 17, 0.35);
+  box-shadow: 6px 6px 0 #111111;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .landing-hero__cta:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 #111111;
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 #111111;
 }
 
 .landing-hero__cta:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 #111111;
+  transform: translate(1px, 1px);
+  box-shadow: 3px 3px 0 #111111;
 }
 
 .landing-hero__cta-arrow {
@@ -299,6 +250,188 @@
   background: linear-gradient(90deg, #f072b6, #fee140);
   transition: width 0.04s linear;
   border-radius: 0 2px 2px 0;
+}
+
+/* ─── LOGIN PAGE STYLES ───────────────────────── */
+.login-screen {
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-hero {
+  position: relative;
+  width: min(100%, 960px);
+  padding: clamp(32px, 6vw, 56px) clamp(20px, 5vw, 40px);
+  margin: auto;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-hero__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.login-hero__glow--one {
+  width: 320px;
+  height: 320px;
+  top: -80px;
+  right: -60px;
+  background: rgba(255, 215, 0, 0.35);
+  animation: landing-float 8s ease-in-out infinite;
+}
+
+.login-hero__glow--two {
+  width: 260px;
+  height: 260px;
+  bottom: 40px;
+  left: -80px;
+  background: rgba(240, 114, 182, 0.28);
+  animation: landing-float 10s ease-in-out infinite reverse;
+}
+
+.login-hero__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  animation: landing-fade-up 0.7s ease both;
+}
+
+.login-hero__logo {
+  margin-bottom: 16px;
+}
+
+.login-hero__logo img {
+  width: clamp(100px, 18vw, 140px);
+  height: clamp(100px, 18vw, 140px);
+  object-fit: contain;
+  border-radius: 24px;
+  background: #ffffff;
+  padding: 12px;
+  border: 2px solid var(--app-card-border);
+  box-shadow: 8px 8px 0 #111111;
+  animation: landing-logo-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.login-google-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 24px;
+  border: 2px solid var(--app-card-border);
+  border-radius: 16px;
+  background: #ffffff;
+  color: #111111;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 6px 6px 0 #111111;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.login-google-btn:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 #111111;
+}
+
+.login-google-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 3px 3px 0 #111111;
+}
+
+.login-google-btn svg {
+  flex-shrink: 0;
+}
+
+.login-trust {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.login-trust__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--app-card-border);
+}
+
+.login-trust__icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.login-trust__text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--app-muted-text);
+}
+
+@media (max-width: 600px) {
+  .login-hero {
+    padding: clamp(24px, 5vw, 40px) clamp(16px, 4vw, 24px);
+  }
+
+  .login-hero__content {
+    gap: 24px;
+  }
+
+  .login-hero__logo img {
+    width: clamp(80px, 16vw, 100px);
+    height: clamp(80px, 16vw, 100px);
+    padding: 10px;
+  }
+
+  .auth-card {
+    padding: clamp(20px, 4vw, 28px) clamp(16px, 4vw, 20px) !important;
+  }
+
+  .login-trust {
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .login-trust__item {
+    padding: 6px 12px;
+    gap: 6px;
+  }
+
+  .login-trust__icon {
+    font-size: 1rem;
+  }
+
+  .login-trust__text {
+    font-size: 0.78rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .login-hero__content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+  }
+
+  .login-hero__logo {
+    margin-bottom: 0;
+  }
 }
 
 @keyframes landing-fade-up {

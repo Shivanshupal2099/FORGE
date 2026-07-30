@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const MESSAGE_RETENTION_MS = 24 * 60 * 60 * 1000; // 24 hours
+const MESSAGE_RETENTION_MS = 2 * 60 * 1000; // 2 minutes
 
 const messageSchema = new mongoose.Schema({
   connection_id: {
@@ -23,17 +23,13 @@ const messageSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    maxlength: 5000 // Increased for encrypted data
-  },
-  is_encrypted: {
-    type: Boolean,
-    default: true
+    maxlength: 5000
   },
   read_at: {
     type: Date,
     default: null
   },
-  // MongoDB's TTL monitor removes expired messages automatically after 24 hours
+  // MongoDB's TTL monitor removes expired messages automatically after 2 minutes
   expires_at: {
     type: Date,
     default: () => new Date(Date.now() + MESSAGE_RETENTION_MS),

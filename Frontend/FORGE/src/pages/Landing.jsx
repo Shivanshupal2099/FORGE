@@ -4,12 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 const REDIRECT_MS = 4000;
 
-const FEATURES = [
-  { icon: "🔗", label: "Connect", desc: "Find builders & founders near you" },
-  { icon: "🎯", label: "Collaborate", desc: "Join events and grow together" },
-  { icon: "⚡", label: "Earn", desc: "Collect Forge tokens for contributions" },
-];
-
 function Landing() {
   const navigate = useNavigate();
   const [progress, setProgress] = useState(0);
@@ -51,34 +45,15 @@ function Landing() {
             </div>
 
             <div className="landing-hero__copy">
-              <span className="landing-hero__eyebrow">Community Platform</span>
+              <span className="landing-hero__eyebrow">India's Builder Platform · 2026</span>
               <h1 className="landing-hero__title">
                 Forge<span className="landing-hero__title-accent">Connect</span>
               </h1>
               <p className="landing-hero__subtitle">
-                Where innovation meets purpose — shape ideas, build connections,
-                and grow with a community that moves with you.
+                Build with the right people. Discover co-founders, join events, survey real users, and find offers — all on one map.
               </p>
             </div>
           </div>
-
-          <ul className="landing-hero__features">
-            {FEATURES.map((feature, i) => (
-              <li
-                key={feature.label}
-                className="landing-hero__feature"
-                style={{ animationDelay: `${0.15 + i * 0.1}s` }}
-              >
-                <span className="landing-hero__feature-icon" aria-hidden="true">
-                  {feature.icon}
-                </span>
-                <div>
-                  <strong>{feature.label}</strong>
-                  <span>{feature.desc}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
 
           <div className="landing-hero__actions">
             <button

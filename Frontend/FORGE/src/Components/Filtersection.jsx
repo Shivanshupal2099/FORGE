@@ -1,85 +1,106 @@
 import { useState, useEffect } from "react";
 import { FaTimes, FaCheck, FaBriefcase, FaUser, FaShieldAlt, FaClock } from "react-icons/fa";
 
-const professionOptions = [
-  "AI Agent Developer",
-  "Prompt Engineer",
-  "Robotics Engineer",
-  "Blockchain Developer",
-  "AR/VR Developer",
-  "Quantum Computing Researcher",
-  "Sustainability Consultant",
-  "Climate Scientist",
-  "Ethical Hacker",
-  "Digital Forensics Expert",
-  "Creator Economy Manager",
-  "Space Systems Engineer",
-  "Drone Pilot",
-  "Bioinformatics Scientist",
-  "AI Product Manager",
-  "Software Engineer",
-  "AI/ML Engineer",
-  "Data Scientist",
-  "Cybersecurity Engineer",
-  "Cloud Engineer",
-  "DevOps Engineer",
-  "Product Manager",
-  "UI/UX Designer",
-  "Full-Stack Developer",
-  "Mobile App Developer",
-  "Doctor (Physician)",
-  "Surgeon",
-  "Dentist",
-  "Pharmacist",
-  "Nurse",
-  "Psychologist",
-  "Physiotherapist",
-  "Veterinarian",
-  "Lawyer",
-  "Judge",
-  "Chartered Accountant (CA)",
-  "Financial Analyst",
-  "Investment Banker",
-  "Entrepreneur",
-  "Startup Founder",
-  "CEO",
-  "Marketing Manager",
-  "Sales Manager",
-  "Human Resources (HR) Manager",
-  "Business Analyst",
-  "Civil Engineer",
-  "Mechanical Engineer",
-  "Electrical Engineer",
-  "Aerospace Engineer",
-  "Architect",
-  "Scientist",
-  "Researcher",
-  "Professor",
-  "School Teacher",
-  "Journalist",
-  "Content Creator",
-  "Graphic Designer",
-  "Photographer",
-  "Film Director",
-  "Pilot",
-  "Air Traffic Controller",
-  "Police Officer",
-  "Firefighter",
-  "Military Officer",
-  "Social Worker"
+const lookingForOptions = [
+  'Startup Join Team Member',
+  'Startup Join as Co-Founder',
+  'Mentor',
+  'Investor',
+  'Team Member for Hackathon',
+  'Other',
+  'Mentorship',
+  'Collaboration',
+  'Networking',
+  'Job Opportunities',
+  'Freelance Work',
+  'Partnership',
+  'Investment',
+  'Advice',
+  'Learning',
+  'Project Collaboration',
+  'Startup Co-founder',
+  'Technical Support',
+  'Business Development',
+  'Research Collaboration',
+  'Internship',
+  'Consulting',
+  'Volunteering',
+  'Community Building',
+  'Skill Exchange',
+  'Industry Connections',
+  'AI Agent Developer',
+  'Prompt Engineer',
+  'Robotics Engineer',
+  'Blockchain Developer',
+  'AR/VR Developer',
+  'Quantum Computing Researcher',
+  'Sustainability Consultant',
+  'Climate Scientist',
+  'Ethical Hacker',
+  'Digital Forensics Expert',
+  'Creator Economy Manager',
+  'Space Systems Engineer',
+  'Drone Pilot',
+  'Bioinformatics Scientist',
+  'AI Product Manager',
+  'Software Engineer',
+  'AI/ML Engineer',
+  'Data Scientist',
+  'Cybersecurity Engineer',
+  'Cloud Engineer',
+  'DevOps Engineer',
+  'Product Manager',
+  'UI/UX Designer',
+  'Full-Stack Developer',
+  'Mobile App Developer',
+  'Doctor (Physician)',
+  'Surgeon',
+  'Dentist',
+  'Pharmacist',
+  'Nurse',
+  'Psychologist',
+  'Physiotherapist',
+  'Veterinarian',
+  'Lawyer',
+  'Judge',
+  'Chartered Accountant (CA)',
+  'Financial Analyst',
+  'Investment Banker',
+  'Entrepreneur',
+  'Startup Founder',
+  'CEO',
+  'Marketing Manager',
+  'Sales Manager',
+  'Human Resources (HR) Manager',
+  'Business Analyst',
+  'Civil Engineer',
+  'Mechanical Engineer',
+  'Electrical Engineer',
+  'Aerospace Engineer',
+  'Architect',
+  'Scientist',
+  'Researcher',
+  'Professor',
+  'School Teacher',
+  'Journalist',
+  'Content Creator',
+  'Graphic Designer',
+  'Photographer',
+  'Film Director',
+  'Pilot',
+  'Air Traffic Controller',
+  'Police Officer',
+  'Firefighter',
+  'Military Officer',
+  'Social Worker'
 ];
-const genderOptions = ["Any", "Male", "Female", "Other"];
-const onlineStatusOptions = ["Any", "Online now", "Active recently", "Offline"];
 
 
 
 function Filtersection({ onFilterChange, initialFilters = null, onReset, onApply }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
     const [filters, setFilters] = useState(initialFilters || {
-        profession: "",
-        gender: "Any",
-        onlineStatus: "Any",
-        verifiedOnly: false
+        lookingFor: ""
     });
     const [saved, setSaved] = useState(false);
 
@@ -103,10 +124,7 @@ function Filtersection({ onFilterChange, initialFilters = null, onReset, onApply
 
     const resetFilters = () => {
         const defaultFilters = {
-            profession: "",
-            gender: "Any",
-            onlineStatus: "Any",
-            verifiedOnly: false
+            lookingFor: ""
         };
         setFilters(defaultFilters);
         setSaved(false);
@@ -118,10 +136,7 @@ function Filtersection({ onFilterChange, initialFilters = null, onReset, onApply
 
     const getActiveFilterCount = () => {
         let count = 0;
-        if (filters.profession) count++;
-        if (filters.gender !== "Any") count++;
-        if (filters.onlineStatus !== "Any") count++;
-        if (filters.verifiedOnly) count++;
+        if (filters.lookingFor) count++;
         return count;
     };
 
@@ -134,9 +149,9 @@ function Filtersection({ onFilterChange, initialFilters = null, onReset, onApply
         if (onFilterChange) {
             onFilterChange(filters);
         }
-        // Call onApply callback to close popup
+        // Call onApply callback to close popup and apply filters
         if (onApply) {
-            onApply();
+            onApply(filters);
         }
     };
 
@@ -165,45 +180,13 @@ function Filtersection({ onFilterChange, initialFilters = null, onReset, onApply
                     <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
                         <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaBriefcase style={styles.labelIcon} /> People You're Looking For</span>
                         <select
-                            name="profession"
-                            value={filters.profession}
+                            name="lookingFor"
+                            value={filters.lookingFor}
                             onChange={handleChange}
                             style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
                         >
-                            <option value="">Choose profession</option>
-                            {professionOptions.map((option) => (
-                                <option key={option} value={option}>
-                                    {option}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-
-                    <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                        <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaUser style={styles.labelIcon} /> Gender</span>
-                        <select
-                            name="gender"
-                            value={filters.gender}
-                            onChange={handleChange}
-                            style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                        >
-                            {genderOptions.map((option) => (
-                                <option key={option} value={option}>
-                                    {option}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-
-                    <label style={{ ...styles.field, ...(isMobile ? styles.fieldMobile : {}) }}>
-                        <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaClock style={styles.labelIcon} /> Online Status</span>
-                        <select
-                            name="onlineStatus"
-                            value={filters.onlineStatus}
-                            onChange={handleChange}
-                            style={{ ...styles.input, ...(isMobile ? styles.inputMobile : {}) }}
-                        >
-                            {onlineStatusOptions.map((option) => (
+                            <option value="">What are you looking for?</option>
+                            {lookingForOptions.map((option) => (
                                 <option key={option} value={option}>
                                     {option}
                                 </option>
@@ -211,29 +194,6 @@ function Filtersection({ onFilterChange, initialFilters = null, onReset, onApply
                         </select>
                     </label>
                 </div>
-
-                {/* Verified Only Toggle */}
-                <label style={{ ...styles.toggleContainer, ...(isMobile ? styles.toggleContainerMobile : {}) }}>
-                    <div>
-                        <span style={{ ...styles.label, ...(isMobile ? styles.labelMobile : {}) }}><FaShieldAlt style={styles.labelIcon} /> Verified profiles only</span>
-                        <span style={{ ...styles.noteText, ...(isMobile ? styles.noteTextMobile : {}) }}>
-                            Show genuine users who are verified and interested in being part of something great
-                        </span>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={() => handleChange({ target: { name: 'verifiedOnly', type: 'checkbox', checked: !filters.verifiedOnly } })}
-                        style={{
-                            ...styles.toggleButton,
-                            ...(filters.verifiedOnly ? styles.toggleButtonActive : {})
-                        }}
-                    >
-                        <span style={{
-                            ...styles.toggleSlider,
-                            ...(filters.verifiedOnly ? styles.toggleSliderActive : {})
-                        }}></span>
-                    </button>
-                </label>
             </div>
 
 

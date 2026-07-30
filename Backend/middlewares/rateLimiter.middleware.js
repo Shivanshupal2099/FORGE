@@ -57,7 +57,11 @@ const surveyCreationLimiter = rateLimit({
  */
 const surveyResponseLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 50, // Limit each user to 50 survey responses per hour
+  max: 1000, // Limit each user to 1000 survey responses per hour (increased for development)
+  skip: (req) => {
+    // Skip rate limiting for development
+    return process.env.NODE_ENV !== 'production';
+  },
   keyGenerator: (req) => req.user?._id || req.ip,
   message: 'Too many survey responses, please try again later.',
   standardHeaders: true,

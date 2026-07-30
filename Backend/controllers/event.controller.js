@@ -75,8 +75,12 @@ exports.getAllEvents = async (req, res) => {
   try {
     console.log('Received get all events request');
     
+    // Fetch all events (no visibility filter for now to debug)
     const events = await Event.find()
       .sort({ created_at: -1 });
+
+    console.log(`Found ${events.length} total events in database`);
+    console.log('Events visibility:', events.map(e => ({ title: e.title, visibility: e.visibility })));
 
     // Filter events based on registration limit and user registration status
     let filteredEvents = events;

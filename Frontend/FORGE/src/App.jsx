@@ -7,6 +7,7 @@ import ProtectedRoute from './Components/ProtectedRoute';
 
 // Lazy load route components for better performance
 const Landing = lazy(() => import("./pages/Landing"));
+const VisitorPage = lazy(() => import("./pages/VisitorPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const AccountPage = lazy(() => import('./pages/AccountPage'));
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -20,6 +21,7 @@ const Survey = lazy(() => import('./Components/Survey'));
 const SurveyResultsPage = lazy(() => import('./pages/SurveyResultsPage'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const EventDetailPage = lazy(() => import('./pages/EventDetailPage'));
+const PublicSurveyPage = lazy(() => import('./pages/PublicSurveyPage'));
 
 // Loading component for Suspense fallback
 const PageLoader = () => (
@@ -31,6 +33,7 @@ const PageLoader = () => (
     backgroundColor: '#f5f5f5'
   }}>
     <div style={{
+      
       width: '40px',
       height: '40px',
       border: '4px solid #3182ce',
@@ -58,6 +61,7 @@ function App() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/visitor" element={<VisitorPage />} />
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/account" element={<GuestRoute><AccountPage /></GuestRoute>} />
           <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
@@ -69,6 +73,7 @@ function App() {
           <Route path="/settings" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
           <Route path="/survey" element={<ProtectedRoute><Survey /></ProtectedRoute>} />
           <Route path="/survey/:surveyId/results" element={<ProtectedRoute><SurveyResultsPage /></ProtectedRoute>} />
+          <Route path="/survey/view/:surveyId" element={<PublicSurveyPage />} />
           <Route path="/event/:id" element={<ProtectedRoute><EventDetailPage /></ProtectedRoute>} />
           <Route path="/auth/callback" element={<AuthCallback />} />
         </Routes>

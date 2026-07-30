@@ -307,18 +307,33 @@ function UserEventsPage() {
           @media (max-width: 1023px) {
             .action-buttons-container {
               position: fixed !important;
-              bottom: 80px !important;
-              left: 50% !important;
-              right: auto !important;
-              transform: translateX(-50%) !important;
-              flex-direction: row !important;
+              bottom: 90px !important;
+              right: 20px !important;
+              left: auto !important;
+              transform: none !important;
+              flex-direction: column !important;
               width: auto !important;
-              gap: 8px !important;
+              gap: 0 !important;
               z-index: 1000 !important;
             }
             .action-buttons-container button {
-              padding: 10px 16px !important;
-              font-size: 0.85rem !important;
+              min-width: 56px !important;
+              width: 56px !important;
+              height: 56px !important;
+              padding: 0 !important;
+              border-radius: 50% !important;
+              font-size: 0 !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              box-shadow: 0 8px 24px rgba(241, 196, 15, 0.5) !important;
+            }
+            .action-buttons-container button span {
+              display: none !important;
+            }
+            .action-buttons-container button svg {
+              font-size: 1.5rem !important;
+              margin: 0 !important;
             }
           }
           @media (min-width: 1024px) {
@@ -331,7 +346,7 @@ function UserEventsPage() {
               z-index: 10;
             }
             .action-buttons-container button {
-              min-width: 160px;
+              min-width: 180px;
             }
             .events-section-wrapper {
               position: relative;
@@ -350,32 +365,35 @@ function UserEventsPage() {
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '10px',
-              padding: '16px 32px',
+              gap: '12px',
+              padding: '18px 36px',
               border: '2px solid transparent',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, #f1c40f 0%, #f39c12 100%)',
               color: '#ffffff',
-              fontSize: '1.05rem',
+              fontSize: '1.1rem',
               fontWeight: '800',
               cursor: 'pointer',
-              boxShadow: '0 12px 32px rgba(102, 126, 234, 0.5)',
+              boxShadow: '0 16px 48px rgba(241, 196, 15, 0.4)',
               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               whiteSpace: 'nowrap',
-              letterSpacing: '0.02em',
+              letterSpacing: '0.03em',
+              textTransform: 'uppercase',
+              position: 'relative',
+              overflow: 'hidden',
             }}
             onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-3px) scale(1.02)';
-              e.target.style.boxShadow = '0 20px 48px rgba(102, 126, 234, 0.6)';
-              e.target.style.background = 'linear-gradient(135deg, #7c8efc 0%, #8a5bd6 100%)';
+              e.target.style.transform = 'translateY(-4px) scale(1.03)';
+              e.target.style.boxShadow = '0 24px 64px rgba(241, 196, 15, 0.5)';
+              e.target.style.background = 'linear-gradient(135deg, #f4d03f 0%, #f1c40f 100%)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0) scale(1)';
-              e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.5)';
-              e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+              e.target.style.boxShadow = '0 16px 48px rgba(241, 196, 15, 0.4)';
+              e.target.style.background = 'linear-gradient(135deg, #f1c40f 0%, #f39c12 100%)';
             }}
           >
-            <IoAdd style={{ fontSize: '1.2rem' }} /> Create Event
+            <IoAdd style={{ fontSize: '1.3rem' }} /> <span>Create Event</span>
           </button>
         </div>
         

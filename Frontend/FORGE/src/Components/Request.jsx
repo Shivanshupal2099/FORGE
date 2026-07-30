@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { FaHandPaper, FaTimes, FaCheck, FaUserFriends, FaUnlink } from 'react-icons/fa';
+import { FaHandPaper, FaTimes, FaCheck, FaUserFriends, FaUnlink, FaPaperPlane } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
-import { generateKeyPair, exportPublicKey } from '../utils/encryption';
 
 function Request({ onClose, onConnectionAccepted }) {
   const { user } = useAuth();
   const [incomingRequests, setIncomingRequests] = useState([]);
+  const [declinedRequests, setDeclinedRequests] = useState([]);
+  const [sentRequests, setSentRequests] = useState([]);
   const [acceptedConnections, setAcceptedConnections] = useState([]);
   const [activeTab, setActiveTab] = useState('requests');
   const [loading, setLoading] = useState(true);
@@ -25,12 +26,32 @@ function Request({ onClose, onConnectionAccepted }) {
   useEffect(() => {
     const fetchIncomingRequests = async () => {
       try {
+        console.log('Request component - fetching incoming requests for user:', user?.email, user?.uid);
         const response = await axios.get('/api/connections/incoming');
+        console.log('Request component - incoming requests response:', response.data);
         if (response.data.success) {
-          setIncomingRequests(response.data.connections || []);
+          const allRequests = response.data.connections || [];
+          // Separate pending and declined requests
+          setIncomingRequests(allRequests.filter(req => req.status === 'pending'));
+          setDeclinedRequests(allRequests.filter(req => req.status === 'declined'));
         }
       } catch (error) {
         console.error('Error fetching incoming requests:', error);
+      }
+    };
+
+    const fetchSentRequests = async () => {
+      try {
+        console.log('Request component - fetching sent requests for user:', user?.email, user?.uid);
+        const response = await axios.get('/api/connections/sent');
+        console.log('Request component - sent requests response:', response.data);
+        if (response.data.success) {
+          const allRequests = response.data.connections || [];
+          // Separate pending and declined sent requests
+          setSentRequests(allRequests);
+        }
+      } catch (error) {
+        console.error('Error fetching sent requests:', error);
       }
     };
 
@@ -47,33 +68,16 @@ function Request({ onClose, onConnectionAccepted }) {
 
     const fetchData = async () => {
       setLoading(true);
-      await Promise.all([fetchIncomingRequests(), fetchAcceptedConnections()]);
+      await Promise.all([fetchIncomingRequests(), fetchSentRequests(), fetchAcceptedConnections()]);
       setLoading(false);
     };
 
     fetchData();
-  }, []);
+  }, [user?.email, user?.uid]);
 
   const handleAccept = async (connectionId) => {
     try {
-      // Generate key pair for E2E encryption
-      const keyPair = await generateKeyPair();
-      const publicKey = await exportPublicKey(keyPair);
-
-      // Get the requester's email from the request
-      const request = incomingRequests.find(req => req._id === connectionId);
-      if (!request) return;
-
-      // Store key pair in localStorage for later use
-      const privateKeyExported = await window.crypto.subtle.exportKey('jwk', keyPair.privateKey);
-      localStorage.setItem(`encryption_key_${request.collaborator.uid}`, JSON.stringify({
-        privateKey: privateKeyExported,
-        publicKey: publicKey
-      }));
-
-      const response = await axios.put(`/api/connections/${connectionId}/accept`, {
-        receiver_public_key: publicKey
-      });
+      const response = await axios.put(`/api/connections/${connectionId}/accept`);
       if (response.data.success) {
         setIncomingRequests(prev => prev.filter(req => req._id !== connectionId));
         // Refresh accepted connections
@@ -95,7 +99,15 @@ function Request({ onClose, onConnectionAccepted }) {
     try {
       const response = await axios.put(`/api/connections/${connectionId}/decline`);
       if (response.data.success) {
+        // Move from pending to declined
         setIncomingRequests(prev => prev.filter(req => req._id !== connectionId));
+        // Refresh to get updated declined requests
+        const incomingResponse = await axios.get('/api/connections/incoming');
+        if (incomingResponse.data.success) {
+          const allRequests = incomingResponse.data.connections || [];
+          setIncomingRequests(allRequests.filter(req => req.status === 'pending'));
+          setDeclinedRequests(allRequests.filter(req => req.status === 'declined'));
+        }
       }
     } catch (error) {
       console.error('Error declining request:', error);
@@ -110,6 +122,20 @@ function Request({ onClose, onConnectionAccepted }) {
       }
     } catch (error) {
       console.error('Error disconnecting:', error);
+    }
+  };
+
+  const handleDeleteRequest = async (connectionId) => {
+    try {
+      const response = await axios.delete(`/api/connections/${connectionId}`);
+      if (response.data.success) {
+        // Remove from sent requests
+        setSentRequests(prev => prev.filter(req => req._id !== connectionId));
+        // Remove from declined requests
+        setDeclinedRequests(prev => prev.filter(req => req._id !== connectionId));
+      }
+    } catch (error) {
+      console.error('Error deleting request:', error);
     }
   };
 
@@ -133,16 +159,26 @@ function Request({ onClose, onConnectionAccepted }) {
 
         <div className="request-popup__header">
           <span className="request-popup__icon">
-            {activeTab === 'requests' ? <FaHandPaper aria-hidden="true" /> : <FaUserFriends aria-hidden="true" />}
+            {activeTab === 'requests' ? <FaHandPaper aria-hidden="true" /> : 
+             activeTab === 'declined' ? <FaTimes aria-hidden="true" /> : 
+             activeTab === 'sent' ? <FaPaperPlane aria-hidden="true" /> :
+             <FaUserFriends aria-hidden="true" />}
           </span>
           <div>
             <h2 id="request-popup-title" className="request-popup__title">
-              {activeTab === 'requests' ? 'Connection Requests' : 'My Connections'}
+              {activeTab === 'requests' ? 'Connection Requests' : 
+               activeTab === 'declined' ? 'Declined Requests' : 
+               activeTab === 'sent' ? 'Sent Requests' :
+               'My Connections'}
             </h2>
             <p className="request-popup__subtitle">
               {loading ? 'Loading...' : activeTab === 'requests' 
                 ? `${incomingRequests.length} pending request${incomingRequests.length !== 1 ? 's' : ''}`
-                : `${acceptedConnections.length} connection${acceptedConnections.length !== 1 ? 's' : ''}`
+                : activeTab === 'declined'
+                  ? `${declinedRequests.length} declined request${declinedRequests.length !== 1 ? 's' : ''}`
+                  : activeTab === 'sent'
+                    ? `${sentRequests.length} sent request${sentRequests.length !== 1 ? 's' : ''}`
+                    : `${acceptedConnections.length} connection${acceptedConnections.length !== 1 ? 's' : ''}`
               }
             </p>
           </div>
@@ -154,24 +190,48 @@ function Request({ onClose, onConnectionAccepted }) {
             type="button"
             className={`request-popup__tab ${activeTab === 'requests' ? 'request-popup__tab--active' : ''}`}
             onClick={() => setActiveTab('requests')}
+            aria-label="Requests"
           >
             <FaHandPaper />
-            Requests
             {incomingRequests.length > 0 && (
               <span className="request-popup__tab-badge">{incomingRequests.length}</span>
             )}
           </button>
           <button
             type="button"
+            className={`request-popup__tab ${activeTab === 'sent' ? 'request-popup__tab--active' : ''}`}
+            onClick={() => setActiveTab('sent')}
+            aria-label="Sent"
+          >
+            <FaPaperPlane />
+            {sentRequests.length > 0 && (
+              <span className="request-popup__tab-badge">{sentRequests.length}</span>
+            )}
+          </button>
+          <button
+            type="button"
+            className={`request-popup__tab ${activeTab === 'declined' ? 'request-popup__tab--active' : ''}`}
+            onClick={() => setActiveTab('declined')}
+            aria-label="Declined"
+          >
+            <FaTimes />
+            {declinedRequests.length > 0 && (
+              <span className="request-popup__tab-badge">{declinedRequests.length}</span>
+            )}
+          </button>
+          <button
+            type="button"
             className={`request-popup__tab ${activeTab === 'connections' ? 'request-popup__tab--active' : ''}`}
             onClick={() => setActiveTab('connections')}
+            aria-label="Connections"
           >
             <FaUserFriends />
-            Connections
           </button>
         </div>
 
-        <div className="request-popup__content">
+        <div 
+          className="request-popup__content"
+        >
           {loading ? (
             <div className="request-popup__empty">
               <span className="request-popup__loading">Loading...</span>
@@ -228,6 +288,110 @@ function Request({ onClose, onConnectionAccepted }) {
                       >
                         <FaTimes aria-hidden="true" />
                         Decline
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )
+          ) : activeTab === 'sent' ? (
+            sentRequests.length === 0 ? (
+              <div className="request-popup__empty">
+                <span className="request-popup__empty-icon">📭</span>
+                <p>No sent requests</p>
+              </div>
+            ) : (
+              <ul className="request-list">
+                {sentRequests.map((request) => (
+                  <li key={request._id} className={`request-card ${request.status === 'declined' ? 'request-card--declined' : ''}`}>
+                    <div className="request-card__profile">
+                      {request.collaborator?.avatarUrl ? (
+                        <img 
+                          src={request.collaborator.avatarUrl} 
+                          alt={request.collaborator.name}
+                          className="request-card__avatar"
+                        />
+                      ) : (
+                        <div className="request-card__avatar-placeholder">
+                          {request.collaborator?.name?.charAt(0) || '?'}
+                        </div>
+                      )}
+                      <div className="request-card__info">
+                        <h3 className="request-card__name">
+                          {request.collaborator?.name}
+                        </h3>
+                        {request.collaborator?.profession && (
+                          <p className="request-card__profession">{request.collaborator.profession}</p>
+                        )}
+                        {request.requester_intent && (
+                          <p className="request-card__message">{request.requester_intent}</p>
+                        )}
+                        <p className={`request-card__status ${request.status === 'declined' ? 'request-card__status--declined' : 'request-card__status--pending'}`}>
+                          {request.status === 'declined' ? 'Declined' : 'Pending'}
+                        </p>
+                      </div>
+                    </div>
+                    {request.status === 'declined' && (
+                      <div className="request-card__actions">
+                        <button
+                          type="button"
+                          className="request-card__button request-card__button--delete"
+                          onClick={() => handleDeleteRequest(request._id)}
+                          aria-label="Remove request"
+                        >
+                          <FaUnlink aria-hidden="true" />
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )
+          ) : activeTab === 'declined' ? (
+            declinedRequests.length === 0 ? (
+              <div className="request-popup__empty">
+                <span className="request-popup__empty-icon">📭</span>
+                <p>No declined requests</p>
+              </div>
+            ) : (
+              <ul className="request-list">
+                {declinedRequests.map((request) => (
+                  <li key={request._id} className="request-card request-card--declined">
+                    <div className="request-card__profile">
+                      {request.requester_profile?.avatar_url ? (
+                        <img 
+                          src={request.requester_profile.avatar_url} 
+                          alt={`${request.requester_profile.first_name} ${request.requester_profile.last_name}`}
+                          className="request-card__avatar"
+                        />
+                      ) : (
+                        <div className="request-card__avatar-placeholder">
+                          {request.requester_profile?.first_name?.charAt(0) || '?'}
+                        </div>
+                      )}
+                      <div className="request-card__info">
+                        <h3 className="request-card__name">
+                          {request.requester_profile?.first_name} {request.requester_profile?.last_name}
+                        </h3>
+                        {request.requester_profile?.department && (
+                          <p className="request-card__profession">{request.requester_profile.department}</p>
+                        )}
+                        {request.requester_intent && (
+                          <p className="request-card__message">{request.requester_intent}</p>
+                        )}
+                        <p className="request-card__status request-card__status--declined">Declined</p>
+                      </div>
+                    </div>
+                    <div className="request-card__actions">
+                      <button
+                        type="button"
+                        className="request-card__button request-card__button--delete"
+                        onClick={() => handleDeleteRequest(request._id)}
+                        aria-label="Remove request"
+                      >
+                        <FaUnlink aria-hidden="true" />
+                        Remove
                       </button>
                     </div>
                   </li>

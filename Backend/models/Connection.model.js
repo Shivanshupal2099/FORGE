@@ -44,16 +44,6 @@ const connectionSchema = new mongoose.Schema(
     responded_at: {
       type: Date,
       default: null
-    },
-
-    // Public keys for end-to-end encryption
-    requester_public_key: {
-      type: String,
-      default: null
-    },
-    receiver_public_key: {
-      type: String,
-      default: null
     }
   },
   {

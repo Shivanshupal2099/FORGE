@@ -30,10 +30,7 @@ function Map() {
   const [allLocations, setAllLocations] = useState([])
   const [filteredLocations, setFilteredLocations] = useState([])
   const [filters, setFilters] = useState({
-    profession: "",
-    gender: "Any",
-    onlineStatus: "Any",
-    verifiedOnly: false
+    lookingFor: ""
   })
 
   useEffect(() => {
@@ -155,7 +152,7 @@ function Map() {
           status: 'Active',
           visibility: 'Public',
           lookingFor: profile.looking_for || [],
-          email: uid,
+          email: profile.uid || profile.email || uid, // Use profile.uid first, then email, then fallback to uid
           socialLinks: {
             linkedin: profile.linkedin_url,
             github: profile.github_url,
@@ -172,6 +169,7 @@ function Map() {
             show_services: true
           }
         }
+        console.log('Setting selected user with email:', userData.email);
         setSelectedUser(userData)
       }
     } catch (error) {
@@ -180,59 +178,54 @@ function Map() {
   }
 
   const handleFilterChange = (newFilters) => {
+    console.log('handleFilterChange called with:', newFilters);
     setFilters(newFilters);
   };
 
-  const handleApplyFilters = () => {
-    console.log('Applying filters:', filters);
-    const filtered = filterLocations(allLocations, filters);
+  const handleApplyFilters = (filterValues = null) => {
+    const filtersToApply = filterValues || filters;
+    console.log('handleApplyFilters called with filters:', filtersToApply);
+    const filtered = filterLocations(allLocations, filtersToApply);
+    console.log('Setting filteredLocations to:', filtered.length, 'locations');
     setFilteredLocations(filtered);
     setIsFilterOpen(false);
   };
 
   const handleResetFilters = () => {
     const defaultFilters = {
-      profession: "",
-      gender: "Any",
-      onlineStatus: "Any",
-      verifiedOnly: false
+      lookingFor: ""
     };
     setFilters(defaultFilters);
     setFilteredLocations(allLocations);
   };
 
   const filterLocations = (locations, filterCriteria) => {
-    const filtered = locations.filter(location => {
-      const profile = location.profile || {};
-      
-      // Filter by profession (department)
-      if (filterCriteria.profession && profile.department !== filterCriteria.profession) {
-        return false;
-      }
-      
-      // Filter by gender
-      if (filterCriteria.gender !== "Any" && profile.gender !== filterCriteria.gender) {
-        return false;
-      }
-      
-      // Filter by verified status
-      if (filterCriteria.verifiedOnly && !profile.is_verified) {
-        return false;
-      }
-      
-      // Filter by online status
-      if (filterCriteria.onlineStatus !== "Any") {
-        if (filterCriteria.onlineStatus === "Online now" && !location.is_online) {
-          return false;
-        }
-        if (filterCriteria.onlineStatus === "Offline" && location.is_online) {
-          return false;
-        }
-      }
-      
-      return true;
+    console.log('filterLocations called with:', { 
+      totalLocations: locations.length, 
+      filterCriteria 
     });
     
+    let filtered = [...locations];
+    
+    // Filter by looking_for - exact match with any item in the array
+    if (filterCriteria.lookingFor && filterCriteria.lookingFor.trim() !== '') {
+      console.log('Filtering by looking_for:', filterCriteria.lookingFor);
+      const searchTerm = filterCriteria.lookingFor.trim();
+      filtered = filtered.filter(location => {
+        const profile = location.profile || {};
+        const lookingFor = profile.looking_for || [];
+        console.log('Location looking_for array:', lookingFor);
+        // Check if the selected option exists in the user's looking_for array (exact match)
+        const match = lookingFor.some(item => 
+          item.trim() === searchTerm
+        );
+        console.log('Match for', searchTerm, ':', match);
+        return match;
+      });
+      console.log('After looking_for filter:', filtered.length);
+    }
+    
+    console.log('Final filtered count:', filtered.length);
     return filtered;
   };
 
@@ -568,7 +561,7 @@ function Map() {
             </button>
 
             <Filtersection 
-              onFilterChange={handleApplyFilters}
+              onFilterChange={handleFilterChange}
               initialFilters={filters}
               onReset={handleResetFilters}
               onApply={handleApplyFilters}

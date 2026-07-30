@@ -3,7 +3,6 @@ import { IoChatbubbleEllipsesOutline, IoChevronBack, IoSend, IoTrashOutline, IoE
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import ChatSidebar from '../Components/ChatSidebar';
-import { useEncryption } from '../contexts/EncryptionContext';
 import { useSocket } from '../contexts/SocketContext';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
@@ -17,11 +16,10 @@ function ChatPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [encryptionReady, setEncryptionReady] = useState(false);
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [notification, setNotification] = useState(null);
+  const [pendingMessageIds, setPendingMessageIds] = useState(new Set());
   const messagesEndRef = useRef(null);
-  const { initializeConnectionEncryption, encryptForUser, decryptFromUser, getKeyPair } = useEncryption();
   const { socket, isConnected, joinConnection, leaveConnection, sendMessage } = useSocket();
 
   useEffect(() => {
@@ -74,51 +72,46 @@ function ChatPage() {
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    const handleReceiveMessage = async (message) => {
+    const handleReceiveMessage = (message) => {
       console.log('Received real-time message:', message);
       
-      // Decrypt if encrypted
-      let body = message.body;
-      if (message.is_encrypted && selectedUser) {
-        try {
-          // Ensure encryption is initialized before decrypting
-          if (!encryptionReady) {
-            const keyPair = getKeyPair(currentUser?.uid);
-            if (keyPair) {
-              const partnerPublicKey = selectedUser.isRequester ? selectedUser.receiverPublicKey : selectedUser.requesterPublicKey;
-              if (partnerPublicKey) {
-                await initializeConnectionEncryption(currentUser?.uid, partnerPublicKey);
-                setEncryptionReady(true);
-              }
-            }
-          }
-          
-          if (encryptionReady) {
-            body = await decryptFromUser(currentUser?.uid, message.body);
-          } else {
-            console.warn('Encryption not ready, showing encrypted message');
-            body = '[Encrypted]';
-          }
-        } catch (error) {
-          console.error('Error decrypting real-time message:', error);
-          body = '[Encrypted - Unable to decrypt]';
-        }
+      if (!message || !message._id) {
+        console.log('Invalid message received');
+        return;
       }
+
+      // Skip if this message ID is in the pending set (avoid duplication)
+      if (pendingMessageIds.has(message._id.toString())) {
+        console.log('Skipping duplicate message from Socket.io:', message._id);
+        return;
+      }
+
+      const currentUserId = currentUser?.uid || currentUser?.email;
+      const senderId = typeof message.sender_id === 'string' ? message.sender_id : message.sender_id?.toString();
 
       const formattedMessage = {
         id: message._id,
-        text: body,
-        sender: message.sender_id === selectedUser?.uid ? 'them' : 'me',
+        text: message.body,
+        sender: senderId === currentUserId ? 'me' : 'them',
         timestamp: new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
-      setMessages(prev => [...prev, formattedMessage]);
+      console.log('Formatted message:', formattedMessage);
 
-      // If this message is for the currently selected user, auto-refresh the chat
-      if (selectedUser?.connectionId === message.connection_id) {
-        console.log('Auto-refreshing chat for current user');
-        // Re-fetch messages to ensure full sync with database
-        await fetchMessages(selectedUser.connectionId);
+      // Only add message if it's not already in the array (prevent duplicates)
+      setMessages(prev => {
+        if (prev.some(msg => msg.id === formattedMessage.id)) {
+          return prev;
+        }
+        return [...prev, formattedMessage];
+      });
+    };
+
+    const handleMessagesDeleted = (data) => {
+      console.log('Received messages deleted event:', data);
+      const deletedIds = data.deletedIds || [];
+      if (deletedIds.length > 0) {
+        setMessages(prev => prev.filter(msg => !deletedIds.includes(msg.id)));
       }
     };
 
@@ -141,13 +134,15 @@ function ChatPage() {
     };
 
     socket.on('message:receive', handleReceiveMessage);
+    socket.on('messages:deleted', handleMessagesDeleted);
     socket.on('connection:disconnected', handleDisconnect);
 
     return () => {
       socket.off('message:receive', handleReceiveMessage);
+      socket.off('messages:deleted', handleMessagesDeleted);
       socket.off('connection:disconnected', handleDisconnect);
     };
-  }, [socket, isConnected, selectedUser, decryptFromUser]);
+  }, [socket, isConnected, selectedUser, currentUser, pendingMessageIds]);
 
   const fetchAcceptedConnections = async () => {
     try {
@@ -155,20 +150,26 @@ function ChatPage() {
       if (response.data.success) {
         const users = response.data.connections.map(conn => {
           const partner = conn.collaborator;
-          const isRequester = conn.requester_id === currentUser?.uid;
+          console.log('Partner data:', partner);
+          
+          // Always use MongoDB _id as the primary identifier
+          const mongoDbId = partner?.id || partner?._id;
+          const username = partner?.uid;
+          
+          console.log('Mapping user - MongoDB _id:', mongoDbId, 'Username:', username);
+          
           return {
-            uid: partner?.uid || partner?._id,
-            _id: conn._id,
+            uid: username, // Keep username for reference
+            _id: mongoDbId, // MongoDB _id for API calls
             name: partner?.name || 'Unknown User',
             avatarUrl: partner?.avatarUrl || null,
             profession: partner?.profession || '',
             is_online: partner?.isOnline || false,
             connectionId: conn._id,
-            requesterPublicKey: conn.requester_public_key,
-            receiverPublicKey: conn.receiver_public_key,
-            isRequester: isRequester
+            isRequester: conn.requester_id === mongoDbId
           };
         });
+        console.log('Connected users mapped:', users);
         setConnectedUsers(users);
       }
     } catch (error) {
@@ -182,40 +183,13 @@ function ChatPage() {
       setShowChat(true);
     }
     setMessages([]);
-    setEncryptionReady(false);
 
     // Join the connection room for real-time messaging
     if (user.connectionId) {
       joinConnection(user.connectionId);
     }
 
-    // Initialize encryption for this user
-    try {
-      const keyPair = getKeyPair(currentUser?.uid);
-      if (keyPair) {
-        const partnerPublicKey = user.isRequester ? user.receiverPublicKey : user.requesterPublicKey;
-        
-        if (partnerPublicKey) {
-          console.log('Initializing encryption for current user:', currentUser?.uid, 'with partner:', user.uid);
-          await initializeConnectionEncryption(currentUser?.uid, partnerPublicKey);
-          setEncryptionReady(true);
-          console.log('Encryption initialized successfully');
-          await fetchMessages(user.connectionId);
-        } else {
-          console.error('Partner public key not found in connection');
-          setEncryptionReady(true);
-          await fetchMessages(user.connectionId);
-        }
-      } else {
-        console.error('No encryption keys found for current user');
-        setEncryptionReady(true);
-        await fetchMessages(user.connectionId);
-      }
-    } catch (error) {
-      console.error('Error initializing encryption:', error);
-      setEncryptionReady(true);
-      await fetchMessages(user.connectionId);
-    }
+    await fetchMessages(user.connectionId);
   };
 
   const fetchMessages = async (connectionId) => {
@@ -223,49 +197,33 @@ function ChatPage() {
     
     try {
       setLoading(true);
+      console.log('Fetching messages for connection:', connectionId);
       const response = await axios.get(`/api/chat/${connectionId}/messages`);
+      console.log('Messages response:', response.data);
+      
       if (response.data.success) {
-        // Ensure encryption is ready before decrypting
-        if (!encryptionReady && selectedUser) {
-          const keyPair = getKeyPair(currentUser?.uid);
-          if (keyPair) {
-            const partnerPublicKey = selectedUser.isRequester ? selectedUser.receiverPublicKey : selectedUser.requesterPublicKey;
-            if (partnerPublicKey) {
-              await initializeConnectionEncryption(currentUser?.uid, partnerPublicKey);
-              setEncryptionReady(true);
-            }
-          }
-        }
-
-        const decryptedMessages = await Promise.all(
-          response.data.messages.map(async (msg) => {
-            if (msg.is_encrypted && encryptionReady) {
-              try {
-                const decrypted = await decryptFromUser(currentUser?.uid, msg.body);
-                return { ...msg, body: decrypted };
-              } catch (error) {
-                console.error('Error decrypting message:', error);
-                return { ...msg, body: '[Encrypted - Unable to decrypt]' };
-              }
-            } else if (msg.is_encrypted && !encryptionReady) {
-              console.warn('Encryption not ready for message');
-              return { ...msg, body: '[Encrypted]' };
-            }
-            return msg;
-          })
-        );
+        const formattedMessages = response.data.messages.map(msg => {
+          // Handle both ObjectId and string for sender_id comparison
+          const senderId = typeof msg.sender_id === 'string' ? msg.sender_id : msg.sender_id?.toString();
+          const currentUserId = currentUser?.uid || currentUser?.email;
+          
+          // If sender is current user, it's 'me', otherwise 'them'
+          return {
+            id: msg._id,
+            text: msg.body,
+            sender: senderId === currentUserId ? 'me' : 'them',
+            timestamp: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+        });
         
-        const formattedMessages = decryptedMessages.map(msg => ({
-          id: msg._id,
-          text: msg.body,
-          sender: msg.sender_id === selectedUser?.uid ? 'them' : 'me',
-          timestamp: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        }));
-        
+        console.log('Formatted messages:', formattedMessages);
         setMessages(formattedMessages);
+      } else {
+        console.error('Failed to fetch messages:', response.data.message);
       }
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error fetching messages:', error.response?.data || error.message);
+      console.error('Full error:', error);
     } finally {
       setLoading(false);
     }
@@ -335,29 +293,21 @@ function ChatPage() {
     try {
       setLoading(true);
 
-      let bodyToSend = newMessage;
-      let isEncrypted = false;
-
-      // Try to encrypt the message if we have encryption keys
-      if (encryptionReady) {
-        try {
-          bodyToSend = await encryptForUser(selectedUser.uid, newMessage);
-          isEncrypted = true;
-        } catch (encryptError) {
-          console.error('Encryption failed, sending unencrypted:', encryptError);
-          bodyToSend = newMessage;
-          isEncrypted = false;
-        }
-      }
+      console.log('Sending message - selectedUser:', selectedUser);
+      console.log('Sending message - connectionId:', selectedUser.connectionId);
+      console.log('Sending message - user MongoDB _id:', selectedUser._id);
 
       const response = await axios.post(`/api/chat/${selectedUser.connectionId}/messages`, {
-        body: bodyToSend,
-        is_encrypted: isEncrypted
+        body: newMessage
       });
 
+      console.log('Send response:', response.data);
+
       if (response.data.success) {
+        // Add message locally for sender immediately
+        const tempMessageId = response.data.message._id;
         const message = {
-          id: response.data.message._id,
+          id: tempMessageId,
           text: newMessage,
           sender: 'me',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -366,14 +316,25 @@ function ChatPage() {
         setMessages((currentMessages) => [...currentMessages, message]);
         setNewMessage('');
 
-        // Broadcast the message via Socket.io for real-time delivery
-        sendMessage(selectedUser.connectionId, response.data.message);
+        // Add to pending set to avoid duplication from Socket.io
+        setPendingMessageIds(prev => new Set([...prev, tempMessageId]));
+
+        // Remove from pending set after 2 seconds
+        setTimeout(() => {
+          setPendingMessageIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(tempMessageId);
+            return newSet;
+          });
+        }, 2000);
       } else {
         console.error('Send failed:', response.data.message);
+        alert(`Failed to send message: ${response.data.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error sending message:', error.response?.data || error.message);
-      alert('Failed to send message. Please try again.');
+      console.error('Full error:', error);
+      alert(`Failed to send message. ${error.response?.data?.message || error.message || 'Please try again.'}`);
     } finally {
       setLoading(false);
     }

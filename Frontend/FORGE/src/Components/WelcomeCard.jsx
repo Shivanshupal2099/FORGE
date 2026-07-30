@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaHandSparkles, FaRocket, FaCheckCircle, FaTimes } from 'react-icons/fa';
+import { FaCalendarAlt, FaClipboardList, FaUsers, FaComments, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 
 function WelcomeCard({ onClose }) {
@@ -45,7 +45,7 @@ function WelcomeCard({ onClose }) {
     >
       <div
         style={{
-          background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+          background: '#ffffff',
           borderRadius: '24px',
           maxWidth: '600px',
           width: '100%',
@@ -54,6 +54,7 @@ function WelcomeCard({ onClose }) {
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
           boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+          border: '2px solid rgba(245, 158, 11, 0.2)',
           position: 'relative',
           animation: 'slideUp 0.4s ease',
         }}
@@ -70,8 +71,8 @@ function WelcomeCard({ onClose }) {
             height: '40px',
             borderRadius: '50%',
             border: 'none',
-            background: 'rgba(239, 68, 68, 0.1)',
-            color: '#ef4444',
+            background: 'rgba(245, 158, 11, 0.1)',
+            color: '#f59e0b',
             fontSize: '1.2rem',
             cursor: 'pointer',
             display: 'flex',
@@ -80,11 +81,11 @@ function WelcomeCard({ onClose }) {
             transition: 'all 0.3s ease',
           }}
           onMouseEnter={(e) => {
-            e.target.style.background = 'rgba(239, 68, 68, 0.2)';
+            e.target.style.background = 'rgba(245, 158, 11, 0.2)';
             e.target.style.transform = 'scale(1.1)';
           }}
           onMouseLeave={(e) => {
-            e.target.style.background = 'rgba(239, 68, 68, 0.1)';
+            e.target.style.background = 'rgba(245, 158, 11, 0.1)';
             e.target.style.transform = 'scale(1)';
           }}
         >
@@ -99,20 +100,20 @@ function WelcomeCard({ onClose }) {
               width: '100px',
               height: '100px',
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 24px',
-              boxShadow: '0 12px 32px rgba(102, 126, 234, 0.4)',
+              boxShadow: '0 12px 32px rgba(245, 158, 11, 0.4)',
             }}>
-              <FaHandSparkles style={{ fontSize: '3rem', color: '#ffffff' }} />
+              <FaCalendarAlt style={{ fontSize: '3rem', color: '#ffffff' }} />
             </div>
             <h1 style={{
               margin: '0 0 12px',
               fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
               fontWeight: '800',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -137,28 +138,28 @@ function WelcomeCard({ onClose }) {
               gap: '16px',
               marginBottom: '20px',
               padding: '16px',
-              background: 'rgba(102, 126, 234, 0.05)',
+              background: 'rgba(245, 158, 11, 0.05)',
               borderRadius: '16px',
-              border: '1px solid rgba(102, 126, 234, 0.1)',
+              border: '1px solid rgba(245, 158, 11, 0.1)',
             }}>
               <div style={{
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
               }}>
-                <FaRocket style={{ fontSize: '1.2rem', color: '#ffffff' }} />
+                <FaCalendarAlt style={{ fontSize: '1.2rem', color: '#ffffff' }} />
               </div>
               <div>
                 <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem', fontWeight: '700', color: 'var(--app-text)' }}>
-                  Create Amazing Events
+                  Create & Join Events
                 </h3>
                 <p style={{ margin: '0', fontSize: '0.95rem', color: '#64748b', lineHeight: '1.5' }}>
-                  Organize community events, workshops, meetups, and more with our easy-to-use event creation tools.
+                  Organize and participate in community events, workshops, and meetups.
                 </p>
               </div>
             </div>
@@ -169,28 +170,60 @@ function WelcomeCard({ onClose }) {
               gap: '16px',
               marginBottom: '20px',
               padding: '16px',
-              background: 'rgba(16, 185, 129, 0.05)',
+              background: 'rgba(245, 158, 11, 0.05)',
               borderRadius: '16px',
-              border: '1px solid rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(245, 158, 11, 0.1)',
             }}>
               <div style={{
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
               }}>
-                <FaCheckCircle style={{ fontSize: '1.2rem', color: '#ffffff' }} />
+                <FaClipboardList style={{ fontSize: '1.2rem', color: '#ffffff' }} />
               </div>
               <div>
                 <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem', fontWeight: '700', color: 'var(--app-text)' }}>
-                  Earn Forge Tokens
+                  Participate in Surveys
                 </h3>
                 <p style={{ margin: '0', fontSize: '0.95rem', color: '#64748b', lineHeight: '1.5' }}>
-                  Participate in events and get rewarded with Forge tokens for your contributions.
+                  Share your opinions through surveys and earn Forge tokens for your contributions.
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '16px',
+              marginBottom: '20px',
+              padding: '16px',
+              background: 'rgba(245, 158, 11, 0.05)',
+              borderRadius: '16px',
+              border: '1px solid rgba(245, 158, 11, 0.1)',
+            }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <FaUsers style={{ fontSize: '1.2rem', color: '#ffffff' }} />
+              </div>
+              <div>
+                <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem', fontWeight: '700', color: 'var(--app-text)' }}>
+                  Discover People
+                </h3>
+                <p style={{ margin: '0', fontSize: '0.95rem', color: '#64748b', lineHeight: '1.5' }}>
+                  Connect with like-minded individuals and expand your professional network. Build, innovate, create, solve complex problems through surveys, launch ideas, and do something better together.
                 </p>
               </div>
             </div>
@@ -214,14 +247,14 @@ function WelcomeCard({ onClose }) {
                 justifyContent: 'center',
                 flexShrink: 0,
               }}>
-                <FaHandSparkles style={{ fontSize: '1.2rem', color: '#ffffff' }} />
+                <FaComments style={{ fontSize: '1.2rem', color: '#ffffff' }} />
               </div>
               <div>
                 <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem', fontWeight: '700', color: 'var(--app-text)' }}>
-                  Connect with Community
+                  Chat & Collaborate
                 </h3>
                 <p style={{ margin: '0', fontSize: '0.95rem', color: '#64748b', lineHeight: '1.5' }}>
-                  Join a vibrant community of creators, innovators, and event enthusiasts.
+                  Engage in real-time conversations and collaborate on projects with your community.
                 </p>
               </div>
             </div>
@@ -235,23 +268,23 @@ function WelcomeCard({ onClose }) {
               padding: '16px 32px',
               border: 'none',
               borderRadius: '16px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               color: '#ffffff',
               fontSize: '1.1rem',
               fontWeight: '800',
               cursor: 'pointer',
-              boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
+              boxShadow: '0 8px 24px rgba(245, 158, 11, 0.4)',
               transition: 'all 0.3s ease',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.5)';
+              e.target.style.boxShadow = '0 12px 32px rgba(245, 158, 11, 0.5)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.4)';
+              e.target.style.boxShadow = '0 8px 24px rgba(245, 158, 11, 0.4)';
             }}
           >
             Get Started

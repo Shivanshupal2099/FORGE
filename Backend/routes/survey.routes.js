@@ -65,6 +65,9 @@ router.get("/responses/:responseId", authMiddleware, idValidation, surveyControl
 // Delete response
 router.delete("/responses/:responseId", authMiddleware, idValidation, surveyController.deleteResponse);
 
+// Report survey
+router.post("/:surveyId/report", authMiddleware, surveyIdValidation, surveyController.reportSurvey);
+
 // Export responses
 router.get("/:surveyId/responses/export", authMiddleware, surveyIdValidation, surveyController.exportResponses);
 
