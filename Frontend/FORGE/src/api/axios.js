@@ -14,6 +14,9 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('axios.js - Adding Bearer token to request:', config.url);
+    } else {
+      console.log('axios.js - No token found in localStorage for request:', config.url);
     }
     return config;
   },

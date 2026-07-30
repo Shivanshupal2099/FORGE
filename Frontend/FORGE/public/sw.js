@@ -1,4 +1,4 @@
-const CACHE_NAME = 'forge-pwa-v1';
+const CACHE_NAME = 'forge-pwa-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -13,6 +13,16 @@ function isCacheable(url) {
   try {
     const urlObj = new URL(url);
     return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+  } catch (e) {
+    return false;
+  }
+}
+
+// Helper function to check if request is an API call
+function isApiRequest(url) {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.pathname.startsWith('/api/');
   } catch (e) {
     return false;
   }
@@ -35,6 +45,11 @@ self.addEventListener('install', (event) => {
 self.addEventListener('fetch', (event) => {
   // Skip non-HTTP/HTTPS requests (chrome-extension, file://, etc.)
   if (!isCacheable(event.request.url)) {
+    return;
+  }
+
+  // Skip API requests - let them go directly to network
+  if (isApiRequest(event.request.url)) {
     return;
   }
 

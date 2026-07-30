@@ -43,8 +43,12 @@ export const AuthProvider = ({ children }) => {
         picture: user.user_metadata?.avatar_url || null
       });
 
-      if (response.data.token) {
+      if (response.data.accessToken) {
+        localStorage.setItem('token', response.data.accessToken);
+        console.log('AuthContext - Access token stored successfully');
+      } else if (response.data.token) {
         localStorage.setItem('token', response.data.token);
+        console.log('AuthContext - Legacy token stored successfully');
       }
     } catch (error) {
       console.error('Error syncing user to backend:', error);
