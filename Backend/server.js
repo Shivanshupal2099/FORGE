@@ -160,9 +160,9 @@ ConnectDB().then(() => {
   // Configure Socket.io
   const io = new Server(server, {
       cors: {
-          origin: process.env.ALLOWED_ORIGINS 
-              ? process.env.ALLOWED_ORIGINS.split(',') 
-              : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
+          origin: process.env.ALLOWED_ORIGINS
+              ? process.env.ALLOWED_ORIGINS.split(',')
+              : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://main.d1s3vvkwvl4zr3.amplifyapp.com'],
           credentials: true
       }
   })
