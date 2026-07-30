@@ -4,9 +4,7 @@ frontend:
   phases:
     preBuild:
       commands:
-        - pwd
-        - ls -la
-        - cat package.json
+        - cd Frontend/FORGE
         - npm install
 
     build:
@@ -14,10 +12,10 @@ frontend:
         - npm run build
 
   artifacts:
-    baseDirectory: dist
+    baseDirectory: Frontend/FORGE/dist
     files:
       - '**/*'
 
   cache:
     paths:
-      - node_modules/**/*
+      - Frontend/FORGE/node_modules/**/*
