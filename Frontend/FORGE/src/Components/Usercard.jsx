@@ -40,6 +40,8 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
       setConnectionStatus('idle');
 
       console.log('Sending connection request to:', user.email);
+      console.log('Current user authenticated:', !!currentUser);
+      
       const response = await axios.post('/api/connections', {
         receiver_uid: user.email
       });
@@ -63,10 +65,14 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
         } else {
           setConnectionStatus('error');
           console.error('Connection request failed:', response.data.message);
+          alert('Failed to send connection request: ' + response.data.message);
         }
       }
     } catch (error) {
       console.error('Connection request error:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      console.error('Error message:', error.response?.data?.message || error.message);
+      
       // Check if the error is due to an existing request
       const errorMessage = error.response?.data?.message?.toLowerCase() || '';
       const isExistingRequest = errorMessage.includes('already') || 
@@ -78,9 +84,18 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
         // If request already exists, treat it as sent
         console.log('Connection request already exists (error case), treating as sent');
         setConnectionStatus('sent');
+      } else if (error.response?.status === 401) {
+        setConnectionStatus('error');
+        console.error('Authentication error - user not logged in');
+        alert('You are not authenticated. Please log in again.');
+      } else if (error.response?.status === 404) {
+        setConnectionStatus('error');
+        console.error('User not found error');
+        alert('User not found. They may have deleted their account.');
       } else {
         setConnectionStatus('error');
         console.error('Error sending connection request:', error.response?.data?.message || error.message);
+        alert('Failed to send connection request. Please try again.');
       }
     } finally {
       setConnectionLoading(false);

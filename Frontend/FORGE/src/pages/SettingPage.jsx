@@ -47,8 +47,7 @@ function SettingPage() {
   const handleDeleteAccount = async () => {
     if (deleteConfirmation !== 'DELETE') return;
 
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!user) {
       alert('You are not authenticated. Please log in again.');
       return;
     }
