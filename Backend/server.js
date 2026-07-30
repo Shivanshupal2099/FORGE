@@ -121,6 +121,15 @@ app.use('/api/chat',chatRoutes)
 app.use('/api/tokens',tokenRoutes)
 app.use('/api/waitlist',waitlistRoutes)
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Forge API is running 🚀',
+    health: '/healthz'
+  });
+});
+
 // 404 handler (must be before error handler)
 app.use(notFoundHandler)
 

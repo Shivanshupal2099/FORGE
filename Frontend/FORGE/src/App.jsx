@@ -16,7 +16,7 @@ const MapPage = lazy(() => import('./pages/MapPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const EditProfilePage = lazy(() => import('./pages/EditProfilePage'));
 const UserEventsPage = lazy(() => import('./pages/UserEventsPage'));
-const SettingPage = lazy(() => import('./pages/SettingPage'));
+const SettingPage = lazy(() => import('./pages/SettingPage'));            
 const Survey = lazy(() => import('./Components/Survey'));
 const SurveyResultsPage = lazy(() => import('./pages/SurveyResultsPage'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
