@@ -1,4 +1,5 @@
 const rateLimit = require('express-rate-limit');
+const { ipKeyGenerator } = require('express-rate-limit');
 const { RateLimitError } = require('../utils/errors');
 
 /**
@@ -43,7 +44,7 @@ const authLimiter = rateLimit({
 const surveyCreationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10, // Limit each user to 10 survey creations per hour
-  keyGenerator: (req) => req.user?._id || req.ip,
+  keyGenerator: (req) => req.user?._id || ipKeyGenerator(req.ip),
   message: 'Too many surveys created, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -62,7 +63,7 @@ const surveyResponseLimiter = rateLimit({
     // Skip rate limiting for development
     return process.env.NODE_ENV !== 'production';
   },
-  keyGenerator: (req) => req.user?._id || req.ip,
+  keyGenerator: (req) => req.user?._id || ipKeyGenerator(req.ip),
   message: 'Too many survey responses, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,

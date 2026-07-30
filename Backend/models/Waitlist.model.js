@@ -36,7 +36,6 @@ const waitlistSchema = new mongoose.Schema({
 });
 
 // Index for faster queries
-waitlistSchema.index({ email: 1 });
 waitlistSchema.index({ joined_at: -1 });
 
 module.exports = mongoose.model('Waitlist', waitlistSchema);

@@ -11,7 +11,7 @@ const ConnectDB = async () => {
   }
   
   console.log('Connecting to MongoDB...');
-  console.log('Using URI:', mongoUri.substring(0, 50) + '...');
+  console.log('MongoDB URI loaded from environment');
 
   const options = {
     serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds

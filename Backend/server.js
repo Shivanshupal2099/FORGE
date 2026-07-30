@@ -33,8 +33,9 @@ const fs = require('fs');
 const envPath = path.resolve(__dirname, '.env');
 dotenv.config({ path: envPath });
 
-// Manual fallback if dotenv doesn't load variables (handles encoding issues)
-if (!process.env.MONGODB_URI) {
+// Manual fallback for .env file only in development (handles encoding issues)
+// In production, environment variables are set by the platform (Render, etc.)
+if (process.env.NODE_ENV !== 'production' && !process.env.MONGODB_URI) {
   try {
     let envContent = fs.readFileSync(envPath, 'utf8');
     // Handle UTF-16 LE encoding with BOM

@@ -49,7 +49,6 @@ const tokenSchema = new mongoose.Schema(
 );
 
 // Indexes for efficient queries
-tokenSchema.index({ uid: 1 });
 tokenSchema.index({ total_tokens: -1 });
 tokenSchema.index({ "token_history.earned_at": -1 });
 
