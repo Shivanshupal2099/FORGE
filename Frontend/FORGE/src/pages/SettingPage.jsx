@@ -54,25 +54,63 @@ function SettingPage() {
 
     setIsDeleting(true);
     try {
+      console.log('Deleting account for user:', user.email);
       const response = await axios.delete('/api/auth/delete-account');
 
-      if (response.data.success) {
-        // Clear local storage
+      // Check HTTP status first
+      if (response.status === 200 || response.status === 204) {
+        // Success - clear local storage
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         localStorage.removeItem('forge-theme');
         
         // Sign out from Supabase
-        await signOut();
+        try {
+          await signOut();
+        } catch (signOutError) {
+          console.error('Error signing out from Supabase:', signOutError);
+          // Continue with redirect even if signOut fails
+        }
         
-        // Redirect to home
-        window.location.href = '/';
+        // Redirect to login page (not home, since account is deleted)
+        window.location.href = '/login';
       } else {
-        alert('Failed to delete account: ' + response.data.message);
+        // Non-success HTTP status
+        const errorMessage = response.data?.message || `Server returned status ${response.status}`;
+        alert(`Failed to delete account: ${errorMessage}`);
       }
     } catch (error) {
       console.error('Error deleting account:', error);
-      alert('An error occurred while deleting your account. Please try again.');
+      
+      // Handle different error scenarios
+      if (error.response) {
+        // Server responded with error status
+        const status = error.response.status;
+        const message = error.response.data?.message || 'Unknown error';
+        
+        switch (status) {
+          case 401:
+            alert('Authentication failed. Please log in again and try.');
+            break;
+          case 403:
+            alert('You do not have permission to delete this account.');
+            break;
+          case 404:
+            alert('Delete account endpoint not found. Please contact support.');
+            break;
+          case 500:
+            alert('Server error. Please try again later.');
+            break;
+          default:
+            alert(`Failed to delete account: ${message}`);
+        }
+      } else if (error.request) {
+        // Request made but no response received
+        alert('Network error. Please check your connection and try again.');
+      } else {
+        // Error in request setup
+        alert(`Error: ${error.message}`);
+      }
     } finally {
       setIsDeleting(false);
       setShowDeleteDialog(false);

@@ -1,7 +1,7 @@
 {
-  "name": "ForgeConnect - Community Platform",
+  "name": "ForgeConnect - Builder Network",
   "short_name": "ForgeConnect",
-  "description": "A community platform for startups, connections, and collaboration using Forge tokens",
+  "description": "A builder network for startups, connections, and collaboration using Forge tokens",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
