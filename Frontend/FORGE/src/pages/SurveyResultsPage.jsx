@@ -87,8 +87,31 @@ function SurveyResultsPage() {
         setError(response.data.message || 'Failed to load responses');
       }
     } catch (err) {
-      setError('Error loading responses');
       console.error('Error loading responses:', err);
+      
+      // Handle specific error status codes
+      if (err.response) {
+        const status = err.response.status;
+        const message = err.response.data?.message || 'Unknown error';
+        
+        switch (status) {
+          case 403:
+            setError('Access Denied: You do not have permission to view responses for this survey.');
+            break;
+          case 401:
+            setError('Authentication required. Please log in again.');
+            break;
+          case 404:
+            setError('Survey not found or has been deleted.');
+            break;
+          default:
+            setError(`Failed to load responses: ${message}`);
+        }
+      } else if (err.request) {
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        setError('Error loading responses');
+      }
     } finally {
       setLoading(false);
     }

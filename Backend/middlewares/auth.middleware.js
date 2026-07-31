@@ -16,13 +16,27 @@ const authMiddleware = async (req, res, next) => {
         const token = authHeader.split(" ")[1];
         console.log('Auth attempt with token length:', token?.length);
 
+        let user = null;
+
         // Verify backend-issued JWT
         if (process.env.JWT_SECRET) {
             try {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
                 console.log('Backend JWT verified successfully for user:', decoded.email || decoded.uid);
-                req.user = decoded;
-                return next();
+                
+                // Fetch full user from database to ensure we have the correct ObjectId
+                if (decoded.email) {
+                    user = await User.findOne({ email: decoded.email });
+                } else if (decoded.uid) {
+                    user = await User.findOne({ uid: decoded.uid });
+                } else if (decoded._id) {
+                    user = await User.findById(decoded._id);
+                }
+                
+                if (user) {
+                    req.user = user;
+                    return next();
+                }
             } catch (jwtError) {
                 console.log('Backend JWT verification failed:', jwtError.message);
                 // Fall through to Supabase token handling
@@ -37,7 +51,7 @@ const authMiddleware = async (req, res, next) => {
                 console.log('Supabase JWT verified for email:', email);
 
                 if (email) {
-                    const user = await User.findOne({ email });
+                    user = await User.findOne({ email });
                     if (user) {
                         req.user = user;
                         return next();
@@ -52,7 +66,7 @@ const authMiddleware = async (req, res, next) => {
         }
 
         // Legacy fallback: token stored as uid or email string
-        let user = await User.findOne({ uid: token });
+        user = await User.findOne({ uid: token });
 
         if (!user) {
             user = await User.findOne({ email: token.toLowerCase() });
