@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import GuestRoute from './Components/GuestRoute';
 import ProtectedRoute from './Components/ProtectedRoute';
+import { AlertProvider } from './contexts/AlertContext';
 
 // Lazy load route components for better performance
 const Landing = lazy(() => import("./pages/Landing"));
@@ -57,28 +58,30 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/visitor" element={<VisitorPage />} />
-          <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
-          <Route path="/account" element={<GuestRoute><AccountPage /></GuestRoute>} />
-          <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />   
-          <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
-          <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path="/profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
-          <Route path="/events" element={<ProtectedRoute><UserEventsPage /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
-          <Route path="/survey" element={<ProtectedRoute><Survey /></ProtectedRoute>} />
-          <Route path="/survey/:surveyId/results" element={<ProtectedRoute><SurveyResultsPage /></ProtectedRoute>} />
-          <Route path="/survey/view/:surveyId" element={<PublicSurveyPage />} />
-          <Route path="/event/:id" element={<ProtectedRoute><EventDetailPage /></ProtectedRoute>} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+    <AlertProvider>
+      <BrowserRouter>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/visitor" element={<VisitorPage />} />
+            <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+            <Route path="/account" element={<GuestRoute><AccountPage /></GuestRoute>} />
+            <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />   
+            <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+            <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
+            <Route path="/events" element={<ProtectedRoute><UserEventsPage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
+            <Route path="/survey" element={<ProtectedRoute><Survey /></ProtectedRoute>} />
+            <Route path="/survey/:surveyId/results" element={<ProtectedRoute><SurveyResultsPage /></ProtectedRoute>} />
+            <Route path="/survey/view/:surveyId" element={<PublicSurveyPage />} />
+            <Route path="/event/:id" element={<ProtectedRoute><EventDetailPage /></ProtectedRoute>} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </AlertProvider>
   );
 }
 

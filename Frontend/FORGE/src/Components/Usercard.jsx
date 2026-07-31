@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Usercard.css';
 import { useAuth } from '../contexts/AuthContext';
+import { useAlert } from '../contexts/AlertContext';
 import axios from '../api/axios';
 
 const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   const { user: currentUser } = useAuth();
+  const { error: showError, success: showSuccess } = useAlert();
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(true);
@@ -65,7 +67,7 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
         } else {
           setConnectionStatus('error');
           console.error('Connection request failed:', response.data.message);
-          alert('Failed to send connection request: ' + response.data.message);
+          showError('Failed to send connection request: ' + response.data.message);
         }
       }
     } catch (error) {
@@ -87,15 +89,15 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
       } else if (error.response?.status === 401) {
         setConnectionStatus('error');
         console.error('Authentication error - user not logged in');
-        alert('You are not authenticated. Please log in again.');
+        showError('You are not authenticated. Please log in again.');
       } else if (error.response?.status === 404) {
         setConnectionStatus('error');
         console.error('User not found error');
-        alert('User not found. They may have deleted their account.');
+        showError('User not found. They may have deleted their account.');
       } else {
         setConnectionStatus('error');
         console.error('Error sending connection request:', error.response?.data?.message || error.message);
-        alert('Failed to send connection request. Please try again.');
+        showError('Failed to send connection request. Please try again.');
       }
     } finally {
       setConnectionLoading(false);

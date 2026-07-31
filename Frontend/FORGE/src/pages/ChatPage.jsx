@@ -5,11 +5,13 @@ import Header from '../Components/Header';
 import ChatSidebar from '../Components/ChatSidebar';
 import { useSocket } from '../contexts/SocketContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useAlert } from '../contexts/AlertContext';
 import axios from '../api/axios';
 import './ChatPage.css';
 
 function ChatPage() {
   const { user: currentUser } = useAuth();
+  const { error: showError, success: showSuccess } = useAlert();
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -252,7 +254,7 @@ function ChatPage() {
       }
     } catch (error) {
       console.error('Error clearing chat:', error);
-      alert('Failed to clear chat. Please try again.');
+      showError('Failed to clear chat. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -279,7 +281,7 @@ function ChatPage() {
       }
     } catch (error) {
       console.error('Error disconnecting:', error);
-      alert('Failed to disconnect. Please try again.');
+      showError('Failed to disconnect. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -329,12 +331,12 @@ function ChatPage() {
         }, 2000);
       } else {
         console.error('Send failed:', response.data.message);
-        alert(`Failed to send message: ${response.data.message || 'Unknown error'}`);
+        showError(`Failed to send message: ${response.data.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error sending message:', error.response?.data || error.message);
       console.error('Full error:', error);
-      alert(`Failed to send message. ${error.response?.data?.message || error.message || 'Please try again.'}`);
+      showError(`Failed to send message. ${error.response?.data?.message || error.message || 'Please try again.'}`);
     } finally {
       setLoading(false);
     }

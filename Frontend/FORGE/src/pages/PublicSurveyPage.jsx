@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaClipboardList, FaCheck, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 import axios from '../api/axios';
+import { useAlert } from '../contexts/AlertContext';
 
 function PublicSurveyPage() {
   const { surveyId } = useParams();
   const navigate = useNavigate();
+  const { error: showError, success: showSuccess } = useAlert();
   const [survey, setSurvey] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
@@ -59,20 +61,23 @@ function PublicSurveyPage() {
     });
 
     if (!allAnswered) {
-      alert('Please answer all questions before submitting');
+      showError('Please answer all questions before submitting');
       return;
     }
 
     try {
       setSubmitting(true);
       await axios.post(`/api/survey/${surveyId}/responses`, {
-        answers,
-        anonymous: true
+        answers: Object.entries(answers).map(([questionId, answer]) => ({
+          questionId,
+          answer
+        }))
       });
       setSubmitted(true);
+      showSuccess('Survey submitted successfully!');
     } catch (error) {
       console.error('Error submitting survey:', error);
-      alert('Failed to submit survey. Please try again.');
+      showError('Failed to submit survey. Please try again.');
     } finally {
       setSubmitting(false);
     }

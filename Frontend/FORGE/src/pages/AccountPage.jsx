@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import { useAlert } from '../contexts/AlertContext'
 
 function AccountPage() 
 {
+  const { success: showSuccess, error: showError } = useAlert();
   
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -91,7 +93,7 @@ function AccountPage()
       })
 
       console.log('Registration successful:', response.data)
-      alert('Account created successfully!')
+      showSuccess('Account created successfully!')
       
       // Reset form
       setFirstName('')

@@ -4,6 +4,7 @@ import { FaMapLocationDot } from 'react-icons/fa6';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
+import { useAlert } from '../contexts/AlertContext';
 import axios from '../api/axios';
 import maleImage from '../assets/male.png';
 import femaleImage from '../assets/female.png';
@@ -12,6 +13,7 @@ function EditProfilePage() {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { supabase } = useAuth();
+  const { error: showError } = useAlert();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [profileData, setProfileData] = useState({ 
     name: '',
@@ -533,7 +535,7 @@ function EditProfilePage() {
       
       if (!user) {
         setError('No user found');
-        alert('No user found. Please login again.');
+        showError('No user found. Please login again.');
         setIsLoading(false);
         return;
       }

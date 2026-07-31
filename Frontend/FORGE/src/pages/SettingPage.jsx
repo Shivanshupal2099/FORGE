@@ -4,6 +4,7 @@ import { IoArrowBack, IoColorPaletteOutline, IoMoonOutline, IoSparklesOutline, I
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
+import { useAlert } from '../contexts/AlertContext';
 import axios from '../api/axios';
 const THEME_KEY = 'forge-theme';
 
@@ -11,6 +12,7 @@ const THEME_KEY = 'forge-theme';
 
 function SettingPage() {
   const { user, signOut } = useAuth();
+  const { error: showError, success: showSuccess } = useAlert();
   const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || 'sunset');
   const isMonoTheme = theme === 'mono';
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -40,7 +42,7 @@ function SettingPage() {
       window.location.href = '/login';
     } catch (error) {
       console.error('Error signing out:', error);
-      alert('An error occurred while signing out. Please try again.');
+      showError('An error occurred while signing out. Please try again.');
     }
   };
 
@@ -48,7 +50,7 @@ function SettingPage() {
     if (deleteConfirmation !== 'DELETE') return;
 
     if (!user) {
-      alert('You are not authenticated. Please log in again.');
+      showError('You are not authenticated. Please log in again.');
       return;
     }
 
@@ -72,12 +74,16 @@ function SettingPage() {
           // Continue with redirect even if signOut fails
         }
         
+        showSuccess('Account deleted successfully');
+        
         // Redirect to login page (not home, since account is deleted)
-        window.location.href = '/login';
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
       } else {
         // Non-success HTTP status
         const errorMessage = response.data?.message || `Server returned status ${response.status}`;
-        alert(`Failed to delete account: ${errorMessage}`);
+        showError(`Failed to delete account: ${errorMessage}`);
       }
     } catch (error) {
       console.error('Error deleting account:', error);
@@ -90,26 +96,26 @@ function SettingPage() {
         
         switch (status) {
           case 401:
-            alert('Authentication failed. Please log in again and try.');
+            showError('Authentication failed. Please log in again and try.');
             break;
           case 403:
-            alert('You do not have permission to delete this account.');
+            showError('You do not have permission to delete this account.');
             break;
           case 404:
-            alert('Delete account endpoint not found. Please contact support.');
+            showError('Delete account endpoint not found. Please contact support.');
             break;
           case 500:
-            alert('Server error. Please try again later.');
+            showError('Server error. Please try again later.');
             break;
           default:
-            alert(`Failed to delete account: ${message}`);
+            showError(`Failed to delete account: ${message}`);
         }
       } else if (error.request) {
         // Request made but no response received
-        alert('Network error. Please check your connection and try again.');
+        showError('Network error. Please check your connection and try again.');
       } else {
         // Error in request setup
-        alert(`Error: ${error.message}`);
+        showError(`Error: ${error.message}`);
       }
     } finally {
       setIsDeleting(false);

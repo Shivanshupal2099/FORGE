@@ -2,12 +2,14 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '../contexts/AuthContext';
+import { useAlert } from '../contexts/AlertContext';
 import forgeImage from "../assets/forge.png";
 
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { supabase } = useAuth();
+  const { error: showError } = useAlert();
 
     const signInWithGoogle = async () => {
      const { error } = await supabase.auth.signInWithOAuth({
@@ -19,7 +21,7 @@ function LoginPage() {
 
      if (error) {
        console.error('Error signing in:', error);
-       alert('Error signing in with Google. Please try again.');
+       showError('Error signing in with Google. Please try again.');
      }
    };
 

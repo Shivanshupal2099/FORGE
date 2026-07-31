@@ -10,10 +10,12 @@ import {
   FaUserTie,
 } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
+import { useAlert } from '../contexts/AlertContext';
 import axios from '../api/axios';
 
 function Event({ onClose, eventToEdit, onEventUpdated }) {
   const { user } = useAuth();
+  const { error: showError, success: showSuccess } = useAlert();
   const [isLoading, setIsLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(!!eventToEdit);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -146,7 +148,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
 
     const err = validate();
     if (err) {
-      alert(err);
+      showError(err);
       return;
     }
 
@@ -155,7 +157,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
     try {
       await persistEvent(payload);
 
-      alert(`Event "${payload.title}" ${isEditMode ? 'updated and' : ''} published successfully!`);
+      showSuccess(`Event "${payload.title}" ${isEditMode ? 'updated and' : ''} published successfully!`);
 
       if (isEditMode && onEventUpdated) {
         onEventUpdated();
