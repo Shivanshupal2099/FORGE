@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { IoSettingsSharp, IoMailOutline, IoBriefcaseOutline, IoLinkOutline, IoLocationOutline } from 'react-icons/io5';
 import { FaRegEdit } from 'react-icons/fa';
@@ -16,6 +16,7 @@ import femaleImage from '../assets/female.png';
 
 function ProfilePage() {
   const { user, loading: authLoading, signOut } = useAuth();
+  const { email: profileEmail } = useParams();
   const [profile, setProfile] = useState(null);
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,9 @@ function ProfilePage() {
   const [locationError, setLocationError] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Determine if viewing own profile or someone else's
+  const isOwnProfile = !profileEmail || profileEmail === user?.email;
 
   useEffect(() => {
     const checkMobile = () => {
@@ -39,8 +43,8 @@ function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // Use email as UID to match MongoDB storage
-        const uid = user?.email;
+        // Use profileEmail from URL if viewing someone else's profile, otherwise use current user's email
+        const uid = profileEmail || user?.email;
         
         console.log('Fetching profile for UID:', uid);
         const response = await axios.get(`/api/profile/${uid}`);
@@ -60,7 +64,7 @@ function ProfilePage() {
 
     const fetchSurveys = async () => {
       try {
-        const uid = user?.email;
+        const uid = profileEmail || user?.email;
         
         console.log('Fetching surveys for UID:', uid);
         const response = await axios.get(`/api/survey/user/${uid}`);
@@ -76,11 +80,11 @@ function ProfilePage() {
       }
     };
 
-    if (user?.email && !authLoading) {
+    if ((profileEmail || user?.email) && !authLoading) {
       fetchProfile();
       fetchSurveys();
     }
-  }, [user?.email, authLoading]);
+  }, [profileEmail, user?.email, authLoading]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -161,86 +165,90 @@ function ProfilePage() {
             <div className="profile-card__meta">
               <span className="profile-card__meta-item">
                 <IoMailOutline />
-                {user?.email || 'No email'}
+                {profile?.email || (isOwnProfile ? user?.email : profileEmail) || 'No email'}
               </span>
             </div>
           </div>
           <div className="profile-card__actions profile-card__actions--mobile">
-            <Link 
-              to="/profile/edit" 
-              className="profile-card__edit-button"
-              style={{
-                padding: '14px',
-                borderRadius: '999px',
-                background: 'rgba(255, 255, 255, 0.5)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                color: '#666666',
-                fontWeight: '500',
-                fontSize: '1.2rem',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                textDecoration: 'none',
-                boxShadow: '0 4px 12px rgba(17, 17, 17, 0.05)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                position: 'relative',
-                overflow: 'hidden',
-                minWidth: '48px',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.7)';
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-                e.target.style.boxShadow = '0 6px 16px rgba(17, 17, 17, 0.08)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.5)';
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                e.target.style.boxShadow = '0 4px 12px rgba(17, 17, 17, 0.05)';
-              }}
-            >
-              <FaRegEdit />
-            </Link>
-            <button
-              onClick={() => setShowLocationPopup(true)}
-              style={{
-                padding: '14px',
-                borderRadius: '999px',
-                background: 'rgba(255, 215, 0, 0.25)',
-                color: '#111111',
-                fontWeight: '500',
-                fontSize: '1.2rem',
-                border: '1px solid rgba(255, 215, 0, 0.3)',
-                boxShadow: '0 4px 12px rgba(255, 215, 0, 0.15)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                marginLeft: '8px',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-                minWidth: '48px',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.background = 'rgba(255, 215, 0, 0.35)';
-                e.target.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.25)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.background = 'rgba(255, 215, 0, 0.25)';
-                e.target.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.15)';
-              }}
-            >
-              <IoLocationOutline />
-            </button>
-            {!profile?.is_verified && (
+            {isOwnProfile && (
+              <Link 
+                to="/profile/edit" 
+                className="profile-card__edit-button"
+                style={{
+                  padding: '14px',
+                  borderRadius: '999px',
+                  background: 'rgba(255, 255, 255, 0.5)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  color: '#666666',
+                  fontWeight: '500',
+                  fontSize: '1.2rem',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(17, 17, 17, 0.05)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  minWidth: '48px',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.background = 'rgba(255, 255, 255, 0.7)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(17, 17, 17, 0.08)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.background = 'rgba(255, 255, 255, 0.5)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(17, 17, 17, 0.05)';
+                }}
+              >
+                <FaRegEdit />
+              </Link>
+            )}
+            {isOwnProfile && (
+              <button
+                onClick={() => setShowLocationPopup(true)}
+                style={{
+                  padding: '14px',
+                  borderRadius: '999px',
+                  background: 'rgba(255, 215, 0, 0.25)',
+                  color: '#111111',
+                  fontWeight: '500',
+                  fontSize: '1.2rem',
+                  border: '1px solid rgba(255, 215, 0, 0.3)',
+                  boxShadow: '0 4px 12px rgba(255, 215, 0, 0.15)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  marginLeft: '8px',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  minWidth: '48px',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.background = 'rgba(255, 215, 0, 0.35)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.background = 'rgba(255, 215, 0, 0.25)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.15)';
+                }}
+              >
+                <IoLocationOutline />
+              </button>
+            )}
+            {isOwnProfile && !profile?.is_verified && (
               <button
                 onClick={() => setShowVerificationPopup(true)}
                 style={{
@@ -277,11 +285,12 @@ function ProfilePage() {
                 <MdOutlineVerified />
               </button>
             )}
-            <Link 
-              to="/settings" 
-              className="profile-card__settings-button"
-              aria-label="Settings"
-             style={{
+            {isOwnProfile && (
+              <Link 
+                to="/settings" 
+                className="profile-card__settings-button"
+                aria-label="Settings"
+               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -316,6 +325,7 @@ function ProfilePage() {
             >
               <IoSettingsSharp />
             </Link>
+            )}
           </div>
         </div>
 

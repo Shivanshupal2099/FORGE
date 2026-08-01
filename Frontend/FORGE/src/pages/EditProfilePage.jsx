@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FaMapLocationDot } from 'react-icons/fa6';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
@@ -53,6 +53,7 @@ function EditProfilePage() {
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
   const [popupType, setPopupType] = useState('success');
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
 
   useEffect(() => {
@@ -527,6 +528,15 @@ function EditProfilePage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    
+    if (!privacyAccepted) {
+      setError('Please accept the Privacy & Security Policy and Terms & Conditions to continue.');
+      setShowPopup(true);
+      setPopupType('error');
+      setPopupMessage('Please accept the Privacy & Security Policy and Terms & Conditions to continue.');
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
 
@@ -603,14 +613,14 @@ function EditProfilePage() {
   const fieldStyle = {
     width: '100%',
     padding: isMobile ? '12px 14px' : '14px 16px',
-    border: '1.5px solid rgba(31, 23, 18, 0.14)',
+    border: '1.5px solid var(--app-card-border)',
     borderRadius: isMobile ? '12px' : '14px',
     background: 'var(--app-surface-strong)',
     color: 'var(--app-text)',
     boxSizing: 'border-box',
     fontSize: isMobile ? '0.9rem' : '1rem',
     outline: 'none',
-    boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.28)',
+    boxShadow: 'inset 0 0 0 1px var(--app-ring)',
   };
 
   const dropdownStyle = {
@@ -632,24 +642,24 @@ function EditProfilePage() {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '4px',
-    background: 'linear-gradient(135deg, rgba(239, 111, 150, 0.18), rgba(255, 157, 108, 0.2))',
-    color: 'var(--app-text)',
-    border: '1px solid rgba(239, 111, 150, 0.2)',
+    background: 'var(--app-accent-bg)',
+    color: 'var(--app-accent-text)',
+    border: '1px solid var(--app-card-border)',
     fontWeight: 700,
   };
 
   const primaryActionStyle = {
     border: 'none',
-    background: 'linear-gradient(135deg, #21120a 0%, #513041 100%)',
-    color: '#ffffff',
+    background: 'var(--app-accent-bg)',
+    color: 'var(--app-accent-text)',
     fontWeight: 800,
     cursor: 'pointer',
-    boxShadow: '0 16px 34px rgba(31, 23, 18, 0.22)',
+    boxShadow: 'var(--app-shadow)',
   };
 
   const secondaryActionStyle = {
-    border: '1px solid rgba(31, 23, 18, 0.12)',
-    background: 'rgba(255, 255, 255, 0.62)',
+    border: '1px solid var(--app-card-border)',
+    background: 'var(--app-surface)',
     color: 'var(--app-text)',
     fontWeight: 800,
     cursor: 'pointer',
@@ -720,8 +730,8 @@ function EditProfilePage() {
                 transition: 'all 0.2s',
               }}
               onMouseEnter={(e) => {
-                e.target.style.background = '#21120a';
-                e.target.style.color = '#ffffff';
+                e.target.style.background = 'var(--app-accent-bg)';
+                e.target.style.color = 'var(--app-accent-text)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.background = 'var(--app-surface-strong)';
@@ -768,7 +778,7 @@ function EditProfilePage() {
                   bottom: '0',
                   left: '0',
                   right: '0',
-                  background: 'rgba(0,0,0,0.5)',
+                  background: 'rgba(0,0,0,0.7)',
                   color: 'white',
                   textAlign: 'center',
                   padding: '4px',
@@ -954,18 +964,18 @@ function EditProfilePage() {
                         style={{
                           padding: isMobile ? '10px 12px' : '12px 16px',
                           cursor: 'pointer',
-                          borderBottom: '1px solid #e0e0e0',
+                          borderBottom: '1px solid var(--app-card-border)',
                           transition: 'background 0.2s',
                           fontSize: isMobile ? '0.85rem' : '0.9rem',
                         }}
-                        onMouseEnter={(e) => e.target.style.background = 'rgba(239, 111, 150, 0.1)'}
+                        onMouseEnter={(e) => e.target.style.background = 'var(--app-accent-bg)'}
                         onMouseLeave={(e) => e.target.style.background = 'transparent'}
                       >
                         {profession}
                       </div>
                     ))
                   ) : (
-                    <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', color: '#666', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>
+                    <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', color: 'var(--app-muted-text)', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>
                       No professions found
                     </div>
                   )}
@@ -996,8 +1006,8 @@ function EditProfilePage() {
                   style={dropdownStyle}
                 >
                   {profileData.lookingFor.length > 0 && (
-                    <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', borderBottom: '1px solid rgba(31, 23, 18, 0.1)', background: 'rgba(255, 255, 255, 0.42)' }}>
-                      <div style={{ fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: 'bold', color: '#666', marginBottom: isMobile ? '6px' : '8px' }}>
+                    <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', borderBottom: '1px solid var(--app-card-border)', background: 'var(--app-surface)' }}>
+                      <div style={{ fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: 'bold', color: 'var(--app-muted-text)', marginBottom: isMobile ? '6px' : '8px' }}>
                         Selected:
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '4px' : '6px' }}>
@@ -1043,24 +1053,24 @@ function EditProfilePage() {
                         style={{
                           padding: isMobile ? '10px 12px' : '12px 16px',
                           cursor: 'pointer',
-                          borderBottom: '1px solid #e0e0e0',
+                          borderBottom: '1px solid var(--app-card-border)',
                           transition: 'background 0.2s',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
                           fontSize: isMobile ? '0.85rem' : '0.9rem',
                         }}
-                        onMouseEnter={(e) => e.target.style.background = 'rgba(239, 111, 150, 0.1)'}
+                        onMouseEnter={(e) => e.target.style.background = 'var(--app-accent-bg)'}
                         onMouseLeave={(e) => e.target.style.background = 'transparent'}
                       >
                         <span>{option}</span>
                         {profileData.lookingFor.includes(option) && (
-                          <span style={{ color: '#513041', fontWeight: 'bold', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>✓</span>
+                          <span style={{ color: 'var(--app-accent-text)', fontWeight: 'bold', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>✓</span>
                         )}
                       </div>
                     ))
                   ) : (
-                    <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', color: '#666', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>
+                    <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', color: 'var(--app-muted-text)', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>
                       No options found
                     </div>
                   )}
@@ -1120,7 +1130,7 @@ function EditProfilePage() {
                   width: isMobile ? '20px' : '24px',
                   height: isMobile ? '20px' : '24px',
                   cursor: 'pointer',
-                  accentColor: '#ef6f96',
+                  accentColor: 'var(--forge-orange)',
                 }}
               />
               <label htmlFor="is-service-provider" style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--app-text)' }}>
@@ -1181,8 +1191,8 @@ function EditProfilePage() {
                       style={dropdownStyle}
                     >
                       {profileData.services.length > 0 && (
-                        <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', borderBottom: '1px solid rgba(31, 23, 18, 0.1)', background: 'rgba(255, 255, 255, 0.42)' }}>
-                          <div style={{ fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: 'bold', color: '#666', marginBottom: isMobile ? '6px' : '8px' }}>
+                        <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', borderBottom: '1px solid var(--app-card-border)', background: 'var(--app-surface)' }}>
+                          <div style={{ fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: 'bold', color: 'var(--app-muted-text)', marginBottom: isMobile ? '6px' : '8px' }}>
                             Selected:
                           </div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '4px' : '6px' }}>
@@ -1237,7 +1247,7 @@ function EditProfilePage() {
                           style={{
                             padding: isMobile ? '10px 12px' : '12px 16px',
                             cursor: 'pointer',
-                            borderBottom: '1px solid #e0e0e0',
+                            borderBottom: '1px solid var(--app-card-border)',
                             transition: 'background 0.2s',
                             display: 'flex',
                             alignItems: 'center',
@@ -1249,7 +1259,7 @@ function EditProfilePage() {
                         >
                           <span>{option}</span>
                           {profileData.services.includes(option) && (
-                            <span style={{ color: '#513041', fontWeight: 'bold', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>✓</span>
+                            <span style={{ color: 'var(--app-accent-text)', fontWeight: 'bold', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>✓</span>
                           )}
                         </div>
                       ))}
@@ -1336,9 +1346,9 @@ function EditProfilePage() {
                   disabled={socialLinks.length === 1}
                   style={{
                     padding: isMobile ? '10px 12px' : '12px 16px',
-                    border: '1px solid rgba(31, 23, 18, 0.12)',
+                    border: '1px solid var(--app-card-border)',
                     borderRadius: isMobile ? '10px' : '12px',
-                    background: socialLinks.length === 1 ? 'rgba(31, 23, 18, 0.08)' : 'rgba(239, 111, 150, 0.14)',
+                    background: socialLinks.length === 1 ? 'var(--app-surface)' : 'var(--app-accent-bg)',
                     color: 'var(--app-text)',
                     fontWeight: 700,
                     cursor: socialLinks.length === 1 ? 'not-allowed' : 'pointer',
@@ -1355,9 +1365,9 @@ function EditProfilePage() {
               onClick={addSocialLink}
               style={{
                 padding: isMobile ? '10px 16px' : '12px 20px',
-                border: '1.5px dashed rgba(31, 23, 18, 0.28)',
+                border: '1.5px dashed var(--app-card-border)',
                 borderRadius: isMobile ? '10px' : '12px',
-                background: 'rgba(255, 255, 255, 0.34)',
+                background: 'var(--app-surface)',
                 color: 'var(--app-text)',
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -1374,10 +1384,10 @@ function EditProfilePage() {
               Profile Visibility Settings
             </label>
             <div style={{ 
-              background: 'rgba(255, 255, 255, 0.5)',
+              background: 'var(--app-surface)',
               borderRadius: isMobile ? '12px' : '16px',
               padding: isMobile ? '16px' : '20px',
-              border: '1px solid rgba(31, 23, 18, 0.12)'
+              border: '1px solid var(--app-card-border)'
             }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? '12px' : '16px' }}>
                 {[
@@ -1396,8 +1406,8 @@ function EditProfilePage() {
                         height: isMobile ? '24px' : '26px',
                         borderRadius: isMobile ? '12px' : '13px',
                         background: visibilitySettings[key] 
-                          ? 'linear-gradient(135deg, #ef6f96, #513041)' 
-                          : 'rgba(31, 23, 18, 0.2)',
+                          ? 'var(--app-accent-bg)' 
+                          : 'var(--app-surface-strong)',
                         border: 'none',
                         cursor: 'pointer',
                         position: 'relative',
@@ -1424,6 +1434,66 @@ function EditProfilePage() {
                 ))}
               </div>
             </div>
+          </div>
+
+          <div style={{ marginBottom: isMobile ? '20px' : '24px' }}>
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: '12px',
+              cursor: 'pointer',
+              fontSize: isMobile ? '0.85rem' : '0.9rem',
+              color: 'var(--app-text)',
+              fontWeight: '500'
+            }}>
+              <input
+                type="checkbox"
+                checked={privacyAccepted}
+                onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                style={{
+                  width: isMobile ? '18px' : '20px',
+                  height: isMobile ? '18px' : '20px',
+                  accentColor: 'var(--forge-orange)',
+                  cursor: 'pointer',
+                  marginTop: '2px',
+                  flexShrink: 0
+                }}
+              />
+              <span>
+                I have read and agree to the{' '}
+                <Link
+                  to="/privacy"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--app-accent-text)',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    padding: 0,
+                    fontSize: 'inherit',
+                    fontWeight: '600'
+                  }}
+                >
+                  Privacy & Security Policy
+                </Link>
+                {' '}and{' '}
+                <Link
+                  to="/privacy"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--app-accent-text)',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    padding: 0,
+                    fontSize: 'inherit',
+                    fontWeight: '600'
+                  }}
+                >
+                  Terms & Conditions
+                </Link>
+              </span>
+            </label>
           </div>
 
           <button
@@ -1458,12 +1528,12 @@ function EditProfilePage() {
         >
           <div 
             style={{
-              background: 'white',
+              background: 'var(--app-card-bg)',
               borderRadius: '20px',
               padding: '32px',
               maxWidth: '400px',
               width: '100%',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+              boxShadow: 'var(--app-shadow)',
               position: 'relative',
               textAlign: 'center'
             }}
@@ -1475,14 +1545,14 @@ function EditProfilePage() {
                 height: '64px',
                 borderRadius: '50%',
                 background: popupType === 'success' 
-                  ? 'linear-gradient(135deg, #10b981, #059669)' 
-                  : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  ? 'var(--forge-yellow)' 
+                  : '#ef4444',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 16px',
                 fontSize: '32px',
-                color: 'white'
+                color: popupType === 'success' ? '#111111' : 'white'
               }}
             >
               {popupType === 'success' ? '✓' : '✕'}

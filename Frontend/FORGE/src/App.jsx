@@ -23,6 +23,7 @@ const SurveyResultsPage = lazy(() => import('./pages/SurveyResultsPage'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const EventDetailPage = lazy(() => import('./pages/EventDetailPage'));
 const PublicSurveyPage = lazy(() => import('./pages/PublicSurveyPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 
 // Loading component for Suspense fallback
 const PageLoader = () => (
@@ -70,6 +71,7 @@ function App() {
             <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
             <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/profile/:email" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
             <Route path="/events" element={<ProtectedRoute><UserEventsPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
@@ -77,6 +79,7 @@ function App() {
             <Route path="/survey/:surveyId/results" element={<ProtectedRoute><SurveyResultsPage /></ProtectedRoute>} />
             <Route path="/survey/view/:surveyId" element={<PublicSurveyPage />} />
             <Route path="/event/:id" element={<ProtectedRoute><EventDetailPage /></ProtectedRoute>} />
+            <Route path="/privacy" element={<ProtectedRoute><PrivacyPage /></ProtectedRoute>} />
             <Route path="/auth/callback" element={<AuthCallback />} />
           </Routes>
         </Suspense>

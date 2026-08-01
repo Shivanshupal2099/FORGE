@@ -17,8 +17,9 @@ function validateAndConvertObjectId(id, fieldName = 'ID') {
   
   // If it's a string, try to convert to ObjectId
   if (typeof id === 'string') {
+
     if (mongoose.Types.ObjectId.isValid(id)) {
-      return new mongoose.Types.ObjectId(id);
+      return new mongoose.Types.ObjectId(id);                 
     } else {
       console.log(`${fieldName} is not a valid ObjectId:`, id);
       return null;
@@ -76,8 +77,9 @@ function presentUser(user, profile) {
   return {
     id: user._id.toString(),
     uid: user.uid,
+    email: user.email,
     name: `${firstName} ${lastName}`.trim(),
-    avatarUrl: profile?.avatar_url || null,
+    avatar_url: profile?.avatar_url || null,
     profession: profile?.department || '',
     isOnline: Boolean(user.is_online),
     lastSeenAt: user.last_seen_at || null
@@ -344,7 +346,7 @@ exports.disconnect = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Connection not found' });
     }
 
-    // Delete the connection
+    // Delete the connection .... 
     await Connection.deleteOne({ _id: connectionObjectId });
 
     // Emit Socket.io event to notify both users

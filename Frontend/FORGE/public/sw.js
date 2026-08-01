@@ -1,10 +1,17 @@
-const CACHE_NAME = 'forge-pwa-v2';
+const CACHE_NAME = 'forge-pwa-v3';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/forge.png',
+  '/icons/icon-16x16.png',
+  '/icons/icon-32x32.png',
+  '/icons/icon-72x72.png',
+  '/icons/icon-96x96.png',
+  '/icons/icon-128x128.png',
+  '/icons/icon-144x144.png',
+  '/icons/icon-152x152.png',
   '/icons/icon-192x192.png',
+  '/icons/icon-384x384.png',
   '/icons/icon-512x512.png'
 ];
 
@@ -23,6 +30,21 @@ function isApiRequest(url) {
   try {
     const urlObj = new URL(url);
     return urlObj.pathname.startsWith('/api/');
+  } catch (e) {
+    return false;
+  }
+}
+
+// Helper function to check if request is a dynamic route that shouldn't be cached
+function isDynamicRoute(url) {
+  try {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    // Skip profile pages and other dynamic routes
+    return pathname.startsWith('/profile/') || 
+           pathname.startsWith('/chat/') ||
+           pathname.startsWith('/event/') ||
+           pathname.startsWith('/survey/');
   } catch (e) {
     return false;
   }
@@ -50,6 +72,11 @@ self.addEventListener('fetch', (event) => {
 
   // Skip API requests - let them go directly to network
   if (isApiRequest(event.request.url)) {
+    return;
+  }
+
+  // Skip dynamic routes - let them go directly to network
+  if (isDynamicRoute(event.request.url)) {
     return;
   }
 

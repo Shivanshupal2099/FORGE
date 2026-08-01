@@ -341,7 +341,190 @@
 @media (max-width: 768px) {
   .chat-sidebar {
     min-height: calc(100vh - 136px);
-    border-radius: 24px;
+    border-radius: 20px;
+    box-shadow: var(--app-shadow);
+    background: var(--app-card-bg);
+    border: 1px solid var(--app-card-border);
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .chat-sidebar__top {
+    padding: 16px;
+    background: var(--app-surface);
+    border-bottom: 1px solid var(--app-card-border);
+  }
+
+  .chat-sidebar__brandIcon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--forge-yellow) 0%, var(--forge-orange) 100%);
+    color: #111111;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  }
+
+  .chat-sidebar__brandTitle {
+    font-size: 1.2rem;
+    color: var(--app-text);
+  }
+
+  .chat-sidebar__brandSub {
+    color: var(--app-muted-text);
+    font-size: 0.85rem;
+  }
+
+  .chat-sidebar__searchWrap {
+    margin-top: 12px;
+  }
+
+  .chat-sidebar__search {
+    padding: 12px 14px 12px 40px;
+    border-radius: 14px;
+    background: var(--app-card-bg);
+    border: 1px solid var(--app-card-border);
+    color: var(--app-text);
+    box-shadow: var(--app-soft-shadow);
+  }
+
+  .chat-sidebar__search:focus {
+    border-color: var(--forge-yellow);
+    background: var(--app-surface-strong);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+  }
+
+  .chat-sidebar__search::placeholder {
+    color: var(--app-muted-text);
+  }
+
+  .chat-sidebar__list {
+    padding: 12px;
+  }
+
+  .chat-sidebar__thread {
+    padding: 12px;
+    border-radius: 16px;
+    margin-bottom: 8px;
+    background: var(--app-surface);
+    border: 1px solid var(--app-card-border);
+    transition: all 0.3s ease;
+  }
+
+  .chat-sidebar__thread:hover {
+    background: var(--app-accent-bg);
+    color: var(--app-accent-text);
+    transform: translateX(4px);
+    box-shadow: var(--app-soft-shadow);
+  }
+
+  .chat-sidebar__thread:active {
+    transform: scale(0.98);
+  }
+
+  .chat-sidebar__thread--active {
+    background: linear-gradient(135deg, var(--forge-yellow) 0%, var(--forge-orange) 100%);
+    color: #111111;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  }
+
+  .chat-sidebar__thread--active .chat-sidebar__threadName,
+  .chat-sidebar__thread--active .chat-sidebar__threadTime,
+  .chat-sidebar__thread--active .chat-sidebar__threadPreview {
+    color: #111111;
+  }
+
+  .chat-sidebar__avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--forge-yellow) 0%, var(--forge-orange) 100%);
+    color: #111111;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  }
+
+  .chat-sidebar__thread--active .chat-sidebar__avatar {
+    background: rgba(255, 255, 255, 0.9);
+    color: #111111;
+  }
+
+  .chat-sidebar__threadName {
+    font-size: 1rem;
+    color: var(--app-text);
+  }
+
+  .chat-sidebar__threadTime {
+    font-size: 0.75rem;
+    color: var(--app-muted-text);
+  }
+
+  .chat-sidebar__threadPreview {
+    font-size: 0.85rem;
+    color: var(--app-muted-text);
+  }
+
+  .chat-sidebar__statusIndicator {
+    width: 12px;
+    height: 12px;
+    background: #10b981;
+    border: 2px solid var(--app-card-bg);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  }
+
+  .chat-sidebar__unread {
+    min-width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg, var(--forge-yellow) 0%, var(--forge-orange) 100%);
+    color: #111111;
+    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+  }
+
+  .chat-sidebar__thread--active .chat-sidebar__unread {
+    background: #111111;
+    color: #ffffff;
+  }
+
+  .chat-sidebar__empty {
+    padding: 40px 20px;
+  }
+
+  .chat-sidebar__emptyIcon {
+    font-size: 3rem;
+    color: var(--forge-yellow);
+  }
+
+  .chat-sidebar__emptyText {
+    color: var(--app-text);
+    font-size: 1.1rem;
+  }
+
+  .chat-sidebar__emptySub {
+    color: var(--app-muted-text);
+    font-size: 0.9rem;
+  }
+
+  .chat-sidebar__footer {
+    padding: 14px 16px;
+    background: var(--app-surface);
+    border-top: 1px solid var(--app-card-border);
+  }
+
+  .chat-sidebar__tipsIcon {
+    background: linear-gradient(135deg, var(--forge-yellow) 0%, var(--forge-orange) 100%);
+    color: #111111;
+  }
+
+  .chat-sidebar__tipsText {
+    color: var(--app-muted-text);
+    font-size: 0.85rem;
   }
 }
 
