@@ -50,9 +50,9 @@ function WelcomeCard({ onClose }) {
               {isVerified && (
                 <MdOutlineVerified 
                   style={{ 
-                    color: '#3b82f6', 
+                    color: 'var(--app-accent-text)', 
                     fontSize: '1.2rem',
-                    background: 'rgba(59, 130, 246, 0.1)',
+                    background: 'var(--app-accent-bg)',
                     borderRadius: '50%',
                     padding: '2px'
                   }} 

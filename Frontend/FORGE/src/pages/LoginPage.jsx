@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -10,6 +10,7 @@ function LoginPage() {
   const location = useLocation();
   const { supabase } = useAuth();
   const { error: showError } = useAlert();
+  const [loading, setLoading] = useState(false);
 
     const signInWithGoogle = async () => {
      const { error } = await supabase.auth.signInWithOAuth({
@@ -22,6 +23,35 @@ function LoginPage() {
      if (error) {
        console.error('Error signing in:', error);
        showError('Error signing in with Google. Please try again.');
+     }
+   };
+
+   const signInWithDefault = async () => {
+     setLoading(true);
+     try {
+       const defaultEmail = 'test@forgeconnect.com';
+       const defaultPassword = 'Test123456!'; // Change this as needed
+
+       console.log('Attempting default login with:', defaultEmail);
+
+       // Try to sign in with existing credentials
+       const { data, error } = await supabase.auth.signInWithPassword({
+         email: defaultEmail,
+         password: defaultPassword
+       });
+
+       if (error) {
+         console.error('Default login failed:', error);
+         showError('Test login failed. Please create the test user in Supabase first. Email: test@forgeconnect.com, Password: Test123456!');
+       } else {
+         console.log('Default login successful:', data);
+         // User will be redirected by the auth state change
+       }
+     } catch (error) {
+       console.error('Default login error:', error);
+       showError(`Test login failed: ${error.message}. Please use Google sign-in.`);
+     } finally {
+       setLoading(false);
      }
    };
 
@@ -73,7 +103,23 @@ function LoginPage() {
               <button
                 className="login-google-btn"
                 type="button"
+                onClick={signInWithDefault}
+                disabled={loading}
+                style={{
+                  marginBottom: "16px",
+                  background: "linear-gradient(135deg, var(--app-accent-bg) 0%, var(--app-accent-bg) 100%)",
+                  opacity: loading ? 0.7 : 1,
+                  cursor: loading ? "not-allowed" : "pointer"
+                }}
+              >
+                {loading ? 'Logging in...' : '🧪 Quick Test Login (Razorpay Testing)'}
+              </button>
+              
+              <button
+                className="login-google-btn"
+                type="button"
                 onClick={signInWithGoogle}
+                disabled={loading}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

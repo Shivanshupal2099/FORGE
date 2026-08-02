@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   IoClose,
   IoShieldCheckmark,
@@ -277,7 +278,7 @@ function VerificationPopup({ onClose }) {
               style={{
                 width: '20px',
                 height: '20px',
-                accentColor: '#3b82f6',
+                accentColor: 'var(--app-accent-text)',
                 cursor: 'pointer',
                 marginTop: '2px',
                 flexShrink: 0
@@ -285,36 +286,31 @@ function VerificationPopup({ onClose }) {
             />
             <span>
               I have read and agree to the{' '}
-              <span
+              <Link
+                to="/privacy"
+                onClick={(e) => e.stopPropagation()}
                 style={{
-                  color: '#3b82f6',
+                  color: 'var(--app-accent-text)',
                   textDecoration: 'underline',
                   cursor: 'pointer',
                   fontWeight: '600'
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Show inline policy dialog or use existing approach
-                  alert('Privacy & Security Policy:\n\n1. We collect account information, usage data, location data, payment information, and communication data.\n2. We use SSL encryption and secure payment processing.\n3. We do not sell your personal information.\n4. You can access, correct, or delete your data.\n\nTerms & Conditions:\n\n1. You are responsible for account security.\n2. Content must be appropriate and legal.\n3. Verification fees are non-refundable.\n4. We reserve the right to terminate violating accounts.');
                 }}
               >
                 Privacy & Security Policy
-              </span>
+              </Link>
               {' '}and{' '}
-              <span
+              <Link
+                to="/privacy"
+                onClick={(e) => e.stopPropagation()}
                 style={{
-                  color: '#3b82f6',
+                  color: 'var(--app-accent-text)',
                   textDecoration: 'underline',
                   cursor: 'pointer',
                   fontWeight: '600'
                 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  alert('Terms & Conditions:\n\n1. You are responsible for account security.\n2. Content must be appropriate and legal.\n3. Verification fees are non-refundable.\n4. We reserve the right to terminate violating accounts.');
-                }}
               >
                 Terms & Conditions
-              </span>
+              </Link>
             </span>
           </label>
         </div>

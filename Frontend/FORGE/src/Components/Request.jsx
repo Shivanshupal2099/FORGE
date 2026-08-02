@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FaHandPaper, FaTimes, FaCheck, FaUserFriends, FaUnlink, FaPaperPlane } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
+import './Request.css';
 
 function Request({ onClose, onConnectionAccepted }) {
   const { user } = useAuth();
@@ -243,37 +244,34 @@ function Request({ onClose, onConnectionAccepted }) {
                 <p>No pending connection requests</p>
               </div>
             ) : (
-              <ul className="request-list">
+              <ul className="request-popup__list">
                 {incomingRequests.map((request) => (
-                  <li key={request._id} className="request-card">
-                    <div className="request-card__profile">
+                  <li key={request._id} className="request-popup__item">
+                    <div className="request-popup__item-avatar">
                       {request.requester_profile?.avatar_url ? (
                         <img 
                           src={request.requester_profile.avatar_url} 
                           alt={`${request.requester_profile.first_name} ${request.requester_profile.last_name}`}
-                          className="request-card__avatar"
                         />
                       ) : (
-                        <div className="request-card__avatar-placeholder">
-                          {request.requester_profile?.first_name?.charAt(0) || '?'}
-                        </div>
+                        <span>{request.requester_profile?.first_name?.charAt(0) || '?'}</span>
                       )}
-                      <div className="request-card__info">
-                        <h3 className="request-card__name">
-                          {request.requester_profile?.first_name} {request.requester_profile?.last_name}
-                        </h3>
-                        {request.requester_profile?.department && (
-                          <p className="request-card__profession">{request.requester_profile.department}</p>
-                        )}
-                        {request.requester_intent && (
-                          <p className="request-card__message">{request.requester_intent}</p>
-                        )}
-                      </div>
                     </div>
-                    <div className="request-card__actions">
+                    <div className="request-popup__item-info">
+                      <div className="request-popup__item-name">
+                        {request.requester_profile?.first_name} {request.requester_profile?.last_name}
+                      </div>
+                      {request.requester_profile?.department && (
+                        <div className="request-popup__item-email">{request.requester_profile.department}</div>
+                      )}
+                      {request.requester_intent && (
+                        <div className="request-popup__item-time">{request.requester_intent}</div>
+                      )}
+                    </div>
+                    <div className="request-popup__item-actions">
                       <button
                         type="button"
-                        className="request-card__button request-card__button--accept"
+                        className="request-popup__action-button request-popup__action-button--accept"
                         onClick={() => handleAccept(request._id)}
                         aria-label="Accept request"
                       >
@@ -282,7 +280,7 @@ function Request({ onClose, onConnectionAccepted }) {
                       </button>
                       <button
                         type="button"
-                        className="request-card__button request-card__button--decline"
+                        className="request-popup__action-button request-popup__action-button--decline"
                         onClick={() => handleDecline(request._id)}
                         aria-label="Decline request"
                       >
@@ -301,49 +299,56 @@ function Request({ onClose, onConnectionAccepted }) {
                 <p>No sent requests</p>
               </div>
             ) : (
-              <ul className="request-list">
+              <ul className="request-popup__list">
                 {sentRequests.map((request) => (
-                  <li key={request._id} className={`request-card ${request.status === 'declined' ? 'request-card--declined' : ''}`}>
-                    <div className="request-card__profile">
+                  <li key={request._id} className={`request-popup__item ${request.status === 'declined' ? 'request-popup__item--declined' : ''}`}>
+                    <div className="request-popup__item-avatar">
                       {request.collaborator?.avatarUrl ? (
                         <img 
                           src={request.collaborator.avatarUrl} 
                           alt={request.collaborator.name}
-                          className="request-card__avatar"
                         />
                       ) : (
-                        <div className="request-card__avatar-placeholder">
-                          {request.collaborator?.name?.charAt(0) || '?'}
-                        </div>
+                        <span>{request.collaborator?.name?.charAt(0) || '?'}</span>
                       )}
-                      <div className="request-card__info">
-                        <h3 className="request-card__name">
-                          {request.collaborator?.name}
-                        </h3>
-                        {request.collaborator?.profession && (
-                          <p className="request-card__profession">{request.collaborator.profession}</p>
-                        )}
-                        {request.requester_intent && (
-                          <p className="request-card__message">{request.requester_intent}</p>
-                        )}
-                        <p className={`request-card__status ${request.status === 'declined' ? 'request-card__status--declined' : 'request-card__status--pending'}`}>
-                          {request.status === 'declined' ? 'Declined' : 'Pending'}
-                        </p>
+                    </div>
+                    <div className="request-popup__item-info">
+                      <div className="request-popup__item-name">
+                        {request.collaborator?.name}
+                      </div>
+                      {request.collaborator?.profession && (
+                        <div className="request-popup__item-email">{request.collaborator.profession}</div>
+                      )}
+                      {request.requester_intent && (
+                        <div className="request-popup__item-time">{request.requester_intent}</div>
+                      )}
+                      <div className={`request-popup__item-time ${request.status === 'declined' ? 'request-popup__item-time--declined' : 'request-popup__item-time--pending'}`}>
+                        {request.status === 'declined' ? 'Declined' : 'Pending'}
                       </div>
                     </div>
-                    {request.status === 'declined' && (
-                      <div className="request-card__actions">
+                    <div className="request-popup__item-actions">
+                      {request.status === 'declined' ? (
                         <button
                           type="button"
-                          className="request-card__button request-card__button--delete"
+                          className="request-popup__action-button request-popup__action-button--delete"
                           onClick={() => handleDeleteRequest(request._id)}
                           aria-label="Remove request"
                         >
                           <FaUnlink aria-hidden="true" />
                           Remove
                         </button>
-                      </div>
-                    )}
+                      ) : (
+                        <button
+                          type="button"
+                          className="request-popup__action-button request-popup__action-button--cancel"
+                          onClick={() => handleDeleteRequest(request._id)}
+                          aria-label="Cancel request"
+                        >
+                          <FaTimes aria-hidden="true" />
+                          Cancel
+                        </button>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -355,38 +360,35 @@ function Request({ onClose, onConnectionAccepted }) {
                 <p>No declined requests</p>
               </div>
             ) : (
-              <ul className="request-list">
+              <ul className="request-popup__list">
                 {declinedRequests.map((request) => (
-                  <li key={request._id} className="request-card request-card--declined">
-                    <div className="request-card__profile">
+                  <li key={request._id} className="request-popup__item request-popup__item--declined">
+                    <div className="request-popup__item-avatar">
                       {request.requester_profile?.avatar_url ? (
                         <img 
                           src={request.requester_profile.avatar_url} 
                           alt={`${request.requester_profile.first_name} ${request.requester_profile.last_name}`}
-                          className="request-card__avatar"
                         />
                       ) : (
-                        <div className="request-card__avatar-placeholder">
-                          {request.requester_profile?.first_name?.charAt(0) || '?'}
-                        </div>
+                        <span>{request.requester_profile?.first_name?.charAt(0) || '?'}</span>
                       )}
-                      <div className="request-card__info">
-                        <h3 className="request-card__name">
-                          {request.requester_profile?.first_name} {request.requester_profile?.last_name}
-                        </h3>
-                        {request.requester_profile?.department && (
-                          <p className="request-card__profession">{request.requester_profile.department}</p>
-                        )}
-                        {request.requester_intent && (
-                          <p className="request-card__message">{request.requester_intent}</p>
-                        )}
-                        <p className="request-card__status request-card__status--declined">Declined</p>
-                      </div>
                     </div>
-                    <div className="request-card__actions">
+                    <div className="request-popup__item-info">
+                      <div className="request-popup__item-name">
+                        {request.requester_profile?.first_name} {request.requester_profile?.last_name}
+                      </div>
+                      {request.requester_profile?.department && (
+                        <div className="request-popup__item-email">{request.requester_profile.department}</div>
+                      )}
+                      {request.requester_intent && (
+                        <div className="request-popup__item-time">{request.requester_intent}</div>
+                      )}
+                      <div className="request-popup__item-time request-popup__item-time--declined">Declined</div>
+                    </div>
+                    <div className="request-popup__item-actions">
                       <button
                         type="button"
-                        className="request-card__button request-card__button--delete"
+                        className="request-popup__action-button request-popup__action-button--delete"
                         onClick={() => handleDeleteRequest(request._id)}
                         aria-label="Remove request"
                       >
@@ -406,7 +408,7 @@ function Request({ onClose, onConnectionAccepted }) {
                 <p>No connections yet</p>
               </div>
             ) : (
-              <ul className="request-list">
+              <ul className="request-popup__list">
                 {acceptedConnections.map((connection) => {
                   // Determine which profile to show (the other user, not the current user)
                   const isCurrentUserRequester = connection.requester?.uid === user?.email;
@@ -415,35 +417,32 @@ function Request({ onClose, onConnectionAccepted }) {
                   if (!profile) return null;
                   
                   return (
-                    <li key={connection._id} className="request-card request-card--connected">
-                      <div className="request-card__profile">
+                    <li key={connection._id} className="request-popup__item request-popup__item--connected">
+                      <div className="request-popup__item-avatar">
                         {profile?.avatar_url ? (
                           <img 
                             src={profile.avatar_url} 
                             alt={`${profile.first_name} ${profile.last_name}`}
-                            className="request-card__avatar"
                           />
                         ) : (
-                          <div className="request-card__avatar-placeholder">
-                            {profile?.first_name?.charAt(0) || '?'}
-                          </div>
+                          <span>{profile?.first_name?.charAt(0) || '?'}</span>
                         )}
-                        <div className="request-card__info">
-                          <h3 className="request-card__name">
-                            {profile?.first_name} {profile?.last_name}
-                          </h3>
-                          {profile?.department && (
-                            <p className="request-card__profession">{profile.department}</p>
-                          )}
-                          <p className="request-card__status">
-                            {isCurrentUserRequester ? 'Request sent' : 'Connected'}
-                          </p>
+                      </div>
+                      <div className="request-popup__item-info">
+                        <div className="request-popup__item-name">
+                          {profile?.first_name} {profile?.last_name}
+                        </div>
+                        {profile?.department && (
+                          <div className="request-popup__item-email">{profile.department}</div>
+                        )}
+                        <div className="request-popup__item-time">
+                          {isCurrentUserRequester ? 'Request sent' : 'Connected'}
                         </div>
                       </div>
-                      <div className="request-card__actions">
+                      <div className="request-popup__item-actions">
                         <button
                           type="button"
-                          className="request-card__button request-card__button--disconnect"
+                          className="request-popup__action-button request-popup__action-button--disconnect"
                           onClick={() => handleDisconnect(connection._id)}
                           aria-label="Disconnect"
                         >

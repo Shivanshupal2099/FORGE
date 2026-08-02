@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IoArrowBack, IoTrashOutline, IoLogOutOutline, IoDocumentTextOutline } from 'react-icons/io5';
+import { IoArrowBack, IoTrashOutline, IoLogOutOutline, IoDocumentTextOutline, IoShieldCheckmarkOutline, IoInformationCircleOutline, IoChatbubbleEllipsesOutline, IoLogoInstagram } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
@@ -196,8 +196,8 @@ function SettingPage() {
               style={{
                 padding: '12px 24px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                color: 'white',
+                background: 'var(--app-accent-bg)',
+                color: 'var(--app-accent-text)',
                 border: 'none',
                 fontWeight: '700',
                 cursor: 'pointer',
@@ -206,6 +206,122 @@ function SettingPage() {
             >
               Report
             </button>
+          </div>
+        </section>
+
+        <section className="settings-legal-zone" aria-label="Legal">
+          <div className="settings-option">
+            <div className="settings-option__icon">
+              <IoShieldCheckmarkOutline />
+            </div>
+            <div className="settings-option__content">
+              <h2>Privacy & Security</h2>
+              <p>View our privacy policy and learn how we protect your data.</p>
+            </div>
+            <Link
+              to="/privacy"
+              className="settings-issue-button"
+              style={{
+                padding: '12px 24px',
+                borderRadius: '12px',
+                background: 'var(--app-accent-bg)',
+                color: 'var(--app-accent-text)',
+                border: 'none',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                textDecoration: 'none'
+              }}
+            >
+              View
+            </Link>
+          </div>
+
+          <div className="settings-option">
+            <div className="settings-option__icon">
+              <IoInformationCircleOutline />
+            </div>
+            <div className="settings-option__content">
+              <h2>Terms & Conditions</h2>
+              <p>Read our terms and conditions for using the platform.</p>
+            </div>
+            <Link
+              to="/privacy"
+              className="settings-issue-button"
+              style={{
+                padding: '12px 24px',
+                borderRadius: '12px',
+                background: 'var(--app-accent-bg)',
+                color: 'var(--app-accent-text)',
+                border: 'none',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                textDecoration: 'none'
+              }}
+            >
+              View
+            </Link>
+          </div>
+        </section>
+
+        <section className="settings-social-zone" aria-label="Connect with Developer">
+          <div className="settings-option">
+            <div className="settings-option__icon">
+              <IoChatbubbleEllipsesOutline />
+            </div>
+            <div className="settings-option__content">
+              <h2>Connect on WhatsApp</h2>
+              <p>Join our WhatsApp community for support and updates.</p>
+            </div>
+            <a
+              href="https://chat.whatsapp.com/L8uTSgubfj86hbm6UxQRFi?s=sh&p=i&ilr=0&amv=2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="settings-issue-button"
+              style={{
+                padding: '12px 24px',
+                borderRadius: '12px',
+                background: '#25D366',
+                color: 'white',
+                border: 'none',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                textDecoration: 'none'
+              }}
+            >
+              Connect
+            </a>
+          </div>
+
+          <div className="settings-option">
+            <div className="settings-option__icon">
+              <IoLogoInstagram />
+            </div>
+            <div className="settings-option__content">
+              <h2>Follow on Instagram</h2>
+              <p>Follow us on Instagram for latest updates and features.</p>
+            </div>
+            <a
+              href="https://www.instagram.com/forgeconnect_0?igsh=cmxkZnh1ejJpYXdu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="settings-issue-button"
+              style={{
+                padding: '12px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                color: 'white',
+                border: 'none',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                textDecoration: 'none'
+              }}
+            >
+              Follow
+            </a>
           </div>
         </section>
 
