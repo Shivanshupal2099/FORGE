@@ -73,7 +73,11 @@ function Tokens({ onClose }) {
         <button
           type="button"
           className="home-popup__close"
-          onClick={onClose}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onClose();
+          }}
           aria-label="Close tokens popup"
         >
           <FaTimes aria-hidden="true" />
@@ -109,7 +113,7 @@ function Tokens({ onClose }) {
           ) : earnedTokens.length === 0 ? (
             <p style={{ textAlign: 'center', padding: '20px' }}>No tokens earned yet. Complete surveys to earn tokens!</p>
           ) : (
-            <ul className="home-popup-list">
+            <ul className="home-popup-list home-popup-list--scrollable">
               {earnedTokens.slice().reverse().map((entry) => (
                 <li key={entry._id || entry.earned_at} className="home-popup-list__item">
                   <div className="home-popup-list__main">

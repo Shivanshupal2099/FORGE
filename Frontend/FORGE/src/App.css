@@ -1212,6 +1212,8 @@
   color: #000000;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease;
+  z-index: 100;
+  pointer-events: auto;
 }
 
 .home-popup__close:hover {
@@ -1267,6 +1269,7 @@
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .home-popup-highlight__label {
@@ -1302,6 +1305,19 @@
   margin: 0 0 14px;
   font-size: 1.05rem;
   color: #000000;
+}
+
+.home-popup-section {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  /* Hidden scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.home-popup-section::-webkit-scrollbar {
+  display: none;
 }
 
 .home-popup-list {
@@ -2443,6 +2459,47 @@
     padding: 24px 20px 20px;
     max-height: 95vh;
     border-radius: 24px;
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .home-popup-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .home-popup--tokens {
+    border-radius: 24px 24px 0 0;
+    margin: 0;
+    max-height: 85vh;
+    animation: slideUpMobile 0.3s ease;
+  }
+
+  @keyframes slideUpMobile {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Pull indicator for mobile */
+  .home-popup--tokens::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+    z-index: 5;
   }
 
   .home-popup__close {
@@ -2450,12 +2507,19 @@
     right: 14px;
     width: 36px;
     height: 36px;
+    z-index: 100;
+    pointer-events: auto;
   }
 
   .home-popup__header {
     gap: 14px;
     margin-bottom: 18px;
     padding-right: 40px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
   }
 
   .home-popup__icon {
@@ -2503,6 +2567,12 @@
   .home-popup-section__title {
     font-size: 0.95rem;
     margin-bottom: 12px;
+  }
+
+  .home-popup-section {
+    max-height: calc(85vh - 180px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .home-popup-list__item {

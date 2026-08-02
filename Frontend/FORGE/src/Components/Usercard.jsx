@@ -257,6 +257,10 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
       } else if (error.response?.status === 404) {
         setConnectionStatus('error');
         showError('User not found. They may have deleted their account.');
+      } else if (error.response?.status === 403) {
+        setConnectionStatus('error');
+        console.error('Verification required error');
+        setShowSelfVerificationPopup(true);
       } else {
         setConnectionStatus('error');
         showError('Failed to send connection request. Please try again.');

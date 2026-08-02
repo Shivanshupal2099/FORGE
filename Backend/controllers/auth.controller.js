@@ -11,6 +11,10 @@ const Survey = require('../models/Survey.model');
 const Event = require('../models/Event.model');
 const Notification = require('../models/Notification.model');
 const Offer = require('../models/Offer.model');
+const BlockedUser = require('../models/BlockUser.model');
+const Report = require('../models/Reports.model');
+const EventAttendee = require('../models/EventAttandes.model');
+const PushToken = require('../models/PushToken.model');
 const { markUserOnline, markUserOffline, getUserOnlineStatus } = require('../middlewares/activity.middleware');
 
 const signAccessToken = (user) => {
@@ -390,19 +394,16 @@ exports.deleteAccount = async (req, res) => {
             });
         }
 
-        // Delete user's profile
+        // Delete user's profile (only this user's profile)
         await Profile.deleteOne({ uid });
 
-        // Delete user's location data
-        const UserLocation = require('../models/UserLocation.model');
+        // Delete user's location data (only this user's location)
         await UserLocation.deleteOne({ uid });
 
-        // Delete user's notifications
-        const Notification = require('../models/Notification.model');
+        // Delete user's notifications (only this user's notifications)
         await Notification.deleteMany({ user_id: userId });
 
-        // Delete user's connections (as requester or receiver)
-        const Connection = require('../models/Connection.model');
+        // Delete user's connections (as requester or receiver - shared connections are removed)
         await Connection.deleteMany({
             $or: [
                 { requester_id: userId },
@@ -410,50 +411,40 @@ exports.deleteAccount = async (req, res) => {
             ]
         });
 
-        // Delete user's blocks (as blocker or blocked)
-        const BlockedUser = require('../models/BlockUser.model');
-        await BlockedUser.deleteMany({
-            $or: [
-                { blocker_id: userId },
-                { blocked_id: userId }
-            ]
-        });
+        // Delete user's blocks (as blocker only, not as blocked user to preserve other users' block lists)
+        await BlockedUser.deleteMany({ blocker_id: userId });
 
-        // Delete user's event attendances
-        const EventAttendee = require('../models/EventAttandes.model');
+        // Delete user's transactions (including verification payments - only this user's transactions)
+        await Transaction.deleteMany({ user_id: userId });
+
+        // Delete user's event attendances (only this user's attendances)
         await EventAttendee.deleteMany({ user_id: userId });
 
-        // Delete user's created surveys
-        const Survey = require('../models/Survey.model');
+        // Delete user's created surveys (only this user's surveys)
         await Survey.deleteMany({ creator_id: userId });
 
-        // Delete user's push tokens
-        const PushToken = require('../models/PushToken.model');
+        // Delete user's push tokens (only this user's tokens)
         await PushToken.deleteMany({ user_id: userId });
 
-        // Delete user's reports (as reporter or reported user)
-        const Report = require('../models/Reports.model');
+        // Delete user's reports (as reporter or reported user, but not as reviewer to preserve moderation history)
         await Report.deleteMany({
             $or: [
                 { reporter_id: userId },
-                { reported_user_id: userId },
-                { reviewed_by: userId }
+                { reported_user_id: userId }
             ]
         });
 
-        // Delete user's transactions
-        const Transaction = require('../models/Transaction.model');
-        await Transaction.deleteMany({ user_id: userId });
-
-        // Delete user's sessions
-        const UserSession = require('../models/UserSession.model');
+        // Delete user's sessions (only this user's sessions)
         await UserSession.deleteMany({ user_id: userId });
 
         // Mark user as offline before deletion
         await markUserOffline(uid);
 
-        // Delete the user
-        await User.deleteOne({ email });
+        // Remove verification status and mark user as deleted
+        await User.updateOne({ email }, { 
+            deleted_at: new Date(),
+            is_verified: false
+        });
 
         res.json({
             success: true,
@@ -602,41 +593,61 @@ exports.deleteAccount = async (req, res) => {
         const connections = await Connection.find({ $or: [{ requester_uid: uid }, { receiver_uid: uid }] });
         console.log('Found connections to remove:', connections.length);
 
-        // Delete all user data from all collections
+        // Delete all user data from all collections (only this user's data)
         const deletionPromises = [];
 
         // 1. Mark user as deleted instead of deleting
-        deletionPromises.push(User.updateOne({ uid: uid }, { deleted_at: new Date() }));
+        deletionPromises.push(User.updateOne({ uid: uid }, { 
+            deleted_at: new Date(),
+            is_verified: false
+        }));
 
-        // 2. Delete from Profile collection
+        // 2. Delete from Profile collection (also removes verification status)
         deletionPromises.push(Profile.deleteOne({ uid }));
 
         // 3. Delete from UserLocation collection
         deletionPromises.push(UserLocation.deleteOne({ uid }));
 
-        // 4. Delete all connections where user is involved
+        // 4. Delete all connections where user is involved (shared connections are removed)
         deletionPromises.push(Connection.deleteMany({ $or: [{ requester_uid: uid }, { receiver_uid: uid }] }));
 
-        // 5. Delete all transactions (using ObjectId)
+        // 5. Delete all transactions (including verification payments) - only this user's transactions
         deletionPromises.push(Transaction.deleteMany({ user_id: userId }));
 
-        // 6. Delete all sessions
+        // 6. Delete all sessions (only this user's sessions)
         deletionPromises.push(UserSession.deleteMany({ uid }));
 
-        // 7. Delete all refresh tokens
+        // 7. Delete all refresh tokens (only this user's tokens)
         deletionPromises.push(RefreshToken.deleteMany({ uid }));
 
-        // 8. Delete surveys created by user
+        // 8. Delete surveys created by user (only this user's surveys)
         deletionPromises.push(Survey.deleteMany({ creator_uid: uid }));
 
-        // 9. Delete events created by user
+        // 9. Delete events created by user (only this user's events)
         deletionPromises.push(Event.deleteMany({ creator_uid: uid }));
 
-        // 10. Delete notifications (user_id field - ObjectId)
+        // 10. Delete notifications (only this user's notifications)
         deletionPromises.push(Notification.deleteMany({ user_id: userId }));
 
-        // 11. Delete offers (created_by field - ObjectId)
+        // 11. Delete offers created by user (only this user's offers)
         deletionPromises.push(Offer.deleteMany({ created_by: userId }));
+
+        // 12. Delete blocks where user is blocker (preserve other users' block lists)
+        deletionPromises.push(BlockedUser.deleteMany({ blocker_id: userId }));
+
+        // 13. Delete reports where user is reporter or reported (preserve moderation history)
+        deletionPromises.push(Report.deleteMany({
+            $or: [
+                { reporter_id: userId },
+                { reported_user_id: userId }
+            ]
+        }));
+
+        // 14. Delete event attendances (only this user's attendances)
+        deletionPromises.push(EventAttendee.deleteMany({ user_id: userId }));
+
+        // 15. Delete push tokens (only this user's tokens)
+        deletionPromises.push(PushToken.deleteMany({ user_id: userId }));
 
         // Execute all deletions
         await Promise.all(deletionPromises);

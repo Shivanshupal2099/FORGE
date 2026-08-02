@@ -152,7 +152,11 @@ function Request({ onClose, onConnectionAccepted }) {
         <button
           type="button"
           className="request-popup__close"
-          onClick={onClose}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onClose();
+          }}
           aria-label="Close requests"
         >
           <FaTimes aria-hidden="true" />

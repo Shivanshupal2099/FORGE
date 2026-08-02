@@ -12,6 +12,7 @@
   z-index: 1000;
   padding: 20px;
   animation: fadeIn 0.2s ease;
+  pointer-events: auto;
 }
 
 @keyframes fadeIn {
@@ -37,6 +38,7 @@
   animation: slideUp 0.3s ease;
   display: flex;
   flex-direction: column;
+  pointer-events: auto;
 }
 
 @keyframes slideUp {
@@ -67,12 +69,18 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  z-index: 10;
+  z-index: 100;
+  pointer-events: auto;
 }
 
 .request-popup__close:hover {
   background: var(--app-theme-gradient);
   color: white;
+  transform: scale(1.1);
+}
+
+.request-popup__close:active {
+  transform: scale(0.95);
 }
 
 .request-popup__header {
@@ -81,6 +89,8 @@
   display: flex;
   gap: 16px;
   align-items: flex-start;
+  position: relative;
+  z-index: 1;
 }
 
 .request-popup__icon {
@@ -404,6 +414,8 @@
     width: 32px;
     height: 32px;
     font-size: 1rem;
+    z-index: 100;
+    pointer-events: auto;
   }
 
   .request-popup__header {
