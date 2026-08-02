@@ -175,7 +175,10 @@ function VerificationPopup({ onClose }) {
         }
       };
 
-      console.log('Initializing Razorpay with options:', { ...options, key: options.key.substring(0, 10) + '...' });
+      console.log('Initializing Razorpay with options:', { 
+        ...options, 
+        key: options.key ? options.key.substring(0, 10) + '...' : 'undefined' 
+      });
       
       const razorpay = new window.Razorpay(options);
       
