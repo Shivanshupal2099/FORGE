@@ -18,25 +18,25 @@ const BENEFITS = [
     icon: IoPeople,
     label: 'Connect freely',
     desc: 'Reach verified builders across the community',
-    color: '#667eea'
+    color: '#FFD700'
   },
   {
     icon: IoStar,
     label: 'Premium access',
     desc: 'Create new surveys, access community offers',
-    color: '#f093fb'
+    color: '#FFE44D'
   },
   {
     icon: IoShieldCheckmark,
     label: 'Build trust',
     desc: 'Show others you are a genuine ForgeConnect member',
-    color: '#4facfe'
+    color: '#E6C200'
   },
   {
     icon: IoChatbubbles,
     label: 'Messaging',
     desc: 'Send connection requests and start conversations',
-    color: '#43e97b'
+    color: '#FFC107'
   },
 ];
 
@@ -164,7 +164,7 @@ function VerificationPopup({ onClose }) {
           contact: ""
         },
         theme: {
-          color: "#667eea"
+          color: "#FFD700"
         },
         modal: {
           ondismiss: function() {

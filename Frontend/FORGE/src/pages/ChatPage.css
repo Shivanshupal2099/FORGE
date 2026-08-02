@@ -3,6 +3,46 @@
   position: relative;
 }
 
+.chat-page__join-community {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px var(--forge-orange-shadow);
+}
+
+.chat-page__join-community:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--forge-orange-shadow);
+}
+
+.chat-page__join-community svg {
+  font-size: 1.1rem;
+}
+
+.chat-page__join-community--mobile {
+  padding: 10px;
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+}
+
+.chat-page__join-community--mobile span {
+  display: none;
+}
+
+.chat-page__join-community--mobile svg {
+  font-size: 1.2rem;
+}
+
 .chat-notification {
   position: fixed;
   top: 80px;

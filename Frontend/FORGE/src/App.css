@@ -13,10 +13,15 @@
   --forge-gray-medium: #E0E0D8;
   --forge-gray-dark: #A0A098;
   
+  /* Accent Colors - Default to yellow for app, orange for welcome */
+  --app-accent-bg: var(--forge-yellow);
+  --app-accent-text: #000000;
+  
   /* Shadows */
   --forge-soft-shadow: 0 8px 32px rgba(17, 17, 17, 0.08);
   --forge-soft-shadow-lg: 0 16px 48px rgba(17, 17, 17, 0.12);
   --forge-yellow-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
+  --forge-orange-shadow: 0 8px 24px rgba(255, 107, 0, 0.3);
   
   /* Border Radius */
   --forge-radius-sm: 12px;
@@ -636,8 +641,66 @@
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
+.app-header-mobile-action-btn--join {
+  background: linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 16px var(--forge-orange-shadow);
+}
+
+.app-header-mobile-action-btn--join:hover {
+  transform: translateY(-2px) scale(1.1);
+  box-shadow: 0 8px 24px var(--forge-orange-shadow);
+}
+
+/* Chat page specific header actions */
+.chat-page .app-header {
+  position: relative;
+}
+
+.chat-page .app-header-mobile-actions {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 @media (min-width: 769px) {
   .app-header-mobile-actions {
+    display: none;
+  }
+}
+
+/* Desktop Header Actions */
+.app-header-desktop-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.app-header-desktop-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px var(--forge-orange-shadow);
+}
+
+.app-header-desktop-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--forge-orange-shadow);
+}
+
+@media (max-width: 768px) {
+  .app-header-desktop-actions {
     display: none;
   }
 }
@@ -1411,21 +1474,21 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: var(--app-accent-bg);
+  background: var(--forge-orange);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 24px;
-  box-shadow: 0 12px 32px var(--app-accent-bg) 0.3;
+  box-shadow: 0 12px 32px var(--forge-orange-shadow);
   font-size: 3rem;
-  color: var(--app-accent-text);
+  color: #FFFFFF;
 }
 
 .welcome-card__title {
   margin: 0 0 12px;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: 800;
-  background: var(--app-accent-bg);
+  background: linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1466,14 +1529,14 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--app-accent-bg);
+  background: linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   font-size: 1.3rem;
-  color: var(--app-accent-text);
-  box-shadow: 0 4px 12px var(--app-accent-bg) 0.2;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px var(--forge-orange-shadow);
 }
 
 .welcome-card__feature-content h3 {
@@ -1499,18 +1562,18 @@
   padding: 16px 32px;
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--app-accent-text);
-  background: var(--app-accent-bg);
+  color: #FFFFFF;
+  background: linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%);
   border: none;
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 24px var(--app-accent-bg) 0.3;
+  box-shadow: 0 8px 24px var(--forge-orange-shadow);
 }
 
 .welcome-card__button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px var(--app-accent-bg) 0.4;
+  box-shadow: 0 12px 32px var(--forge-orange-shadow);
 }
 
 @keyframes fadeIn {
@@ -4148,7 +4211,7 @@
   right: -20%;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   animation: float 8s ease-in-out infinite;
@@ -4160,7 +4223,7 @@
   left: -10%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(240, 147, 251, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 228, 77, 0.1) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   animation: float 10s ease-in-out infinite reverse;
@@ -4475,7 +4538,7 @@
   position: absolute;
   width: 90px;
   height: 90px;
-  background: linear-gradient(135deg, var(--app-accent-bg) 0%, rgba(102, 126, 234, 0.3) 100%);
+  background: linear-gradient(135deg, var(--forge-yellow) 0%, rgba(255, 215, 0, 0.3) 100%);
   border-radius: 50%;
   filter: blur(25px);
   opacity: 0.6;
@@ -4490,13 +4553,13 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--app-accent-bg) 0%, rgba(102, 126, 234, 0.8) 100%);
+  background: linear-gradient(135deg, var(--forge-yellow) 0%, var(--forge-yellow-light) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--app-accent-text);
+  color: #000000;
   font-size: 2.2rem;
-  box-shadow: 0 16px 40px rgba(102, 126, 234, 0.4), 0 8px 20px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 16px 40px rgba(255, 215, 0, 0.4), 0 8px 20px rgba(255, 215, 0, 0.2);
   animation: iconFloat 4s ease-in-out infinite;
 }
 
@@ -4530,24 +4593,24 @@
 .verification-popup__badge {
   display: inline-block;
   padding: 8px 18px;
-  background: linear-gradient(135deg, var(--app-accent-bg) 0%, rgba(102, 126, 234, 0.8) 100%);
-  color: var(--app-accent-text);
+  background: linear-gradient(135deg, var(--forge-yellow) 0%, var(--forge-yellow-light) 100%);
+  color: #000000;
   border-radius: 24px;
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   margin-bottom: 16px;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
   animation: badgeGlow 2s ease-in-out infinite;
 }
 
 @keyframes badgeGlow {
   0%, 100% {
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
   }
   50% {
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 8px 24px rgba(255, 215, 0, 0.5);
   }
 }
 
@@ -4731,9 +4794,9 @@
 }
 
 .verification-popup__button--primary {
-  background: linear-gradient(135deg, var(--app-accent-bg) 0%, rgba(102, 126, 234, 0.9) 100%);
-  color: var(--app-accent-text);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4), 0 4px 12px rgba(102, 126, 234, 0.2);
+  background: linear-gradient(135deg, var(--forge-yellow) 0%, var(--forge-yellow-light) 100%);
+  color: #000000;
+  box-shadow: 0 12px 32px rgba(255, 215, 0, 0.4), 0 4px 12px rgba(255, 215, 0, 0.2);
 }
 
 .verification-popup__button--primary::before {

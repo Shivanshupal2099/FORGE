@@ -1,9 +1,10 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { FaHandPaper, FaCoins, FaTags } from 'react-icons/fa';
+import { IoAdd } from 'react-icons/io5';
 import logoImage from '../assets/forge.png';
 
-function Header({ mobileActions, pendingRequests }) {
+function Header({ mobileActions, pendingRequests, children, onJoinCommunity, showJoinCommunityOnMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
   const isMapPage = location.pathname === '/map';
@@ -58,6 +59,25 @@ function Header({ mobileActions, pendingRequests }) {
           <Link to="/survey" className="app-header-mobile-action-btn app-header-mobile-action-btn--create">
             <span>+</span>
           </Link>
+        </div>
+      )}
+
+      {showJoinCommunityOnMobile && onJoinCommunity && (
+        <div className="app-header-mobile-actions">
+          <button
+            type="button"
+            className="app-header-mobile-action-btn app-header-mobile-action-btn--join"
+            onClick={onJoinCommunity}
+            aria-label="Join community"
+          >
+            <IoAdd />
+          </button>
+        </div>
+      )}
+      
+      {children && (
+        <div className="app-header-desktop-actions">
+          {children}
         </div>
       )}
     </div>

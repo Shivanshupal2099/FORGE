@@ -304,6 +304,12 @@ function UserEventsPage() {
       <Header />
       <style>
         {`
+          :root {
+            --forge-orange: #FF6B00;
+            --forge-orange-light: #FF8533;
+            --forge-orange-shadow: rgba(255, 107, 0, 0.3);
+          }
+          
           @media (max-width: 1023px) {
             .action-buttons-container {
               position: fixed !important;
@@ -326,7 +332,8 @@ function UserEventsPage() {
               display: flex !important;
               align-items: center !important;
               justify-content: center !important;
-              box-shadow: 0 8px 24px rgba(241, 196, 15, 0.5) !important;
+              box-shadow: 0 8px 24px var(--forge-orange-shadow) !important;
+              background: linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%) !important;
             }
             .action-buttons-container button span {
               display: none !important;
@@ -369,12 +376,12 @@ function UserEventsPage() {
               padding: '18px 36px',
               border: '2px solid transparent',
               borderRadius: '20px',
-              background: 'linear-gradient(135deg, #f1c40f 0%, #f39c12 100%)',
+              background: 'linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%)',
               color: '#ffffff',
               fontSize: '1.1rem',
               fontWeight: '800',
               cursor: 'pointer',
-              boxShadow: '0 16px 48px rgba(241, 196, 15, 0.4)',
+              boxShadow: '0 16px 48px var(--forge-orange-shadow)',
               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               whiteSpace: 'nowrap',
               letterSpacing: '0.03em',
@@ -384,13 +391,13 @@ function UserEventsPage() {
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = 'translateY(-4px) scale(1.03)';
-              e.target.style.boxShadow = '0 24px 64px rgba(241, 196, 15, 0.5)';
-              e.target.style.background = 'linear-gradient(135deg, #f4d03f 0%, #f1c40f 100%)';
+              e.target.style.boxShadow = '0 24px 64px var(--forge-orange-shadow)';
+              e.target.style.background = 'linear-gradient(135deg, var(--forge-orange-light) 0%, var(--forge-orange) 100%)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0) scale(1)';
-              e.target.style.boxShadow = '0 16px 48px rgba(241, 196, 15, 0.4)';
-              e.target.style.background = 'linear-gradient(135deg, #f1c40f 0%, #f39c12 100%)';
+              e.target.style.boxShadow = '0 16px 48px var(--forge-orange-shadow)';
+              e.target.style.background = 'linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%)';
             }}
           >
             <IoAdd style={{ fontSize: '1.3rem' }} /> <span>Create Event</span>

@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
-import { IoChatbubbleEllipsesOutline, IoChevronBack, IoSend, IoTrashOutline, IoExitOutline, IoClose } from 'react-icons/io5';
+import { IoChatbubbleEllipsesOutline, IoChevronBack, IoSend, IoTrashOutline, IoExitOutline, IoClose, IoAdd } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import ChatSidebar from '../Components/ChatSidebar';
+import CommunityJoinPopup from '../Components/CommunityJoinPopup';
 import { useSocket } from '../contexts/SocketContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
@@ -21,6 +22,7 @@ function ChatPage() {
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [notification, setNotification] = useState(null);
   const [pendingMessageIds, setPendingMessageIds] = useState(new Set());
+  const [showCommunityPopup, setShowCommunityPopup] = useState(false);
   const messagesEndRef = useRef(null);
   const { socket, isConnected, joinConnection, leaveConnection, sendMessage } = useSocket();
 
@@ -260,6 +262,18 @@ function ChatPage() {
     }
   };
 
+  const handleJoinCommunity = async (communityType) => {
+    try {
+      const response = await axios.post('/api/community/join', { type: communityType });
+      if (response.data.success) {
+        showSuccess(`Successfully joined ${communityType} community!`);
+      }
+    } catch (error) {
+      console.error('Error joining community:', error);
+      showError('Failed to join community. Please try again.');
+    }
+  };
+
   const handleDisconnect = async () => {
     if (!selectedUser?.connectionId) return;
 
@@ -461,7 +475,21 @@ function ChatPage() {
           </div>
         </div>
       )}
-      <Header />
+      <Header
+        showJoinCommunityOnMobile={true}
+        onJoinCommunity={() => setShowCommunityPopup(true)}
+      >
+        {!isMobile && (
+          <button
+            type="button"
+            className="chat-page__join-community"
+            onClick={() => setShowCommunityPopup(true)}
+            aria-label="Join community"
+          >
+            Join Community
+          </button>
+        )}
+      </Header>
       <div className="chat-layout">
         {!isMobile && (
           <>
@@ -490,6 +518,13 @@ function ChatPage() {
       </div>
 
       <NavigationBar />
+
+      {showCommunityPopup && (
+        <CommunityJoinPopup
+          onClose={() => setShowCommunityPopup(false)}
+          onJoin={handleJoinCommunity}
+        />
+      )}
     </div>
   );
 }
