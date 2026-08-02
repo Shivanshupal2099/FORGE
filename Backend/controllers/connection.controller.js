@@ -65,6 +65,22 @@ async function resolveUserToObjectId(identifier) {
   return null;
 }
 
+// Helper function to check user verification status
+async function isUserVerified(userIdentifier) {
+  try {
+    const userObjectId = await resolveUserToObjectId(userIdentifier);
+    if (!userObjectId) return false;
+    
+    const user = await User.findById(userObjectId);
+    if (!user) return false;
+    
+    return user.is_verified === true;
+  } catch (error) {
+    console.error('Error checking user verification status:', error);
+    return false;
+  }
+}
+
 async function profilesFor(users) {
   const ids = users.map((user) => user._id.toString()).filter(Boolean);
   const profiles = await Profile.find({ user_id: { $in: ids } }).lean();
@@ -146,6 +162,13 @@ exports.createRequest = async (req, res) => {
 
     if (receiverObjectId.equals(currentUserObjectId)) {
       return res.status(400).json({ success: false, message: 'You cannot send a collaboration request to yourself' });
+    }
+
+    // Check if current user is verified
+    const isCurrentUserVerified = await isUserVerified(currentUser.email || currentUser.uid || currentUser._id?.toString());
+    if (!isCurrentUserVerified) {
+      console.log('createRequest - current user is not verified');
+      return res.status(403).json({ success: false, message: 'You must be verified to send connection requests' });
     }
 
     const existing = await Connection.findOne({

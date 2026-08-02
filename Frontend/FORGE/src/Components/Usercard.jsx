@@ -7,7 +7,7 @@ import axios from '../api/axios';
 import VerificationPopup from './VerificationPopup';
 
 const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isVerified: currentUserIsVerified } = useAuth();
   const { error: showError, success: showSuccess } = useAlert();
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(false);
@@ -40,8 +40,9 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
       return;
     }
 
-    // Check if current user is verified
-    if (currentUser?.isVerified === false) {
+    // Check if current user is verified - use AuthContext as source of truth
+    if (currentUserIsVerified === false) {
+      console.log('Current user is not verified, showing verification popup');
       setShowSelfVerificationPopup(true);
       return;
     }
@@ -109,6 +110,10 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
         setConnectionStatus('error');
         console.error('User not found error');
         showError('User not found. They may have deleted their account.');
+      } else if (error.response?.status === 403) {
+        setConnectionStatus('error');
+        console.error('Verification required error');
+        setShowSelfVerificationPopup(true);
       } else {
         setConnectionStatus('error');
         console.error('Error sending connection request:', error.response?.data?.message || error.message);
@@ -196,8 +201,18 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   console.log('Usercard received user:', user);
   console.log('Usercard isVerified:', user.isVerified);
   console.log('Usercard isVerified type:', typeof user.isVerified);
+  console.log('Current user from AuthContext:', currentUser);
+  console.log('Current user isVerified from AuthContext:', currentUserIsVerified);
+  console.log('Current user isVerified type:', typeof currentUserIsVerified);
 
   const handleConnectRequestAnyway = async () => {
+    // Double-check current user verification status
+    if (currentUserIsVerified === false) {
+      console.log('Current user is not verified, showing verification popup');
+      setShowSelfVerificationPopup(true);
+      return;
+    }
+
     try {
       setConnectionLoading(true);
       setConnectionStatus('idle');
