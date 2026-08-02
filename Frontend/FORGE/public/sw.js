@@ -1,4 +1,4 @@
-const CACHE_NAME = 'forge-pwa-v3';
+const CACHE_NAME = 'forge-pwa-v4';
 const urlsToCache = [
   '/',
   '/index.html',
