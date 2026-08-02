@@ -405,8 +405,8 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
               <h3>User Not Verified</h3>
             </div>
             <div className="usercard__verificationPopupBody">
-              <p>This user is not verified on ForgeConnect. For your safety, we recommend connecting only with verified users.</p>
-              <p>Verified users have completed additional security checks and are more likely to be genuine.</p>
+              <p>This user is not verified on ForgeConnect. Verified users have a pure intention to connect with the right people to work, build, and save time by connecting with genuine professionals.</p>
+              <p>For the best experience, we recommend connecting with verified users who have completed additional security checks.</p>
             </div>
             <div className="usercard__verificationPopupActions">
               <button 
