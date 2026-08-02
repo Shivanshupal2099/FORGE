@@ -19,7 +19,6 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
 
   const settings = visibilitySettings || {
     show_name: true,
-    show_bio: true,
     show_profession: true,
     show_domain: true,
     show_location: true,
@@ -178,6 +177,10 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
 
   if (!user) return null;
 
+  console.log('Usercard received user:', user);
+  console.log('Usercard isVerified:', user.isVerified);
+  console.log('Usercard isVerified type:', typeof user.isVerified);
+
   return (
     <div className="usercard-overlay" onClick={onClose}>
       <div className="usercard" onClick={(e) => e.stopPropagation()}>
@@ -196,16 +199,25 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
                 {user.name?.charAt(0)?.toUpperCase() || '?'}
               </div>
             )}
-            {user.isVerified && (
+            {(user.isVerified !== undefined && user.isVerified) && (
               <div className="usercard__verifiedBadge" title="Verified User">
                 ✓
+              </div>
+            )}
+            {(user.isVerified !== undefined && !user.isVerified) && (
+              <div className="usercard__verifiedBadge usercard__verifiedBadge--unverified" title="Non Verified">
+                !
               </div>
             )}
           </div>
           <div className="usercard__headerInfo">
             <h2 className="usercard__name">
               {settings.show_name ? user.name : 'Anonymous'}
-              {user.isVerified && <span className="usercard__verifiedText">Verified</span>}
+              {user.isVerified !== undefined && (
+                <span className={`usercard__verifiedText ${user.isVerified ? 'usercard__verifiedText--verified' : 'usercard__verifiedText--unverified'}`}>
+                  {user.isVerified ? 'Verified' : 'Non Verified'}
+                </span>
+              )}
             </h2>
             {settings.show_profession && <p className="usercard__profession">{user.profession}</p>}
             <div className="usercard__status">
@@ -219,14 +231,6 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
             </div>
           </div>
         </div>
-
-        {/* Bio */}
-        {user.bio && settings.show_bio && (
-          <div className="usercard__section">
-            <h3 className="usercard__sectionTitle">About</h3>
-            <p className="usercard__bio">{user.bio}</p>
-          </div>
-        )}
 
         {/* Looking For */}
         {user.lookingFor && user.lookingFor.length > 0 && settings.show_looking_for && (

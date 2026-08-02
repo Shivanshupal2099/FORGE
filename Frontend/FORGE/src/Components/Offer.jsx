@@ -12,13 +12,11 @@ function Offer({ onClose }) {
   const [newOffer, setNewOffer] = useState({
     title: '',
     description: '',
-    token_cost: 100,
     category: 'other'
   });
   const [editOffer, setEditOffer] = useState({
     title: '',
     description: '',
-    token_cost: 100,
     category: 'other',
     is_active: true
   });
@@ -120,7 +118,6 @@ function Offer({ onClose }) {
           setNewOffer({
             title: '',
             description: '',
-            token_cost: 100,
             category: 'other'
           });
           setShowCreateForm(false);
@@ -146,7 +143,6 @@ function Offer({ onClose }) {
     setEditOffer({
       title: selectedOffer.title,
       description: selectedOffer.description,
-      token_cost: selectedOffer.token_cost || 100,
       category: selectedOffer.category,
       is_active: selectedOffer.is_active
     });
@@ -317,18 +313,6 @@ function Offer({ onClose }) {
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="token_cost">Token Cost</label>
-                    <input
-                      type="number"
-                      id="token_cost"
-                      name="token_cost"
-                      value={newOffer.token_cost}
-                      onChange={handleInputChange}
-                      min="0"
-                      placeholder="100"
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="category">Category</label>
                     <select
                       id="category"
@@ -377,7 +361,7 @@ function Offer({ onClose }) {
                   <p className="empty-subtext">Be the first to create an exclusive offer for the community!</p>
                 </div>
               ) : (
-                <div className="offer-cards-grid">
+                <div className="offer-cards-grid offer-cards-grid--scrollable">
                   {offers.map((offer) => (
                     <div 
                       key={offer._id} 
@@ -390,7 +374,7 @@ function Offer({ onClose }) {
                       </div>
                       <div className="offer-card__meta">
                         <span className="offer-card__cost">
-                          <FaCoins /> {offer.token_cost || 100} tokens
+                          <FaCoins /> 100 tokens
                         </span>
                         {isRedeemed(offer) && (
                           <span className="offer-card__status redeemed-badge">Redeemed</span>
@@ -453,18 +437,6 @@ function Offer({ onClose }) {
                         required
                         placeholder="Describe the offer"
                         rows="4"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="edit-token_cost">Token Cost</label>
-                      <input
-                        type="number"
-                        id="edit-token_cost"
-                        name="token_cost"
-                        value={editOffer.token_cost}
-                        onChange={handleEditInputChange}
-                        min="0"
-                        placeholder="100"
                       />
                     </div>
                     <div className="form-group">
@@ -557,7 +529,7 @@ function Offer({ onClose }) {
                         <FaCoins /> Token Cost
                       </span>
                       <span className="offer-detail__meta-value">
-                        {selectedOffer?.token_cost || 100} tokens
+                        100 tokens
                       </span>
                     </div>
                     {selectedOffer?.max_redemptions && (
@@ -571,6 +543,9 @@ function Offer({ onClose }) {
                   </div>
 
                   <div className="offer-detail__status">
+                    {!user?.is_verified && (
+                      <span className="verification-badge">Verification Required</span>
+                    )}
                     {isRedeemed(selectedOffer) && (
                       <span className="redeemed-badge">You have redeemed this offer</span>
                     )}
@@ -583,14 +558,26 @@ function Offer({ onClose }) {
                   </div>
 
                   {!isRedeemed(selectedOffer) && !isExpired(selectedOffer) && selectedOffer?.is_active && (
-                    <button
-                      type="button"
-                      className="button-primary button-large"
-                      onClick={() => handleRedeemOffer(selectedOffer._id)}
-                      disabled={userTokens < (selectedOffer.token_cost || 100)}
-                    >
-                      <FaGift /> Redeem Offer ({selectedOffer.token_cost || 100} tokens)
-                    </button>
+                    <>
+                      {!user?.is_verified ? (
+                        <button
+                          type="button"
+                          className="button-primary button-large"
+                          disabled
+                        >
+                          <FaGift /> Verify to Redeem
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="button-primary button-large"
+                          onClick={() => handleRedeemOffer(selectedOffer._id)}
+                          disabled={userTokens < 100}
+                        >
+                          <FaGift /> Redeem Offer (100 tokens)
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </>

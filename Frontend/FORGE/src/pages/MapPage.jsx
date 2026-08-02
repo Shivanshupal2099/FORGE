@@ -90,10 +90,10 @@ function Map() {
     });
   };
 
-  const handleLocationRemoved = ({ locationId }) => {
-    console.log('Location removed via WebSocket:', locationId);
+  const handleLocationRemoved = ({ locationId, uid }) => {
+    console.log('Location removed via WebSocket:', locationId, uid);
     setAllLocations(prev => {
-      const newLocations = prev.filter(loc => loc._id !== locationId);
+      const newLocations = prev.filter(loc => loc._id !== locationId && loc.uid !== uid);
       // Re-apply current filters to update filtered locations
       const filtered = filterLocations(newLocations, filters);
       setFilteredLocations(filtered);
@@ -142,13 +142,17 @@ function Map() {
       
       if (response.data.success && response.data.profile) {
         const profile = response.data.profile
+        console.log('Profile data from backend:', profile);
+        console.log('is_verified value:', profile.is_verified);
+        console.log('is_verified type:', typeof profile.is_verified);
+        
         // Format profile data to match Usercard structure
         const userData = {
           name: `${profile.first_name} ${profile.last_name}`,
           profession: profile.department || 'User',
           bio: profile.bio,
           photo: profile.avatar_url,
-          isVerified: profile.is_verified || false,
+          isVerified: profile.is_verified === true,
           status: 'Active',
           visibility: 'Public',
           lookingFor: profile.looking_for || [],
@@ -160,7 +164,6 @@ function Map() {
           },
           visibilitySettings: profile.visibility_settings || {
             show_name: true,
-            show_bio: true,
             show_profession: true,
             show_domain: true,
             show_location: true,
@@ -169,6 +172,7 @@ function Map() {
             show_services: true
           }
         }
+        console.log('userData isVerified:', userData.isVerified);
         console.log('Setting selected user with email:', userData.email);
         setSelectedUser(userData)
       }

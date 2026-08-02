@@ -24,6 +24,10 @@ router.post("/logout", authMiddleware, authController.logout);
 // Get user online status
 router.get("/status/:uid", authController.getUserStatus);
 
+// Get user verification status
+router.get("/verification-status/:uid", authController.getUserVerificationStatus);
+router.get("/verification-status/email/:email", authController.getUserVerificationStatusByEmail);
+
 // Delete account
 router.delete("/delete-account", authMiddleware, authController.deleteAccount);
 

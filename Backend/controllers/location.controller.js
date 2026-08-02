@@ -99,3 +99,49 @@ exports.saveUserLocation = async (req, res) => {
     });
   }
 };
+
+exports.deleteUserLocation = async (req, res) => {
+  try {
+    const { uid } = req.params;
+
+    if (!uid) {
+      return res.status(400).json({
+        success: false,
+        message: 'UID is required'
+      });
+    }
+
+    console.log('Deleting location for UID:', uid);
+
+    const deletedLocation = await UserLocation.findOneAndDelete({ uid: uid });
+
+    if (!deletedLocation) {
+      return res.status(404).json({
+        success: false,
+        message: 'Location not found'
+      });
+    }
+
+    console.log('Location deleted:', deletedLocation._id);
+
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    const locationSocketHandler = req.app.get('locationSocketHandler');
+    if (io && locationSocketHandler) {
+      console.log('Emitting location removed event for:', uid);
+      locationSocketHandler.emitLocationRemoved({ locationId: deletedLocation._id, uid: uid });
+    }
+
+    res.json({
+      success: true,
+      message: 'Location deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting user location:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting user location',
+      error: error.message
+    });
+  }
+};

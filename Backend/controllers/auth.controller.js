@@ -4,6 +4,13 @@ const User = require('../models/Users.model');
 const Profile = require('../models/Profile.model');
 const UserSession = require('../models/UserSession.model');
 const RefreshToken = require('../models/RefreshToken.model');
+const UserLocation = require('../models/UserLocation.model');
+const Connection = require('../models/Connection.model');
+const Transaction = require('../models/Transaction.model');
+const Survey = require('../models/Survey.model');
+const Event = require('../models/Event.model');
+const Notification = require('../models/Notification.model');
+const Offer = require('../models/Offer.model');
 const { markUserOnline, markUserOffline, getUserOnlineStatus } = require('../middlewares/activity.middleware');
 
 const signAccessToken = (user) => {
@@ -287,6 +294,76 @@ exports.getUserStatus = async (req, res) => {
     }
 };
 
+exports.getUserVerificationStatus = async (req, res) => {
+    try {
+        const { uid } = req.params;
+
+        if (!uid) {
+            return res.status(400).json({
+                success: false,
+                message: 'UID is required'
+            });
+        }
+
+        const user = await User.findOne({ uid });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            is_verified: user.is_verified
+        });
+    } catch (error) {
+        console.error('Error getting user verification status:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to get verification status',
+            error: error.message
+        });
+    }
+};
+
+exports.getUserVerificationStatusByEmail = async (req, res) => {
+    try {
+        const { email } = req.params;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email is required'
+            });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            is_verified: user.is_verified,
+            email: user.email,
+            exists: true
+        });
+    } catch (error) {
+        console.error('Error getting user verification status by email:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to get verification status',
+            error: error.message
+        });
+    }
+};
+
 exports.deleteAccount = async (req, res) => {
     try {
         // Get user from authentication middleware
@@ -394,7 +471,10 @@ exports.deleteAccount = async (req, res) => {
 
 exports.getUserStats = async (req, res) => {
     try {
-        const totalUsers = await User.countDocuments({});
+        // Count users who have profiles (active users, not deleted)
+        const Profile = require('../models/Profile.model');
+        const totalUsers = await Profile.countDocuments({});
+        
         const activeUsers = await User.countDocuments({ 
             is_online: true 
         });
@@ -495,6 +575,93 @@ exports.revokeOtherSessions = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to revoke other sessions',
+            error: error.message
+        });
+    }
+};
+
+exports.deleteAccount = async (req, res) => {
+    try {
+        const uid = req.user.uid;
+        const email = req.user.email;
+
+        console.log('Starting account deletion for:', email);
+
+        // Get the user's ObjectId first
+        const user = await User.findOne({ uid: uid });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        const userId = user._id;
+
+        // Get all connections before deletion to notify other users
+        const connections = await Connection.find({ $or: [{ requester_uid: uid }, { receiver_uid: uid }] });
+        console.log('Found connections to remove:', connections.length);
+
+        // Delete all user data from all collections
+        const deletionPromises = [];
+
+        // 1. Mark user as deleted instead of deleting
+        deletionPromises.push(User.updateOne({ uid: uid }, { deleted_at: new Date() }));
+
+        // 2. Delete from Profile collection
+        deletionPromises.push(Profile.deleteOne({ uid }));
+
+        // 3. Delete from UserLocation collection
+        deletionPromises.push(UserLocation.deleteOne({ uid }));
+
+        // 4. Delete all connections where user is involved
+        deletionPromises.push(Connection.deleteMany({ $or: [{ requester_uid: uid }, { receiver_uid: uid }] }));
+
+        // 5. Delete all transactions (using ObjectId)
+        deletionPromises.push(Transaction.deleteMany({ user_id: userId }));
+
+        // 6. Delete all sessions
+        deletionPromises.push(UserSession.deleteMany({ uid }));
+
+        // 7. Delete all refresh tokens
+        deletionPromises.push(RefreshToken.deleteMany({ uid }));
+
+        // 8. Delete surveys created by user
+        deletionPromises.push(Survey.deleteMany({ creator_uid: uid }));
+
+        // 9. Delete events created by user
+        deletionPromises.push(Event.deleteMany({ creator_uid: uid }));
+
+        // 10. Delete notifications (user_id field - ObjectId)
+        deletionPromises.push(Notification.deleteMany({ user_id: userId }));
+
+        // 11. Delete offers (created_by field - ObjectId)
+        deletionPromises.push(Offer.deleteMany({ created_by: userId }));
+
+        // Execute all deletions
+        await Promise.all(deletionPromises);
+
+        // Emit socket events to notify other users about connection removal
+        const io = req.app.get('io');
+        if (io) {
+            connections.forEach(connection => {
+                const otherUserUid = connection.requester_uid === uid ? connection.receiver_uid : connection.requester_uid;
+                console.log('Notifying user about connection removal:', otherUserUid);
+                io.emit('connection:removed', { connectionId: connection._id, deletedUserUid: uid });
+            });
+        }
+
+        console.log('All user data deleted successfully for:', email);
+
+        res.json({
+            success: true,
+            message: 'Account deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete account',
             error: error.message
         });
     }

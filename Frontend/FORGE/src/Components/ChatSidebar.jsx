@@ -9,7 +9,13 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
 
   // Update users when connectedUsers prop changes
   useEffect(() => {
-    setUsersWithMessages(connectedUsers);
+    // Filter out deleted users (null/undefined or missing essential data)
+    const validUsers = connectedUsers.filter(user => 
+      user && 
+      user.uid && 
+      (user.name || user.email)
+    );
+    setUsersWithMessages(validUsers);
   }, [connectedUsers]);
 
   // Listen for new messages to update sidebar
@@ -94,7 +100,9 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
             <div className="chat-sidebar__emptySub">Start connecting with people</div>
           </div>
         ) : (
-          usersWithMessages.map((user) => (
+          usersWithMessages
+            .filter(user => user && user.uid && (user.name || user.email)) // Double-filter to ensure no deleted users
+            .map((user) => (
             <button
               type="button"
               key={user?.uid || user?._id || Math.random()}
@@ -115,7 +123,7 @@ const ChatSidebar = ({ connectedUsers = [], selectedUser, onSelectUser }) => {
 
               <div className="chat-sidebar__threadMain">
                 <div className="chat-sidebar__threadRow">
-                  <div className="chat-sidebar__threadName">{user?.name || 'Unknown'}</div>
+                  <div className="chat-sidebar__threadName">{user?.name || user?.email?.split('@')[0] || 'Unknown'}</div>
                   <div className="chat-sidebar__threadTime">
                     {user?.lastMessageTime || (user?.is_online ? 'Active now' : '')}
                   </div>

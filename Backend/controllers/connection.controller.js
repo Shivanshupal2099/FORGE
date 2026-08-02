@@ -95,22 +95,24 @@ async function decorateConnections(connections, currentUserId) {
   const usersById = new Map(users.map((user) => [user._id.toString(), user]));
   const profileByUserId = await profilesFor(users);
 
-  return connections.map((connection) => {
-    const requesterId = connection.requester_id.toString();
-    const receiverId = connection.receiver_id.toString();
-    const otherId = requesterId === currentUserId ? receiverId : requesterId;
-    const other = usersById.get(otherId);
-    const requester = usersById.get(requesterId);
+  return connections
+    .map((connection) => {
+      const requesterId = connection.requester_id.toString();
+      const receiverId = connection.receiver_id.toString();
+      const otherId = requesterId === currentUserId ? receiverId : requesterId;
+      const other = usersById.get(otherId);
+      const requester = usersById.get(requesterId);
 
-    return {
-      ...connection,
-      collaborator: other ? presentUser(other, profileByUserId.get(otherId)) : null,
-      requester_profile: requester ? {
-        ...profileByUserId.get(requesterId),
-        name: presentUser(requester, profileByUserId.get(requesterId)).name
-      } : null
-    };
-  });
+      return {
+        ...connection,
+        collaborator: other ? presentUser(other, profileByUserId.get(otherId)) : null,
+        requester_profile: requester ? {
+          ...profileByUserId.get(requesterId),
+          name: presentUser(requester, profileByUserId.get(requesterId)).name
+        } : null
+      };
+    })
+    .filter(connection => connection.collaborator !== null); // Filter out connections with deleted users
 }
 
 exports.createRequest = async (req, res) => {
@@ -311,7 +313,41 @@ exports.getAcceptedConnections = async (req, res) => {
       status: 'accepted',
       $or: [{ requester_id: currentUserObjectId }, { receiver_id: currentUserObjectId }]
     }).sort({ responded_at: -1 }).lean();
-    res.json({ success: true, connections: await decorateConnections(connections, currentUserObjectId.toString()) });
+
+    // Get all user IDs from connections
+    const userIds = [...new Set(connections.flatMap((connection) => [
+      connection.requester_id.toString(),
+      connection.receiver_id.toString()
+    ]))];
+
+    // Check which users still exist
+    const existingUsers = await User.find({ _id: { $in: userIds } }).lean();
+    const existingUserIds = new Set(existingUsers.map((user) => user._id.toString()));
+
+    // Delete connections where the other user has been deleted
+    const connectionIdsToDelete = connections
+      .filter((connection) => {
+        const otherId = connection.requester_id.toString() === currentUserObjectId.toString() 
+          ? connection.receiver_id.toString() 
+          : connection.requester_id.toString();
+        return !existingUserIds.has(otherId);
+      })
+      .map((connection) => connection._id);
+
+    if (connectionIdsToDelete.length > 0) {
+      console.log('Deleting connections with deleted users:', connectionIdsToDelete.length);
+      await Connection.deleteMany({ _id: { $in: connectionIdsToDelete } });
+    }
+
+    // Return only connections with existing users
+    const validConnections = connections.filter((connection) => {
+      const otherId = connection.requester_id.toString() === currentUserObjectId.toString() 
+        ? connection.receiver_id.toString() 
+        : connection.requester_id.toString();
+      return existingUserIds.has(otherId);
+    });
+
+    res.json({ success: true, connections: await decorateConnections(validConnections, currentUserObjectId.toString()) });
   } catch (error) {
     console.error('Error loading accepted connections:', error);
     res.status(500).json({ success: false, message: 'Could not load collaborators' });

@@ -15,7 +15,7 @@ import femaleImage from '../assets/female.png';
 
 
 function ProfilePage() {
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, loading: authLoading, signOut, isVerified } = useAuth();
   const { email: profileEmail } = useParams();
   const [profile, setProfile] = useState(null);
   const [surveys, setSurveys] = useState([]);
@@ -26,6 +26,7 @@ function ProfilePage() {
   const [locationError, setLocationError] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
 
   // Determine if viewing own profile or someone else's
   const isOwnProfile = !profileEmail || profileEmail === user?.email;
@@ -159,7 +160,11 @@ function ProfilePage() {
           <div className="profile-card__info">
             <div className="profile-card__title-row">
               <h1>{profile ? `${profile.first_name} ${profile.last_name}` : (user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User')}</h1>
-              {profile?.is_verified && <span className="profile-card__verify-tag">Verified</span>}
+              {(isVerified || profile?.is_verified) ? (
+                <span className="profile-card__verify-tag profile-card__verify-tag--verified">Verified</span>
+              ) : (
+                <span className="profile-card__verify-tag profile-card__verify-tag--unverified">Non Verified</span>
+              )}
             </div>
             <p className="profile-card__role">{profile?.department || 'User'}</p>
             <div className="profile-card__meta">
@@ -248,18 +253,32 @@ function ProfilePage() {
                 <IoLocationOutline />
               </button>
             )}
-            {isOwnProfile && !profile?.is_verified && (
+            {isOwnProfile && (
               <button
-                onClick={() => setShowVerificationPopup(true)}
+                onClick={() => {
+                  if (isVerified || profile?.is_verified) {
+                    setShowVerifiedMessage(true);
+                  } else {
+                    setShowVerificationPopup(true);
+                  }
+                }}
                 style={{
                   padding: '14px',
                   borderRadius: '999px',
-                  background: 'rgba(255, 215, 0, 0.25)',
-                  color: '#111111',
+                  background: (isVerified || profile?.is_verified) 
+                    ? 'rgba(59, 130, 246, 0.25)' 
+                    : 'rgba(255, 215, 0, 0.25)',
+                  color: (isVerified || profile?.is_verified) 
+                    ? '#1e40af' 
+                    : '#111111',
                   fontWeight: '500',
                   fontSize: '1.2rem',
-                  border: '1px solid rgba(255, 215, 0, 0.3)',
-                  boxShadow: '0 4px 12px rgba(255, 215, 0, 0.15)',
+                  border: (isVerified || profile?.is_verified) 
+                    ? '1px solid rgba(59, 130, 246, 0.4)' 
+                    : '1px solid rgba(255, 215, 0, 0.3)',
+                  boxShadow: (isVerified || profile?.is_verified) 
+                    ? '0 4px 12px rgba(59, 130, 246, 0.2)' 
+                    : '0 4px 12px rgba(255, 215, 0, 0.15)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -272,14 +291,24 @@ function ProfilePage() {
                   minWidth: '48px',
                 }}
                 onMouseEnter={(e) => {
+                  const isUserVerified = isVerified || profile?.is_verified;
                   e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.background = 'rgba(255, 215, 0, 0.35)';
-                  e.target.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.25)';
+                  e.target.style.background = isUserVerified 
+                    ? 'rgba(59, 130, 246, 0.35)' 
+                    : 'rgba(255, 215, 0, 0.35)';
+                  e.target.style.boxShadow = isUserVerified 
+                    ? '0 6px 16px rgba(59, 130, 246, 0.3)' 
+                    : '0 6px 16px rgba(255, 215, 0, 0.25)';
                 }}
                 onMouseLeave={(e) => {
+                  const isUserVerified = isVerified || profile?.is_verified;
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = 'rgba(255, 215, 0, 0.25)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.15)';
+                  e.target.style.background = isUserVerified 
+                    ? 'rgba(59, 130, 246, 0.25)' 
+                    : 'rgba(255, 215, 0, 0.25)';
+                  e.target.style.boxShadow = isUserVerified 
+                    ? '0 4px 12px rgba(59, 130, 246, 0.2)' 
+                    : '0 4px 12px rgba(255, 215, 0, 0.15)';
                 }}
               >
                 <MdOutlineVerified />
@@ -609,6 +638,105 @@ function ProfilePage() {
                 {locationLoading ? 'Getting Location...' : 'Get Location'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Verified Status Message Popup */}
+      {showVerifiedMessage && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            background: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: '1000',
+            padding: '20px',
+          }}
+          onClick={() => setShowVerifiedMessage(false)}
+        >
+          <div
+            style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              borderRadius: '24px',
+              padding: '40px',
+              maxWidth: '400px',
+              width: '100%',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              textAlign: 'center',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 24px',
+                boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+              }}
+            >
+              <MdOutlineVerified style={{ fontSize: '48px', color: 'white' }} />
+            </div>
+            <h2
+              style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#111111',
+                margin: '0 0 12px',
+              }}
+            >
+              Successfully Verified!
+            </h2>
+            <p
+              style={{
+                fontSize: '16px',
+                color: '#666666',
+                margin: '0 0 32px',
+                lineHeight: '1.5',
+              }}
+            >
+              Your account is verified. You now have access to all premium features including unlimited connections, messaging, and exclusive offers.
+            </p>
+            <button
+              onClick={() => setShowVerifiedMessage(false)}
+              style={{
+                padding: '16px 32px',
+                borderRadius: '999px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                color: 'white',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 12px 32px rgba(59, 130, 246, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.3)';
+              }}
+            >
+              Awesome!
+            </button>
           </div>
         </div>
       )}

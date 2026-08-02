@@ -8,7 +8,9 @@ import {
   IoLockClosed,
   IoDiamond,
 } from 'react-icons/io5';
-import { Link } from 'react-router-dom';
+import axios from '../api/axios';
+import { useAuth } from '../contexts/AuthContext';
+import { useAlert } from '../contexts/AlertContext';
 
 const BENEFITS = [
   {
@@ -40,6 +42,10 @@ const BENEFITS = [
 function VerificationPopup({ onClose }) {
   const [platform, setPlatform] = useState('desktop');
   const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { user, refreshUser, isVerified } = useAuth();
+  const { success, error: showError } = useAlert();
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   useEffect(() => {
     // Detect platform
@@ -87,6 +93,91 @@ function VerificationPopup({ onClose }) {
 
   const platformClass = `verification-popup--${platform}`;
   const mobileClass = isMobile ? 'verification-popup--mobile' : '';
+
+  const handlePayment = async () => {
+    if (!privacyAccepted) {
+      showError('Please accept the Privacy & Security Policy and Terms & Conditions to proceed.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      console.log('Starting payment process...');
+      console.log('User:', user?.email);
+      console.log('API URL:', import.meta.env.VITE_API_URL);
+      
+      // Create order
+      const orderResponse = await axios.post('/api/payment/create-order', {
+        userId: user?.email || user?.id
+      });
+
+      console.log('Order response:', orderResponse.data);
+      const { order, transaction_id } = orderResponse.data;
+
+      // Razorpay options
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_xxxxxxxxx",
+        amount: order.amount,
+        currency: order.currency,
+        name: "ForgeConnect",
+        description: "Premium Verification",
+        order_id: order.id,
+        handler: async function(response) {
+          try {
+            console.log('Payment response:', response);
+            // Verify payment on backend
+            const verifyResponse = await axios.post('/api/payment/verify-payment', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              userId: user?.email || user?.id
+            });
+
+            console.log('Verification response:', verifyResponse.data);
+            if (verifyResponse.data.message === "Payment verified successfully") {
+              // Refresh user state in AuthContext
+              await refreshUser();
+              success("Payment successful! You are now verified.");
+              onClose();
+            }
+          } catch (error) {
+            console.error("Payment verification failed:", error);
+            showError("Payment verification failed. Please contact support.");
+            setLoading(false);
+          }
+        },
+        prefill: {
+          name: user?.user_metadata?.full_name || "",
+          email: user?.email || "",
+          contact: ""
+        },
+        theme: {
+          color: "#667eea"
+        },
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+
+    } catch (error) {
+      console.error("Payment initiation failed:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      if (error.response?.status === 404) {
+        showError("Payment service not available. Please restart the backend server.");
+      } else if (error.code === 'ERR_NETWORK') {
+        showError("Network error. Please check your connection and ensure backend is running.");
+      } else {
+        showError(`Failed to initiate payment: ${error.message}`);
+      }
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -161,22 +252,91 @@ function VerificationPopup({ onClose }) {
           </ul>
         </div>
 
+        <div style={{ 
+          margin: '24px 0', 
+          padding: '20px', 
+          background: 'rgba(0, 0, 0, 0.02)', 
+          borderRadius: '16px', 
+          border: '1px solid rgba(0, 0, 0, 0.05)' 
+        }}>
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              color: 'var(--app-text)',
+              fontWeight: '500'
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={privacyAccepted}
+              onChange={(e) => setPrivacyAccepted(e.target.checked)}
+              style={{
+                width: '20px',
+                height: '20px',
+                accentColor: '#3b82f6',
+                cursor: 'pointer',
+                marginTop: '2px',
+                flexShrink: 0
+              }}
+            />
+            <span>
+              I have read and agree to the{' '}
+              <span
+                style={{
+                  color: '#3b82f6',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Show inline policy dialog or use existing approach
+                  alert('Privacy & Security Policy:\n\n1. We collect account information, usage data, location data, payment information, and communication data.\n2. We use SSL encryption and secure payment processing.\n3. We do not sell your personal information.\n4. You can access, correct, or delete your data.\n\nTerms & Conditions:\n\n1. You are responsible for account security.\n2. Content must be appropriate and legal.\n3. Verification fees are non-refundable.\n4. We reserve the right to terminate violating accounts.');
+                }}
+              >
+                Privacy & Security Policy
+              </span>
+              {' '}and{' '}
+              <span
+                style={{
+                  color: '#3b82f6',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  alert('Terms & Conditions:\n\n1. You are responsible for account security.\n2. Content must be appropriate and legal.\n3. Verification fees are non-refundable.\n4. We reserve the right to terminate violating accounts.');
+                }}
+              >
+                Terms & Conditions
+              </span>
+            </span>
+          </label>
+        </div>
+
         <div className="verification-popup__actions">
-          <Link
-            to="/profile"
+          <button
+            type="button"
             className="verification-popup__button verification-popup__button--primary"
-            onClick={onClose}
+            onClick={handlePayment}
+            disabled={loading || !privacyAccepted}
           >
             <span className="verification-popup__button-content">
               <IoDiamond aria-hidden="true" />
-              Verify Now for ₹299/year
+              {loading ? "Processing..." : "Verify Now for ₹299/year"}
             </span>
             <span className="verification-popup__button-arrow" aria-hidden="true">→</span>
-          </Link>
+          </button>
           <button
             type="button"
             className="verification-popup__button verification-popup__button--secondary"
             onClick={onClose}
+            disabled={loading}
           >
             Maybe later
           </button>

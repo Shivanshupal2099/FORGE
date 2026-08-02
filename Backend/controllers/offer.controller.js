@@ -53,7 +53,7 @@ exports.getOfferById = async (req, res) => {
 // Create a new offer
 exports.createOffer = async (req, res) => {
   try {
-    const { title, description, token_cost, max_redemptions, category } = req.body;
+    const { title, description, max_redemptions, category } = req.body;
     const userId = req.user?._id || req.user?.id; // Handle both _id and id
     
     if (!title || !description) {
@@ -73,7 +73,7 @@ exports.createOffer = async (req, res) => {
     const offer = await Offer.create({
       title,
       description,
-      token_cost: token_cost || 100,
+      token_cost: 100, // Fixed at 100 tokens
       created_by: userId,
       max_redemptions: max_redemptions || null,
       category: category || 'other'
@@ -98,7 +98,7 @@ exports.createOffer = async (req, res) => {
 exports.updateOffer = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, token_cost, is_active, max_redemptions, category } = req.body;
+    const { title, description, is_active, max_redemptions, category } = req.body;
     const userId = req.user?._id || req.user?.id;
     
     const offer = await Offer.findById(id);
@@ -121,10 +121,11 @@ exports.updateOffer = async (req, res) => {
     const updateData = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
-    if (token_cost !== undefined) updateData.token_cost = token_cost;
     if (is_active !== undefined) updateData.is_active = is_active;
     if (max_redemptions !== undefined) updateData.max_redemptions = max_redemptions;
     if (category !== undefined) updateData.category = category;
+    // Always keep token_cost at 100
+    updateData.token_cost = 100;
     
     const updatedOffer = await Offer.findByIdAndUpdate(
       id,

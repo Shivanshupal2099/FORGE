@@ -105,6 +105,10 @@
   box-shadow: var(--app-soft-shadow);
 }
 
+.usercard__verifiedBadge--unverified {
+  background: #ef4444;
+}
+
 .usercard__headerInfo {
   flex: 1;
   min-width: 0;
@@ -129,6 +133,18 @@
   padding: 2px 8px;
   border-radius: 12px;
   border: 1px solid #22c55e;
+}
+
+.usercard__verifiedText--verified {
+  color: #1e40af;
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+}
+
+.usercard__verifiedText--unverified {
+  color: #991b1b;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
 .usercard__profession {

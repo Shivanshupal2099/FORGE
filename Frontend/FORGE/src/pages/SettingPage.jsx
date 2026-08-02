@@ -1,32 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IoArrowBack, IoColorPaletteOutline, IoMoonOutline, IoSparklesOutline, IoSunnyOutline, IoTrashOutline, IoLogOutOutline } from 'react-icons/io5';
+import { IoArrowBack, IoTrashOutline, IoLogOutOutline, IoDocumentTextOutline } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
 import axios from '../api/axios';
-const THEME_KEY = 'forge-theme';
 
 
 
 function SettingPage() {
   const { user, signOut } = useAuth();
   const { error: showError, success: showSuccess } = useAlert();
-  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || 'sunset');
-  const isMonoTheme = theme === 'mono';
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem(THEME_KEY, theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((currentTheme) => (currentTheme === 'sunset' ? 'mono' : 'sunset'));
-  };
+  const [showIssueReportDialog, setShowIssueReportDialog] = useState(false);
+  const [issueReport, setIssueReport] = useState({ subject: '', description: '' });
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -43,6 +34,35 @@ function SettingPage() {
     } catch (error) {
       console.error('Error signing out:', error);
       showError('An error occurred while signing out. Please try again.');
+    }
+  };
+
+  const handleSubmitIssueReport = async () => {
+    if (!issueReport.subject.trim() || !issueReport.description.trim()) {
+      showError('Please fill in both subject and description');
+      return;
+    }
+
+    setIsSubmittingReport(true);
+    try {
+      const response = await axios.post('/api/issues/report', {
+        subject: issueReport.subject,
+        description: issueReport.description,
+        user_email: user?.email
+      });
+
+      if (response.data.success) {
+        showSuccess('Issue report submitted successfully');
+        setShowIssueReportDialog(false);
+        setIssueReport({ subject: '', description: '' });
+      } else {
+        showError(response.data.message || 'Failed to submit issue report');
+      }
+    } catch (error) {
+      console.error('Error submitting issue report:', error);
+      showError('Failed to submit issue report. Please try again.');
+    } finally {
+      setIsSubmittingReport(false);
     }
   };
 
@@ -134,58 +154,11 @@ function SettingPage() {
           </Link>
           <div>
             <span className="settings-card__eyebrow">
-              <IoColorPaletteOutline />
-              Appearance
+              <IoTrashOutline />
+              Account
             </span>
             <h1>Settings</h1>
           </div>
-        </div>
-
-        <section className="settings-hero" aria-label="Current theme">
-          <div className="settings-hero__visual">
-            <span />
-            <span />
-            <span />
-          </div>
-          <div className="settings-option">
-            <div className="settings-option__icon">
-              {isMonoTheme ? <IoMoonOutline /> : <IoSunnyOutline />}
-            </div>
-            <div className="settings-option__content">
-              <h2>{isMonoTheme ? 'Black & white mode' : 'Sunset mode'}</h2>
-              <p>{isMonoTheme ? 'Sharp contrast, clean cards, and editorial black accents.' : 'Warm color, glass surfaces, and softer depth across the app.'}</p>
-            </div>
-            <button
-              type="button"
-              className={`settings-theme-toggle ${isMonoTheme ? 'settings-theme-toggle--on' : ''}`}
-              onClick={toggleTheme}
-              aria-pressed={isMonoTheme}
-            >
-              <span className="settings-theme-toggle__thumb" />
-            </button>
-          </div>
-        </section>
-
-        <div className="settings-theme-preview">
-          <button type="button" className={`settings-theme-choice ${!isMonoTheme ? 'active' : ''}`} onClick={() => setTheme('sunset')}>
-            <span className="settings-theme-choice__swatch settings-theme-choice__swatch--sunset" />
-            <span>
-              <strong>Sunset</strong>
-              <small>Warm glass UI</small>
-            </span>
-          </button>
-          <button type="button" className={`settings-theme-choice ${isMonoTheme ? 'active' : ''}`} onClick={() => setTheme('mono')}>
-            <span className="settings-theme-choice__swatch settings-theme-choice__swatch--mono" />
-            <span>
-              <strong>Black & white</strong>
-              <small>Bold minimal UI</small>
-            </span>
-          </button>
-        </div>
-
-        <div className="settings-note">
-          <IoSparklesOutline />
-          <span>The selected theme is saved on this device and applied across ForgeConnect.</span>
         </div>
 
         <section className="settings-signout-zone" aria-label="Sign out">
@@ -203,6 +176,35 @@ function SettingPage() {
               onClick={handleSignOut}
             >
               Sign Out
+            </button>
+          </div>
+        </section>
+
+        <section className="settings-issue-zone" aria-label="Report Issue">
+          <div className="settings-option">
+            <div className="settings-option__icon">
+              <IoDocumentTextOutline />
+            </div>
+            <div className="settings-option__content">
+              <h2>Report Issue</h2>
+              <p>Report a bug or problem with the platform.</p>
+            </div>
+            <button
+              type="button"
+              className="settings-issue-button"
+              onClick={() => setShowIssueReportDialog(true)}
+              style={{
+                padding: '12px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                color: 'white',
+                border: 'none',
+                fontWeight: '700',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Report
             </button>
           </div>
         </section>
@@ -232,7 +234,9 @@ function SettingPage() {
           <div className="settings-delete-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="settings-delete-dialog__header">
               <h2>Delete Account</h2>
-              <p>Are you sure you want to delete your account? This action is permanent and cannot be undone.</p>
+              <p className="settings-delete-dialog__warning">
+                <strong>Warning:</strong> This action is permanent and cannot be undone. Deleting your account will permanently remove your account and all associated data, including your profile, authentication records, payments, subscriptions, notifications, preferences, uploaded files, activity history, and any other data linked to your account. You are solely responsible for this action.
+              </p>
             </div>
             <div className="settings-delete-dialog__content">
               <label htmlFor="delete-confirmation">
@@ -266,6 +270,68 @@ function SettingPage() {
                 disabled={deleteConfirmation !== 'DELETE' || isDeleting}
               >
                 {isDeleting ? 'Deleting...' : 'Delete Account'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showIssueReportDialog && (
+        <div className="settings-delete-dialog-overlay" onClick={() => setShowIssueReportDialog(false)}>
+          <div className="settings-delete-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="settings-delete-dialog__header">
+              <h2>Report Issue</h2>
+              <p>Describe the issue you're experiencing with the platform.</p>
+            </div>
+            <div className="settings-delete-dialog__content">
+              <label htmlFor="issue-subject">Subject</label>
+              <input
+                id="issue-subject"
+                type="text"
+                value={issueReport.subject}
+                onChange={(e) => setIssueReport({ ...issueReport, subject: e.target.value })}
+                placeholder="Brief description of the issue"
+                disabled={isSubmittingReport}
+                style={{ marginBottom: '16px' }}
+              />
+              <label htmlFor="issue-description">Description</label>
+              <textarea
+                id="issue-description"
+                value={issueReport.description}
+                onChange={(e) => setIssueReport({ ...issueReport, description: e.target.value })}
+                placeholder="Detailed description of the issue, steps to reproduce, etc."
+                disabled={isSubmittingReport}
+                rows={4}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: '1px solid var(--app-card-border)',
+                  background: 'var(--app-surface-strong)',
+                  color: 'var(--app-text)',
+                  resize: 'vertical'
+                }}
+              />
+            </div>
+            <div className="settings-delete-dialog__actions">
+              <button
+                type="button"
+                className="button-secondary"
+                onClick={() => {
+                  setShowIssueReportDialog(false);
+                  setIssueReport({ subject: '', description: '' });
+                }}
+                disabled={isSubmittingReport}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="button-primary settings-delete-confirm"
+                onClick={handleSubmitIssueReport}
+                disabled={!issueReport.subject.trim() || !issueReport.description.trim() || isSubmittingReport}
+              >
+                {isSubmittingReport ? 'Submitting...' : 'Submit Report'}
               </button>
             </div>
           </div>

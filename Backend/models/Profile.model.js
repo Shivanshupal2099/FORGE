@@ -142,10 +142,6 @@ const profileSchema = new mongoose.Schema(
         type: Boolean,
         default: true
       },
-      show_bio: {
-        type: Boolean,
-        default: true
-      },
       show_looking_for: {
         type: Boolean,
         default: true

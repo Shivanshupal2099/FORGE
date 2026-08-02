@@ -10,7 +10,7 @@ export const SocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);
   const connectionAttemptsRef = useRef(0);
-  const MAX_CONNECTION_ATTEMPTS = 3;
+  const MAX_CONNECTION_ATTEMPTS = 10; // Increased from 3 to allow more retries
 
   const cleanupSocket = useCallback(() => {
     if (socketRef.current) {
@@ -27,16 +27,19 @@ export const SocketProvider = ({ children }) => {
     // Get user ID from various possible locations
     const userId = user?.user_metadata?.uid || user?.email || user?.id;
     
-    // Only connect if user is authenticated and we haven't exceeded max attempts
-    if (!userId || connectionAttemptsRef.current >= MAX_CONNECTION_ATTEMPTS) {
+    // Only connect if user is authenticated
+    if (!userId) {
+      console.log('SocketProvider: No user ID, skipping connection');
       return;
     }
 
     // Prevent duplicate connections
     if (socketRef.current) {
+      console.log('SocketProvider: Socket already exists, skipping connection');
       return;
     }
 
+    console.log('SocketProvider: Attempting to connect socket for user:', userId);
     connectionAttemptsRef.current++;
 
     // Initialize socket connection
@@ -44,9 +47,9 @@ export const SocketProvider = ({ children }) => {
       withCredentials: true,
       transports: ['websocket', 'polling'],
       reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 3,
-      timeout: 10000,
+      reconnectionDelay: 2000,
+      reconnectionAttempts: 10,
+      timeout: 15000,
     });
 
     socketInstance.on('connect', () => {
@@ -79,6 +82,7 @@ export const SocketProvider = ({ children }) => {
 
     // Cleanup on unmount or user change
     return () => {
+      console.log('SocketProvider: Cleaning up socket');
       cleanupSocket();
     };
   }, [user, cleanupSocket]);
@@ -119,7 +123,15 @@ export const SocketProvider = ({ children }) => {
 export const useSocket = () => {
   const context = useContext(SocketContext);
   if (!context) {
-    throw new Error('useSocket must be used within a SocketProvider');
+    // Return default values to prevent crashes during lazy loading
+    console.warn('useSocket must be used within a SocketProvider. Returning default values.');
+    return {
+      socket: null,
+      isConnected: false,
+      joinConnection: () => {},
+      leaveConnection: () => {},
+      sendMessage: () => {}
+    };
   }
   return context;
 };

@@ -53,6 +53,14 @@ export default defineConfig({
     watch: {
       usePolling: false,
     },
+    // Proxy API requests to backend
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   
   // Preview server configuration

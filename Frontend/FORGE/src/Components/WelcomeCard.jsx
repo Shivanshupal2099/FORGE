@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { FaCalendarAlt, FaClipboardList, FaUsers, FaComments, FaTimes, FaRocket } from 'react-icons/fa';
+import { MdOutlineVerified } from 'react-icons/md';
 import { useAuth } from '../contexts/AuthContext';
 
 function WelcomeCard({ onClose }) {
-  const { user } = useAuth();
+  const { user, isVerified } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -42,9 +43,23 @@ function WelcomeCard({ onClose }) {
             <h1 className="welcome-card__title">
               Welcome to ForgeConnect!
             </h1>
-            <p className="welcome-card__subtitle">
-              We're excited to have you here, {user?.email?.split('@')[0] || 'User'}!
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <p className="welcome-card__subtitle">
+                We're excited to have you here, {user?.email?.split('@')[0] || 'User'}!
+              </p>
+              {isVerified && (
+                <MdOutlineVerified 
+                  style={{ 
+                    color: '#3b82f6', 
+                    fontSize: '1.2rem',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    borderRadius: '50%',
+                    padding: '2px'
+                  }} 
+                  title="Verified User"
+                />
+              )}
+            </div>
           </div>
 
           {/* Features */}

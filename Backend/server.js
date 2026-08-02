@@ -16,6 +16,8 @@ const chatRoutes=require('./routes/chat.routes')
 const tokenRoutes=require('./routes/token.routes')
 const offerRoutes=require('./routes/offer.routes')
 const waitlistRoutes=require('./routes/waitlist.routes')
+const paymentRoutes=require('./routes/payment.routes')
+const issueRoutes=require('./routes/issue.routes')
 const { ConnectDB }=require('./config/database')
 const { activityMiddleware, markInactiveUsersOffline }=require('./middlewares/activity.middleware')
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler.middleware')
@@ -53,6 +55,19 @@ if (process.env.NODE_ENV !== 'production' && !process.env.MONGODB_URI) {
     console.error('Error reading .env file:', err.message);
   }
 }
+
+// Debug: Check if Razorpay credentials are loaded
+console.log('Environment check:');
+console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID ? 'Found' : 'Not found');
+console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET ? 'Found' : 'Not found');
+
+// Initialize Razorpay after environment variables are loaded
+const getRazorpayInstance = require('./config/razorpay');
+getRazorpayInstance();
+
+// Reinitialize Razorpay with loaded environment variables by clearing cache and re-requiring
+delete require.cache[require.resolve('./config/razorpay')];
+const razorpay = require('./config/razorpay');
 
 
 
@@ -136,6 +151,8 @@ app.use('/api/chat',chatRoutes)
 app.use('/api/tokens',tokenRoutes)
 app.use('/api/offers',offerRoutes)
 app.use('/api/waitlist',waitlistRoutes)
+app.use('/api/payment',paymentRoutes)
+app.use('/api/issues',issueRoutes)
 
 // Root route
 app.get('/', (req, res) => {

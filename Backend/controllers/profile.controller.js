@@ -77,7 +77,7 @@ exports.updateProfile = async (req, res) => {
       await profile.save();
       console.log('Profile updated successfully');
 
-      // Save location to UserLocation database if coordinates provided
+      // Handle location - save to UserLocation if coordinates provided, otherwise delete
       if (latitude && longitude) {
         await UserLocation.findOneAndUpdate(
           { uid: targetUid },
@@ -91,6 +91,18 @@ exports.updateProfile = async (req, res) => {
           { upsert: true, returnDocument: 'after' }
         );
         console.log('User location saved to UserLocation database');
+      } else {
+        // Clear location from UserLocation database
+        const deletedLocation = await UserLocation.findOneAndDelete({ uid: targetUid });
+        console.log('User location removed from UserLocation database:', deletedLocation);
+        
+        // Emit socket event for real-time update
+        const io = req.app.get('io');
+        const locationSocketHandler = req.app.get('locationSocketHandler');
+        if (io && locationSocketHandler && deletedLocation) {
+          console.log('Emitting location removed event for:', targetUid);
+          locationSocketHandler.emitLocationRemoved({ locationId: deletedLocation._id, uid: targetUid });
+        }
       }
     } else {
       console.log('Creating new profile');
@@ -134,14 +146,13 @@ exports.updateProfile = async (req, res) => {
         payment_date: null,
         visibility_settings: visibilitySettings || {
           show_name: true,
-          show_bio: true,
           show_looking_for: true,
           show_services: true
         }
       });
       console.log('Profile created:', profile._id);
 
-      // Save location to UserLocation database if coordinates provided
+      // Handle location - save to UserLocation if coordinates provided, otherwise delete
       if (latitude && longitude) {
         await UserLocation.findOneAndUpdate(
           { uid: targetUid },
@@ -155,6 +166,18 @@ exports.updateProfile = async (req, res) => {
           { upsert: true, returnDocument: 'after' }
         );
         console.log('User location saved to UserLocation database');
+      } else {
+        // Clear location from UserLocation database
+        const deletedLocation = await UserLocation.findOneAndDelete({ uid: targetUid });
+        console.log('User location removed from UserLocation database:', deletedLocation);
+        
+        // Emit socket event for real-time update
+        const io = req.app.get('io');
+        const locationSocketHandler = req.app.get('locationSocketHandler');
+        if (io && locationSocketHandler && deletedLocation) {
+          console.log('Emitting location removed event for:', targetUid);
+          locationSocketHandler.emitLocationRemoved({ locationId: deletedLocation._id, uid: targetUid });
+        }
       }
     }
 
@@ -222,10 +245,18 @@ exports.getProfile = async (req, res) => {
         longitude: null,
         is_service_provider: false,
         services: [],
-        is_verified: false,
-        payment_date: null,
+        is_verified: mongoUser.is_verified || false,
+        payment_date: mongoUser.payment_date || null,
       });
       console.log('New profile created:', profile._id);
+    } else {
+      // Profile exists - sync verification status from User model
+      const mongoUser = await User.findOne({ uid: uid });
+      if (mongoUser && mongoUser.is_verified !== profile.is_verified) {
+        console.log('Syncing verification status from User to Profile');
+        profile.is_verified = mongoUser.is_verified;
+        await profile.save();
+      }
     }
 
     res.json({
@@ -337,6 +368,48 @@ exports.updateLocation = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error updating location',
+      error: error.message
+    });
+  }
+};
+
+// Clear user location from database
+exports.clearLocation = async (req, res) => {
+  try {
+    const { uid } = req.body;
+
+    if (!uid) {
+      return res.status(400).json({
+        success: false,
+        message: 'UID is required'
+      });
+    }
+
+    console.log('Clearing location for UID:', uid);
+
+    // Clear location from Profile
+    const profile = await Profile.findOne({ uid: uid });
+    if (profile) {
+      profile.location = '';
+      profile.latitude = null;
+      profile.longitude = null;
+      await profile.save();
+      console.log('Profile location cleared');
+    }
+
+    // Remove from UserLocation database
+    await UserLocation.deleteOne({ uid: uid });
+    console.log('User location removed from UserLocation database');
+
+    res.json({
+      success: true,
+      message: 'Location cleared successfully'
+    });
+  } catch (error) {
+    console.error('Error clearing location:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error clearing location',
       error: error.message
     });
   }

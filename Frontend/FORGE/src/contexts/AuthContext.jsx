@@ -20,6 +20,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Restore session from localStorage on mount for persistence
@@ -49,6 +50,15 @@ export const AuthProvider = ({ children }) => {
       } else if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         console.log('AuthContext - Legacy token stored successfully');
+      }
+
+      // Fetch verification status - don't block auth flow if this fails
+      try {
+        const verificationResponse = await axios.get(`/api/auth/verification-status/email/${user.email}`);
+        setIsVerified(verificationResponse.data.is_verified);
+      } catch (error) {
+        console.log('Verification status endpoint not available yet, defaulting to false');
+        setIsVerified(false);
       }
     } catch (error) {
       console.error('Error syncing user to backend:', error);
@@ -162,14 +172,39 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        setUserId(session.user.id);
+        localStorage.setItem('userId', session.user.id);
+        await syncUserToBackend(session.user);
+        
+        // Fetch verification status - don't block if this fails
+        try {
+          const verificationResponse = await axios.get(`/api/auth/verification-status/email/${session.user.email}`);
+          setIsVerified(verificationResponse.data.is_verified);
+        } catch (error) {
+          console.log('Verification status endpoint not available yet, defaulting to false');
+          setIsVerified(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+    }
+  }, [syncUserToBackend]);
+
   // Memoize context value to prevent unnecessary re-renders
   const value = useMemo(() => ({
     user,
     userId,
+    isVerified,
     loading,
     signOut,
+    refreshUser,
     supabase
-  }), [user, userId, loading, signOut]);
+  }), [user, userId, isVerified, loading, signOut, refreshUser]);
 
   return (
     <AuthContext.Provider value={value}>
@@ -181,7 +216,17 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    // Instead of throwing, return default values to prevent crashes during lazy loading
+    console.warn('useAuth must be used within an AuthProvider. Returning default values.');
+    return {
+      user: null,
+      userId: null,
+      isVerified: false,
+      loading: true,
+      signOut: async () => {},
+      refreshUser: async () => {},
+      supabase: null
+    };
   }
   return context;
 };

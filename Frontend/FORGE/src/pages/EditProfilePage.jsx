@@ -32,7 +32,6 @@ function EditProfilePage() {
   });
   const [visibilitySettings, setVisibilitySettings] = useState({
     show_name: true,
-    show_bio: true,
     show_looking_for: true,
     show_services: true
   });
@@ -94,7 +93,6 @@ function EditProfilePage() {
             });
             setVisibilitySettings(response.data.profile.visibility_settings || {
               show_name: true,
-              show_bio: true,
               show_looking_for: true,
               show_services: true
             });
@@ -517,6 +515,23 @@ function EditProfilePage() {
     setWatchId(id);
   };
 
+  const handleClearLocation = () => {
+    // Stop watching if active
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      setWatchId(null);
+      setIsWatchingLocation(false);
+    }
+
+    // Clear location from state
+    setProfileData((prev) => ({
+      ...prev,
+      location: '',
+      locationCoordinates: null,
+    }));
+    setLocationStatus('Location cleared. Click "Save Changes" to remove it from the database.');
+  };
+
   const allLookingForOptions = [
     ...lookingForOptions,
     ...professionOptions,
@@ -851,7 +866,7 @@ function EditProfilePage() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1fr) auto',
+                gridTemplateColumns: isMobile ? '1fr auto auto' : 'minmax(0, 1fr) auto auto',
                 gap: '10px',
                 alignItems: 'start',
               }}
@@ -887,6 +902,37 @@ function EditProfilePage() {
                 <FaMapLocationDot aria-hidden="true" />
                 {isFetchingLocation ? 'Starting...' : isWatchingLocation ? 'Stop Tracking' : 'Track Location'}
               </button>
+              {profileData.location && (
+                <button
+                  type="button"
+                  onClick={handleClearLocation}
+                  style={{
+                    minHeight: isMobile ? '44px' : '50px',
+                    padding: isMobile ? '10px 14px' : '12px 18px',
+                    borderRadius: isMobile ? '12px' : '14px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    color: '#991b1b',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    whiteSpace: 'nowrap',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'rgba(239, 68, 68, 0.25)';
+                    e.target.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'rgba(239, 68, 68, 0.15)';
+                    e.target.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                  }}
+                >
+                  Clear
+                </button>
+              )}
             </div>
             {locationStatus && (
               <p
@@ -1392,7 +1438,6 @@ function EditProfilePage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? '12px' : '16px' }}>
                 {[
                   { key: 'show_name', label: 'Show Name' },
-                  { key: 'show_bio', label: 'Show Bio' },
                   { key: 'show_looking_for', label: 'Show Looking For' },
                   { key: 'show_services', label: 'Show Services' }
                 ].map(({ key, label }) => (

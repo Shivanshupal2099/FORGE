@@ -1,12 +1,11 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema(
   {
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     subscription_id: {
@@ -17,14 +16,12 @@ const transactionSchema = new mongoose.Schema(
 
     razorpay_order_id: {
       type: String,
-      default: null,
-      index: true
+      default: null
     },
 
     razorpay_payment_id: {
       type: String,
-      default: null,
-      index: true
+      default: null
     },
 
     amount_paise: {
@@ -95,4 +92,4 @@ transactionSchema.index(
   }
 );
 
-export default mongoose.model("Transaction", transactionSchema);
+module.exports = mongoose.model("Transaction", transactionSchema);
