@@ -6,8 +6,7 @@ const messageSchema = new mongoose.Schema({
   connection_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Connection',
-    required: true,
-    index: true
+    required: true
   },
   sender_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -42,6 +41,8 @@ const messageSchema = new mongoose.Schema({
   }
 });
 
+// Indexes for efficient queries
+messageSchema.index({ connection_id: 1 });
 messageSchema.index({ connection_id: 1, created_at: -1 });
 messageSchema.index({ receiver_id: 1, read_at: 1, expires_at: 1 });
 

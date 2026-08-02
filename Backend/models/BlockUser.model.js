@@ -5,15 +5,13 @@ const blockedUserSchema = new mongoose.Schema(
     blocker_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     blocked_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     reason: {
@@ -36,7 +34,7 @@ blockedUserSchema.index(
   { unique: true }
 );
 
-// Index for fast lookups
+// Indexes for fast lookups
 blockedUserSchema.index({ blocker_id: 1 });
 blockedUserSchema.index({ blocked_id: 1 });
 

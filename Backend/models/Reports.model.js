@@ -5,15 +5,13 @@ const reportSchema = new mongoose.Schema(
     reporter_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     reported_user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     report_type: {
@@ -62,7 +60,7 @@ const reportSchema = new mongoose.Schema(
   }
 );
 
-// Indexes
+// Indexes for efficient queries
 reportSchema.index({ reporter_id: 1 });
 reportSchema.index({ reported_user_id: 1 });
 reportSchema.index({ status: 1 });

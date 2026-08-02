@@ -5,15 +5,13 @@ const eventAttendeeSchema = new mongoose.Schema(
     event_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Event",
-      required: true,
-      index: true
+      required: true
     },
 
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     status: {
@@ -51,9 +49,10 @@ eventAttendeeSchema.index(
   { unique: true }
 );
 
-// Fast lookups
-eventAttendeeSchema.index({ event_id: 1, status: 1 });
+// Indexes for efficient queries
+eventAttendeeSchema.index({ event_id: 1 });
 eventAttendeeSchema.index({ user_id: 1 });
+eventAttendeeSchema.index({ event_id: 1, status: 1 });
 eventAttendeeSchema.index({ checked_in: 1 });
 
 module.exports = mongoose.model("EventAttendee", eventAttendeeSchema);

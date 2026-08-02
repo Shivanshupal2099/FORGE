@@ -49,10 +49,9 @@ const userSessionSchema = new mongoose.Schema({
   }
 });
 
-// Index for efficient queries
+// Indexes for efficient queries
 userSessionSchema.index({ user_id: 1 });
 userSessionSchema.index({ uid: 1 });
-userSessionSchema.index({ expires_at: 1 });
 userSessionSchema.index({ is_active: 1 });
 
 // TTL index to automatically expire inactive sessions

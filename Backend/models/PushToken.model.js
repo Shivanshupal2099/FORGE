@@ -5,8 +5,7 @@ const pushTokenSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     token: {
@@ -38,7 +37,8 @@ const pushTokenSchema = new mongoose.Schema(
   }
 );
 
+// Indexes for efficient queries
 pushTokenSchema.index({ user_id: 1 });
-pushTokenSchema.index({ token: 1 }, { unique: true });
+pushTokenSchema.index({ platform: 1, is_active: 1 });
 
 module.exports = mongoose.model("PushToken", pushTokenSchema);

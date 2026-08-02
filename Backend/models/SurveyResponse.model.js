@@ -31,8 +31,8 @@ const surveyResponseSchema = new mongoose.Schema(
   }
 );
 
+// Optimized indexes for query performance
+surveyResponseSchema.index({ surveyId: 1, submittedBy: 1 }, { unique: true });
 surveyResponseSchema.index({ surveyId: 1, submittedAt: -1 });
-surveyResponseSchema.index({ submittedBy: 1 });
-surveyResponseSchema.index({ surveyId: 1 });
 
 module.exports = mongoose.model("SurveyResponse", surveyResponseSchema);

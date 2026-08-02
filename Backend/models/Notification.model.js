@@ -5,8 +5,7 @@ const notificationSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     type: {
@@ -61,6 +60,8 @@ const notificationSchema = new mongoose.Schema(
   }
 );
 
+// Indexes for efficient queries
+notificationSchema.index({ user_id: 1 });
 notificationSchema.index({ user_id: 1, is_read: 1 });
 notificationSchema.index({ created_at: -1 });
 

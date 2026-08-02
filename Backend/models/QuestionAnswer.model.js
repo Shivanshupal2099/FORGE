@@ -33,9 +33,9 @@ const questionAnswerSchema = new mongoose.Schema(
   }
 );
 
+// Optimized indexes for query performance
 questionAnswerSchema.index({ responseId: 1, questionId: 1 });
 questionAnswerSchema.index({ questionId: 1 });
 questionAnswerSchema.index({ surveyId: 1 });
-questionAnswerSchema.index({ responseId: 1 });
 
 module.exports = mongoose.model("QuestionAnswer", questionAnswerSchema);

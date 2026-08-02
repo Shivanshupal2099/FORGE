@@ -4,19 +4,16 @@ const EventAttendeesSchema = new mongoose.Schema({
   event_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Event',
-    required: true,
-    index: true
+    required: true
   },
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    index: true
+    required: true
   },
   uid: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   registered_at: {
     type: Date,
@@ -33,6 +30,11 @@ const EventAttendeesSchema = new mongoose.Schema({
     updatedAt: 'updated_at'
   }
 });
+
+// Indexes for efficient queries
+EventAttendeesSchema.index({ event_id: 1 });
+EventAttendeesSchema.index({ user_id: 1 });
+EventAttendeesSchema.index({ uid: 1 });
 
 // Compound index to prevent duplicate registrations
 EventAttendeesSchema.index({ event_id: 1, user_id: 1 }, { unique: true });

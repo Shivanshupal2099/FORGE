@@ -5,15 +5,13 @@ const connectionSchema = new mongoose.Schema(
     requester_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     receiver_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
-      index: true
+      required: true
     },
 
     status: {
@@ -60,7 +58,9 @@ connectionSchema.index(
   { unique: true }
 );
 
-// Speed up queries by status
+// Indexes for efficient queries
+connectionSchema.index({ requester_id: 1 });
+connectionSchema.index({ receiver_id: 1 });
 connectionSchema.index({ receiver_id: 1, status: 1 });
 connectionSchema.index({ requester_id: 1, status: 1 });
 
