@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const pushTokenSchema = new mongoose.Schema(
   {
@@ -41,4 +41,4 @@ const pushTokenSchema = new mongoose.Schema(
 pushTokenSchema.index({ user_id: 1 });
 pushTokenSchema.index({ token: 1 }, { unique: true });
 
-export default mongoose.model("PushToken", pushTokenSchema);
+module.exports = mongoose.model("PushToken", pushTokenSchema);
