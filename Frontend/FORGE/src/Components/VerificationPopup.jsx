@@ -107,6 +107,12 @@ function VerificationPopup({ onClose }) {
       console.log('Starting payment process...');
       console.log('User:', user?.email);
       console.log('API URL:', import.meta.env.VITE_API_URL);
+      console.log('Razorpay Key ID:', import.meta.env.VITE_RAZORPAY_KEY_ID);
+      
+      // Check if Razorpay is loaded
+      if (!window.Razorpay) {
+        throw new Error('Razorpay script not loaded. Please refresh the page.');
+      }
       
       // Create order
       const orderResponse = await axios.post('/api/payment/create-order', {
@@ -116,9 +122,13 @@ function VerificationPopup({ onClose }) {
       console.log('Order response:', orderResponse.data);
       const { order, transaction_id } = orderResponse.data;
 
+      if (!order || !order.id) {
+        throw new Error('Invalid order response from backend');
+      }
+
       // Razorpay options
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_xxxxxxxxx",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
         name: "ForgeConnect",
@@ -159,20 +169,37 @@ function VerificationPopup({ onClose }) {
         modal: {
           ondismiss: function() {
             setLoading(false);
-          }
+          },
+          escape: false,
+          backdropclose: false
         }
       };
 
+      console.log('Initializing Razorpay with options:', { ...options, key: options.key.substring(0, 10) + '...' });
+      
       const razorpay = new window.Razorpay(options);
+      
+      // Add error handlers
+      razorpay.on('payment.failed', function(response) {
+        console.error('Payment failed:', response);
+        showError(`Payment failed: ${response.error.description}`);
+        setLoading(false);
+      });
+      
       razorpay.open();
 
     } catch (error) {
       console.error("Payment initiation failed:", error);
       console.error("Error details:", error.response?.data || error.message);
+      
       if (error.response?.status === 404) {
         showError("Payment service not available. Please restart the backend server.");
+      } else if (error.response?.status === 503) {
+        showError("Payment service not configured. Please contact support.");
       } else if (error.code === 'ERR_NETWORK') {
         showError("Network error. Please check your connection and ensure backend is running.");
+      } else if (error.message?.includes('Razorpay')) {
+        showError(`Razorpay error: ${error.message}`);
       } else {
         showError(`Failed to initiate payment: ${error.message}`);
       }
