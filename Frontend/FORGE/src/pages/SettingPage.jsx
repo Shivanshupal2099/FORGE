@@ -454,7 +454,7 @@ function SettingPage() {
         </div>
       )}
 
-      <NavigationBar />
+      <NavigationBar isChatPage={false} />
     </div>
   );
 }

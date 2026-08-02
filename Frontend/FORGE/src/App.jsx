@@ -54,7 +54,7 @@ const PageLoader = () => (
 
 function App() {
   useEffect(() => {
-    const savedTheme = localStorage.getItem('forge-theme') || 'sunset';
+    const savedTheme = localStorage.getItem('forge-theme') || 'default';
     document.documentElement.dataset.theme = savedTheme;
   }, []);
 

@@ -265,8 +265,8 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 50%, rgba(248, 250, 252, 0.92) 100%)',
             backdropFilter: 'blur(20px) saturate(180%)',
             WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            borderRadius: isMobile ? '28px 28px 0 0' : '28px',
-            maxWidth: '900px',
+            borderRadius: isMobile ? '28px 28px 0 0' : '32px',
+            maxWidth: isMobile ? '100%' : '1100px',
             width: '100%',
             maxHeight: isMobile ? '92vh' : '90vh',
             overflow: 'auto',
@@ -358,18 +358,18 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 320px', gap: isMobile ? '24px' : '32px' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 380px', gap: isMobile ? '24px' : '40px' }}>
               <div style={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
-                gap: isMobile ? '20px' : '24px',
-                padding: isMobile ? '24px' : '28px',
+                gap: isMobile ? '16px' : '20px',
+                padding: isMobile ? '0 24px' : '0 28px',
                 borderRadius: '24px',
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
                 border: '2px solid rgba(255, 255, 255, 0.5)',
                 boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)',
               }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '8px' : '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                   <label htmlFor="event-title" style={{
                     fontSize: isMobile ? '13px' : '14px',
                     fontWeight: '500',
@@ -536,13 +536,14 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                  gap: isMobile ? '16px' : '20px',
+                  gap: isMobile ? '12px' : '16px',
                   padding: isMobile ? '20px' : '24px',
                   borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%)',
+                  border: '2px solid rgba(255, 255, 255, 0.6)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
                 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '8px' : '10px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                     <label htmlFor="event-start-date" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
@@ -585,15 +586,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       }}
                     />
                   </div>
-                  <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                     <label htmlFor="event-start-time" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
@@ -641,13 +634,14 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                  gap: isMobile ? '16px' : '20px',
+                  gap: isMobile ? '12px' : '16px',
                   padding: isMobile ? '20px' : '24px',
                   borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%)',
+                  border: '2px solid rgba(255, 255, 255, 0.6)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
                 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '8px' : '10px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                     <label htmlFor="event-end-date" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
@@ -689,15 +683,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       }}
                     />
                   </div>
-                  <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                     <label htmlFor="event-end-time" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
@@ -971,15 +957,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 </div>
 
                 {registrationRequired ? (
-                  <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                     <label htmlFor="event-max-attendees" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
@@ -1027,13 +1005,14 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                  gap: isMobile ? '16px' : '20px',
+                  gap: isMobile ? '12px' : '16px',
                   padding: isMobile ? '20px' : '24px',
                   borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%)',
+                  border: '2px solid rgba(255, 255, 255, 0.6)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
                 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '8px' : '10px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                     <label htmlFor="event-visibility" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
@@ -1077,15 +1056,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       <option value="Private">Private</option>
                     </select>
                   </div>
-                  <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                     <label htmlFor="event-price" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
@@ -1190,38 +1161,38 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
               <div style={{ 
                 display: isMobile ? 'none' : 'flex', 
                 flexDirection: 'column', 
-                gap: isMobile ? '20px' : '24px',
-                padding: isMobile ? '24px' : '28px',
+                gap: isMobile ? '16px' : '20px',
+                padding: isMobile ? '0 24px' : '0 28px',
                 borderRadius: '24px',
-                background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.08) 0%, rgba(255, 107, 0, 0.04) 100%)',
-                border: '2px solid rgba(255, 107, 0, 0.15)',
-                boxShadow: '0 4px 16px rgba(255, 107, 0, 0.1)',
+                background: 'linear-gradient(135deg, rgba(255, 107, 0.0.06) 0%, rgba(255, 107, 0, 0.03) 100%)',
+                border: '2px solid rgba(255, 107, 0, 0.12)',
+                boxShadow: '0 4px 16px rgba(255, 107, 0, 0.08)',
               }}>
                 <div style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)',
-                  borderRadius: '20px',
-                  padding: '24px',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
+                  borderRadius: '24px',
+                  padding: '28px',
                   color: '#1f172a',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
-                  border: '2px solid rgba(255, 107, 0, 0.2)',
+                  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.1)',
+                  border: '2px solid rgba(255, 107, 0, 0.15)',
                 }}>
                   <div style={{
-                    width: '60px',
-                    height: '60px',
-                    borderRadius: '20px',
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '24px',
                     background: 'linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginBottom: '18px',
-                    boxShadow: '0 4px 12px var(--forge-orange-shadow)',
+                    marginBottom: '20px',
+                    boxShadow: '0 6px 16px var(--forge-orange-shadow)',
                   }}>
-                    <FaCalendarAlt style={{ fontSize: '24px', color: '#FFFFFF' }} />
+                    <FaCalendarAlt style={{ fontSize: '28px', color: '#FFFFFF' }} />
                   </div>
                   <p style={{
-                    margin: '0 0 12px',
-                    fontSize: '18px',
-                    fontWeight: '600',
+                    margin: '0 0 16px',
+                    fontSize: '20px',
+                    fontWeight: '700',
                     lineHeight: '1.3',
                   }}>
                     {title || 'Event Title'}
@@ -1259,43 +1230,47 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <div style={{
                     display: 'flex',
                     flexWrap: 'wrap',
-                    gap: '10px',
-                    marginTop: '16px',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    background: 'rgba(255, 255, 255, 0.5)',
-                    border: '1px solid rgba(255, 107, 0, 0.1)',
+                    gap: '12px',
+                    marginTop: '20px',
+                    padding: '20px',
+                    borderRadius: '20px',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
+                    border: '2px solid rgba(255, 107, 0, 0.2)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
                   }}>
                     <span style={{
-                      padding: '8px 16px',
-                      borderRadius: '12px',
-                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 107, 0, 0.08) 100%)',
+                      padding: '10px 18px',
+                      borderRadius: '18px',
+                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 107, 0, 0.12) 100%)',
                       color: '#1f172a',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      border: '1px solid rgba(255, 107, 0, 0.2)',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      border: '2px solid rgba(255, 107, 0, 0.3)',
+                      boxShadow: '0 2px 8px rgba(255, 107, 0, 0.15)',
                     }}>
                       {onlineType}
                     </span>
                     <span style={{
-                      padding: '8px 16px',
-                      borderRadius: '12px',
-                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 107, 0, 0.08) 100%)',
+                      padding: '10px 18px',
+                      borderRadius: '18px',
+                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 107, 0, 0.12) 100%)',
                       color: '#1f172a',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      border: '1px solid rgba(255, 107, 0, 0.2)',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      border: '2px solid rgba(255, 107, 0, 0.3)',
+                      boxShadow: '0 2px 8px rgba(255, 107, 0, 0.15)',
                     }}>
                       {visibility}
                     </span>
                     <span style={{
-                      padding: '8px 16px',
-                      borderRadius: '12px',
-                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 107, 0, 0.08) 100%)',
+                      padding: '10px 18px',
+                      borderRadius: '18px',
+                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 107, 0, 0.12) 100%)',
                       color: '#1f172a',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      border: '1px solid rgba(255, 107, 0, 0.2)',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      border: '2px solid rgba(255, 107, 0, 0.3)',
+                      boxShadow: '0 2px 8px rgba(255, 107, 0, 0.15)',
                     }}>
                       {priceType}
                     </span>
@@ -1321,7 +1296,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 paddingTop: isMobile ? '24px' : '28px',
                 borderTop: '2px solid rgba(255, 255, 255, 0.4)',
                 flexDirection: isMobile ? 'column' : 'row',
-                padding: isMobile ? '24px 28px' : '28px 32px',
+                padding: isMobile ? '0 28px' : '0 32px',
                 borderRadius: '24px',
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
                 border: '2px solid rgba(255, 255, 255, 0.5)',

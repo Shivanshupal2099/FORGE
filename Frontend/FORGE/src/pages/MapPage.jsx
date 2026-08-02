@@ -584,7 +584,7 @@ function Map() {
       )}
 
       <div style={{ position: 'absolute', left: '50%', bottom: '20px', transform: 'translateX(-50%)', width: 'calc(100% - 24px)', maxWidth: '920px', zIndex: 1000 }}>
-        <NavigationBar />
+        <NavigationBar isChatPage={false} />
       </div>
     </div>
   )

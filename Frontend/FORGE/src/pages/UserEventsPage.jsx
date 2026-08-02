@@ -507,7 +507,7 @@ function UserEventsPage() {
       </div>
       </div>
       
-      <NavigationBar />
+      <NavigationBar isChatPage={false} />
       
       {showCreateEvent && (
         <Event 

@@ -262,16 +262,10 @@ function ChatPage() {
     }
   };
 
-  const handleJoinCommunity = async (communityType) => {
-    try {
-      const response = await axios.post('/api/community/join', { type: communityType });
-      if (response.data.success) {
-        showSuccess(`Successfully joined ${communityType} community!`);
-      }
-    } catch (error) {
-      console.error('Error joining community:', error);
-      showError('Failed to join community. Please try again.');
-    }
+  const handleJoinCommunity = async (communityData) => {
+    // Placeholder for future implementation
+    console.log('Community join request:', communityData);
+    // No backend call for now - coming soon
   };
 
   const handleDisconnect = async () => {
@@ -396,6 +390,15 @@ function ChatPage() {
         <IoSend />
         <span>Send</span>
       </button>
+      <button
+        type="button"
+        className="chat-composer__join-community"
+        onClick={() => setShowCommunityPopup(true)}
+        aria-label="Join community"
+        disabled={loading}
+      >
+        <IoAdd />
+      </button>
     </form>
   );
 
@@ -478,18 +481,7 @@ function ChatPage() {
       <Header
         showJoinCommunityOnMobile={true}
         onJoinCommunity={() => setShowCommunityPopup(true)}
-      >
-        {!isMobile && (
-          <button
-            type="button"
-            className="chat-page__join-community"
-            onClick={() => setShowCommunityPopup(true)}
-            aria-label="Join community"
-          >
-            Join Community
-          </button>
-        )}
-      </Header>
+      />
       <div className="chat-layout">
         {!isMobile && (
           <>
@@ -517,7 +509,10 @@ function ChatPage() {
         )}
       </div>
 
-      <NavigationBar />
+      <NavigationBar 
+        onJoinCommunity={() => setShowCommunityPopup(true)}
+        isChatPage={true}
+      />
 
       {showCommunityPopup && (
         <CommunityJoinPopup

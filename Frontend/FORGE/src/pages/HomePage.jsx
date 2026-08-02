@@ -202,7 +202,7 @@ function HomePage() {
           </div>
         )}
       </div>
-      <NavigationBar />
+      <NavigationBar isChatPage={false} />
 
       <WelcomeCard />
       

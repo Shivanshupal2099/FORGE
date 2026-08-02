@@ -303,7 +303,7 @@ function PrivacyPage() {
           </div>
         </div>
       </div>
-      <NavigationBar />
+      <NavigationBar isChatPage={false} />
     </div>
   );
 }

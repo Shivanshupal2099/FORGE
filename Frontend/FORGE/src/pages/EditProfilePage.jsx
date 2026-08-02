@@ -1640,7 +1640,7 @@ function EditProfilePage() {
         </div>
       )}
 
-      <NavigationBar />
+      <NavigationBar isChatPage={false} />
     </div>
   );
 }
