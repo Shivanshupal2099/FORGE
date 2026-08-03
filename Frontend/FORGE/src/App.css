@@ -689,12 +689,10 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px var(--forge-orange-shadow);
 }
 
 .app-header-desktop-actions button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--forge-orange-shadow);
 }
 
 @media (max-width: 768px) {
