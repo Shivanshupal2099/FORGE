@@ -50,8 +50,7 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
     background: 'rgba(255, 255, 255, 0.5)',
     backdropFilter: 'blur(10px)',
     WebkitBackdropFilter: 'blur(10px)',
-    transition: 'transform 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, padding 0.25s ease',
-    boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.3)',
+    transition: 'transform 0.25s ease, background 0.25s ease, color 0.25s ease, padding 0.25s ease',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -68,7 +67,6 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
   const activeStyle = {
     background: 'rgba(255, 215, 0, 0.25)',
     color: '#111111',
-    boxShadow: '0 4px 16px rgba(255, 215, 0, 0.2)',
     transform: 'translateY(-2px) scale(1.03)',
     padding: '12px 16px'
   }

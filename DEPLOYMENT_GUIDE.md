@@ -74,7 +74,7 @@ VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
 
 In `Backend/.env` on Render, verify:
 ```
-ALLOWED_ORIGINS=https://main.d1s3vvkwvl4zr3.amplifyapp.com
+ALLOWED_ORIGINS=https://main.d3g5qoxagdkgi4.amplifyapp.com
 ```
 
 This allows your Amplify frontend to make requests to the Render backend.
@@ -103,7 +103,7 @@ NODE_ENV=production
 MONGODB_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_jwt_secret
 SUPABASE_JWT_SECRET=your_supabase_jwt_secret
-ALLOWED_ORIGINS=https://main.d1s3vvkwvl4zr3.amplifyapp.com
+ALLOWED_ORIGINS=https://main.d3g5qoxagdkgi4.amplifyapp.com
 RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
 RAZORPAY_KEY_SECRET=your_razorpay_secret
 ```

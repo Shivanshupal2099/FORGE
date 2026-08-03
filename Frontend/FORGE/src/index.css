@@ -127,7 +127,6 @@ input {
 .usercard {
   background: var(--app-card-bg) !important;
   border-color: var(--app-card-border) !important;
-  box-shadow: 8px 8px 0 #111111 !important;
 }
 
 .button-primary,
@@ -168,7 +167,6 @@ input {
 :root[data-theme='sunset'] .usercard {
   background: var(--app-card-bg) !important;
   border-color: var(--app-card-border) !important;
-  box-shadow: var(--app-shadow) !important;
 }
 
 :root[data-theme='sunset'] .button-primary,

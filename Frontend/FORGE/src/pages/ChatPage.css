@@ -757,7 +757,6 @@
     background: var(--app-card-bg);
     border-radius: 20px;
     border: 1px solid var(--app-card-border);
-    box-shadow: var(--app-shadow);
     animation: slideUp 0.3s ease-out;
   }
 

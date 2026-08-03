@@ -226,7 +226,7 @@ npm run dev
 
 | Feature | Local | Production |
 |---------|-------|------------|
-| Frontend URL | http://localhost:5173 | https://main.d1s3vvkwvl4zr3.amplifyapp.com |
+| Frontend URL | http://localhost:5173 | https://main.d3g5qoxagdkgi4.amplifyapp.com |
 | Backend URL | http://localhost:5000 | Render URL |
 | Database | Same Atlas or local | MongoDB Atlas |
 | Environment | development | production |

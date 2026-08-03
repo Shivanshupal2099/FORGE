@@ -92,7 +92,7 @@ app.use('/api', generalLimiter)
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://main.d1s3vvkwvl4zr3.amplifyapp.com']
+  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://main.d3g5qoxagdkgi4.amplifyapp.com']
 
 app.use(cors({
   origin: function(origin, callback) {
@@ -184,7 +184,7 @@ ConnectDB().then(() => {
       cors: {
           origin: process.env.ALLOWED_ORIGINS
               ? process.env.ALLOWED_ORIGINS.split(',')
-              : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://main.d1s3vvkwvl4zr3.amplifyapp.com'],
+              : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://main.d3g5qoxagdkgi4.amplifyapp.com'],
           credentials: true
       }
   })
