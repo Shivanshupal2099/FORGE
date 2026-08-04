@@ -3,11 +3,11 @@ const { ipKeyGenerator } = require('express-rate-limit');
 const { RateLimitError } = require('../utils/errors');
 
 /**
- * General rate limiter for API routes - DISABLED for development
+ * General rate limiter for API routes
  */
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10000, // Very high limit for development
+  max: process.env.NODE_ENV === 'production' ? 200 : 10000, // Production: 200 requests per 15 minutes
   skip: (req) => {
     // Skip rate limiting for development
     return process.env.NODE_ENV !== 'production';
@@ -21,11 +21,11 @@ const generalLimiter = rateLimit({
 });
 
 /**
- * Strict rate limiter for authentication routes - DISABLED for development
+ * Strict rate limiter for authentication routes
  */
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10000, // Very high limit for development
+  max: process.env.NODE_ENV === 'production' ? 5 : 10000, // Production: 5 auth attempts per 15 minutes
   skip: (req) => {
     // Skip rate limiting for development
     return process.env.NODE_ENV !== 'production';

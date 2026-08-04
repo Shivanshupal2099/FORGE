@@ -22,6 +22,7 @@ const { ConnectDB }=require('./config/database')
 const { activityMiddleware, markInactiveUsersOffline }=require('./middlewares/activity.middleware')
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler.middleware')
 const { generalLimiter, authLimiter, surveyCreationLimiter, surveyResponseLimiter } = require('./middlewares/rateLimiter.middleware')
+const xssProtection = require('./middlewares/xss.middleware')
 const SurveySocketHandler = require('./socketHandlers/survey.socket')
 const LocationSocketHandler = require('./socketHandlers/location.socket')
 const { deleteExpiredEvents } = require('./utils/eventCleanup')
@@ -69,8 +70,28 @@ getCashfreeInstance();
 
 // Security middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable CSP for development
-  crossOriginEmbedderPolicy: false
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  } : false, // Disable CSP for development
+  crossOriginEmbedderPolicy: process.env.NODE_ENV === 'production',
+  hsts: process.env.NODE_ENV === 'production' ? {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  } : false,
+  noSniff: true,
+  frameguard: { action: 'deny' },
+  xssFilter: true,
 }))
 
 // Health check endpoint for Render (must be before rate limiting and other middleware)
@@ -109,6 +130,9 @@ app.use(cors({
 
 app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({extended: true, limit: '1mb'}))
+
+// XSS Protection Middleware
+app.use(xssProtection)
 
 // MongoDB injection protection (custom middleware)
 app.use((req, res, next) => {

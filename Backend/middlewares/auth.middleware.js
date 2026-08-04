@@ -6,7 +6,7 @@ const authMiddleware = async (req, res, next) => {
         const authHeader = req.headers.authorization;
         
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            console.log('Auth failed: No Bearer token in request');
+            console.log('Auth failed: No Bearer token in request from IP:', req.ip);
             return res.status(401).json({
                 success: false,
                 message: "Access token required"
@@ -14,14 +14,25 @@ const authMiddleware = async (req, res, next) => {
         }
 
         const token = authHeader.split(" ")[1];
-        console.log('Auth attempt with token length:', token?.length);
+        console.log('Auth attempt with token length:', token?.length, 'from IP:', req.ip);
 
         let user = null;
+        let decoded = null;
 
         // Verify backend-issued JWT
         if (process.env.JWT_SECRET) {
             try {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                decoded = jwt.verify(token, process.env.JWT_SECRET);
+                
+                // Check token expiration
+                if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) {
+                    console.log('Auth failed: Token expired for user:', decoded.email || decoded.uid);
+                    return res.status(401).json({
+                        success: false,
+                        message: "Token has expired"
+                    });
+                }
+                
                 console.log('Backend JWT verified successfully for user:', decoded.email || decoded.uid);
                 
                 // Fetch full user from database to ensure we have the correct ObjectId
@@ -35,6 +46,7 @@ const authMiddleware = async (req, res, next) => {
                 
                 if (user) {
                     req.user = user;
+                    req.tokenType = 'backend';
                     return next();
                 }
             } catch (jwtError) {
@@ -46,14 +58,25 @@ const authMiddleware = async (req, res, next) => {
         // Verify Supabase session JWT when configured
         if (process.env.SUPABASE_JWT_SECRET) {
             try {
-                const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
+                decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
                 const email = decoded.email?.toLowerCase();
+                
+                // Check token expiration
+                if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) {
+                    console.log('Auth failed: Supabase token expired for email:', email);
+                    return res.status(401).json({
+                        success: false,
+                        message: "Token has expired"
+                    });
+                }
+                
                 console.log('Supabase JWT verified for email:', email);
 
                 if (email) {
                     user = await User.findOne({ email });
                     if (user) {
                         req.user = user;
+                        req.tokenType = 'supabase';
                         return next();
                     } else {
                         console.log('User not found in database for email:', email);
@@ -61,29 +84,18 @@ const authMiddleware = async (req, res, next) => {
                 }
             } catch (supabaseJwtError) {
                 console.log('Supabase JWT verification failed:', supabaseJwtError.message);
-                // Fall through to legacy token lookup
+                // Fall through to error response
             }
         }
 
-        // Legacy fallback: token stored as uid or email string
-        user = await User.findOne({ uid: token });
-
-        if (!user) {
-            user = await User.findOne({ email: token.toLowerCase() });
-        }
-
-        if (!user) {
-            console.log('Auth failed: User not found for token');
-            return res.status(401).json({
-                success: false,
-                message: "Invalid token or user not found"
-            });
-        }
-
-        req.user = user;
-        return next();
+        // If no valid token was found
+        console.log('Auth failed: No valid token found from IP:', req.ip);
+        return res.status(401).json({
+            success: false,
+            message: "Invalid or expired token"
+        });
     } catch (error) {
-        console.log('Auth middleware error:', error.message);
+        console.log('Auth middleware error:', error.message, 'from IP:', req.ip);
         return res.status(401).json({
             success: false,
             message: "Invalid or expired token"
