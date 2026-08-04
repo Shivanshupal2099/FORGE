@@ -8,7 +8,6 @@ import Tokens from '../Components/Tokens';
 import Offer from '../Components/Offer';
 import WelcomeCard from '../Components/WelcomeCard';
 import SurveyRotator from '../Components/SurveyRotator';
-import ConnectionsBar from '../Components/ConnectionsBar';
 import ConnectedUsersPopup from '../Components/ConnectedUsersPopup';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
@@ -111,67 +110,53 @@ function HomePage() {
         }
       `}</style>
       <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px', overflowY: 'auto' }}>
-        {/* Show connected users at top for desktop, bottom for mobile */}
-        {user && (
-          <div style={{ 
-            width: '100%', 
-            maxWidth: '1200px', 
-            display: isMobile ? 'block' : 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'flex-start',
-            gap: '16px',
+        {/* Action buttons - shown only in desktop */}
+        {user && !isMobile && (
+          <div className="home-action-dock" style={{ 
+            width: '100%',
+            maxWidth: '1200px',
+            display: 'flex', 
+            justifyContent: 'flex-end',
+            gap: '8px', 
+            alignItems: 'center', 
+            flexShrink: 0,
             marginBottom: '20px',
-            marginTop: isMobile ? '80px' : '0' // Add top margin in mobile to avoid logo overlap
           }}>
-            <div style={{ flex: 1 }}>
-              <ConnectionsBar />
-            </div>
-            
-            {/* Action buttons - shown only in desktop */}
-            {!isMobile && (
-              <div className="home-action-dock" style={{ 
-                display: 'flex', 
-                gap: '8px', 
-                alignItems: 'center', 
-                flexShrink: 0,
-              }}>
-                {topActions.map(({ label, icon: Icon, popup }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    className="home-action-btn"
-                    onClick={() => setActivePopup(popup)}
+            {topActions.map(({ label, icon: Icon, popup }) => (
+              <button
+                key={label}
+                type="button"
+                className="home-action-btn"
+                onClick={() => setActivePopup(popup)}
+                style={{
+                  padding: '11px 16px',
+                  position: 'relative',
+                }}
+              >
+                <Icon aria-hidden="true" />
+                <span>{label}</span>
+                {label === 'Request' && pendingRequests > 0 && (
+                  <span
                     style={{
-                      padding: '11px 16px',
-                      position: 'relative',
+                      position: 'absolute',
+                      top: '4px',
+                      right: '4px',
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      background: '#ff0000',
+                      border: '2px solid rgba(255, 255, 255, 0.8)',
+                      boxShadow: '0 2px 8px rgba(255, 0, 0, 0.4)',
+                      animation: 'pulse 2s infinite',
                     }}
-                  >
-                    <Icon aria-hidden="true" />
-                    <span>{label}</span>
-                    {label === 'Request' && pendingRequests > 0 && (
-                      <span
-                        style={{
-                          position: 'absolute',
-                          top: '4px',
-                          right: '4px',
-                          width: '10px',
-                          height: '10px',
-                          borderRadius: '50%',
-                          background: '#ff0000',
-                          border: '2px solid rgba(255, 255, 255, 0.8)',
-                          boxShadow: '0 2px 8px rgba(255, 0, 0, 0.4)',
-                          animation: 'pulse 2s infinite',
-                        }}
-                      />
-                    )}
-                  </button>
-                ))}
-                <Link to="/survey" className="home-create-survey-btn">
-                  <span>+</span>
-                  <span>Create Survey</span>
-                </Link>
-              </div>
-            )}
+                  />
+                )}
+              </button>
+            ))}
+            <Link to="/survey" className="home-create-survey-btn">
+              <span>+</span>
+              <span>Create Survey</span>
+            </Link>
           </div>
         )}
         

@@ -41,9 +41,13 @@ function ConnectedUsersPopup({ onClose }) {
   }, [user?.email]);
 
   const handleUserClick = (connectedUser) => {
-    const userEmail = connectedUser.email || connectedUser.requester_email || connectedUser.receiver_email;
+    const collaborator = connectedUser.collaborator || connectedUser;
+    const userEmail = collaborator.email || collaborator.uid || 
+                    connectedUser.email || connectedUser.uid ||
+                    connectedUser.requester_profile?.email || connectedUser.requester_profile?.uid ||
+                    connectedUser.receiver_profile?.email || connectedUser.receiver_profile?.uid;
     if (userEmail) {
-      navigate(`/profile/${userEmail}`);
+      navigate(`/profile/${encodeURIComponent(userEmail)}`);
       onClose();
     }
   };
@@ -173,9 +177,14 @@ function ConnectedUsersPopup({ onClose }) {
             ) : (
               <div className="connected-users-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {connectedUsers.map((connectedUser, index) => {
-                  const userEmail = connectedUser.email || connectedUser.requester_email || connectedUser.receiver_email;
-                  const userName = connectedUser.name || connectedUser.first_name || userEmail?.split('@')[0] || 'Unknown';
-                  const userPhoto = connectedUser.photo || connectedUser.avatar_url || null;
+                  const collaborator = connectedUser.collaborator || connectedUser;
+                  const userEmail = collaborator.email || collaborator.uid || 
+                                  connectedUser.email || connectedUser.uid ||
+                                  connectedUser.requester_profile?.email || connectedUser.requester_profile?.uid ||
+                                  connectedUser.receiver_profile?.email || connectedUser.receiver_profile?.uid;
+                  const userName = collaborator.name || collaborator.first_name || 
+                                  (userEmail ? userEmail.split('@')[0] : 'Unknown');
+                  const userPhoto = collaborator.avatar_url || collaborator.avatarUrl || collaborator.photo || null;
 
                   return (
                     <div
