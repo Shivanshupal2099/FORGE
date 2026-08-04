@@ -90,7 +90,7 @@ function PopupModal({ type, message, onClose, onConfirm }) {
 }
 
 function Survey() {
-  const { user } = useAuth();
+  const { user, isVerified } = useAuth();
   const { socket, isConnected } = useSocket();
   const navigate = useNavigate();
   const [survey, setSurvey] = useState({
@@ -325,7 +325,7 @@ function Survey() {
     event.preventDefault();
     
     // Check if user is verified
-    if (!user?.is_verified) {
+    if (!isVerified) {
       setPopup({
         type: 'alert',
         message: 'User verification is a premium feature coming soon. Premium users will be able to verify their accounts this Sunday.'
