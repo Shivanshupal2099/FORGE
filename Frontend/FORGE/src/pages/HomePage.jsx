@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaHandPaper, FaCoins, FaTags } from 'react-icons/fa';
+import { FaHandPaper, FaCoins, FaTags, FaUserFriends } from 'react-icons/fa';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import Request from '../Components/Request';
@@ -9,6 +9,7 @@ import Offer from '../Components/Offer';
 import WelcomeCard from '../Components/WelcomeCard';
 import SurveyRotator from '../Components/SurveyRotator';
 import ConnectionsBar from '../Components/ConnectionsBar';
+import ConnectedUsersPopup from '../Components/ConnectedUsersPopup';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
 
@@ -16,6 +17,7 @@ import axios from '../api/axios';
 
 const topActions = [
   { label: 'Request', icon: FaHandPaper, popup: 'request' },
+  { label: 'Connected', icon: FaUserFriends, popup: 'connected' },
   { label: 'Tokens', icon: FaCoins, popup: 'tokens' },
   { label: 'Offers', icon: FaTags, popup: 'offer' },
 ];
@@ -207,6 +209,7 @@ function HomePage() {
       <WelcomeCard />
       
       {activePopup === 'request' && <Request onClose={() => setActivePopup(null)} onConnectionAccepted={handleRequestUpdate} />}
+      {activePopup === 'connected' && <ConnectedUsersPopup onClose={() => setActivePopup(null)} />}
       {activePopup === 'tokens' && <Tokens onClose={() => setActivePopup(null)} />}
       {activePopup === 'offer' && <Offer onClose={() => setActivePopup(null)} />}
     </div>
