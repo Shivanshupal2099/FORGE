@@ -19,7 +19,7 @@ function sanitizeInput(data) {
   if (typeof data === 'object' && data !== null) {
     const sanitized = {};
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
         sanitized[key] = sanitizeInput(data[key]);
       }
     }
@@ -44,7 +44,7 @@ function sanitizeMongoQuery(query) {
     
     const cleaned = {};
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         if (key.startsWith('$') && !forbiddenKeys.includes(key)) {
           cleaned[key] = clean(obj[key]);
         } else if (!key.startsWith('$')) {
