@@ -115,19 +115,13 @@ function UserEventsPage() {
   useEffect(() => {
     const loadCreatedEvents = async () => {
       try {
-        const uid = user?.email;
-        if (!uid) {
-          setLoading(false);
-          return;
-        }
-
-        const response = await axios.get(`/api/events/user/${uid}`);
+        const response = await axios.get('/api/events');
         
         if (response.data.success) {
           setCreatedEvents(Array.isArray(response.data.events) ? response.data.events : []);
         }
       } catch (error) {
-        console.error('Error loading user events:', error);
+        console.error('Error loading events:', error);
         setCreatedEvents([]);
       } finally {
         setLoading(false);
@@ -135,7 +129,7 @@ function UserEventsPage() {
     };
 
     loadCreatedEvents();
-  }, [user?.email, showCreateEvent]); // Reload when showCreateEvent changes
+  }, [showCreateEvent]); // Reload when showCreateEvent changes
 
   const formatDate = (dateString) => {
     if (!dateString) return 'TBD';
@@ -161,12 +155,9 @@ function UserEventsPage() {
       if (response.data.success) {
         showNotification('Event deleted successfully!', 'success');
         // Refresh event list
-        const uid = user?.email;
-        if (uid) {
-          const eventsResponse = await axios.get(`/api/events/user/${uid}`);
-          if (eventsResponse.data.success) {
-            setCreatedEvents(Array.isArray(eventsResponse.data.events) ? eventsResponse.data.events : []);
-          }
+        const eventsResponse = await axios.get('/api/events');
+        if (eventsResponse.data.success) {
+          setCreatedEvents(Array.isArray(eventsResponse.data.events) ? eventsResponse.data.events : []);
         }
         return true;
       } else {

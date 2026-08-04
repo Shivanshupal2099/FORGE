@@ -164,7 +164,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
 
       onClose?.();
     } catch (error) {
-      alert(`Failed to publish event: ${error.message}`);
+      showError(`Failed to publish event: ${error.message}`);
     }
   };
 
