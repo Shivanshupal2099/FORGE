@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaTags, FaTimes, FaPlus, FaCoins, FaClock, FaGift, FaArrowLeft, FaEdit, FaTrash, FaSpinner } from 'react-icons/fa';
+import { FaTags, FaTimes, FaPlus, FaCoins, FaClock, FaGift, FaArrowLeft, FaEdit, FaTrash, FaSpinner, FaFlag, FaExclamationCircle } from 'react-icons/fa';
 import axios from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -11,21 +11,28 @@ function Offer({ onClose }) {
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [newOffer, setNewOffer] = useState({
     title: '',
-    description: '',
-    category: 'other'
+    description: ''
   });
   const [editOffer, setEditOffer] = useState({
     title: '',
     description: '',
-    category: 'other',
     is_active: true
   });
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tokensLoading, setTokensLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userTokens, setUserTokens] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [redeemedOfferId, setRedeemedOfferId] = useState(null);
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const isExpired = (offer) => {
+    return false; // No expiry date functionality
+  };
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -48,7 +55,6 @@ function Offer({ onClose }) {
   useEffect(() => {
     fetchOffers();
     if (user?.email) {
-      fetchUserTokens(user.email);
       setCurrentUserId(user._id || user.id);
     }
   }, [user]);
@@ -76,24 +82,6 @@ function Offer({ onClose }) {
     }
   };
 
-  const fetchUserTokens = async (userEmail) => {
-    try {
-      setTokensLoading(true);
-      if (userEmail) {
-        const response = await axios.get(`/api/tokens/user/${userEmail}`);
-        if (response.data.success) {
-          setUserTokens(response.data.tokens.total_tokens || 0);
-        } else {
-          setUserTokens(0);
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching user tokens:', err);
-      setUserTokens(0);
-    } finally {
-      setTokensLoading(false);
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -110,6 +98,16 @@ function Offer({ onClose }) {
 
   const handleCreateOffer = async (e) => {
     e.preventDefault();
+    if (newOffer.title.length > 45) {
+      setErrorMessage('Title must not exceed 45 characters');
+      setShowErrorPopup(true);
+      return;
+    }
+    if (newOffer.description.length > 3801) {
+      setErrorMessage('Description must not exceed 3801 characters');
+      setShowErrorPopup(true);
+      return;
+    }
     try {
       if (newOffer.title && newOffer.description) {
         const response = await axios.post('/api/offers', newOffer);
@@ -117,15 +115,17 @@ function Offer({ onClose }) {
           setOffers(prev => [response.data.offer, ...prev]);
           setNewOffer({
             title: '',
-            description: '',
-            category: 'other'
+            description: ''
           });
           setShowCreateForm(false);
         }
       }
     } catch (err) {
       console.error('Error creating offer:', err);
-      setError('Failed to create offer');
+      const errorMsg = err.response?.data?.message || 'Failed to create offer';
+      setErrorMessage(errorMsg);
+      setShowErrorPopup(true);
+      setError(errorMsg);
     }
   };
 
@@ -143,7 +143,6 @@ function Offer({ onClose }) {
     setEditOffer({
       title: selectedOffer.title,
       description: selectedOffer.description,
-      category: selectedOffer.category,
       is_active: selectedOffer.is_active
     });
     setShowEditForm(true);
@@ -151,6 +150,14 @@ function Offer({ onClose }) {
 
   const handleUpdateOffer = async (e) => {
     e.preventDefault();
+    if (editOffer.title.length > 45) {
+      alert('Title must not exceed 45 characters');
+      return;
+    }
+    if (editOffer.description.length > 3801) {
+      alert('Description must not exceed 3801 characters');
+      return;
+    }
     try {
       const response = await axios.put(`/api/offers/${selectedOffer._id}`, editOffer);
       if (response.data.success) {
@@ -192,21 +199,34 @@ function Offer({ onClose }) {
         return;
       }
       
-      if (!user.is_verified) {
-        alert('You must be verified to redeem offers. Please complete your profile verification.');
-        return;
-      }
+      // Check if user is verified (tokens check removed)
       
       const response = await axios.post(`/api/offers/${offerId}/redeem`);
       if (response.data.success) {
-        setUserTokens(response.data.remaining_tokens);
+        setRedeemedOfferId(offerId);
+        setShowSuccessPopup(true);
         await fetchOffers();
-        alert('Offer redeemed successfully!');
+        // After successful redemption, show the detail popup with offer details
+        const offer = offers.find(o => o._id === offerId);
+        if (offer) {
+          setSelectedOffer(offer);
+          setShowDetailPopup(true);
+        }
       }
     } catch (err) {
       console.error('Error redeeming offer:', err);
       const errorMessage = err.response?.data?.message || 'Failed to redeem offer';
-      alert(errorMessage);
+      
+      // If already redeemed, show detail popup instead of alert
+      if (errorMessage.includes('already redeemed') || err.response?.status === 400) {
+        const offer = offers.find(o => o._id === offerId);
+        if (offer) {
+          setSelectedOffer(offer);
+          setShowDetailPopup(true);
+        }
+      } else {
+        alert(errorMessage);
+      }
     }
   };
 
@@ -216,11 +236,47 @@ function Offer({ onClose }) {
   };
 
   const isRedeemed = (offer) => {
-    return offer.redeemed_by?.some(r => r.user_id === currentUserId);
+    if (!offer.redeemed_by || !currentUserId) return false;
+    return offer.redeemed_by.some(r => {
+      const redeemedUserId = r.user_id?._id || r.user_id;
+      return redeemedUserId && (redeemedUserId.toString() === currentUserId.toString());
+    });
   };
 
-  const isExpired = (offer) => {
-    return false; // No expiry date functionality
+  const handleSuccessPopupClose = () => {
+    setShowSuccessPopup(false);
+    // Remove the redeemed offer from the list
+    if (redeemedOfferId) {
+      setOffers(prev => prev.filter(offer => offer._id !== redeemedOfferId));
+      setRedeemedOfferId(null);
+    }
+  };
+
+  const handleReportOffer = async () => {
+    if (!reportReason.trim()) {
+      alert('Please provide a reason for reporting this offer');
+      return;
+    }
+    
+    try {
+      setIsSubmittingReport(true);
+      const response = await axios.post(`/api/offers/${selectedOffer._id}/report`, {
+        reason: reportReason
+      });
+      
+      if (response.data.success) {
+        alert('Offer reported successfully');
+        setShowReportDialog(false);
+        setReportReason('');
+      } else {
+        alert(response.data.message || 'Failed to report offer');
+      }
+    } catch (err) {
+      console.error('Error reporting offer:', err);
+      alert(err.response?.data?.message || 'Failed to report offer');
+    } finally {
+      setIsSubmittingReport(false);
+    }
   };
 
   return (
@@ -257,23 +313,6 @@ function Offer({ onClose }) {
               </div>
             </div>
 
-            <div className="home-popup__token-balance">
-              {tokensLoading ? (
-                <div className="token-loading">
-                  <FaSpinner className="spinner" />
-                  <span>Loading tokens...</span>
-                </div>
-              ) : (
-                <>
-                  <FaCoins className="token-icon" />
-                  <div className="token-info">
-                    <span className="token-amount">{userTokens}</span>
-                    <span className="token-label">Tokens Available</span>
-                  </div>
-                </>
-              )}
-            </div>
-
             <div className="home-popup-actions">
               <button
                 type="button"
@@ -298,7 +337,19 @@ function Offer({ onClose }) {
                       onChange={handleInputChange}
                       required
                       placeholder="Enter offer title"
+                      maxLength={45}
+                      style={{
+                        borderColor: newOffer.title.length > 45 ? '#ef4444' : undefined
+                      }}
                     />
+                    <span style={{
+                      fontSize: '0.8rem',
+                      color: newOffer.title.length > 45 ? '#ef4444' : '#64748b',
+                      marginTop: '4px',
+                      display: 'block'
+                    }}>
+                      {newOffer.title.length}/45 characters
+                    </span>
                   </div>
                   <div className="form-group">
                     <label htmlFor="description">Description *</label>
@@ -310,22 +361,19 @@ function Offer({ onClose }) {
                       required
                       placeholder="Describe the offer"
                       rows="3"
+                      maxLength={3801}
+                      style={{
+                        borderColor: newOffer.description.length > 3801 ? '#ef4444' : undefined
+                      }}
                     />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="category">Category</label>
-                    <select
-                      id="category"
-                      name="category"
-                      value={newOffer.category}
-                      onChange={handleInputChange}
-                    >
-                      <option value="other">Other</option>
-                      <option value="discount">Discount</option>
-                      <option value="bonus">Bonus</option>
-                      <option value="exclusive">Exclusive</option>
-                      <option value="community">Community</option>
-                    </select>
+                    <span style={{
+                      fontSize: '0.8rem',
+                      color: newOffer.description.length > 3801 ? '#ef4444' : '#64748b',
+                      marginTop: '4px',
+                      display: 'block'
+                    }}>
+                      {newOffer.description.length}/3801 characters
+                    </span>
                   </div>
                   <button type="submit" className="button-primary">
                     Create Offer
@@ -334,60 +382,114 @@ function Offer({ onClose }) {
               </div>
             )}
 
-            <div className="home-popup-section">
-              <h3 className="home-popup-section__title">Available offers</h3>
-              {loading ? (
-                <div className="loading-container">
-                  <FaSpinner className="spinner large" />
-                  <p className="loading-text">Loading offers...</p>
-                </div>
-              ) : error ? (
-                <div className="error-container">
-                  <p className="error-text">{error}</p>
-                  <button 
-                    type="button" 
-                    className="button-secondary"
-                    onClick={fetchOffers}
-                  >
-                    Retry
-                  </button>
-                </div>
-              ) : offers.length === 0 ? (
-                <div className="empty-container">
-                  <div className="empty-icon">
-                    <FaTags />
+            {!showCreateForm && !showDetailPopup && (
+              <div className="home-popup-section">
+                <h3 className="home-popup-section__title">Available offers</h3>
+                {loading ? (
+                  <div className="loading-container">
+                    <FaSpinner className="spinner large" />
+                    <p className="loading-text">Loading offers...</p>
                   </div>
-                  <p className="empty-text">No offers yet shared by builder community</p>
-                  <p className="empty-subtext">Be the first to create an exclusive offer for the community!</p>
-                </div>
-              ) : (
-                <div className="offer-cards-grid offer-cards-grid--scrollable">
-                  {offers.map((offer) => (
-                    <div 
-                      key={offer._id} 
-                      className={`offer-card ${isRedeemed(offer) ? 'redeemed' : ''} ${isExpired(offer) ? 'expired' : ''}`}
-                      onClick={() => handleOfferClick(offer)}
+                ) : error ? (
+                  <div className="error-container">
+                    <p className="error-text">{error}</p>
+                    <button 
+                      type="button" 
+                      className="button-secondary"
+                      onClick={fetchOffers}
                     >
-                      <div className="offer-card__header">
-                        <span className="offer-card__title">{offer.title}</span>
-                        <span className="offer-card__category">{offer.category}</span>
-                      </div>
-                      <div className="offer-card__meta">
-                        <span className="offer-card__cost">
-                          <FaCoins /> 100 tokens
-                        </span>
-                        {isRedeemed(offer) && (
-                          <span className="offer-card__status redeemed-badge">Redeemed</span>
-                        )}
-                        {isExpired(offer) && (
-                          <span className="offer-card__status expired-badge">Expired</span>
-                        )}
-                      </div>
+                      Retry
+                    </button>
+                  </div>
+                ) : offers.length === 0 ? (
+                  <div className="empty-container">
+                    <div className="empty-icon">
+                      <FaTags />
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <p className="empty-text">No offers yet shared by builder community</p>
+                    <p className="empty-subtext">Be the first to create an exclusive offer for the community!</p>
+                  </div>
+                ) : (
+                  <div className="offer-cards-grid offer-cards-grid--scrollable">
+                    {offers.map((offer) => (
+                      <div 
+                        key={offer._id} 
+                        className={`offer-card ${isRedeemed(offer) ? 'redeemed' : ''} ${isExpired(offer) ? 'expired' : ''}`}
+                      >
+                        <div className="offer-card__header">
+                          <span className="offer-card__title">{offer.title}</span>
+                          {isOwner(offer) && (
+                            <div className="offer-card__actions">
+                              <button
+                                type="button"
+                                className="offer-card__action-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedOffer(offer);
+                                  setShowDetailPopup(true);
+                                  handleEditOffer();
+                                }}
+                                title="Edit offer"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                type="button"
+                                className="offer-card__action-btn offer-card__action-btn--delete"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedOffer(offer);
+                                  handleDeleteOffer();
+                                }}
+                                title="Delete offer"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <div className="offer-card__meta">
+                          <span className="offer-card__cost">
+                            <FaCoins /> 100 tokens
+                          </span>
+                          {isRedeemed(offer) && (
+                            <span className="offer-card__status redeemed-badge">Redeemed</span>
+                          )}
+                          {isExpired(offer) && (
+                            <span className="offer-card__status expired-badge">Expired</span>
+                          )}
+                        </div>
+                        {!isRedeemed(offer) && !isExpired(offer) && offer.is_active && (
+                          <button
+                            type="button"
+                            className="offer-card__redeem-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRedeemOffer(offer._id);
+                            }}
+                          >
+                            <FaGift /> Redeem
+                          </button>
+                        )}
+                        {isRedeemed(offer) && (
+                          <button
+                            type="button"
+                            className="offer-card__redeem-btn offer-card__redeem-btn--redeemed"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedOffer(offer);
+                              setShowDetailPopup(true);
+                            }}
+                          >
+                            <FaGift /> View Details
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </>
         ) : (
           <>
@@ -425,7 +527,19 @@ function Offer({ onClose }) {
                         onChange={handleEditInputChange}
                         required
                         placeholder="Enter offer title"
+                        maxLength={45}
+                        style={{
+                          borderColor: editOffer.title.length > 45 ? '#ef4444' : undefined
+                        }}
                       />
+                      <span style={{
+                        fontSize: '0.8rem',
+                        color: editOffer.title.length > 45 ? '#ef4444' : '#64748b',
+                        marginTop: '4px',
+                        display: 'block'
+                      }}>
+                        {editOffer.title.length}/45 characters
+                      </span>
                     </div>
                     <div className="form-group">
                       <label htmlFor="edit-description">Description *</label>
@@ -437,22 +551,19 @@ function Offer({ onClose }) {
                         required
                         placeholder="Describe the offer"
                         rows="4"
+                        maxLength={3801}
+                        style={{
+                          borderColor: editOffer.description.length > 3801 ? '#ef4444' : undefined
+                        }}
                       />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="edit-category">Category</label>
-                      <select
-                        id="edit-category"
-                        name="category"
-                        value={editOffer.category}
-                        onChange={handleEditInputChange}
-                      >
-                        <option value="other">Other</option>
-                        <option value="discount">Discount</option>
-                        <option value="bonus">Bonus</option>
-                        <option value="exclusive">Exclusive</option>
-                        <option value="community">Community</option>
-                      </select>
+                      <span style={{
+                        fontSize: '0.8rem',
+                        color: editOffer.description.length > 3801 ? '#ef4444' : '#64748b',
+                        marginTop: '4px',
+                        display: 'block'
+                      }}>
+                        {editOffer.description.length}/3801 characters
+                      </span>
                     </div>
                     <div className="form-group checkbox-group">
                       <label>
@@ -504,8 +615,7 @@ function Offer({ onClose }) {
 
                 <div className="offer-detail-card">
                   <div className="offer-detail__header">
-                    <span className="offer-detail__category">{selectedOffer?.category}</span>
-                    {isOwner(selectedOffer) && (
+                    {isOwner(selectedOffer) ? (
                       <div className="offer-detail__actions">
                         <button
                           type="button"
@@ -516,6 +626,17 @@ function Offer({ onClose }) {
                           <FaEdit />
                         </button>
                       </div>
+                    ) : (
+                      <div className="offer-detail__actions">
+                        <button
+                          type="button"
+                          className="button-icon button-icon--danger"
+                          onClick={() => setShowReportDialog(true)}
+                          title="Report offer"
+                        >
+                          <FaFlag />
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -524,14 +645,6 @@ function Offer({ onClose }) {
                   </div>
 
                   <div className="offer-detail__meta">
-                    <div className="offer-detail__meta-item">
-                      <span className="offer-detail__meta-label">
-                        <FaCoins /> Token Cost
-                      </span>
-                      <span className="offer-detail__meta-value">
-                        100 tokens
-                      </span>
-                    </div>
                     {selectedOffer?.max_redemptions && (
                       <div className="offer-detail__meta-item">
                         <span className="offer-detail__meta-label">Redemptions</span>
@@ -543,9 +656,6 @@ function Offer({ onClose }) {
                   </div>
 
                   <div className="offer-detail__status">
-                    {!user?.is_verified && (
-                      <span className="verification-badge">Verification Required</span>
-                    )}
                     {isRedeemed(selectedOffer) && (
                       <span className="redeemed-badge">You have redeemed this offer</span>
                     )}
@@ -558,26 +668,13 @@ function Offer({ onClose }) {
                   </div>
 
                   {!isRedeemed(selectedOffer) && !isExpired(selectedOffer) && selectedOffer?.is_active && (
-                    <>
-                      {!user?.is_verified ? (
-                        <button
-                          type="button"
-                          className="button-primary button-large"
-                          disabled
-                        >
-                          <FaGift /> Verify to Redeem
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          className="button-primary button-large"
-                          onClick={() => handleRedeemOffer(selectedOffer._id)}
-                          disabled={userTokens < 100}
-                        >
-                          <FaGift /> Redeem Offer (100 tokens)
-                        </button>
-                      )}
-                    </>
+                    <button
+                      type="button"
+                      className="button-primary button-large"
+                      onClick={() => handleRedeemOffer(selectedOffer._id)}
+                    >
+                      <FaGift /> Redeem Offer
+                    </button>
                   )}
                 </div>
               </>
@@ -585,6 +682,150 @@ function Offer({ onClose }) {
           </>
         )}
       </div>
+
+      {showSuccessPopup && (
+        <div className="home-popup-overlay" onClick={handleSuccessPopupClose}>
+          <div className="home-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="home-popup__header">
+              <span className="home-popup__icon">
+                <FaGift />
+              </span>
+              <div>
+                <h2 className="home-popup__title">Offer Redeemed!</h2>
+                <p className="home-popup__subtitle">
+                  Congratulations! You have successfully redeemed this offer.
+                </p>
+              </div>
+            </div>
+            <div className="home-popup-section">
+              <button
+                type="button"
+                className="button-primary button-large"
+                onClick={handleSuccessPopupClose}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showErrorPopup && (
+        <div className="home-popup-overlay" onClick={() => setShowErrorPopup(false)}>
+          <div 
+            className="home-popup home-popup--error" 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+              border: '2px solid #fecaca',
+              boxShadow: '0 20px 40px rgba(239, 68, 68, 0.15)'
+            }}
+          >
+            <div className="home-popup__header">
+              <span 
+                className="home-popup__icon" 
+                style={{ 
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: '#ffffff',
+                  boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)'
+                }}
+              >
+                <FaExclamationCircle />
+              </span>
+              <div>
+                <h2 
+                  className="home-popup__title" 
+                  style={{ 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text'
+                  }}
+                >
+                  Oops! Something went wrong
+                </h2>
+                <p className="home-popup__subtitle" style={{ color: '#991b1b' }}>
+                  {errorMessage}
+                </p>
+              </div>
+            </div>
+            <div className="home-popup-section">
+              <button
+                type="button"
+                className="button-primary button-large"
+                onClick={() => setShowErrorPopup(false)}
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  boxShadow: '0 8px 20px rgba(239, 68, 68, 0.3)',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showReportDialog && (
+        <div className="home-popup-overlay" onClick={() => setShowReportDialog(false)}>
+          <div className="home-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="home-popup__header">
+              <span className="home-popup__icon">
+                <FaFlag />
+              </span>
+              <div>
+                <h2 className="home-popup__title">Report Offer</h2>
+                <p className="home-popup__subtitle">
+                  Help us keep the community safe
+                </p>
+              </div>
+            </div>
+            <div className="home-popup-section">
+              <div className="form-group">
+                <label htmlFor="report-reason">Reason for reporting *</label>
+                <textarea
+                  id="report-reason"
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  placeholder="Describe why you're reporting this offer..."
+                  rows="4"
+                  required
+                />
+              </div>
+              <div className="offer-edit-actions">
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={() => {
+                    setShowReportDialog(false);
+                    setReportReason('');
+                  }}
+                  disabled={isSubmittingReport}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="button-danger"
+                  onClick={handleReportOffer}
+                  disabled={!reportReason.trim() || isSubmittingReport}
+                >
+                  {isSubmittingReport ? 'Submitting...' : 'Submit Report'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -343,15 +343,18 @@ exports.getUserVerificationStatusByEmail = async (req, res) => {
             });
         }
 
+        console.log('Getting verification status for email:', email);
         const user = await User.findOne({ email });
 
         if (!user) {
+            console.log('User not found for email:', email);
             return res.status(404).json({
                 success: false,
                 message: 'User not found'
             });
         }
 
+        console.log('User found, is_verified:', user.is_verified);
         res.json({
             success: true,
             is_verified: user.is_verified,

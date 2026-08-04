@@ -5,15 +5,26 @@
 ### Problem: Verification Payment Failing with "Payment Failed" Error
 
 **Root Causes:**
-1. Backend on Render is missing Razorpay environment variables
+1. Backend on Render is missing Cashfree environment variables
 2. Frontend is still pointing to localhost API URL
-3. Backend .env.example was missing Razorpay configuration
+3. Backend .env.example was missing Cashfree configuration
 
 ---
 
+# ============================================
+# CRITICAL: Payment Gateway Migration
+# ============================================
+
+## ⚠️ IMPORTANT: Backend Must Be Deployed with Cashfree Credentials
+
+The backend code has been updated to use Cashfree. You must:
+
+1. **Deploy the updated backend code** to Render
+2. **Add Cashfree credentials** to Render environment variables
+
 ## Step-by-Step Fix Instructions
 
-### 1. Configure Razorpay on Render (Backend)
+### 1. Configure Cashfree on Render (Backend)
 
 **Go to your Render Dashboard:**
 1. Navigate to your backend service on Render
@@ -21,14 +32,16 @@
 3. Add the following environment variables:
 
 ```
-RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
-RAZORPAY_KEY_SECRET=your_razorpay_secret_here
+CASHFREE_APP_ID=your_cashfree_app_id
+CASHFREE_SECRET_KEY=your_cashfree_secret_key
+CASHFREE_ENVIRONMENT=SANDBOX
+CASHFREE_API_VERSION=2022-09-01
 ```
 
-**How to get Razorpay credentials:**
-1. Log in to [Razorpay Dashboard](https://dashboard.razorpay.com/)
+**How to get Cashfree credentials:**
+1. Log in to [Cashfree Dashboard](https://dashboard.cashfree.com/)
 2. Go to Settings → API Keys
-3. Copy the Key ID and Key Secret (Test mode or Production mode)
+3. Copy the App ID and Secret Key (Test mode or Production mode)
 4. Add them to Render environment variables
 
 **Important:** 
@@ -48,7 +61,7 @@ RAZORPAY_KEY_SECRET=your_razorpay_secret_here
 
 ```
 VITE_API_URL=https://your-render-backend-url.onrender.com
-VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
+VITE_CASHFREE_APP_ID=your_cashfree_app_id
 ```
 
 **Replace `https://your-render-backend-url.onrender.com` with your actual Render backend URL.**
@@ -61,7 +74,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key_here
 VITE_MAPBOX_TOKEN=your_mapbox_token_here
 VITE_MAPBOX_STYLE_URI=your_mapbox_style_uri_here
 VITE_API_URL=https://your-render-backend-url.onrender.com
-VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
+VITE_CASHFREE_APP_ID=your_cashfree_app_id
 ```
 
 2. Commit and push to trigger Amplify redeploy
@@ -74,7 +87,7 @@ VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
 
 In `Backend/.env` on Render, verify:
 ```
-ALLOWED_ORIGINS=https://main.d3g5qoxagdkgi4.amplifyapp.com
+ALLOWED_ORIGINS=https://www.forgeconnect.site
 ```
 
 This allows your Amplify frontend to make requests to the Render backend.
@@ -87,9 +100,9 @@ This allows your Amplify frontend to make requests to the Render backend.
 
 1. **Clear browser cache** - Hard refresh (Ctrl+Shift+R or Cmd+Shift+R)
 2. **Check browser console** for any CORS errors
-3. **Check Render logs** for Razorpay initialization:
-   - Look for: `✅ Razorpay initialized successfully`
-   - If you see: `⚠️ Razorpay credentials not found`, the environment variables are not set correctly
+3. **Check Render logs** for Cashfree initialization:
+   - Look for: `✅ Cashfree initialized successfully`
+   - If you see: `⚠️ Cashfree credentials not found`, the environment variables are not set correctly
 
 ---
 
@@ -103,9 +116,10 @@ NODE_ENV=production
 MONGODB_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_jwt_secret
 SUPABASE_JWT_SECRET=your_supabase_jwt_secret
-ALLOWED_ORIGINS=https://main.d3g5qoxagdkgi4.amplifyapp.com
-RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
-RAZORPAY_KEY_SECRET=your_razorpay_secret
+ALLOWED_ORIGINS=https://www.forgeconnect.site
+CASHFREE_APP_ID=your_cashfree_app_id
+CASHFREE_SECRET_KEY=your_cashfree_secret_key
+CASHFREE_ENV=SANDBOX
 ```
 
 ### Frontend (Amplify) - Required Variables:
@@ -116,7 +130,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
 VITE_MAPBOX_TOKEN=your_mapbox_token
 VITE_MAPBOX_STYLE_URI=your_mapbox_style
 VITE_API_URL=https://your-backend.onrender.com
-VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
+VITE_CASHFREE_APP_ID=your_cashfree_app_id
 ```
 
 ---
@@ -124,7 +138,7 @@ VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
 ## Troubleshooting
 
 ### Error: "Payment service not configured"
-**Cause:** Razorpay credentials not set on Render
+**Cause:** Cashfree credentials not set on Render
 **Fix:** Add `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` to Render environment variables
 
 ### Error: "Network error" or CORS error
@@ -134,7 +148,7 @@ VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
 2. Add your Amplify URL to `ALLOWED_ORIGINS` on Render
 
 ### Error: "Payment verification failed"
-**Cause:** Razorpay signature verification failed
+**Cause:** Cashfree signature verification failed
 **Fix:** Ensure `RAZORPAY_KEY_SECRET` matches the key used to create the order
 
 ### Error: "User not found"
@@ -147,7 +161,7 @@ VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
 
 1. **Check Render Logs:**
    - Go to Render Dashboard → Your Backend Service → Logs
-   - Look for: `✅ Razorpay initialized successfully`
+   - Look for: `✅ Cashfree initialized successfully`
 
 2. **Test API Endpoint:**
    ```bash
@@ -176,7 +190,7 @@ VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
 
 ## Production Deployment Checklist
 
-- [ ] Add Razorpay production credentials to Render
+- [ ] Add Cashfree production credentials to Render
 - [ ] Update frontend `VITE_API_URL` to production backend URL
 - [ ] Update `ALLOWED_ORIGINS` to include production frontend URL
 - [ ] Set `NODE_ENV=production` on Render
@@ -184,7 +198,7 @@ VITE_RAZORPAY_KEY_ID=rzp_test_TKbOHrQTT7JpvT
 - [ ] Enable SSL/TLS on all connections
 - [ ] Set up monitoring and error tracking
 - [ ] Test payment flow in test mode first
-- [ ] Get Razorpay production approval before going live
+- [ ] Get Cashfree production approval before going live
 
 ---
 

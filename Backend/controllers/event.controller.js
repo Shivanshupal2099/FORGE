@@ -22,7 +22,6 @@ exports.createEvent = async (req, res) => {
       onlineType, 
       locationOrLink, 
       startAt, 
-      endAt, 
       organizer, 
       registrationRequired, 
       maxAttendees, 
@@ -43,7 +42,6 @@ exports.createEvent = async (req, res) => {
       onlineType: onlineType || 'Offline',
       locationOrLink,
       startAt: startAt ? new Date(startAt) : null,
-      endAt: endAt ? new Date(endAt) : null,
       organizer,
       registrationRequired: registrationRequired || false,
       maxAttendees: registrationRequired ? maxAttendees : null,
@@ -302,7 +300,6 @@ exports.updateEvent = async (req, res) => {
       onlineType, 
       locationOrLink, 
       startAt, 
-      endAt, 
       organizer, 
       registrationRequired, 
       maxAttendees, 
@@ -319,7 +316,6 @@ exports.updateEvent = async (req, res) => {
     if (onlineType) event.onlineType = onlineType;
     if (locationOrLink !== undefined) event.locationOrLink = locationOrLink;
     if (startAt) event.startAt = new Date(startAt);
-    if (endAt) event.endAt = new Date(endAt);
     if (organizer !== undefined) event.organizer = organizer;
     if (registrationRequired !== undefined) event.registrationRequired = registrationRequired;
     if (maxAttendees !== undefined) event.maxAttendees = maxAttendees;

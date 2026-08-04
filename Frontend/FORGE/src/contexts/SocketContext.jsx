@@ -9,17 +9,19 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);
-  const connectionAttemptsRef = useRef(0);
-  const MAX_CONNECTION_ATTEMPTS = 10; // Increased from 3 to allow more retries
+  const isConnectingRef = useRef(false);
+  const userIdRef = useRef(null);
 
   const cleanupSocket = useCallback(() => {
     if (socketRef.current) {
+      console.log('SocketProvider: Cleaning up socket connection');
       // Remove all event listeners before disconnecting
       socketRef.current.removeAllListeners();
       socketRef.current.disconnect();
       socketRef.current = null;
       setSocket(null);
       setIsConnected(false);
+      isConnectingRef.current = false;
     }
   }, []);
 
@@ -30,17 +32,33 @@ export const SocketProvider = ({ children }) => {
     // Only connect if user is authenticated
     if (!userId) {
       console.log('SocketProvider: No user ID, skipping connection');
+      if (socketRef.current) {
+        cleanupSocket();
+      }
       return;
     }
 
-    // Prevent duplicate connections
-    if (socketRef.current) {
-      console.log('SocketProvider: Socket already exists, skipping connection');
+    // Prevent duplicate connections for the same user
+    if (socketRef.current && userIdRef.current === userId) {
+      console.log('SocketProvider: Socket already exists for this user, skipping connection');
+      return;
+    }
+
+    // If user changed, cleanup old socket first
+    if (socketRef.current && userIdRef.current !== userId) {
+      console.log('SocketProvider: User changed, cleaning up old socket');
+      cleanupSocket();
+    }
+
+    // Prevent multiple simultaneous connection attempts
+    if (isConnectingRef.current) {
+      console.log('SocketProvider: Connection already in progress, skipping');
       return;
     }
 
     console.log('SocketProvider: Attempting to connect socket for user:', userId);
-    connectionAttemptsRef.current++;
+    userIdRef.current = userId;
+    isConnectingRef.current = true;
 
     // Initialize socket connection
     const socketInstance = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
@@ -49,13 +67,14 @@ export const SocketProvider = ({ children }) => {
       reconnection: true,
       reconnectionDelay: 2000,
       reconnectionAttempts: 10,
-      timeout: 15000,
+      timeout: 30000,
+      // Remove forceNew to allow Socket.io to manage connection reuse
     });
 
     socketInstance.on('connect', () => {
       console.log('Socket connected:', socketInstance.id);
       setIsConnected(true);
-      connectionAttemptsRef.current = 0; // Reset on successful connection
+      isConnectingRef.current = false;
       
       // Join with user ID
       socketInstance.emit('user:join', userId);
@@ -64,17 +83,13 @@ export const SocketProvider = ({ children }) => {
     socketInstance.on('disconnect', (reason) => {
       console.log('Socket disconnected:', reason);
       setIsConnected(false);
+      isConnectingRef.current = false;
     });
 
     socketInstance.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
       setIsConnected(false);
-      
-      // If max attempts reached, stop trying
-      if (connectionAttemptsRef.current >= MAX_CONNECTION_ATTEMPTS) {
-        console.log('Max connection attempts reached, stopping reconnection');
-        cleanupSocket();
-      }
+      isConnectingRef.current = false;
     });
 
     socketRef.current = socketInstance;
@@ -82,7 +97,7 @@ export const SocketProvider = ({ children }) => {
 
     // Cleanup on unmount or user change
     return () => {
-      console.log('SocketProvider: Cleaning up socket');
+      console.log('SocketProvider: Cleanup function called');
       cleanupSocket();
     };
   }, [user, cleanupSocket]);

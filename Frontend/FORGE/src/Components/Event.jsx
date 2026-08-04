@@ -38,9 +38,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
   const [startDate, setStartDate] = useState(eventToEdit?.startAt ? new Date(eventToEdit.startAt).toISOString().split('T')[0] : '');
   const [startTime, setStartTime] = useState(eventToEdit?.startAt ? new Date(eventToEdit.startAt).toTimeString().slice(0, 5) : '');
 
-  const [endDate, setEndDate] = useState(eventToEdit?.endAt ? new Date(eventToEdit.endAt).toISOString().split('T')[0] : '');
-  const [endTime, setEndTime] = useState(eventToEdit?.endAt ? new Date(eventToEdit.endAt).toTimeString().slice(0, 5) : '');
-
   const [organizer, setOrganizer] = useState(eventToEdit?.organizer || '');
 
   const [registrationRequired, setRegistrationRequired] = useState(eventToEdit?.registrationRequired || false);
@@ -67,22 +64,9 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
     return new Date(`${startDate}T${startTime}:00`).getTime();
   }, [startDate, startTime]);
 
-  const computedEnd = useMemo(() => {
-    if (!endDate || !endTime) return null;
-    return new Date(`${endDate}T${endTime}:00`).getTime();
-  }, [endDate, endTime]);
-
   const validate = () => {
     if (!title.trim()) return 'Event title is required.';
     if (!startDate || !startTime) return 'Start date and time are required.';
-
-    if ((endDate && !endTime) || (!endDate && endTime)) {
-      return 'Please provide both end date and end time (or leave both empty).';
-    }
-
-    if (computedEnd != null && computedStart != null && computedEnd < computedStart) {
-      return 'End date/time must be after the start date/time.';
-    }
 
     if (registrationRequired) {
       const n = Number(maxAttendees);
@@ -105,7 +89,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
       onlineType,
       locationOrLink: locationOrLink.trim() || null,
       startAt: computedStart ? new Date(computedStart).toISOString() : null,
-      endAt: computedEnd != null ? new Date(computedEnd).toISOString() : null,
       organizer: organizer.trim() || null,
       registrationRequired,
       maxAttendees: registrationRequired && maxAttendees ? Number(maxAttendees) : null,
@@ -171,8 +154,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
         setLocationOrLink('');
         setStartDate('');
         setStartTime('');
-        setEndDate('');
-        setEndTime('');
         setOrganizer('');
         setRegistrationRequired(false);
         setMaxAttendees('');
@@ -193,7 +174,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
         :root {
           --forge-orange: #FF6B00;
           --forge-orange-light: #FF8533;
-          --forge-orange-shadow: rgba(255, 107, 0, 0.3);
         }
         
         .event-modal::-webkit-scrollbar {
@@ -262,21 +242,17 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
           aria-modal="true"
           aria-labelledby="event-popup-title"
           style={{
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 50%, rgba(248, 250, 252, 0.92) 100%)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            borderRadius: isMobile ? '28px 28px 0 0' : '32px',
+            background: '#ffffff',
+            borderRadius: isMobile ? '24px 24px 0 0' : '28px',
             maxWidth: isMobile ? '100%' : '1100px',
             width: '100%',
             maxHeight: isMobile ? '92vh' : '90vh',
             overflow: 'auto',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
-            boxShadow: isMobile 
-              ? '0 -16px 48px rgba(0, 0, 0, 0.2)' 
-              : '0 32px 90px rgba(0, 0, 0, 0.2)',
             position: 'relative',
-            border: '1px solid rgba(255, 255, 255, 0.5)',
+            border: 'none',
+            padding: isMobile ? '24px' : '32px',
             animation: isMobile ? 'slideUpMobile 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'fadeInScale 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
@@ -291,7 +267,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
               width: isMobile ? '44px' : '48px',
               height: isMobile ? '44px' : '48px',
               borderRadius: '999px',
-              border: '2px solid rgba(0, 0, 0, 0.08)',
+              border: 'none',
               background: 'rgba(255, 255, 255, 0.9)',
               cursor: 'pointer',
               display: 'flex',
@@ -299,19 +275,16 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
               justifyContent: 'center',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               zIndex: 10,
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
             }}
             onMouseEnter={(e) => {
               e.target.style.background = 'linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%)';
               e.target.style.transform = 'scale(1.1) rotate(90deg)';
               e.target.style.borderColor = 'var(--forge-orange)';
-              e.target.style.boxShadow = '0 8px 24px var(--forge-orange-shadow)';
             }}
             onMouseLeave={(e) => {
               e.target.style.background = 'rgba(255, 255, 255, 0.9)';
               e.target.style.transform = 'scale(1) rotate(0deg)';
-              e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-              e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+              e.target.style.borderColor = 'transparent';
             }}
           >
             <FaTimes style={{ fontSize: isMobile ? '18px' : '20px', color: '#111111' }} />
@@ -328,7 +301,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 12px 32px var(--forge-orange-shadow)',
                 }}>
                   <FaCalendarAlt style={{ fontSize: isMobile ? '28px' : '32px', color: '#FFFFFF' }} />
                 </div>
@@ -363,11 +335,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 display: 'flex', 
                 flexDirection: 'column', 
                 gap: isMobile ? '16px' : '20px',
-                padding: isMobile ? '0 24px' : '0 28px',
-                borderRadius: '24px',
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
-                border: '2px solid rgba(255, 255, 255, 0.5)',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)',
+                padding: '0',
+                borderRadius: '0',
+                background: 'transparent',
+                border: 'none',
               }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                   <label htmlFor="event-title" style={{
@@ -390,28 +361,23 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     required
                     style={{
                       padding: isMobile ? '14px 18px' : '16px 20px',
-                      borderRadius: '20px',
-                      border: '2px solid rgba(0, 0, 0, 0.08)',
+                      borderRadius: '12px',
+                      border: 'none',
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                      background: '#ffffff',
                       color: '#1f172a',
                       fontWeight: '500',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                      e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                      e.target.style.borderColor = 'transparent';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -421,10 +387,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'flex', 
                   flexDirection: 'column', 
                   gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  padding: '0',
+                  borderRadius: '0',
+                  background: 'transparent',
+                  border: 'none',
                 }}>
                   <label htmlFor="event-description" style={{
                     fontSize: isMobile ? '13px' : '14px',
@@ -441,30 +407,23 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     rows="4"
                     style={{
                       padding: isMobile ? '14px 18px' : '16px 20px',
-                      borderRadius: '20px',
-                      border: '2px solid rgba(0, 0, 0, 0.08)',
+                      borderRadius: '12px',
+                      border: 'none',
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
-                      resize: 'vertical',
-                      fontFamily: 'inherit',
+                      background: '#ffffff',
                       color: '#1f172a',
                       fontWeight: '500',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                      e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                      e.target.style.borderColor = 'transparent';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -474,10 +433,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'flex', 
                   flexDirection: 'column', 
                   gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  padding: '0',
+                  borderRadius: '0',
+                  background: 'transparent',
+                  border: 'none',
                 }}>
                   <label htmlFor="event-category" style={{
                     fontSize: isMobile ? '13px' : '14px',
@@ -496,29 +455,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     onChange={(e) => setCategory(e.target.value)}
                     style={{
                       padding: isMobile ? '14px 18px' : '16px 20px',
-                      borderRadius: '20px',
-                      border: '2px solid rgba(0, 0, 0, 0.08)',
+                      borderRadius: '12px',
+                      border: 'none',
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
+                      background: '#ffffff',
                       cursor: 'pointer',
                       color: '#1f172a',
                       fontWeight: '500',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                      e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                      e.target.style.borderColor = 'transparent';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   >
@@ -537,11 +491,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'grid', 
                   gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
                   gap: isMobile ? '12px' : '16px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%)',
-                  border: '2px solid rgba(255, 255, 255, 0.6)',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+                  padding: '0',
+                  borderRadius: '0',
+                  background: 'transparent',
+                  border: 'none',
                 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                     <label htmlFor="event-start-date" style={{
@@ -559,29 +512,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       required
                       style={{
                         padding: isMobile ? '14px 18px' : '16px 20px',
-                        borderRadius: '20px',
-                        border: '2px solid rgba(0, 0, 0, 0.08)',
+                        borderRadius: '12px',
+                        border: 'none',
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
+                        background: '#ffffff',
                         cursor: 'pointer',
                         color: '#1f172a',
                         fontWeight: '500',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                        e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                        e.target.style.background = '#ffffff';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                        e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                        e.target.style.borderColor = 'transparent';
+                        e.target.style.background = '#ffffff';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     />
@@ -602,125 +550,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       required
                       style={{
                         padding: isMobile ? '14px 18px' : '16px 20px',
-                        borderRadius: '20px',
-                        border: '2px solid rgba(0, 0, 0, 0.08)',
+                        borderRadius: '12px',
+                        border: 'none',
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
+                        background: '#ffffff',
                         cursor: 'pointer',
                         color: '#1f172a',
                         fontWeight: '500',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                        e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                        e.target.style.background = '#ffffff';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                        e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
-                        e.target.style.transform = 'translateY(0)';
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                  gap: isMobile ? '12px' : '16px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%)',
-                  border: '2px solid rgba(255, 255, 255, 0.6)',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
-                }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
-                    <label htmlFor="event-end-date" style={{
-                      fontSize: isMobile ? '13px' : '14px',
-                      fontWeight: '500',
-                      color: '#666666',
-                    }}>
-                      End date
-                    </label>
-                    <input
-                      type="date"
-                      id="event-end-date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      style={{
-                        padding: isMobile ? '14px 18px' : '16px 20px',
-                        borderRadius: '20px',
-                        border: '2px solid rgba(0, 0, 0, 0.08)',
-                        fontSize: isMobile ? '15px' : '16px',
-                        outline: 'none',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
-                        cursor: 'pointer',
-                        color: '#1f172a',
-                        fontWeight: '500',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                        e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
-                        e.target.style.transform = 'translateY(-1px)';
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                        e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
-                        e.target.style.transform = 'translateY(0)';
-                      }}
-                    />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
-                    <label htmlFor="event-end-time" style={{
-                      fontSize: isMobile ? '13px' : '14px',
-                      fontWeight: '500',
-                      color: '#666666',
-                    }}>
-                      End time
-                    </label>
-                    <input
-                      type="time"
-                      id="event-end-time"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      style={{
-                        padding: isMobile ? '14px 18px' : '16px 20px',
-                        borderRadius: '20px',
-                        border: '2px solid rgba(0, 0, 0, 0.08)',
-                        fontSize: isMobile ? '15px' : '16px',
-                        outline: 'none',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
-                        cursor: 'pointer',
-                        color: '#1f172a',
-                        fontWeight: '500',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                      }}
-                      onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                        e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
-                        e.target.style.transform = 'translateY(-1px)';
-                      }}
-                      onBlur={(e) => {
-                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                        e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                        e.target.style.borderColor = 'transparent';
+                        e.target.style.background = '#ffffff';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     />
@@ -731,10 +578,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'flex', 
                   flexDirection: 'column', 
                   gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  padding: '0',
+                  borderRadius: '0',
+                  background: 'transparent',
+                  border: 'none',
                 }}>
                   <label htmlFor="event-online-type" style={{
                     fontSize: isMobile ? '13px' : '14px',
@@ -753,29 +600,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     onChange={(e) => setOnlineType(e.target.value)}
                     style={{
                       padding: isMobile ? '14px 18px' : '16px 20px',
-                      borderRadius: '20px',
-                      border: '2px solid rgba(0, 0, 0, 0.08)',
+                      borderRadius: '12px',
+                      border: 'none',
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
+                      background: '#ffffff',
                       cursor: 'pointer',
                       color: '#1f172a',
                       fontWeight: '500',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                      e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                      e.target.style.borderColor = 'transparent';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   >
@@ -789,10 +631,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'flex', 
                   flexDirection: 'column', 
                   gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  padding: '0',
+                  borderRadius: '0',
+                  background: 'transparent',
+                  border: 'none',
                 }}>
                   <label htmlFor="event-location-or-link" style={{
                     fontSize: isMobile ? '13px' : '14px',
@@ -817,28 +659,23 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     }
                     style={{
                       padding: isMobile ? '14px 18px' : '16px 20px',
-                      borderRadius: '20px',
-                      border: '2px solid rgba(0, 0, 0, 0.08)',
+                      borderRadius: '12px',
+                      border: 'none',
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
+                      background: '#ffffff',
                       color: '#1f172a',
                       fontWeight: '500',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                      e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                      e.target.style.borderColor = 'transparent';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -848,10 +685,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'flex', 
                   flexDirection: 'column', 
                   gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  padding: '0',
+                  borderRadius: '0',
+                  background: 'transparent',
+                  border: 'none',
                 }}>
                   <label htmlFor="event-organizer" style={{
                     fontSize: isMobile ? '13px' : '14px',
@@ -872,28 +709,23 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     placeholder="Organizer name"
                     style={{
                       padding: isMobile ? '14px 18px' : '16px 20px',
-                      borderRadius: '20px',
-                      border: '2px solid rgba(0, 0, 0, 0.08)',
+                      borderRadius: '12px',
+                      border: 'none',
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
+                      background: '#ffffff',
                       color: '#1f172a',
                       fontWeight: '500',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                      e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                      e.target.style.borderColor = 'transparent';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -903,10 +735,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'flex', 
                   flexDirection: 'column', 
                   gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  padding: '0',
+                  borderRadius: '0',
+                  background: 'transparent',
+                  border: 'none',
                 }}>
                   <label htmlFor="event-registration-required" style={{
                     fontSize: isMobile ? '13px' : '14px',
@@ -925,29 +757,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     onChange={(e) => setRegistrationRequired(e.target.value === 'Yes')}
                     style={{
                       padding: isMobile ? '14px 18px' : '16px 20px',
-                      borderRadius: '20px',
-                      border: '2px solid rgba(0, 0, 0, 0.08)',
+                      borderRadius: '12px',
+                      border: 'none',
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
+                      background: '#ffffff',
                       cursor: 'pointer',
                       color: '#1f172a',
                       fontWeight: '500',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                      e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                      e.target.style.borderColor = 'transparent';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   >
@@ -975,7 +802,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       style={{
                         padding: isMobile ? '14px 18px' : '16px 20px',
                         borderRadius: '20px',
-                        border: '2px solid rgba(0, 0, 0, 0.08)',
+                        border: 'none',
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -984,18 +811,15 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                         WebkitBackdropFilter: 'blur(10px)',
                         color: '#1f172a',
                         fontWeight: '500',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
                         e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                        e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
+                        e.target.style.borderColor = 'transparent';
                         e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                        e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     />
@@ -1006,11 +830,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'grid', 
                   gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
                   gap: isMobile ? '12px' : '16px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%)',
-                  border: '2px solid rgba(255, 255, 255, 0.6)',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+                  padding: '0',
+                  borderRadius: '0',
+                  background: 'transparent',
+                  border: 'none',
                 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '12px' }}>
                     <label htmlFor="event-visibility" style={{
@@ -1026,29 +849,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       onChange={(e) => setVisibility(e.target.value)}
                       style={{
                         padding: isMobile ? '14px 18px' : '16px 20px',
-                        borderRadius: '20px',
-                        border: '2px solid rgba(0, 0, 0, 0.08)',
+                        borderRadius: '12px',
+                        border: 'none',
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
+                        background: '#ffffff',
                         cursor: 'pointer',
                         color: '#1f172a',
                         fontWeight: '500',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                        e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                        e.target.style.background = '#ffffff';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                        e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                        e.target.style.borderColor = 'transparent';
+                        e.target.style.background = '#ffffff';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     >
@@ -1074,29 +892,24 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       onChange={(e) => setPriceType(e.target.value)}
                       style={{
                         padding: isMobile ? '14px 18px' : '16px 20px',
-                        borderRadius: '20px',
-                        border: '2px solid rgba(0, 0, 0, 0.08)',
+                        borderRadius: '12px',
+                        border: 'none',
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
+                        background: '#ffffff',
                         cursor: 'pointer',
                         color: '#1f172a',
                         fontWeight: '500',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                        e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                        e.target.style.background = '#ffffff';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
-                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                        e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                        e.target.style.borderColor = 'transparent';
+                        e.target.style.background = '#ffffff';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     >
@@ -1110,10 +923,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   display: 'flex', 
                   flexDirection: 'column', 
                   gap: isMobile ? '8px' : '10px',
-                  padding: isMobile ? '20px' : '24px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  padding: '0',
+                  borderRadius: '0',
+                  background: 'transparent',
+                  border: 'none',
                 }}>
                   <label htmlFor="event-contact-info" style={{
                     fontSize: isMobile ? '13px' : '14px',
@@ -1130,28 +943,23 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     placeholder="Public contact (email/phone)"
                     style={{
                       padding: isMobile ? '14px 18px' : '16px 20px',
-                      borderRadius: '20px',
-                      border: '2px solid rgba(0, 0, 0, 0.08)',
+                      borderRadius: '12px',
+                      border: 'none',
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
+                      background: '#ffffff',
                       color: '#1f172a',
                       fontWeight: '500',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                      e.target.style.boxShadow = '0 4px 16px var(--forge-orange-shadow)';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
-                      e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.04)';
+                      e.target.style.borderColor = 'rgba(0, 0, 0, 0.1)';
+                      e.target.style.background = '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -1166,14 +974,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 borderRadius: '24px',
                 background: 'linear-gradient(135deg, rgba(255, 107, 0.0.06) 0%, rgba(255, 107, 0, 0.03) 100%)',
                 border: '2px solid rgba(255, 107, 0, 0.12)',
-                boxShadow: '0 4px 16px rgba(255, 107, 0, 0.08)',
               }}>
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
                   borderRadius: '24px',
                   padding: '28px',
                   color: '#1f172a',
-                  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.1)',
                   border: '2px solid rgba(255, 107, 0, 0.15)',
                 }}>
                   <div style={{
@@ -1185,7 +991,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: '20px',
-                    boxShadow: '0 6px 16px var(--forge-orange-shadow)',
                   }}>
                     <FaCalendarAlt style={{ fontSize: '28px', color: '#FFFFFF' }} />
                   </div>
@@ -1197,34 +1002,19 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   }}>
                     {title || 'Event Title'}
                   </p>
-                  {startDate ? (
+                  {startDate && startTime ? (
                     <p style={{
                       margin: '0 0 8px',
                       fontSize: '13px',
                       fontWeight: '400',
                       opacity: 0.9,
                     }}>
+                      Starts{' '}
                       {new Date(startDate).toLocaleDateString('en-US', {
-                        weekday: 'short',
                         month: 'short',
                         day: 'numeric',
                       })}{' '}
-                      {startTime ? `• ${startTime}` : null}
-                    </p>
-                  ) : null}
-                  {endDate && endTime ? (
-                    <p style={{
-                      margin: '0 0 8px',
-                      fontSize: '13px',
-                      fontWeight: '400',
-                      opacity: 0.9,
-                    }}>
-                      Ends{' '}
-                      {new Date(endDate).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                      })}{' '}
-                      • {endTime}
+                      • {startTime}
                     </p>
                   ) : null}
                   <div style={{
@@ -1236,7 +1026,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     borderRadius: '20px',
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
                     border: '2px solid rgba(255, 107, 0, 0.2)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
                   }}>
                     <span style={{
                       padding: '10px 18px',
@@ -1246,7 +1035,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: '13px',
                       fontWeight: '700',
                       border: '2px solid rgba(255, 107, 0, 0.3)',
-                      boxShadow: '0 2px 8px rgba(255, 107, 0, 0.15)',
                     }}>
                       {onlineType}
                     </span>
@@ -1258,7 +1046,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: '13px',
                       fontWeight: '700',
                       border: '2px solid rgba(255, 107, 0, 0.3)',
-                      boxShadow: '0 2px 8px rgba(255, 107, 0, 0.15)',
                     }}>
                       {visibility}
                     </span>
@@ -1270,7 +1057,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: '13px',
                       fontWeight: '700',
                       border: '2px solid rgba(255, 107, 0, 0.3)',
-                      boxShadow: '0 2px 8px rgba(255, 107, 0, 0.15)',
                     }}>
                       {priceType}
                     </span>
@@ -1300,7 +1086,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 borderRadius: '24px',
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
                 border: '2px solid rgba(255, 255, 255, 0.5)',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
               }}>
               <button
                 type="button"
@@ -1309,7 +1094,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 style={{
                   padding: isMobile ? '16px 24px' : '16px 32px',
                   borderRadius: '20px',
-                  border: '2px solid rgba(0, 0, 0, 0.1)',
+                  border: 'none',
                   background: 'rgba(255, 255, 255, 0.8)',
                   backdropFilter: 'blur(10px)',
                   WebkitBackdropFilter: 'blur(10px)',
@@ -1319,21 +1104,16 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   cursor: isLoading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   width: isMobile ? '100%' : 'auto',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
                 }}
                 onMouseEnter={(e) => {
                   if (!isLoading) {
                     e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-                    e.target.style.borderColor = 'rgba(0, 0, 0, 0.15)';
                     e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.12)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                  e.target.style.borderColor = 'rgba(0, 0, 0, 0.1)';
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
                 }}
               >
                 Cancel
@@ -1353,7 +1133,6 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   fontWeight: '800',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: '0 8px 24px var(--forge-orange-shadow)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1365,13 +1144,11 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   if (!isLoading) {
                     e.target.style.transform = 'translateY(-3px)';
                     e.target.style.background = 'linear-gradient(135deg, var(--forge-orange-light) 0%, var(--forge-orange) 100%)';
-                    e.target.style.boxShadow = '0 12px 36px var(--forge-orange-shadow)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0)';
                   e.target.style.background = 'linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-orange-light) 100%)';
-                  e.target.style.boxShadow = '0 8px 24px var(--forge-orange-shadow)';
                 }}
               >
                 <FaCalendarAlt style={{ fontSize: '18px' }} />

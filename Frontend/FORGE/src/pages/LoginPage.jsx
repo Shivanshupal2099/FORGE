@@ -100,20 +100,23 @@ function LoginPage() {
             <p>Access your workspace, keep momentum, and pick up where you left off.</p>
 
             <form className="form-stack" style={{ marginTop: "32px" }}>
-              <button
-                className="login-google-btn"
-                type="button"
-                onClick={signInWithDefault}
-                disabled={loading}
-                style={{
-                  marginBottom: "16px",
-                  background: "linear-gradient(135deg, var(--app-accent-bg) 0%, var(--app-accent-bg) 100%)",
-                  opacity: loading ? 0.7 : 1,
-                  cursor: loading ? "not-allowed" : "pointer"
-                }}
-              >
-                {loading ? 'Logging in...' : '🧪 Quick Test Login (Razorpay Testing)'}
-              </button>
+              {/* Quick Test Login - HIDDEN FOR FREEMIUM */}
+              {false && (
+                <button
+                  className="login-google-btn"
+                  type="button"
+                  onClick={signInWithDefault}
+                  disabled={loading}
+                  style={{
+                    marginBottom: "16px",
+                    background: "linear-gradient(135deg, var(--app-accent-bg) 0%, var(--app-accent-bg) 100%)",
+                    opacity: loading ? 0.7 : 1,
+                    cursor: loading ? "not-allowed" : "pointer"
+                  }}
+                >
+                  {loading ? 'Logging in...' : '🧪 Quick Test Login (Development Mode)'}
+                </button>
+              )}
               
               <button
                 className="login-google-btn"

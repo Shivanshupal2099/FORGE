@@ -479,6 +479,7 @@ function ChatPage() {
         </div>
       )}
       <Header
+        hideLogo={true}
         showJoinCommunityOnMobile={true}
         onJoinCommunity={() => setShowCommunityPopup(true)}
       />

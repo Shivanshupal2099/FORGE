@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   IoClose,
   IoShieldCheckmark,
@@ -44,9 +44,12 @@ function VerificationPopup({ onClose }) {
   const [platform, setPlatform] = useState('desktop');
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPhoneError, setShowPhoneError] = useState(false);
   const { user, refreshUser, isVerified } = useAuth();
   const { success, error: showError } = useAlert();
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const navigate = useNavigate();
+  const paymentInProgress = useRef(false);
 
   useEffect(() => {
     // Detect platform
@@ -101,113 +104,225 @@ function VerificationPopup({ onClose }) {
       return;
     }
 
+    // Prevent duplicate payment requests
+    if (paymentInProgress.current) {
+      console.log('Payment already in progress, ignoring duplicate request');
+      return;
+    }
+
+    paymentInProgress.current = true;
+    setLoading(true);
+
     try {
-      setLoading(true);
-      
-      console.log('Starting payment process...');
+      console.log('=== PAYMENT PROCESS STARTED ===');
       console.log('User:', user?.email);
+      console.log('User ID:', user?.id);
       console.log('API URL:', import.meta.env.VITE_API_URL);
-      console.log('Razorpay Key ID:', import.meta.env.VITE_RAZORPAY_KEY_ID);
-      
-      // Check if Razorpay is loaded
-      if (!window.Razorpay) {
-        throw new Error('Razorpay script not loaded. Please refresh the page.');
-      }
+      console.log('Cashfree App ID:', import.meta.env.VITE_CASHFREE_APP_ID);
       
       // Create order
+      console.log('Creating order...');
       const orderResponse = await axios.post('/api/payment/create-order', {
         userId: user?.email || user?.id
       });
 
-      console.log('Order response:', orderResponse.data);
+      console.log('Order response received:', orderResponse.status);
+      console.log('Order response data:', orderResponse.data);
+      
       const { order, transaction_id } = orderResponse.data;
 
-      if (!order || !order.id) {
+      if (!order || !order.order_id) {
+        console.error('Invalid order response:', orderResponse.data);
         throw new Error('Invalid order response from backend');
       }
 
-      // Razorpay options
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: "ForgeConnect",
-        description: "Premium Verification",
-        order_id: order.id,
-        handler: async function(response) {
-          try {
-            console.log('Payment response:', response);
-            // Verify payment on backend
-            const verifyResponse = await axios.post('/api/payment/verify-payment', {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              userId: user?.email || user?.id
-            });
-
-            console.log('Verification response:', verifyResponse.data);
-            if (verifyResponse.data.message === "Payment verified successfully") {
-              // Refresh user state in AuthContext
-              await refreshUser();
-              success("Payment successful! You are now verified.");
-              onClose();
-            }
-          } catch (error) {
-            console.error("Payment verification failed:", error);
-            showError("Payment verification failed. Please contact support.");
-            setLoading(false);
-          }
-        },
-        prefill: {
-          name: user?.user_metadata?.full_name || "",
-          email: user?.email || "",
-          contact: ""
-        },
-        theme: {
-          color: "#FFD700"
-        },
-        modal: {
-          ondismiss: function() {
-            setLoading(false);
-          },
-          escape: false,
-          backdropclose: false
-        }
-      };
-
-      console.log('Initializing Razorpay with options:', { 
-        ...options, 
-        key: options.key ? options.key.substring(0, 10) + '...' : 'undefined' 
-      });
+      console.log('Order ID:', order.order_id);
+      console.log('Order Amount:', order.order_amount);
       
-      const razorpay = new window.Razorpay(options);
+      // Check if backend returned payment_session_id
+      const paymentSessionId = order.payment_session_id;
+      console.log('Payment Session ID:', paymentSessionId);
       
-      // Add error handlers
-      razorpay.on('payment.failed', function(response) {
-        console.error('Payment failed:', response);
-        showError(`Payment failed: ${response.error.description}`);
-        setLoading(false);
-      });
+      if (!paymentSessionId) {
+        console.error('No payment_session_id in order response');
+        throw new Error('Payment session ID not returned by backend');
+      }
       
-      razorpay.open();
+      // Load Cashfree SDK if not already loaded
+      await loadCashfreeSDK();
+      
+      // Initialize checkout with payment_session_id
+      initializeCheckout(order.order_id, paymentSessionId);
 
     } catch (error) {
       console.error("Payment initiation failed:", error);
       console.error("Error details:", error.response?.data || error.message);
       
-      if (error.response?.status === 404) {
+      if (error.response?.data?.code === "DUPLICATE_TRANSACTION") {
+        showError("A transaction already exists for this order. Please try again or contact support.");
+      } else if (error.response?.data?.code === "PHONE_REQUIRED") {
+        setShowPhoneError(true);
+      } else if (error.response?.status === 404) {
         showError("Payment service not available. Please restart the backend server.");
       } else if (error.response?.status === 503) {
         showError("Payment service not configured. Please contact support.");
       } else if (error.code === 'ERR_NETWORK') {
         showError("Network error. Please check your connection and ensure backend is running.");
-      } else if (error.message?.includes('Razorpay')) {
-        showError(`Razorpay error: ${error.message}`);
+      } else if (error.response?.data?.error) {
+        showError(`Payment error: ${error.response.data.error}`);
+      } else if (error.response?.data?.message) {
+        showError(`Payment error: ${error.response.data.message}`);
+      } else if (error.message?.includes('Cashfree')) {
+        showError(`Cashfree error: ${error.message}`);
       } else {
         showError(`Failed to initiate payment: ${error.message}`);
       }
+      
       setLoading(false);
+      paymentInProgress.current = false;
     }
+  };
+
+  const loadCashfreeSDK = () => {
+    return new Promise((resolve, reject) => {
+      // Check if Cashfree SDK is already loaded
+      if (window.Cashfree) {
+        console.log('Cashfree SDK already loaded');
+        resolve();
+        return;
+      }
+
+      console.log('Loading Cashfree SDK from CDN...');
+      const script = document.createElement('script');
+      script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('Cashfree SDK loaded successfully');
+        resolve();
+      };
+      script.onerror = (error) => {
+        console.error('Failed to load Cashfree SDK:', error);
+        reject(new Error('Failed to load payment gateway'));
+      };
+      document.head.appendChild(script);
+    });
+  };
+
+  const initializeCheckout = (orderId, paymentSessionId) => {
+    try {
+      console.log('=== INITIALIZING CHECKOUT ===');
+      console.log('Order ID:', orderId);
+      console.log('Payment Session ID:', paymentSessionId);
+      
+      if (!window.Cashfree) {
+        throw new Error('Cashfree SDK not loaded');
+      }
+
+      // Initialize Cashfree instance - use Cashfree() without 'new' keyword
+      const cashfree = Cashfree({
+        mode: 'sandbox'
+      });
+
+      console.log('Cashfree instance created');
+
+      // Initialize checkout with payment_session_id
+      const checkoutOptions = {
+        paymentSessionId: paymentSessionId,
+        returnUrl: `${window.location.origin}/profile?payment=success&order_id=${orderId}`,
+        redirectTarget: '_self'
+      };
+
+      console.log('Checkout options:', checkoutOptions);
+
+      // Call checkout - this will redirect user to Cashfree hosted page
+      // The promise only returns { redirect: true } or { error: {...} }
+      cashfree.checkout(checkoutOptions).then(function(result) {
+        console.log('Checkout result:', result);
+        
+        if (result.error) {
+          console.error('Checkout error:', result.error.message);
+          showError(result.error.message || 'Payment checkout failed. Please try again.');
+          setLoading(false);
+          paymentInProgress.current = false;
+        }
+        
+        if (result.redirect) {
+          console.log('User will be redirected to Cashfree hosted page');
+          // Payment success/failure will be handled via returnUrl redirect
+        }
+      }).catch(function(error) {
+        console.error('Checkout error:', error);
+        showError('Payment checkout failed. Please try again.');
+        setLoading(false);
+        paymentInProgress.current = false;
+      });
+
+      console.log('Checkout initialized successfully');
+
+    } catch (error) {
+      console.error("Cashfree initialization error:", error);
+      showError("Failed to initialize payment gateway. Please try again.");
+      setLoading(false);
+      paymentInProgress.current = false;
+    }
+  };
+
+  const handlePaymentSuccess = async (result) => {
+    try {
+      console.log('=== PAYMENT SUCCESS ===');
+      console.log('Payment result:', result);
+      
+      // Verify payment on backend
+      const verifyResponse = await axios.post('/api/payment/verify-payment', {
+        order_id: result.order?.orderId || result.orderId,
+        payment_id: result.payment?.paymentId || result.paymentId,
+        signature: result.signature,
+        userId: user?.email || user?.id
+      });
+
+      console.log('Verification response:', verifyResponse.data);
+      
+      if (verifyResponse.data.message === "Payment verified successfully") {
+        // Refresh user state in AuthContext
+        await refreshUser();
+        
+        // Show success alert
+        success("🎉 Payment successful! You are now verified.");
+        
+        // Close the verification popup after a short delay
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      } else {
+        showError("Payment verification failed. Please contact support.");
+      }
+    } catch (error) {
+      console.error("Payment verification failed:", error);
+      showError("Payment verification failed. Please contact support.");
+    } finally {
+      setLoading(false);
+      paymentInProgress.current = false;
+    }
+  };
+
+  const handlePaymentFailure = (result) => {
+    console.error('=== PAYMENT FAILED ===');
+    console.error('Failure result:', result);
+    showError(`Payment failed: ${result.error?.message || 'Unknown error'}`);
+    setLoading(false);
+    paymentInProgress.current = false;
+  };
+
+  const handlePaymentCancellation = () => {
+    console.log('=== PAYMENT CANCELLED ===');
+    showError('Payment was cancelled by user');
+    setLoading(false);
+    paymentInProgress.current = false;
+  };
+
+  const handleUpdateProfile = () => {
+    // Navigate to Edit Profile page
+    navigate('/profile/edit');
   };
 
   return (
@@ -262,118 +377,150 @@ function VerificationPopup({ onClose }) {
           </div>
         </div>
 
-        <div className="verification-popup__benefits">
-          <p className="verification-popup__benefits-title">What you unlock</p>
-          <ul className="verification-popup__benefits-grid">
-            {BENEFITS.map(({ icon: Icon, label, desc, color }) => (
-              <li key={label} className="verification-popup__benefit">
-                <span 
-                  className="verification-popup__benefit-icon" 
-                  aria-hidden="true"
-                  style={{ background: color }}
-                >
-                  <Icon />
+        {/* Phone Number Error Popup */}
+        {showPhoneError ? (
+          <div className="verification-popup__phone-error">
+            <div className="verification-popup__phone-error-icon">
+              <IoLockClosed />
+            </div>
+            <h3>Contact Number Required</h3>
+            <p>Please add your contact number in Edit Profile before proceeding with verification payment.</p>
+            <div className="verification-popup__phone-error-actions">
+              <button
+                className="button-primary"
+                onClick={handleUpdateProfile}
+                disabled={loading}
+              >
+                Update Profile
+              </button>
+              <button
+                className="button-secondary"
+                onClick={() => {
+                  setShowPhoneError(false);
+                  setLoading(false);
+                }}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="verification-popup__benefits">
+              <p className="verification-popup__benefits-title">What you unlock</p>
+              <ul className="verification-popup__benefits-grid">
+                {BENEFITS.map(({ icon: Icon, label, desc, color }) => (
+                  <li key={label} className="verification-popup__benefit">
+                    <span 
+                      className="verification-popup__benefit-icon" 
+                      aria-hidden="true"
+                      style={{ background: color }}
+                    >
+                      <Icon />
+                    </span>
+                    <div>
+                      <strong>{label}</strong>
+                      <span>{desc}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ 
+              margin: '24px 0', 
+              padding: '20px', 
+              background: 'rgba(0, 0, 0, 0.02)', 
+              borderRadius: '16px', 
+              border: '1px solid rgba(0, 0, 0, 0.05)' 
+            }}>
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  color: 'var(--app-text)',
+                  fontWeight: '500'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={privacyAccepted}
+                  onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    accentColor: 'var(--app-accent-text)',
+                    cursor: 'pointer',
+                    marginTop: '2px',
+                    flexShrink: 0
+                  }}
+                />
+                <span>
+                  I have read and agree to the{' '}
+                  <Link
+                    to="/privacy"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      color: 'var(--app-accent-text)',
+                      textDecoration: 'underline',
+                      cursor: 'pointer',
+                      fontWeight: '600'
+                    }}
+                  >
+                    Privacy & Security Policy
+                  </Link>
+                  {' '}and{' '}
+                  <Link
+                    to="/privacy"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      color: 'var(--app-accent-text)',
+                      textDecoration: 'underline',
+                      cursor: 'pointer',
+                      fontWeight: '600'
+                    }}
+                  >
+                    Terms & Conditions
+                  </Link>
                 </span>
-                <div>
-                  <strong>{label}</strong>
-                  <span>{desc}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
+              </label>
+            </div>
 
-        <div style={{ 
-          margin: '24px 0', 
-          padding: '20px', 
-          background: 'rgba(0, 0, 0, 0.02)', 
-          borderRadius: '16px', 
-          border: '1px solid rgba(0, 0, 0, 0.05)' 
-        }}>
-          <label
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              color: 'var(--app-text)',
-              fontWeight: '500'
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={privacyAccepted}
-              onChange={(e) => setPrivacyAccepted(e.target.checked)}
-              style={{
-                width: '20px',
-                height: '20px',
-                accentColor: 'var(--app-accent-text)',
-                cursor: 'pointer',
-                marginTop: '2px',
-                flexShrink: 0
-              }}
-            />
-            <span>
-              I have read and agree to the{' '}
-              <Link
-                to="/privacy"
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  color: 'var(--app-accent-text)',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  fontWeight: '600'
-                }}
+            <div className="verification-popup__actions">
+              <button
+                type="button"
+                className="verification-popup__button verification-popup__button--primary"
+                onClick={handlePayment}
+                disabled={loading || !privacyAccepted}
               >
-                Privacy & Security Policy
-              </Link>
-              {' '}and{' '}
-              <Link
-                to="/privacy"
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  color: 'var(--app-accent-text)',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  fontWeight: '600'
-                }}
+                <span className="verification-popup__button-content">
+                  <IoDiamond aria-hidden="true" />
+                  {loading ? "Processing..." : "Verify Now for ₹299/year"}
+                </span>
+                <span className="verification-popup__button-arrow" aria-hidden="true">→</span>
+              </button>
+              <button
+                type="button"
+                className="verification-popup__button verification-popup__button--secondary"
+                onClick={onClose}
+                disabled={loading}
               >
-                Terms & Conditions
-              </Link>
-            </span>
-          </label>
-        </div>
+                Maybe later
+              </button>
+            </div>
 
-        <div className="verification-popup__actions">
-          <button
-            type="button"
-            className="verification-popup__button verification-popup__button--primary"
-            onClick={handlePayment}
-            disabled={loading || !privacyAccepted}
-          >
-            <span className="verification-popup__button-content">
-              <IoDiamond aria-hidden="true" />
-              {loading ? "Processing..." : "Verify Now for ₹299/year"}
-            </span>
-            <span className="verification-popup__button-arrow" aria-hidden="true">→</span>
-          </button>
-          <button
-            type="button"
-            className="verification-popup__button verification-popup__button--secondary"
-            onClick={onClose}
-            disabled={loading}
-          >
-            Maybe later
-          </button>
-        </div>
-
-        <div className="verification-popup__trust">
-          <span className="verification-popup__trust-item">
-            <IoShieldCheckmark aria-hidden="true" />
-            Secure payment
-          </span>
-        </div>
+            <div className="verification-popup__trust">
+              <span className="verification-popup__trust-item">
+                <IoShieldCheckmark aria-hidden="true" />
+                Secure payment
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

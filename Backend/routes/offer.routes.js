@@ -8,7 +8,8 @@ const {
   updateOffer,
   deleteOffer,
   redeemOffer,
-  getUserOffers
+  getUserOffers,
+  reportOffer
 } = require('../controllers/offer.controller');
 
 // Public routes - get offers
@@ -20,6 +21,7 @@ router.post('/', authMiddleware, createOffer);
 router.put('/:id', authMiddleware, updateOffer);
 router.delete('/:id', authMiddleware, deleteOffer);
 router.post('/:id/redeem', authMiddleware, redeemOffer);
+router.post('/:id/report', authMiddleware, reportOffer);
 router.get('/user/:userId', authMiddleware, getUserOffers);
 
 module.exports = router;

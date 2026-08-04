@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IoArrowBack, IoTrashOutline, IoLogOutOutline, IoDocumentTextOutline, IoShieldCheckmarkOutline, IoInformationCircleOutline, IoChatbubbleEllipsesOutline, IoLogoInstagram } from 'react-icons/io5';
+import { IoArrowBack, IoTrashOutline, IoLogOutOutline, IoDocumentTextOutline, IoShieldCheckmarkOutline, IoChatbubbleEllipsesOutline, IoLogoInstagram } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
@@ -146,7 +146,7 @@ function SettingPage() {
 
   return (
     <div className="page-shell settings-page">
-      <Header />
+      <Header hideLogo={true} />
       <div className="settings-card">
         <div className="settings-card__header">
           <Link to="/profile" className="settings-card__back" aria-label="Back to profile">
@@ -217,33 +217,6 @@ function SettingPage() {
             <div className="settings-option__content">
               <h2>Privacy & Security</h2>
               <p>View our privacy policy and learn how we protect your data.</p>
-            </div>
-            <Link
-              to="/privacy"
-              className="settings-issue-button"
-              style={{
-                padding: '12px 24px',
-                borderRadius: '12px',
-                background: 'var(--app-accent-bg)',
-                color: 'var(--app-accent-text)',
-                border: 'none',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                textDecoration: 'none'
-              }}
-            >
-              View
-            </Link>
-          </div>
-
-          <div className="settings-option">
-            <div className="settings-option__icon">
-              <IoInformationCircleOutline />
-            </div>
-            <div className="settings-option__content">
-              <h2>Terms & Conditions</h2>
-              <p>Read our terms and conditions for using the platform.</p>
             </div>
             <Link
               to="/privacy"

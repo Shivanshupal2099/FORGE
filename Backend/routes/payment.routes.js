@@ -3,8 +3,11 @@ const router = express.Router();
 
 const paymentController = require("../controllers/payment.controller");
 
-// Create Razorpay order
+// Create Cashfree order
 router.post("/create-order", paymentController.createOrder);
+
+// Get transaction by order ID
+router.get("/transaction/:orderId", paymentController.getTransactionByOrderId);
 
 // Verify payment and update user status
 router.post("/verify-payment", paymentController.verifyPayment);

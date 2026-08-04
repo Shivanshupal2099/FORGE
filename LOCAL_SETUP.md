@@ -226,11 +226,11 @@ npm run dev
 
 | Feature | Local | Production |
 |---------|-------|------------|
-| Frontend URL | http://localhost:5173 | https://main.d3g5qoxagdkgi4.amplifyapp.com |
+| Frontend URL | http://localhost:5173 | https://www.forgeconnect.site |
 | Backend URL | http://localhost:5000 | Render URL |
 | Database | Same Atlas or local | MongoDB Atlas |
 | Environment | development | production |
-| CORS | Localhost only | Amplify domain |
+| CORS | Localhost only | forgeconnect.site domain |
 
 ## Next Steps
 

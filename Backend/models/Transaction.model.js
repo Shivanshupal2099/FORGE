@@ -14,23 +14,23 @@ const transactionSchema = new mongoose.Schema(
       default: null
     },
 
-    razorpay_order_id: {
+    cashfree_order_id: {
       type: String,
       default: null
     },
 
-    razorpay_payment_id: {
+    cashfree_payment_id: {
       type: String,
       default: null
     },
 
-    amount_paise: {
+    order_amount: {
       type: Number,
       required: true,
       min: 0
     },
 
-    currency: {
+    order_currency: {
       type: String,
       default: "INR",
       uppercase: true,
@@ -75,20 +75,34 @@ transactionSchema.index({ subscription_id: 1 });
 transactionSchema.index({ status: 1 });
 transactionSchema.index({ created_at: -1 });
 
-// Ensure Razorpay IDs are unique if present
+// Ensure Cashfree IDs are unique if present (sparse indexes allow multiple null values)
 transactionSchema.index(
-  { razorpay_order_id: 1 },
+  { cashfree_order_id: 1 },
   {
     unique: true,
-    sparse: true
+    sparse: true,
+    name: 'cashfree_order_id_1'
   }
 );
 
 transactionSchema.index(
-  { razorpay_payment_id: 1 },
+  { cashfree_payment_id: 1 },
   {
     unique: true,
-    sparse: true
+    partialFilterExpression: {
+      cashfree_payment_id: { $type: "string" }
+    },
+    name: 'cashfree_payment_id_1'
+  }
+);
+
+// Compound index for user + order to prevent duplicates
+transactionSchema.index(
+  { user_id: 1, cashfree_order_id: 1 },
+  {
+    unique: true,
+    sparse: true,
+    name: 'user_order_unique'
   }
 );
 

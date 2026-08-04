@@ -26,7 +26,6 @@ function Map() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 600)
   const [selectedUser, setSelectedUser] = useState(null)
   const markersRef = useRef([])
-  const [userStats, setUserStats] = useState({ totalUsers: 0, activeUsers: 0 })
   const [allLocations, setAllLocations] = useState([])
   const [filteredLocations, setFilteredLocations] = useState([])
   const [filters, setFilters] = useState({
@@ -116,23 +115,6 @@ function Map() {
       return prev;
     });
   };
-
-  useEffect(() => {
-    const fetchUserStats = async () => {
-      try {
-        const response = await axios.get('/api/auth/stats')
-        if (response.data.success) {
-          setUserStats(response.data.stats)
-        }
-      } catch (error) {
-        console.error('Error fetching user stats:', error)
-      }
-    }
-    fetchUserStats()
-    // Refresh stats every 30 seconds
-    const interval = setInterval(fetchUserStats, 30000)
-    return () => clearInterval(interval)
-  }, [])
 
   const handleMarkerClick = async (uid) => {
     try {
@@ -484,23 +466,6 @@ function Map() {
     <div className="map-page" style={{ width: '100vw', height: '100vh', margin: 0, padding: 0, boxSizing: 'border-box', position: 'relative', overflow: 'hidden', backgroundImage: 'var(--app-theme-gradient)' }}>
       <Header />
       
-      {/* User Stats Display */}
-      <div className="map-page__stats">
-        <div className="map-page__stat-card map-page__stat-card--total">
-          <div className="map-page__stat-content">
-            <span className="map-page__stat-label">Total Users</span>
-            <span className="map-page__stat-value">{userStats.totalUsers.toLocaleString()}</span>
-          </div>
-        </div>
-
-        <div className="map-page__stat-card map-page__stat-card--active">
-          <div className="map-page__stat-content">
-            <span className="map-page__stat-label">Active Now</span>
-            <span className="map-page__stat-value">{userStats.activeUsers.toLocaleString()}</span>
-          </div>
-        </div>
-      </div>
-
       <div id='map-container' ref={mapContainerRef} style={{ width: '100vw', height: '100vh', borderRadius: '0', overflow: 'hidden', boxShadow: 'none', position: 'absolute', inset: 0 }} />
 
       <button

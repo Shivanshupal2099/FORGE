@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { IoSettingsSharp, IoMailOutline, IoBriefcaseOutline, IoLinkOutline, IoLocationOutline } from 'react-icons/io5';
 import { FaRegEdit } from 'react-icons/fa';
@@ -15,12 +15,14 @@ import femaleImage from '../assets/female.png';
 
 
 function ProfilePage() {
-  const { user, loading: authLoading, signOut, isVerified } = useAuth();
+  const { user, loading: authLoading, signOut, isVerified, refreshUser } = useAuth();
   const { email: profileEmail } = useParams();
+  const [searchParams] = useSearchParams();
   const [profile, setProfile] = useState(null);
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showVerificationPopup, setShowVerificationPopup] = useState(false);
+  const [showComingSoonPopup, setShowComingSoonPopup] = useState(false);
   const [showLocationPopup, setShowLocationPopup] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState(null);
@@ -40,6 +42,77 @@ function ProfilePage() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Handle payment success/fail from URL parameters
+  useEffect(() => {
+    const handlePaymentResult = async () => {
+      const paymentStatus = searchParams.get('payment');
+      const orderId = searchParams.get('order_id');
+
+      console.log('=== CHECKING PAYMENT RESULT ===');
+      console.log('Payment status from URL:', paymentStatus);
+      console.log('Order ID from URL:', orderId);
+      console.log('User email:', user?.email);
+      console.log('Auth loading:', authLoading);
+
+      if (paymentStatus === 'success' && orderId) {
+        console.log('Payment success detected, verifying...');
+        try {
+          // Verify payment with backend
+          console.log('Calling verify-payment endpoint...');
+          const verifyResponse = await axios.post('/api/payment/verify-payment', {
+            order_id: orderId,
+            payment_id: null,
+            signature: null,
+            userId: user?.email || user?.id
+          });
+
+          console.log('Payment verification response:', verifyResponse.data);
+
+          if (verifyResponse.data.message === "Payment verified successfully") {
+            console.log('Payment verified successfully, refreshing user data...');
+            
+            // Refresh user data to get updated verification status
+            await refreshUser();
+            
+            console.log('User data refreshed, isVerified should now be true');
+            
+            // Show success message
+            setShowVerifiedMessage(true);
+            
+            // Clear URL parameters
+            window.history.replaceState({}, '', '/profile');
+            console.log('URL parameters cleared');
+          } else {
+            console.error('Payment verification returned unexpected message:', verifyResponse.data.message);
+          }
+        } catch (error) {
+          console.error('Payment verification failed:', error);
+          console.error('Error details:', error.response?.data || error.message);
+          
+          // Show error to user
+          if (error.response?.data?.message === "Payment not completed yet") {
+            console.log('Payment still processing, will retry automatically');
+            // Retry after 2 seconds
+            setTimeout(() => {
+              console.log('Retrying payment verification...');
+              handlePaymentResult();
+            }, 2000);
+          }
+        }
+      } else if (paymentStatus === 'failed') {
+        console.log('Payment failed detected');
+        // Show error message for failed payment
+        alert('Payment failed. Please try again.');
+        // Clear URL parameters
+        window.history.replaceState({}, '', '/profile');
+      }
+    };
+
+    if (user?.email && !authLoading) {
+      handlePaymentResult();
+    }
+  }, [searchParams, user?.email, authLoading, refreshUser]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -259,7 +332,7 @@ function ProfilePage() {
                   if (isVerified || profile?.is_verified) {
                     setShowVerifiedMessage(true);
                   } else {
-                    setShowVerificationPopup(true);
+                    setShowComingSoonPopup(true);
                   }
                 }}
                 style={{
@@ -469,6 +542,58 @@ function ProfilePage() {
 
       {showVerificationPopup && (
         <VerificationPopup onClose={() => setShowVerificationPopup(false)} />
+      )}
+
+      {showComingSoonPopup && (
+        <div style={{
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          background: 'rgba(17, 17, 17, 0.5)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }} onClick={() => setShowComingSoonPopup(false)}>
+          <div style={{
+            background: 'var(--app-card-bg)',
+            border: '1px solid var(--app-card-border)',
+            borderRadius: '20px',
+            padding: '32px',
+            maxWidth: '400px',
+            width: '90%',
+            textAlign: 'center'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🚀</div>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '1.5rem', fontWeight: '800' }}>Coming Soon</h3>
+            <p style={{ margin: '0 0 12px 0', fontSize: '1rem', lineHeight: '1.6', opacity: 0.85 }}>
+              User verification is a premium feature that will be available in the next version.
+            </p>
+            <p style={{ margin: '0 0 24px 0', fontSize: '1rem', lineHeight: '1.6', opacity: 0.85 }}>
+              Stay tuned! Premium users will be able to verify their accounts this Sunday.
+            </p>
+            <button
+              onClick={() => setShowComingSoonPopup(false)}
+              style={{
+                padding: '14px 20px',
+                borderRadius: '12px',
+                background: 'var(--app-accent-bg)',
+                color: 'var(--app-accent-text)',
+                border: 'none',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                width: '100%'
+              }}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
       )}
 
       {showLocationPopup && (

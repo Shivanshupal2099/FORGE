@@ -446,32 +446,46 @@ function SurveyRotator() {
         maxWidth: '700px',
         margin: '0 auto',
         textAlign: 'center',
-        padding: '40px 20px',
-        background: 'rgba(255, 255, 255, 0.5)',
-        borderRadius: '20px',
-        border: '1px solid rgba(0, 0, 0, 0.1)',
+        padding: '48px 32px',
+        background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.08) 0%, rgba(255, 107, 0, 0.03) 100%)',
+        borderRadius: '24px',
+        border: '1px solid rgba(255, 107, 0, 0.15)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
       }}>
         <div style={{
-          fontSize: '3rem',
-          marginBottom: '16px',
+          fontSize: '4rem',
+          marginBottom: '20px',
+          animation: 'float 3s ease-in-out infinite',
         }}>
           📋
         </div>
         <h3 style={{
-          margin: '0 0 8px',
-          fontSize: '1.4rem',
-          fontWeight: '700',
-          color: 'var(--app-text)',
+          margin: '0 0 12px',
+          fontSize: '1.6rem',
+          fontWeight: '800',
+          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          letterSpacing: '-0.5px',
         }}>
           No surveys available
         </h3>
         <p style={{
           margin: '0',
-          fontSize: '0.95rem',
-          color: '#64748b',
+          fontSize: '1.05rem',
+          color: '#475569',
+          lineHeight: '1.6',
         }}>
           Be the first to create a survey and share it with the community!
         </p>
+        <style>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+          }
+        `}</style>
       </div>
     );
   }

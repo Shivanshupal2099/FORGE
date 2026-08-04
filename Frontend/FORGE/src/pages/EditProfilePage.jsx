@@ -699,7 +699,7 @@ function EditProfilePage() {
         flexDirection: 'column',
       }}
     >
-      <Header />
+      <Header hideLogo={true} />
       <div
         style={{
           flex: 1,
@@ -1161,196 +1161,26 @@ function EditProfilePage() {
             <label style={labelStyle}>
               Service Provider
             </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: isMobile ? '12px' : '16px' }}>
-              <input
-                type="checkbox"
-                id="is-service-provider"
-                checked={profileData.isServiceProvider}
-                onChange={(e) => {
-                  setProfileData(prev => ({ ...prev, isServiceProvider: e.target.checked }));
-                  if (!e.target.checked) {
-                    setProfileData(prev => ({ ...prev, services: [] }));
-                  }
-                }}
-                style={{
-                  width: isMobile ? '20px' : '24px',
-                  height: isMobile ? '20px' : '24px',
-                  cursor: 'pointer',
-                  accentColor: 'var(--forge-orange)',
-                }}
-              />
-              <label htmlFor="is-service-provider" style={{ cursor: 'pointer', fontWeight: '600', color: 'var(--app-text)' }}>
-                I am a service provider
-              </label>
+            <div
+              style={{
+                padding: '20px',
+                borderRadius: '16px',
+                background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%)',
+                border: '2px solid rgba(255, 215, 0, 0.3)',
+                textAlign: 'center'
+              }}
+            >
+              <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🚀</div>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.2rem', fontWeight: '700', color: '#111111' }}>
+                Premium Feature
+              </h3>
+              <p style={{ margin: '0 0 12px 0', fontSize: '0.95rem', lineHeight: '1.5', color: '#666666' }}>
+                Service provider registration is a premium feature that will be available in the next version.
+              </p>
+              <p style={{ margin: '0', fontSize: '0.9rem', fontWeight: '600', color: '#FF6B00' }}>
+                Coming soon for premium users this Sunday!
+              </p>
             </div>
-            
-            {profileData.isServiceProvider && (
-              <div style={{ position: 'relative' }}>
-                <label style={{ ...labelStyle, marginBottom: isMobile ? '6px' : '8px' }}>
-                  Services Offered
-                </label>
-                <div
-                  data-service-dropdown
-                  style={{ position: 'relative' }}
-                >
-                  <input
-                    type="text"
-                    value={profileData.services.join(', ')}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '') {
-                        setProfileData(prev => ({ ...prev, services: [] }));
-                      }
-                    }}
-                    placeholder="Select services you offer"
-                    onClick={() => setShowLookingForDropdown(false)}
-                    readOnly
-                    style={{
-                      ...fieldStyle,
-                      cursor: 'pointer',
-                      background: 'var(--app-surface-strong)',
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowLookingForDropdown(false);
-                      setShowServiceDropdown(!showServiceDropdown);
-                    }}
-                    style={{
-                      position: 'absolute',
-                      right: isMobile ? '12px' : '14px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: isMobile ? '1rem' : '1.1rem',
-                      color: 'var(--app-text)',
-                      padding: '0',
-                    }}
-                  >
-                    ▼
-                  </button>
-                  {showServiceDropdown && (
-                    <div
-                      style={dropdownStyle}
-                    >
-                      {profileData.services.length > 0 && (
-                        <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', borderBottom: '1px solid var(--app-card-border)', background: 'var(--app-surface)' }}>
-                          <div style={{ fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: 'bold', color: 'var(--app-muted-text)', marginBottom: isMobile ? '6px' : '8px' }}>
-                            Selected:
-                          </div>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '4px' : '6px' }}>
-                            {profileData.services.map((item) => (
-                              <span
-                                key={item}
-                                style={{
-                                  ...chipStyle,
-                                  padding: isMobile ? '3px 8px' : '4px 10px',
-                                  borderRadius: isMobile ? '10px' : '12px',
-                                  fontSize: isMobile ? '0.7rem' : '0.75rem',
-                                }}
-                              >
-                                {item}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setProfileData(prev => ({
-                                      ...prev,
-                                      services: prev.services.filter(s => s !== item)
-                                    }));
-                                  }}
-                                  style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--app-text)',
-                                    cursor: 'pointer',
-                                    fontSize: isMobile ? '0.8rem' : '0.9rem',
-                                    padding: '0',
-                                    lineHeight: '1',
-                                  }}
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {serviceOptions.map((option) => (
-                        <div
-                          key={option}
-                          onClick={() => {
-                            if (!profileData.services.includes(option)) {
-                              setProfileData(prev => ({
-                                ...prev,
-                                services: [...prev.services, option]
-                              }));
-                            }
-                          }}
-                          style={{
-                            padding: isMobile ? '10px 12px' : '12px 16px',
-                            cursor: 'pointer',
-                            borderBottom: '1px solid var(--app-card-border)',
-                            transition: 'background 0.2s',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            fontSize: isMobile ? '0.85rem' : '0.9rem',
-                          }}
-                          onMouseEnter={(e) => e.target.style.background = 'rgba(239, 111, 150, 0.1)'}
-                          onMouseLeave={(e) => e.target.style.background = 'transparent'}
-                        >
-                          <span>{option}</span>
-                          {profileData.services.includes(option) && (
-                            <span style={{ color: 'var(--app-accent-text)', fontWeight: 'bold', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>✓</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {profileData.services.length > 0 && (
-                  <div style={{ marginTop: isMobile ? '10px' : '12px', display: 'flex', flexWrap: 'wrap', gap: isMobile ? '6px' : '8px' }}>
-                    {profileData.services.map((item) => (
-                      <span
-                        key={item}
-                        style={{
-                          ...chipStyle,
-                          padding: isMobile ? '6px 12px' : '8px 14px',
-                          borderRadius: isMobile ? '16px' : '20px',
-                          fontSize: isMobile ? '0.8rem' : '0.85rem',
-                        }}
-                      >
-                        {item}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setProfileData(prev => ({
-                              ...prev,
-                              services: prev.services.filter(s => s !== item)
-                            }));
-                          }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--app-text)',
-                            cursor: 'pointer',
-                            fontSize: isMobile ? '0.9rem' : '1rem',
-                            padding: '0',
-                            lineHeight: '1',
-                          }}
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           <div style={{ marginBottom: isMobile ? '18px' : '22px' }}>

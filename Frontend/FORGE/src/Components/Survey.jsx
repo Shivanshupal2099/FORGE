@@ -324,6 +324,15 @@ function Survey() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     
+    // Check if user is verified
+    if (!user?.is_verified) {
+      setPopup({
+        type: 'alert',
+        message: 'User verification is a premium feature coming soon. Premium users will be able to verify their accounts this Sunday.'
+      });
+      return;
+    }
+    
     try {
       setLoading(true);
       setError(null);

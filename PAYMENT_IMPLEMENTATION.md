@@ -1,118 +1,82 @@
-# Payment System Implementation - Razorpay Integration
+# Payment System Implementation - Cashfree Integration
 
 ## Overview
-Complete payment system implementation using Razorpay for user verification on the ForgeConnect platform. The system allows users to pay ₹299 for annual verification through a secure payment flow.
+Complete payment system implementation using Cashfree for user verification on the ForgeConnect platform. The system allows users to pay ₹299 for annual verification through a secure payment flow.
 
 ## Backend Implementation
 
 ### 1. Payment Controller (`Backend/controllers/payment.controller.js`)
-- **createOrder**: Creates Razorpay order with ₹299 amount (29900 paise)
-- **verifyPayment**: Verifies payment signature and updates user verification status
+- **createOrder**: Creates Cashfree order with ₹299 amount
+- **verifyPayment**: Verifies payment and updates user verification status
 - **getPaymentHistory**: Retrieves payment history for a user
 
 ### 2. Payment Routes (`Backend/routes/payment.routes.js`)
-- `POST /api/payment/create-order` - Create Razorpay order
+- `POST /api/payment/create-order` - Create Cashfree order
 - `POST /api/payment/verify-payment` - Verify payment and update user status
 - `GET /api/payment/history/:userId` - Get payment history
 
-### 3. Database Integration
-- **Transaction Model**: Updated to use CommonJS format
-- **User Model**: Uses existing `is_verified` field
-- Payment verification automatically sets `user.is_verified = true`
+### 3. Cashfree Configuration (`Backend/config/cashfree.js`)
+- Singleton pattern for Cashfree instance
+- Environment-based configuration (SANDBOX/PRODUCTION)
+- REST API integration for order creation
 
-### 4. Auth Controller Updates
-- Added `getUserVerificationStatus` endpoint
-- Route: `GET /api/auth/verification-status/:uid`
+### 4. Transaction Model (`Backend/models/Transaction.model.js`)
+- Stores cashfree_order_id and cashfree_payment_id
+- Tracks order_amount and order_currency
+- Status tracking (created, captured, failed, refunded)
 
 ### 5. Server Configuration
 - Added payment routes to main server (`Backend/server.js`)
-- Razorpay config already exists in `Backend/config/razorpay.js`
+- Cashfree config in `Backend/config/cashfree.js`
 
 ## Frontend Implementation
 
 ### 1. Dependencies
-- Installed `react-razorpay` package
-- Added Razorpay checkout script to `index.html`
+- Cashfree SDK loaded dynamically via CDN
+- No npm package required for frontend
 
 ### 2. Verification Component Updates (`Frontend/FORGE/src/Components/VerificationPopup.jsx`)
-- Integrated Razorpay checkout flow
+- Integrated Cashfree checkout flow
 - Added payment handler with order creation
 - Connected payment success to user verification update
-- Added loading states and error handling
-- Uses AlertContext for user feedback
+- Dynamic SDK loading from CDN
 
-### 3. Auth Context Updates (`Frontend/FORGE/src/contexts/AuthContext.jsx`)
-- Added `isVerified` state to track user verification status
-- Added `refreshUser` function to update user data after payment
-- Integrated verification status fetching from backend
-- Auto-checks verification status on user sync
-
-### 4. Environment Variables
-Updated `.env.example` to include:
-```
-VITE_RAZORPAY_KEY_ID=your_razorpay_key_id_here
-```
+### 3. Environment Variables
+- `VITE_CASHFREE_APP_ID` - Cashfree App ID
+- Backend uses `CASHFREE_APP_ID`, `CASHFREE_SECRET_KEY`, `CASHFREE_ENV`
 
 ## Payment Flow
 
 1. **User Clicks "Verify Now"** in VerificationPopup
 2. **Frontend** calls `POST /api/payment/create-order` with userId
-3. **Backend** creates Razorpay order and Transaction record
-4. **Frontend** opens Razorpay checkout with order details
-5. **User completes payment** in Razorpay interface
-6. **Razorpay** returns payment details (payment_id, order_id, signature)
+3. **Backend** creates Cashfree order via REST API and Transaction record
+4. **Frontend** loads Cashfree SDK from CDN and opens checkout with order details
+5. **User completes payment** in Cashfree interface
+6. **Cashfree** returns payment details (payment_id, order_id, signature)
 7. **Frontend** calls `POST /api/payment/verify-payment` with payment details
-8. **Backend** verifies signature and updates:
-   - Transaction status to "captured"
-   - User `is_verified` to `true`
-9. **Frontend** refreshes user data and shows success message
-10. **Popup closes** and user is now verified
+8. **Backend** verifies payment and updates:
+   - Transaction record with payment details
+   - User verification status in User model
+   - User verification status in Profile model
 
-## Required Environment Variables
+## Environment Variables
 
 ### Backend (.env)
 ```
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+CASHFREE_APP_ID=your_cashfree_app_id
+CASHFREE_SECRET_KEY=your_cashfree_secret_key
+CASHFREE_ENV=SANDBOX
 ```
 
 ### Frontend (.env)
 ```
-VITE_RAZORPAY_KEY_ID=your_razorpay_key_id
-VITE_API_URL=http://localhost:5000 (or your backend URL)
+VITE_CASHFREE_APP_ID=your_cashfree_app_id
 ```
 
-## Database Schema Updates
-
-### Transaction Collection
-```javascript
-{
-  user_id: ObjectId,
-  razorpay_order_id: String,
-  razorpay_payment_id: String,
-  amount_paise: Number,
-  currency: String,
-  status: String, // "created", "authorized", "captured", "failed", "refunded"
-  payment_method: String,
-  metadata: {
-    receipt: String,
-    purpose: String // "verification"
-  }
-}
-```
-
-### User Collection
-Uses existing `is_verified` field:
-```javascript
-{
-  is_verified: Boolean // updated to true after successful payment
-}
-```
-
-## Testing Steps
+## Testing the Payment Flow
 
 ### 1. Setup Environment Variables
-- Add Razorpay credentials to both backend and frontend .env files
+- Add Cashfree credentials to both backend and frontend .env files
 - Ensure MongoDB connection is working
 
 ### 2. Start Backend Server
@@ -121,74 +85,72 @@ cd Backend
 npm start
 ```
 
-### 3. Start Frontend Development Server
+### 3. Start Frontend Server
 ```bash
 cd Frontend/FORGE
 npm run dev
 ```
 
-### 4. Test Payment Flow
-1. Login to the application
-2. Navigate to profile or trigger verification popup
-3. Click "Verify Now for ₹299/year"
-4. Complete test payment in Razorpay checkout
-5. Verify user status updates to verified
-6. Check transaction record in database
-
-### 5. Verification Checks
-- User `is_verified` field should be `true` after payment
-- Transaction record should exist with status "captured"
-- Frontend should show user as verified
-- Verification popup should not show for already verified users
+### 4. Test Payment
+1. Navigate to profile or trigger verification popup
+2. Click "Verify Now for ₹299/year"
+3. Complete test payment in Cashfree checkout
+4. Verify user status updates to verified
+5. Check transaction record in database
 
 ## Security Features
 
-1. **Signature Verification**: Backend verifies Razorpay signature to prevent fraud
-2. **Transaction Records**: All payments logged in Transaction collection
-3. **User Authentication**: Payment requests require valid user authentication
-4. **CORS Protection**: Backend configured with allowed origins
-5. **Amount Validation**: Fixed amount (₹299) prevents manipulation
+1. **Transaction Records**: All payments logged in Transaction collection
+2. **User Authentication**: Payment requests require valid user authentication
+3. **Environment Separation**: SANDBOX for testing, PRODUCTION for live
+4. **REST API Security**: Uses x-client-id and x-client-secret headers
 
 ## Error Handling
 
-- Payment initiation failures
-- Signature verification failures
-- Network errors during payment verification
-- User not found errors
-- Transaction not found errors
+- Payment service not configured (missing credentials)
+- User not found
+- Transaction not found
+- Network errors
+- Cashfree API errors
 
-All errors are handled with user-friendly messages via AlertContext.
+## Database Schema
 
-## Files Modified/Created
+### Transaction Collection
+```javascript
+{
+  user_id: ObjectId,
+  cashfree_order_id: String,
+  cashfree_payment_id: String,
+  order_amount: Number,
+  order_currency: String,
+  status: String,
+  payment_method: String,
+  metadata: Object,
+  created_at: Date,
+  updated_at: Date
+}
+```
 
-### Backend
-- `Backend/controllers/payment.controller.js` (NEW)
-- `Backend/routes/payment.routes.js` (NEW)
-- `Backend/models/Transaction.model.js` (UPDATED)
-- `Backend/controllers/auth.controller.js` (UPDATED)
-- `Backend/routes/auth.routes.js` (UPDATED)
-- `Backend/server.js` (UPDATED)
+## Verification Status Update
 
-### Frontend
-- `Frontend/FORGE/src/Components/VerificationPopup.jsx` (UPDATED)
-- `Frontend/FORGE/src/contexts/AuthContext.jsx` (UPDATED)
-- `Frontend/FORGE/index.html` (UPDATED)
-- `Frontend/FORGE/package.json` (UPDATED - added react-razorpay)
-- `Frontend/FORGE/.env.example` (UPDATED)
+When payment is verified successfully:
+1. User model `is_verified` set to `true`
+2. Profile model `is_verified` set to `true`
+3. Transaction record updated with payment details
+4. Frontend user state refreshed via AuthContext
 
 ## Next Steps
 
-1. **Add Razorpay Credentials**: Update .env files with actual Razorpay keys
-2. **Test Payment Flow**: Run through complete payment process
-3. **Add Webhook**: Consider adding Razorpay webhook for handling payment events
+1. **Add Cashfree Production Credentials**: Update Render environment variables with production keys
+2. **Test Payment Flow**: Run through complete payment process in SANDBOX mode
+3. **Add Webhook**: Consider adding Cashfree webhook for handling payment events
 4. **Add Refund Logic**: Implement refund functionality if needed
 5. **Add Subscription Management**: Consider implementing recurring payments
-6. **Add Analytics**: Track payment conversion rates and metrics
 
 ## Notes
 
-- Payment amount is fixed at ₹299 for annual verification
+- Cashfree SDK is loaded dynamically from CDN to avoid import issues
 - Transaction records are kept for audit trail
 - User verification status is synced across frontend and backend
-- Payment verification uses Razorpay's signature verification for security
 - System handles both successful and failed payment scenarios
+- SANDBOX mode uses test credentials for development/testing

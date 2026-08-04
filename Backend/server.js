@@ -56,18 +56,14 @@ if (process.env.NODE_ENV !== 'production' && !process.env.MONGODB_URI) {
   }
 }
 
-// Debug: Check if Razorpay credentials are loaded
+// Debug: Check if Cashfree credentials are loaded
 console.log('Environment check:');
-console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID ? 'Found' : 'Not found');
-console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET ? 'Found' : 'Not found');
+console.log('CASHFREE_APP_ID:', process.env.CASHFREE_APP_ID ? 'Found' : 'Not found');
+console.log('CASHFREE_SECRET_KEY:', process.env.CASHFREE_SECRET_KEY ? 'Found' : 'Not found');
 
-// Initialize Razorpay after environment variables are loaded
-const getRazorpayInstance = require('./config/razorpay');
-getRazorpayInstance();
-
-// Reinitialize Razorpay with loaded environment variables by clearing cache and re-requiring
-delete require.cache[require.resolve('./config/razorpay')];
-const razorpay = require('./config/razorpay');
+// Initialize Cashfree after environment variables are loaded
+const getCashfreeInstance = require('./config/cashfree');
+getCashfreeInstance();
 
 
 
@@ -92,7 +88,7 @@ app.use('/api', generalLimiter)
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
-  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://main.d3g5qoxagdkgi4.amplifyapp.com']
+  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://www.forgeconnect.site']
 
 app.use(cors({
   origin: function(origin, callback) {
@@ -170,8 +166,34 @@ app.use(notFoundHandler)
 app.use(errorHandler)
 
 // Connect to database before starting server
-ConnectDB().then(() => {
+ConnectDB().then(async () => {
   console.log('Database connection established, starting server...');
+  
+  // Fix MongoDB indexes for Transaction model
+  try {
+    const Transaction = require('./models/Transaction.model');
+    const indexes = await Transaction.collection.getIndexes();
+    console.log('Current Transaction indexes:', Object.keys(indexes));
+    
+    // Check if old non-sparse index exists
+    if (indexes.cashfree_payment_id_1 && !indexes.cashfree_payment_id_1.sparse) {
+      console.log('Found old non-sparse index on cashfree_payment_id, dropping...');
+      await Transaction.collection.dropIndex('cashfree_payment_id_1');
+      console.log('Old index dropped successfully');
+    }
+    
+    if (indexes.cashfree_order_id_1 && !indexes.cashfree_order_id_1.sparse) {
+      console.log('Found old non-sparse index on cashfree_order_id, dropping...');
+      await Transaction.collection.dropIndex('cashfree_order_id_1');
+      console.log('Old index dropped successfully');
+    }
+    
+    // Ensure indexes are created with sparse option
+    await Transaction.syncIndexes();
+    console.log('Transaction indexes synchronized successfully');
+  } catch (indexError) {
+    console.error('Error fixing Transaction indexes:', indexError);
+  }
   
   // Only start server after database is connected
   const PORT = process.env.PORT || 5000
@@ -184,10 +206,23 @@ ConnectDB().then(() => {
       cors: {
           origin: process.env.ALLOWED_ORIGINS
               ? process.env.ALLOWED_ORIGINS.split(',')
-              : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://main.d3g5qoxagdkgi4.amplifyapp.com'],
+              : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'https://www.forgeconnect.site'],
           credentials: true
-      }
+      },
+      pingTimeout: 60000, // Increased from default to handle slow connections
+      pingInterval: 25000, // Increased from default
+      upgradeTimeout: 30000, // Increased upgrade timeout
+      maxHttpBufferSize: 1e6, // 1MB max buffer size
+      transports: ['websocket', 'polling'], // Explicitly specify transports
+      allowUpgrades: true, // Allow transport upgrades
+      reconnection: true, // Enable automatic reconnection
+      reconnectionAttempts: 5, // Number of reconnection attempts
+      reconnectionDelay: 1000, // Initial reconnection delay
+      reconnectionDelayMax: 5000, // Maximum reconnection delay
   })
+
+  // Store online users and their socket IDs
+  const onlineUsers = new Map()
 
   // Initialize Survey Socket Handler
   const surveySocketHandler = new SurveySocketHandler(io)
@@ -195,50 +230,72 @@ ConnectDB().then(() => {
   // Initialize Location Socket Handler
   const locationSocketHandler = new LocationSocketHandler(io)
 
-  // Store online users and their socket IDs
-  const onlineUsers = new Map()
-
   // Socket.io connection handling
   io.on('connection', (socket) => {
       console.log('User connected:', socket.id)
 
+      // Handle connection errors
+      socket.on('error', (error) => {
+          console.error('Socket error:', error)
+      })
+
       // User joins with their user ID
       socket.on('user:join', (userId) => {
-          onlineUsers.set(userId, socket.id)
-          socket.userId = userId
-          console.log(`User ${userId} joined with socket ${socket.id}`)
-          
-          // Broadcast to all users that this user is online
-          io.emit('user:online', { userId, socketId: socket.id })
+          try {
+              onlineUsers.set(userId, socket.id)
+              socket.userId = userId
+              console.log(`User ${userId} joined with socket ${socket.id}`)
+              
+              // Broadcast to all users that this user is online
+              io.emit('user:online', { userId, socketId: socket.id })
+          } catch (error) {
+              console.error('Error in user:join:', error)
+          }
       })
 
       // Join a specific connection room for private messaging
       socket.on('join:connection', (connectionId) => {
-          socket.join(`connection:${connectionId}`)
-          console.log(`Socket ${socket.id} joined connection ${connectionId}`)
+          try {
+              socket.join(`connection:${connectionId}`)
+              console.log(`Socket ${socket.id} joined connection ${connectionId}`)
+          } catch (error) {
+              console.error('Error in join:connection:', error)
+          }
       })
 
       // Leave a connection room
       socket.on('leave:connection', (connectionId) => {
-          socket.leave(`connection:${connectionId}`)
-          console.log(`Socket ${socket.id} left connection ${connectionId}`)
+          try {
+              socket.leave(`connection:${connectionId}`)
+              console.log(`Socket ${socket.id} left connection ${connectionId}`)
+          } catch (error) {
+              console.error('Error in leave:connection:', error)
+          }
       })
 
       // Handle new message
       socket.on('message:send', (data) => {
-          const { connectionId, message } = data
-          // Broadcast to all users in the connection room
-          io.to(`connection:${connectionId}`).emit('message:receive', message)
-          console.log(`Message sent to connection ${connectionId}`)
+          try {
+              const { connectionId, message } = data
+              // Broadcast to all users in the connection room
+              io.to(`connection:${connectionId}`).emit('message:receive', message)
+              console.log(`Message sent to connection ${connectionId}`)
+          } catch (error) {
+              console.error('Error in message:send:', error)
+          }
       })
 
       // Handle disconnection
-      socket.on('disconnect', () => {
-          if (socket.userId) {
-              onlineUsers.delete(socket.userId)
-              console.log(`User ${socket.userId} disconnected`)
-              // Broadcast that this user is offline
-              io.emit('user:offline', { userId: socket.userId })
+      socket.on('disconnect', (reason) => {
+          try {
+              if (socket.userId) {
+                  onlineUsers.delete(socket.userId)
+                  console.log(`User ${socket.userId} disconnected, reason: ${reason}`)
+                  // Broadcast that this user is offline
+                  io.emit('user:offline', { userId: socket.userId })
+              }
+          } catch (error) {
+              console.error('Error in disconnect:', error)
           }
       })
   })

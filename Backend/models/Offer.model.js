@@ -6,13 +6,13 @@ const offerSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      maxlength: 100
+      maxlength: 45
     },
     description: {
       type: String,
       required: true,
       trim: true,
-      maxlength: 500
+      maxlength: 3801
     },
     token_cost: {
       type: Number,
@@ -22,7 +22,7 @@ const offerSchema = new mongoose.Schema(
     },
     created_by: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Users",
+      ref: "User",
       required: true
     },
     is_active: {
@@ -33,7 +33,7 @@ const offerSchema = new mongoose.Schema(
       {
         user_id: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Users"
+          ref: "User"
         },
         redeemed_at: {
           type: Date,
@@ -44,11 +44,6 @@ const offerSchema = new mongoose.Schema(
     max_redemptions: {
       type: Number,
       default: null
-    },
-    category: {
-      type: String,
-      enum: ["discount", "bonus", "exclusive", "community", "other"],
-      default: "other"
     }
   },
   {
@@ -61,6 +56,8 @@ const offerSchema = new mongoose.Schema(
 
 // Indexes for efficient queries
 offerSchema.index({ created_by: 1, is_active: 1 });
-offerSchema.index({ category: 1, is_active: 1 });
+
+// TTL index to auto-delete offers after 24 hours
+offerSchema.index({ created_at: 1 }, { expireAfterSeconds: 86400 }); // 24 hours = 86400 seconds
 
 module.exports = mongoose.model("Offer", offerSchema);

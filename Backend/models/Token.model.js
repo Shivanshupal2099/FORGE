@@ -22,7 +22,7 @@ const tokenSchema = new mongoose.Schema(
         source: {
           type: String,
           required: true,
-          enum: ["survey_submission", "referral", "bonus", "other"]
+          enum: ["survey_submission", "referral", "bonus", "offer_redemption", "other"]
         },
         description: {
           type: String,
