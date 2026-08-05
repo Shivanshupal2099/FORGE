@@ -950,7 +950,7 @@ function EditProfilePage() {
 
           <div style={{ marginBottom: isMobile ? '18px' : '22px' }}>
             <label style={labelStyle}>
-              Profile Visibility Settings
+              Profile Visibility on Map
             </label>
             <div style={{ 
               background: 'var(--app-surface)',
@@ -962,7 +962,7 @@ function EditProfilePage() {
                 {[
                   { key: 'show_name', label: 'Show Name' },
                   { key: 'show_looking_for', label: 'Show Looking For' },
-                  { key: 'show_services', label: 'Show Services' }
+                  { key: 'show_services', label: 'Show Services (if providing)' }
                 ].map(({ key, label }) => (
                   <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: isMobile ? '0.85rem' : '0.9rem', color: 'var(--app-text)' }}>{label}</span>
@@ -1217,26 +1217,129 @@ function EditProfilePage() {
             <label style={labelStyle}>
               Service Provider
             </label>
-            <div
-              style={{
-                padding: '20px',
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%)',
-                border: '2px solid rgba(255, 215, 0, 0.3)',
-                textAlign: 'center'
-              }}
-            >
-              <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🚀</div>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.2rem', fontWeight: '700', color: '#111111' }}>
-                Premium Feature
-              </h3>
-              <p style={{ margin: '0 0 12px 0', fontSize: '0.95rem', lineHeight: '1.5', color: '#666666' }}>
-                Service provider registration is a premium feature that will be available in the next version.
-              </p>
-              <p style={{ margin: '0', fontSize: '0.9rem', fontWeight: '600', color: '#FF6B00' }}>
-                Coming soon for premium users this Sunday!
-              </p>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              marginBottom: isMobile ? '12px' : '16px'
+            }}>
+              <span style={{ fontSize: isMobile ? '0.85rem' : '0.9rem', color: 'var(--app-text)' }}>
+                I am a Service Provider
+              </span>
+              <button
+                type="button"
+                onClick={() => setProfileData(prev => ({ ...prev, isServiceProvider: !prev.isServiceProvider }))}
+                style={{
+                  width: isMobile ? '44px' : '48px',
+                  height: isMobile ? '24px' : '26px',
+                  borderRadius: isMobile ? '12px' : '13px',
+                  background: profileData.isServiceProvider 
+                    ? 'var(--app-accent-bg)' 
+                    : 'var(--app-surface-strong)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'background 0.3s ease',
+                  padding: 0
+                }}
+              >
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: isMobile ? '2px' : '3px',
+                    left: profileData.isServiceProvider ? 'auto' : isMobile ? '2px' : '3px',
+                    right: profileData.isServiceProvider ? isMobile ? '2px' : '3px' : 'auto',
+                    width: isMobile ? '20px' : '22px',
+                    height: isMobile ? '20px' : '22px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    transition: 'left 0.3s ease, right 0.3s ease',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                  }}
+                />
+              </button>
             </div>
+            {profileData.isServiceProvider && (
+              <div style={{ position: 'relative' }} data-service-dropdown>
+                <input
+                  type="text"
+                  value={profileData.services.join(', ')}
+                  onChange={(e) => {
+                    const services = e.target.value.split(',').map(s => s.trim()).filter(s => s);
+                    setProfileData(prev => ({ ...prev, services }));
+                  }}
+                  placeholder="Enter services separated by commas (e.g., Web Development, UI/UX Design)"
+                  style={fieldStyle}
+                />
+                {showServiceDropdown && (
+                  <div style={dropdownStyle}>
+                    {serviceOptions.filter(s => 
+                      !profileData.services.includes(s) && 
+                      s.toLowerCase().includes(profileData.services.join(' ').toLowerCase())
+                    ).slice(0, 10).map((service) => (
+                      <div
+                        key={service}
+                        onClick={() => {
+                          setProfileData(prev => ({
+                            ...prev,
+                            services: [...prev.services, service]
+                          }));
+                          setShowServiceDropdown(false);
+                        }}
+                        style={{
+                          padding: isMobile ? '10px 12px' : '12px 16px',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid var(--app-card-border)',
+                          transition: 'background 0.2s',
+                          fontSize: isMobile ? '0.85rem' : '0.9rem',
+                        }}
+                        onMouseEnter={(e) => e.target.style.background = 'var(--app-accent-bg)'}
+                        onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                      >
+                        {service}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {profileData.services.length > 0 && (
+                  <div style={{ marginTop: isMobile ? '10px' : '12px', display: 'flex', flexWrap: 'wrap', gap: isMobile ? '6px' : '8px' }}>
+                    {profileData.services.map((service) => (
+                      <span
+                        key={service}
+                        style={{
+                          ...chipStyle,
+                          padding: isMobile ? '6px 12px' : '8px 14px',
+                          borderRadius: isMobile ? '16px' : '20px',
+                          fontSize: isMobile ? '0.8rem' : '0.85rem',
+                        }}
+                      >
+                        {service}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProfileData(prev => ({
+                              ...prev,
+                              services: prev.services.filter(s => s !== service)
+                            }));
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--app-text)',
+                            cursor: 'pointer',
+                            fontSize: isMobile ? '0.9rem' : '1rem',
+                            padding: '0',
+                            lineHeight: '1',
+                          }}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: isMobile ? '18px' : '22px' }}>
