@@ -900,7 +900,7 @@ function EditProfilePage() {
                 }}
               >
                 <FaMapLocationDot aria-hidden="true" />
-                {isFetchingLocation ? 'Starting...' : isWatchingLocation ? 'Stop Tracking' : 'Track Location'}
+                {isFetchingLocation ? 'Starting...' : isWatchingLocation ? 'Stop Tracking' : 'Fetch Location'}
               </button>
               {profileData.location && (
                 <button
@@ -946,6 +946,62 @@ function EditProfilePage() {
                 {locationStatus}
               </p>
             )}
+          </div>
+
+          <div style={{ marginBottom: isMobile ? '18px' : '22px' }}>
+            <label style={labelStyle}>
+              Profile Visibility Settings
+            </label>
+            <div style={{ 
+              background: 'var(--app-surface)',
+              borderRadius: isMobile ? '12px' : '16px',
+              padding: isMobile ? '16px' : '20px',
+              border: '1px solid var(--app-card-border)'
+            }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? '12px' : '16px' }}>
+                {[
+                  { key: 'show_name', label: 'Show Name' },
+                  { key: 'show_looking_for', label: 'Show Looking For' },
+                  { key: 'show_services', label: 'Show Services' }
+                ].map(({ key, label }) => (
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: isMobile ? '0.85rem' : '0.9rem', color: 'var(--app-text)' }}>{label}</span>
+                    <button
+                      type="button"
+                      onClick={() => setVisibilitySettings(prev => ({ ...prev, [key]: !prev[key] }))}
+                      style={{
+                        width: isMobile ? '44px' : '48px',
+                        height: isMobile ? '24px' : '26px',
+                        borderRadius: isMobile ? '12px' : '13px',
+                        background: visibilitySettings[key] 
+                          ? 'var(--app-accent-bg)' 
+                          : 'var(--app-surface-strong)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        position: 'relative',
+                        transition: 'background 0.3s ease',
+                        padding: 0
+                      }}
+                    >
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: isMobile ? '2px' : '3px',
+                          left: visibilitySettings[key] ? 'auto' : isMobile ? '2px' : '3px',
+                          right: visibilitySettings[key] ? isMobile ? '2px' : '3px' : 'auto',
+                          width: isMobile ? '20px' : '22px',
+                          height: isMobile ? '20px' : '22px',
+                          borderRadius: '50%',
+                          background: 'white',
+                          transition: 'left 0.3s ease, right 0.3s ease',
+                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                        }}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div style={{ marginBottom: isMobile ? '12px' : '16px' }}>
@@ -1253,62 +1309,6 @@ function EditProfilePage() {
             >
               + Add Another Link
             </button>
-          </div>
-
-          <div style={{ marginBottom: isMobile ? '18px' : '22px' }}>
-            <label style={labelStyle}>
-              Profile Visibility Settings
-            </label>
-            <div style={{ 
-              background: 'var(--app-surface)',
-              borderRadius: isMobile ? '12px' : '16px',
-              padding: isMobile ? '16px' : '20px',
-              border: '1px solid var(--app-card-border)'
-            }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: isMobile ? '12px' : '16px' }}>
-                {[
-                  { key: 'show_name', label: 'Show Name' },
-                  { key: 'show_looking_for', label: 'Show Looking For' },
-                  { key: 'show_services', label: 'Show Services' }
-                ].map(({ key, label }) => (
-                  <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: isMobile ? '0.85rem' : '0.9rem', color: 'var(--app-text)' }}>{label}</span>
-                    <button
-                      type="button"
-                      onClick={() => setVisibilitySettings(prev => ({ ...prev, [key]: !prev[key] }))}
-                      style={{
-                        width: isMobile ? '44px' : '48px',
-                        height: isMobile ? '24px' : '26px',
-                        borderRadius: isMobile ? '12px' : '13px',
-                        background: visibilitySettings[key] 
-                          ? 'var(--app-accent-bg)' 
-                          : 'var(--app-surface-strong)',
-                        border: 'none',
-                        cursor: 'pointer',
-                        position: 'relative',
-                        transition: 'background 0.3s ease',
-                        padding: 0
-                      }}
-                    >
-                      <span
-                        style={{
-                          position: 'absolute',
-                          top: isMobile ? '2px' : '3px',
-                          left: visibilitySettings[key] ? 'auto' : isMobile ? '2px' : '3px',
-                          right: visibilitySettings[key] ? isMobile ? '2px' : '3px' : 'auto',
-                          width: isMobile ? '20px' : '22px',
-                          height: isMobile ? '20px' : '22px',
-                          borderRadius: '50%',
-                          background: 'white',
-                          transition: 'left 0.3s ease, right 0.3s ease',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-                        }}
-                      />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           <div style={{ marginBottom: isMobile ? '20px' : '24px' }}>
