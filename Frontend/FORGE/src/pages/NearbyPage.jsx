@@ -243,9 +243,14 @@ function NearbyPage() {
         maxWidth: '1200px',
         margin: '0 auto',
         width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: isMobile ? 'center' : 'flex-start',
       }}>
         <div style={{
           marginBottom: isMobile ? '20px' : '32px',
+          textAlign: isMobile ? 'center' : 'left',
+          width: '100%',
         }}>
           <h1 style={{
             fontSize: isMobile ? '1.75rem' : '2.5rem',
@@ -255,9 +260,10 @@ function NearbyPage() {
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
+            justifyContent: isMobile ? 'center' : 'flex-start',
           }}>
             <FaMapMarkerAlt style={{ color: '#FF6B00' }} />
-            Nearby Users
+            Find Nearby
             {hasSearched && (
               <span style={{
                 padding: '4px 12px',
@@ -862,8 +868,10 @@ function NearbyPage() {
                 <div
                   key={nearbyUser._id}
                   style={{
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                    border: '1px solid rgba(226, 232, 240, 0.8)',
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    backdropFilter: 'blur(20px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                    border: '1px solid rgba(255, 255, 255, 0.5)',
                     borderRadius: isMobile ? '20px' : '24px',
                     padding: isMobile ? '24px' : '28px',
                     display: 'flex',
@@ -872,19 +880,21 @@ function NearbyPage() {
                     textAlign: 'center',
                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    boxShadow: '0 16px 48px rgba(17, 17, 17, 0.08)',
                     position: 'relative',
                     overflow: 'hidden',
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'translateY(-8px) scale(1.02)';
-                    e.target.style.boxShadow = '0 20px 40px -12px rgba(59, 130, 246, 0.2), 0 8px 16px -8px rgba(59, 130, 246, 0.1)';
-                    e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                    e.target.style.boxShadow = '0 24px 64px rgba(255, 107, 0, 0.15)';
+                    e.target.style.borderColor = 'rgba(255, 107, 0, 0.3)';
+                    e.target.style.background = 'rgba(255, 255, 255, 0.85)';
                   }}
                   onMouseLeave={(e) => {
                     e.target.style.transform = 'translateY(0) scale(1)';
-                    e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
-                    e.target.style.borderColor = 'rgba(226, 232, 240, 0.8)';
+                    e.target.style.boxShadow = '0 16px 48px rgba(17, 17, 17, 0.08)';
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                    e.target.style.background = 'rgba(255, 255, 255, 0.7)';
                   }}
                   onClick={() => handleUserClick(nearbyUser)}
                 >
@@ -894,8 +904,8 @@ function NearbyPage() {
                     top: '0',
                     left: '0',
                     right: '0',
-                    height: '80px',
-                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.05) 100%)',
+                    height: '100px',
+                    background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.08) 0%, rgba(255, 159, 64, 0.05) 100%)',
                     borderRadius: isMobile ? '20px' : '24px',
                     borderBottomLeftRadius: '0',
                     borderBottomRightRadius: '0',
@@ -931,7 +941,7 @@ function NearbyPage() {
                         width: '28px',
                         height: '28px',
                         borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
+                        background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
                         border: '3px solid white',
                         display: 'flex',
                         alignItems: 'center',
@@ -939,7 +949,7 @@ function NearbyPage() {
                         fontSize: '14px',
                         color: 'white',
                         fontWeight: 'bold',
-                        boxShadow: '0 2px 8px rgba(34, 197, 94, 0.4)',
+                        boxShadow: '0 2px 8px rgba(255, 107, 0, 0.4)',
                       }}>
                         ✓
                       </div>
@@ -984,13 +994,13 @@ function NearbyPage() {
                       {nearbyUser.looking_for.slice(0, 2).map((item, index) => (
                         <span key={index} style={{
                           padding: '6px 14px',
-                          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
-                          color: '#3B82F6',
+                          background: 'rgba(255, 107, 0, 0.1)',
+                          color: '#FF6B00',
                           borderRadius: '20px',
                           fontSize: isMobile ? '0.75rem' : '0.8rem',
                           fontWeight: '600',
-                          border: '1px solid rgba(59, 130, 246, 0.2)',
-                          boxShadow: '0 2px 4px rgba(59, 130, 246, 0.1)',
+                          border: '1px solid rgba(255, 107, 0, 0.2)',
+                          boxShadow: '0 2px 4px rgba(255, 107, 0, 0.1)',
                         }}>
                           {item}
                         </span>
