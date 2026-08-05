@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaTimes, FaCheck, FaBriefcase, FaUser, FaShieldAlt, FaClock } from "react-icons/fa";
+import { FaTimes, FaCheck, FaBriefcase, FaUser, FaShieldAlt, FaClock, FaUndoAlt } from "react-icons/fa";
 
 const lookingForOptions = [
   'Startup Join Team Member',
@@ -169,7 +169,7 @@ function Filtersection({ onFilterChange, initialFilters = null, onReset, onApply
                         style={{ ...styles.resetButton, ...(isMobile ? styles.resetButtonMobile : {}) }}
                         title="Reset all filters"
                     >
-                        <FaTimes style={styles.resetIcon} />
+                        <FaUndoAlt style={styles.resetIcon} />
                     </button>
                 </div>
             </div>
