@@ -13,7 +13,7 @@ function NearbyPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [searchRadius, setSearchRadius] = useState(50000);
+  const [searchRadius, setSearchRadius] = useState(50);
   const [showRadiusSlider, setShowRadiusSlider] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState(null);
@@ -118,8 +118,7 @@ function NearbyPage() {
     try {
       setLoading(true);
       setError(null);
-      const radiusInKm = searchRadius / 1000; // Convert meters to km for backend
-      const response = await axios.get(`/api/profile/nearby/${user.email}?radius=${radiusInKm}`);
+      const response = await axios.get(`/api/profile/nearby/${user.email}?radius=${searchRadius}`);
       
       if (response.data.success) {
         setNearbyUsers(response.data.users || []);
@@ -334,7 +333,7 @@ function NearbyPage() {
                   fontWeight: '700',
                   color: '#3B82F6',
                 }}>
-                  {searchRadius} m
+                  {searchRadius} km
                 </span>
               </div>
               
@@ -363,8 +362,8 @@ function NearbyPage() {
                 fontSize: '0.85rem',
                 color: '#666666',
               }}>
-                <span>10 m</span>
-                <span>500 m</span>
+                <span>10 km</span>
+                <span>500 km</span>
               </div>
             </div>
           )}
