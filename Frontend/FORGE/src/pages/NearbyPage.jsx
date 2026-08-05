@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { FaMapMarkerAlt, FaUser, FaSpinner, FaLocationArrow, FaSearch, FaSlidersH } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaUser, FaSpinner, FaLocationArrow, FaSearch, FaSlidersH, FaFilter } from 'react-icons/fa';
 import Header from '../Components/Header';
 import NavigationBar from '../Components/NavigationBar';
 import Usercard from '../Components/Usercard';
+import Filtersection from '../Components/Filtersection';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
 import maleImage from '../assets/male.png';
@@ -21,8 +22,10 @@ function NearbyPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [showVerificationPopup, setShowVerificationPopup] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [lookingForFilter, setLookingForFilter] = useState('');
-  const [showLookingForDropdown, setShowLookingForDropdown] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    lookingFor: ""
+  });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -209,24 +212,27 @@ function NearbyPage() {
   };
 
   const getFilteredUsers = () => {
-    if (!lookingForFilter) {
+    if (!filters.lookingFor) {
       return nearbyUsers;
     }
-    return filterNearbyUsers(nearbyUsers, { lookingFor: lookingForFilter });
+    return filterNearbyUsers(nearbyUsers, filters);
   };
 
-  const getUniqueLookingForOptions = () => {
-    const allLookingFor = new Set();
-    nearbyUsers.forEach(user => {
-      if (user.looking_for && Array.isArray(user.looking_for)) {
-        user.looking_for.forEach(item => {
-          if (item && item.trim()) {
-            allLookingFor.add(item.trim());
-          }
-        });
-      }
-    });
-    return Array.from(allLookingFor).sort();
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+  const handleApplyFilters = (filterValues = null) => {
+    const filtersToApply = filterValues || filters;
+    setFilters(filtersToApply);
+    setIsFilterOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    const defaultFilters = {
+      lookingFor: ""
+    };
+    setFilters(defaultFilters);
   };
 
   return (
@@ -350,143 +356,38 @@ function NearbyPage() {
               {!isMobile && `Radius: ${searchRadius} m`}
             </button>
 
-            <div style={{ position: 'relative' }}>
-              <button
-                onClick={() => setShowLookingForDropdown(!showLookingForDropdown)}
-                style={{
-                  padding: isMobile ? '12px' : '14px 20px',
-                  borderRadius: isMobile ? '50%' : '12px',
-                  background: lookingForFilter ? 'rgba(147, 51, 234, 0.15)' : 'rgba(147, 51, 234, 0.1)',
-                  color: '#9333EA',
-                  border: lookingForFilter ? '1px solid rgba(147, 51, 234, 0.4)' : '1px solid rgba(147, 51, 234, 0.3)',
-                  fontSize: isMobile ? '0.9rem' : '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: isMobile ? '0' : '8px',
-                  justifyContent: 'center',
-                  transition: 'all 0.3s ease',
-                  minWidth: isMobile ? '44px' : 'auto',
-                  width: isMobile ? '44px' : 'auto',
-                  height: isMobile ? '44px' : 'auto',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.background = 'rgba(147, 51, 234, 0.2)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = lookingForFilter ? 'rgba(147, 51, 234, 0.15)' : 'rgba(147, 51, 234, 0.1)';
-                }}
-              >
-                <FaUser />
-                {!isMobile && (lookingForFilter ? `Filter: ${lookingForFilter}` : 'Looking For')}
-              </button>
-
-              {showLookingForDropdown && (
-                <div style={{
-                  position: 'absolute',
-                  top: 'calc(100% + 8px)',
-                  right: '0',
-                  background: 'white',
-                  borderRadius: '16px',
-                  boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-                  border: '1px solid rgba(226, 232, 240, 0.8)',
-                  padding: '16px',
-                  minWidth: '250px',
-                  zIndex: '100',
-                }}>
-                  <div style={{
-                    fontSize: '0.95rem',
-                    fontWeight: '700',
-                    color: '#1E293B',
-                    marginBottom: '12px',
-                  }}>
-                    Filter by Looking For
-                  </div>
-                  
-                  {getUniqueLookingForOptions().length > 0 ? (
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      maxHeight: '200px',
-                      overflowY: 'auto',
-                    }}>
-                      {getUniqueLookingForOptions().map((option) => (
-                        <button
-                          key={option}
-                          onClick={() => {
-                            setLookingForFilter(option);
-                            setShowLookingForDropdown(false);
-                          }}
-                          style={{
-                            padding: '10px 14px',
-                            borderRadius: '10px',
-                            background: lookingForFilter === option ? 'rgba(147, 51, 234, 0.15)' : 'rgba(241, 245, 249, 0.5)',
-                            color: lookingForFilter === option ? '#9333EA' : '#475569',
-                            border: lookingForFilter === option ? '1px solid rgba(147, 51, 234, 0.3)' : '1px solid transparent',
-                            fontSize: '0.9rem',
-                            fontWeight: '500',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            transition: 'all 0.2s ease',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.background = 'rgba(147, 51, 234, 0.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.background = lookingForFilter === option ? 'rgba(147, 51, 234, 0.15)' : 'rgba(241, 245, 249, 0.5)';
-                          }}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={{
-                      padding: '20px',
-                      textAlign: 'center',
-                      color: '#64748B',
-                      fontSize: '0.85rem',
-                    }}>
-                      No options available. Search for users first.
-                    </div>
-                  )}
-
-                  {lookingForFilter && (
-                    <button
-                      onClick={() => {
-                        setLookingForFilter('');
-                        setShowLookingForDropdown(false);
-                      }}
-                      style={{
-                        marginTop: '12px',
-                        padding: '10px 14px',
-                        borderRadius: '10px',
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        color: '#EF4444',
-                        border: '1px solid rgba(239, 68, 68, 0.2)',
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        width: '100%',
-                        transition: 'all 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.background = 'rgba(239, 68, 68, 0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.background = 'rgba(239, 68, 68, 0.1)';
-                      }}
-                    >
-                      Clear Filter
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => setIsFilterOpen(true)}
+              style={{
+                padding: isMobile ? '12px' : '14px 20px',
+                borderRadius: isMobile ? '50%' : '12px',
+                background: filters.lookingFor ? 'rgba(147, 51, 234, 0.15)' : 'rgba(147, 51, 234, 0.1)',
+                color: '#9333EA',
+                border: filters.lookingFor ? '1px solid rgba(147, 51, 234, 0.4)' : '1px solid rgba(147, 51, 234, 0.3)',
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: isMobile ? '0' : '8px',
+                justifyContent: 'center',
+                transition: 'all 0.3s ease',
+                minWidth: isMobile ? '44px' : 'auto',
+                width: isMobile ? '44px' : 'auto',
+                height: isMobile ? '44px' : 'auto',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.background = 'rgba(147, 51, 234, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.background = filters.lookingFor ? 'rgba(147, 51, 234, 0.15)' : 'rgba(147, 51, 234, 0.1)';
+              }}
+            >
+              <FaFilter />
+              {!isMobile && (filters.lookingFor ? `Filter: ${filters.lookingFor}` : 'Filter')}
+            </button>
             
             <button
               onClick={handleFindPeople}
@@ -729,6 +630,55 @@ function NearbyPage() {
             </div>
           )}
         </div>
+        
+        {isFilterOpen && (
+          <div style={{
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            background: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+          }} onClick={() => setIsFilterOpen(false)}>
+            <div style={{
+              maxWidth: '720px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }} onClick={(e) => e.stopPropagation()}>
+              <button
+                type='button'
+                onClick={() => setIsFilterOpen(false)}
+                style={{ 
+                  position: 'absolute', 
+                  top: '12px', 
+                  right: '12px', 
+                  border: 'none', 
+                  background: 'transparent', 
+                  cursor: 'pointer', 
+                  fontSize: '24px', 
+                  color: '#4b5563',
+                  zIndex: 10,
+                }}
+              >
+                ×
+              </button>
+              <Filtersection 
+                onFilterChange={handleFilterChange}
+                initialFilters={filters}
+                onReset={handleResetFilters}
+                onApply={handleApplyFilters}
+              />
+            </div>
+          </div>
+        )}
         
         {showVerificationPopup && (
           <div style={{
