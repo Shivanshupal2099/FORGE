@@ -305,7 +305,7 @@ function NearbyPage() {
               }}
             >
               <FaSlidersH />
-              {!isMobile && `Radius: ${searchRadius} km`}
+              {!isMobile && `Radius: ${searchRadius} m`}
             </button>
             
             <button

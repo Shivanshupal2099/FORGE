@@ -428,7 +428,7 @@ exports.getNearbyUsers = async (req, res) => {
       });
     }
 
-    console.log('Fetching nearby users for UID:', uid, 'with radius:', radius);
+    console.log('Fetching nearby users for UID:', uid, 'with radius:', radius, 'km');
 
     // Get current user's profile to get their location
     const currentUserProfile = await Profile.findOne({ uid: uid });
@@ -442,7 +442,9 @@ exports.getNearbyUsers = async (req, res) => {
     }
 
     const { latitude: userLat, longitude: userLon } = currentUserProfile;
-    const searchRadiusKm = parseInt(radius) || 50; // Use provided radius or default to 50km
+    const searchRadiusKm = parseFloat(radius) || 50; // Use provided radius or default to 50km
+
+    console.log(`Search radius parsed as: ${searchRadiusKm} km`);
 
     // Find all profiles with location data (excluding current user)
     const nearbyProfiles = await Profile.find({
@@ -460,7 +462,11 @@ exports.getNearbyUsers = async (req, res) => {
           distance
         };
       })
-      .filter(user => user.distance <= searchRadiusKm)
+      .filter(user => {
+        const withinRadius = user.distance <= searchRadiusKm;
+        console.log(`User ${user.uid} distance: ${user.distance} km, within radius: ${withinRadius}`);
+        return withinRadius;
+      })
       .sort((a, b) => a.distance - b.distance)
       .slice(0, 50); // Limit to 50 nearest users
 
