@@ -468,7 +468,7 @@ function NearbyPage() {
               gap: '12px',
               marginBottom: '24px',
             }}>
-              {[10, 25, 50, 100, 200].map((radius) => (
+              {[10, 25, 50, 100, 200, 3000].map((radius) => (
                 <button
                   key={radius}
                   onClick={() => {
