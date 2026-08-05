@@ -14,7 +14,7 @@ function NearbyPage() {
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [searchRadius, setSearchRadius] = useState(50);
-  const [showRadiusModal, setShowRadiusModal] = useState(false);
+  const [showRadiusSlider, setShowRadiusSlider] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
@@ -178,8 +178,8 @@ function NearbyPage() {
               onClick={handleUpdateLocation}
               disabled={locationLoading}
               style={{
-                padding: isMobile ? '12px 16px' : '14px 20px',
-                borderRadius: '12px',
+                padding: isMobile ? '12px' : '14px 20px',
+                borderRadius: isMobile ? '50%' : '12px',
                 background: locationLoading ? 'rgba(255, 107, 0, 0.5)' : '#FF6B00',
                 color: '#111111',
                 border: 'none',
@@ -188,9 +188,13 @@ function NearbyPage() {
                 cursor: locationLoading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: isMobile ? '0' : '8px',
+                justifyContent: 'center',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 12px rgba(255, 107, 0, 0.2)',
+                minWidth: isMobile ? '44px' : 'auto',
+                width: isMobile ? '44px' : 'auto',
+                height: isMobile ? '44px' : 'auto',
               }}
               onMouseEnter={(e) => {
                 if (!locationLoading) {
@@ -206,14 +210,14 @@ function NearbyPage() {
               }}
             >
               <FaLocationArrow />
-              {locationLoading ? 'Updating...' : 'Update Location'}
+              {!isMobile && (locationLoading ? 'Updating...' : 'Update Location')}
             </button>
             
             <button
-              onClick={() => setShowRadiusModal(true)}
+              onClick={() => setShowRadiusSlider(!showRadiusSlider)}
               style={{
-                padding: isMobile ? '12px 16px' : '14px 20px',
-                borderRadius: '12px',
+                padding: isMobile ? '12px' : '14px 20px',
+                borderRadius: isMobile ? '50%' : '12px',
                 background: 'rgba(59, 130, 246, 0.1)',
                 color: '#3B82F6',
                 border: '1px solid rgba(59, 130, 246, 0.3)',
@@ -222,8 +226,12 @@ function NearbyPage() {
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: isMobile ? '0' : '8px',
+                justifyContent: 'center',
                 transition: 'all 0.3s ease',
+                minWidth: isMobile ? '44px' : 'auto',
+                width: isMobile ? '44px' : 'auto',
+                height: isMobile ? '44px' : 'auto',
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-2px)';
@@ -235,15 +243,15 @@ function NearbyPage() {
               }}
             >
               <FaSlidersH />
-              Radius: {searchRadius} km
+              {!isMobile && `Radius: ${searchRadius} km`}
             </button>
             
             <button
               onClick={handleFindPeople}
               disabled={loading}
               style={{
-                padding: isMobile ? '12px 16px' : '14px 20px',
-                borderRadius: '12px',
+                padding: isMobile ? '12px' : '14px 20px',
+                borderRadius: isMobile ? '50%' : '12px',
                 background: loading ? 'rgba(34, 197, 94, 0.5)' : '#22C55E',
                 color: '#111111',
                 border: 'none',
@@ -252,9 +260,13 @@ function NearbyPage() {
                 cursor: loading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: isMobile ? '0' : '8px',
+                justifyContent: 'center',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 12px rgba(34, 197, 94, 0.2)',
+                minWidth: isMobile ? '44px' : 'auto',
+                width: isMobile ? '44px' : 'auto',
+                height: isMobile ? '44px' : 'auto',
               }}
               onMouseEnter={(e) => {
                 if (!loading) {
@@ -270,7 +282,7 @@ function NearbyPage() {
               }}
             >
               <FaSearch />
-              {loading ? 'Searching...' : 'Find People'}
+              {!isMobile && (loading ? 'Searching...' : 'Find People')}
             </button>
           </div>
           
@@ -285,6 +297,67 @@ function NearbyPage() {
               fontSize: '0.9rem',
             }}>
               {locationError}
+            </div>
+          )}
+          
+          {showRadiusSlider && (
+            <div style={{
+              marginTop: '16px',
+              padding: '20px',
+              borderRadius: '16px',
+              background: 'rgba(59, 130, 246, 0.05)',
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '12px',
+              }}>
+                <span style={{
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  color: '#3B82F6',
+                }}>
+                  Search Radius
+                </span>
+                <span style={{
+                  fontSize: '1.1rem',
+                  fontWeight: '700',
+                  color: '#3B82F6',
+                }}>
+                  {searchRadius} km
+                </span>
+              </div>
+              
+              <input
+                type="range"
+                min="10"
+                max="300"
+                value={searchRadius}
+                onChange={(e) => setSearchRadius(parseInt(e.target.value))}
+                style={{
+                  width: '100%',
+                  height: '8px',
+                  borderRadius: '4px',
+                  background: 'rgba(59, 130, 246, 0.2)',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  WebkitAppearance: 'none',
+                  appearance: 'none',
+                }}
+              />
+              
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginTop: '8px',
+                fontSize: '0.85rem',
+                color: '#666666',
+              }}>
+                <span>10 km</span>
+                <span>300 km</span>
+              </div>
             </div>
           )}
         </div>
@@ -420,113 +493,6 @@ function NearbyPage() {
           </div>
         )}
       </div>
-      
-      {showRadiusModal && (
-        <div style={{
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          right: '0',
-          bottom: '0',
-          background: 'rgba(0, 0, 0, 0.5)',
-          backdropFilter: 'blur(4px)',
-          WebkitBackdropFilter: 'blur(4px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '20px',
-        }} onClick={() => setShowRadiusModal(false)}>
-          <div style={{
-            background: 'var(--app-card-bg)',
-            border: '1px solid var(--app-card-border)',
-            borderRadius: '20px',
-            padding: '32px',
-            maxWidth: '400px',
-            width: '90%',
-            textAlign: 'center',
-          }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{
-              fontSize: '1.5rem',
-              fontWeight: '700',
-              margin: '0 0 16px 0',
-              color: '#111111',
-            }}>
-              Set Search Radius
-            </h3>
-            <p style={{
-              fontSize: '1rem',
-              color: '#666666',
-              margin: '0 0 24px 0',
-            }}>
-              Choose how far to search for nearby users
-            </p>
-            
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-              marginBottom: '24px',
-            }}>
-              {[10, 25, 50, 100, 200, 3000].map((radius) => (
-                <button
-                  key={radius}
-                  onClick={() => {
-                    setSearchRadius(radius);
-                    setShowRadiusModal(false);
-                  }}
-                  style={{
-                    padding: '14px 20px',
-                    borderRadius: '12px',
-                    background: searchRadius === radius ? '#3B82F6' : 'rgba(59, 130, 246, 0.1)',
-                    color: searchRadius === radius ? '#111111' : '#3B82F6',
-                    border: searchRadius === radius ? 'none' : '1px solid rgba(59, 130, 246, 0.3)',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (searchRadius !== radius) {
-                      e.target.style.background = 'rgba(59, 130, 246, 0.2)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (searchRadius !== radius) {
-                      e.target.style.background = 'rgba(59, 130, 246, 0.1)';
-                    }
-                  }}
-                >
-                  {radius} km
-                </button>
-              ))}
-            </div>
-            
-            <button
-              onClick={() => setShowRadiusModal(false)}
-              style={{
-                padding: '14px 20px',
-                borderRadius: '12px',
-                background: 'rgba(107, 114, 128, 0.1)',
-                color: '#6B7280',
-                border: '1px solid rgba(107, 114, 128, 0.3)',
-                fontSize: '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'rgba(107, 114, 128, 0.2)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'rgba(107, 114, 128, 0.1)';
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
       
       <NavigationBar isChatPage={false} />
       <style>{`

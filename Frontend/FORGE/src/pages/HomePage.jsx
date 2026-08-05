@@ -122,36 +122,52 @@ function HomePage() {
             flexShrink: 0,
             marginBottom: '20px',
           }}>
-            {topActions.map(({ label, icon: Icon, popup }) => (
-              <button
-                key={label}
-                type="button"
-                className="home-action-btn"
-                onClick={() => setActivePopup(popup)}
-                style={{
-                  padding: '11px 16px',
-                  position: 'relative',
-                }}
-              >
-                <Icon aria-hidden="true" />
-                <span>{label}</span>
-                {label === 'Request' && pendingRequests > 0 && (
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: '4px',
-                      right: '4px',
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '50%',
-                      background: '#ff0000',
-                      border: '2px solid rgba(255, 255, 255, 0.8)',
-                      boxShadow: '0 2px 8px rgba(255, 0, 0, 0.4)',
-                      animation: 'pulse 2s infinite',
-                    }}
-                  />
-                )}
-              </button>
+            {topActions.map(({ label, icon: Icon, popup, link }) => (
+              link ? (
+                <Link
+                  key={label}
+                  to={link}
+                  className="home-action-btn"
+                  style={{
+                    padding: '11px 16px',
+                    position: 'relative',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <Icon aria-hidden="true" />
+                  <span>{label}</span>
+                </Link>
+              ) : (
+                <button
+                  key={label}
+                  type="button"
+                  className="home-action-btn"
+                  onClick={() => setActivePopup(popup)}
+                  style={{
+                    padding: '11px 16px',
+                    position: 'relative',
+                  }}
+                >
+                  <Icon aria-hidden="true" />
+                  <span>{label}</span>
+                  {label === 'Request' && pendingRequests > 0 && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        background: '#ff0000',
+                        border: '2px solid rgba(255, 255, 255, 0.8)',
+                        boxShadow: '0 2px 8px rgba(255, 0, 0, 0.4)',
+                        animation: 'pulse 2s infinite',
+                      }}
+                    />
+                  )}
+                </button>
+              )
             ))}
             <Link to="/survey" className="home-create-survey-btn">
               <span>+</span>
