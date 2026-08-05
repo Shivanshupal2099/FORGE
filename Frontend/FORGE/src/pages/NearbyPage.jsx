@@ -365,60 +365,186 @@ function NearbyPage() {
           {showRadiusSlider && (
             <div style={{
               marginTop: '16px',
-              padding: '20px',
-              borderRadius: '16px',
-              background: 'rgba(59, 130, 246, 0.05)',
-              border: '1px solid rgba(59, 130, 246, 0.2)',
+              padding: '24px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.03) 100%)',
+              border: '1px solid rgba(59, 130, 246, 0.25)',
+              boxShadow: '0 4px 20px rgba(59, 130, 246, 0.1)',
             }}>
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginBottom: '12px',
+                marginBottom: '20px',
               }}>
-                <span style={{
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  color: '#3B82F6',
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
                 }}>
-                  Search Radius
-                </span>
-                <span style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '700',
-                  color: '#3B82F6',
+                  <FaSlidersH style={{ color: '#3B82F6', fontSize: '1.1rem' }} />
+                  <span style={{
+                    fontSize: '1rem',
+                    fontWeight: '700',
+                    color: '#1E3A8A',
+                    letterSpacing: '-0.3px',
+                  }}>
+                    Search Radius
+                  </span>
+                </div>
+                <div style={{
+                  padding: '8px 16px',
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                  color: 'white',
+                  borderRadius: '12px',
+                  fontSize: '1.15rem',
+                  fontWeight: '800',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                  minWidth: '100px',
+                  textAlign: 'center',
                 }}>
                   {searchRadius} m
-                </span>
+                </div>
               </div>
               
-              <input
-                type="range"
-                min="10"
-                max="500"
-                value={searchRadius}
-                onChange={(e) => setSearchRadius(parseInt(e.target.value))}
-                style={{
-                  width: '100%',
-                  height: '8px',
-                  borderRadius: '4px',
-                  background: 'rgba(59, 130, 246, 0.2)',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  WebkitAppearance: 'none',
-                  appearance: 'none',
-                }}
-              />
+              <div style={{
+                position: 'relative',
+                marginBottom: '24px',
+              }}>
+                <input
+                  type="range"
+                  min="10"
+                  max="500"
+                  value={searchRadius}
+                  onChange={(e) => setSearchRadius(parseInt(e.target.value))}
+                  style={{
+                    width: '100%',
+                    height: '12px',
+                    borderRadius: '6px',
+                    background: 'linear-gradient(90deg, #3B82F6 0%, #3B82F6 ' + ((searchRadius - 10) / (500 - 10) * 100) + '%, #E5E7EB ' + ((searchRadius - 10) / (500 - 10) * 100) + '%, #E5E7EB 100%)',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    WebkitAppearance: 'none',
+                    appearance: 'none',
+                    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                  }}
+                />
+                <style>{`
+                  input[type="range"]::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    appearance: none;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
+                    border: 3px solid white;
+                    transition: all 0.2s ease;
+                  }
+                  input[type="range"]::-webkit-slider-thumb:hover {
+                    transform: scale(1.1);
+                    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5), 0 3px 6px rgba(0, 0, 0, 0.15);
+                  }
+                  input[type="range"]::-moz-range-thumb {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+                    cursor: pointer;
+                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
+                    border: 3px solid white;
+                    transition: all 0.2s ease;
+                  }
+                  input[type="range"]::-moz-range-thumb:hover {
+                    transform: scale(1.1);
+                    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5), 0 3px 6px rgba(0, 0, 0, 0.15);
+                  }
+                `}</style>
+              </div>
               
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
+                alignItems: 'center',
+                position: 'relative',
                 marginTop: '8px',
-                fontSize: '0.85rem',
-                color: '#666666',
               }}>
-                <span>10 m</span>
-                <span>500 m</span>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}>
+                  <span style={{
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    color: '#6B7280',
+                  }}>
+                    10 m
+                  </span>
+                  <div style={{
+                    width: '2px',
+                    height: '8px',
+                    background: '#CBD5E1',
+                    borderRadius: '1px',
+                  }} />
+                </div>
+                
+                <div style={{
+                  flex: 1,
+                  display: 'flex',
+                  justifyContent: 'space-around',
+                  alignItems: 'center',
+                  position: 'relative',
+                }}>
+                  {[25, 50, 100, 200, 300, 400].map((value) => (
+                    <div key={value} style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      position: 'absolute',
+                      left: `${((value - 10) / (500 - 10)) * 100}%`,
+                      transform: 'translateX(-50%)',
+                    }}>
+                      <span style={{
+                        fontSize: '0.75rem',
+                        fontWeight: '500',
+                        color: '#9CA3AF',
+                      }}>
+                        {value}
+                      </span>
+                      <div style={{
+                        width: '2px',
+                        height: '6px',
+                        background: '#E5E7EB',
+                        borderRadius: '1px',
+                      }} />
+                    </div>
+                  ))}
+                </div>
+                
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}>
+                  <span style={{
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    color: '#6B7280',
+                  }}>
+                    500 m
+                  </span>
+                  <div style={{
+                    width: '2px',
+                    height: '8px',
+                    background: '#CBD5E1',
+                    borderRadius: '1px',
+                  }} />
+                </div>
               </div>
             </div>
           )}
@@ -606,35 +732,57 @@ function NearbyPage() {
                 <div
                   key={nearbyUser._id}
                   style={{
-                    background: 'var(--app-card-bg)',
-                    border: '1px solid var(--app-card-border)',
-                    borderRadius: isMobile ? '16px' : '20px',
-                    padding: isMobile ? '20px' : '24px',
+                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                    border: '1px solid rgba(226, 232, 240, 0.8)',
+                    borderRadius: isMobile ? '20px' : '24px',
+                    padding: isMobile ? '24px' : '28px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     textAlign: 'center',
-                    transition: 'all 0.3s ease',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     cursor: 'pointer',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    position: 'relative',
+                    overflow: 'hidden',
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.transform = 'translateY(-4px)';
-                    e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.1)';
+                    e.target.style.transform = 'translateY(-8px) scale(1.02)';
+                    e.target.style.boxShadow = '0 20px 40px -12px rgba(59, 130, 246, 0.2), 0 8px 16px -8px rgba(59, 130, 246, 0.1)';
+                    e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = 'none';
+                    e.target.style.transform = 'translateY(0) scale(1)';
+                    e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
+                    e.target.style.borderColor = 'rgba(226, 232, 240, 0.8)';
                   }}
                   onClick={() => handleUserClick(nearbyUser)}
                 >
+                  {/* Decorative gradient overlay */}
                   <div style={{
-                    width: isMobile ? '80px' : '100px',
-                    height: isMobile ? '80px' : '100px',
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    right: '0',
+                    height: '80px',
+                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.05) 100%)',
+                    borderRadius: isMobile ? '20px' : '24px',
+                    borderBottomLeftRadius: '0',
+                    borderBottomRightRadius: '0',
+                    zIndex: '0',
+                  }} />
+                  
+                  <div style={{
+                    width: isMobile ? '90px' : '110px',
+                    height: isMobile ? '90px' : '110px',
                     borderRadius: '50%',
                     overflow: 'hidden',
                     marginBottom: '16px',
-                    border: '3px solid var(--app-card-border)',
+                    border: '4px solid white',
+                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.1)',
                     position: 'relative',
+                    zIndex: '1',
+                    background: 'white',
                   }}>
                     <img
                       src={nearbyUser.avatar_url || (nearbyUser.gender === 'Male' ? maleImage : nearbyUser.gender === 'Female' ? femaleImage : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80")}
@@ -648,88 +796,108 @@ function NearbyPage() {
                     {nearbyUser.is_verified && (
                       <div style={{
                         position: 'absolute',
-                        bottom: '0',
-                        right: '0',
-                        width: '24px',
-                        height: '24px',
+                        bottom: '2px',
+                        right: '2px',
+                        width: '28px',
+                        height: '28px',
                         borderRadius: '50%',
-                        background: '#22C55E',
-                        border: '3px solid var(--app-card-bg)',
+                        background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
+                        border: '3px solid white',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: '14px',
                         color: 'white',
                         fontWeight: 'bold',
+                        boxShadow: '0 2px 8px rgba(34, 197, 94, 0.4)',
                       }}>
                         ✓
                       </div>
                     )}
                   </div>
+                  
                   <h3 style={{
-                    fontSize: isMobile ? '1.1rem' : '1.25rem',
-                    fontWeight: '600',
-                    margin: '0 0 4px 0',
-                    color: '#111111',
+                    fontSize: isMobile ? '1.15rem' : '1.3rem',
+                    fontWeight: '700',
+                    margin: '0 0 6px 0',
+                    color: '#1E293B',
+                    letterSpacing: '-0.3px',
+                    position: 'relative',
+                    zIndex: '1',
                   }}>
                     {visibilitySettings.show_name ? `${nearbyUser.first_name} ${nearbyUser.last_name}` : 'Anonymous'}
                   </h3>
+                  
                   {visibilitySettings.show_profession && (
                     <p style={{
-                      fontSize: isMobile ? '0.9rem' : '0.95rem',
-                      color: '#666666',
-                      margin: '0 0 8px 0',
+                      fontSize: isMobile ? '0.85rem' : '0.9rem',
+                      color: '#64748B',
+                      margin: '0 0 12px 0',
+                      fontWeight: '500',
+                      position: 'relative',
+                      zIndex: '1',
                     }}>
                       {nearbyUser.department || 'User'}
                     </p>
                   )}
+                  
                   {visibilitySettings.show_looking_for && nearbyUser.looking_for && nearbyUser.looking_for.length > 0 && (
                     <div style={{
                       display: 'flex',
                       flexWrap: 'wrap',
-                      gap: '6px',
+                      gap: '8px',
                       justifyContent: 'center',
-                      marginBottom: '12px',
+                      marginBottom: '16px',
+                      position: 'relative',
+                      zIndex: '1',
                     }}>
                       {nearbyUser.looking_for.slice(0, 2).map((item, index) => (
                         <span key={index} style={{
-                          padding: '4px 10px',
-                          background: 'rgba(59, 130, 246, 0.1)',
+                          padding: '6px 14px',
+                          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)',
                           color: '#3B82F6',
-                          borderRadius: '12px',
+                          borderRadius: '20px',
                           fontSize: isMobile ? '0.75rem' : '0.8rem',
-                          fontWeight: '500',
+                          fontWeight: '600',
+                          border: '1px solid rgba(59, 130, 246, 0.2)',
+                          boxShadow: '0 2px 4px rgba(59, 130, 246, 0.1)',
                         }}>
                           {item}
                         </span>
                       ))}
                       {nearbyUser.looking_for.length > 2 && (
                         <span style={{
-                          padding: '4px 10px',
-                          background: 'rgba(107, 114, 128, 0.1)',
-                          color: '#6B7280',
-                          borderRadius: '12px',
+                          padding: '6px 12px',
+                          background: 'rgba(148, 163, 184, 0.1)',
+                          color: '#64748B',
+                          borderRadius: '20px',
                           fontSize: isMobile ? '0.75rem' : '0.8rem',
-                          fontWeight: '500',
+                          fontWeight: '600',
+                          border: '1px solid rgba(148, 163, 184, 0.2)',
                         }}>
                           +{nearbyUser.looking_for.length - 2}
                         </span>
                       )}
                     </div>
                   )}
+                  
                   {distance && visibilitySettings.show_location && (
                     <div style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      padding: '6px 12px',
-                      background: 'rgba(255, 107, 0, 0.1)',
+                      gap: '8px',
+                      padding: '8px 16px',
+                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 159, 64, 0.1) 100%)',
                       color: '#FF6B00',
-                      borderRadius: '20px',
+                      borderRadius: '24px',
                       fontSize: isMobile ? '0.85rem' : '0.9rem',
-                      fontWeight: '500',
+                      fontWeight: '700',
+                      border: '1px solid rgba(255, 107, 0, 0.2)',
+                      boxShadow: '0 2px 8px rgba(255, 107, 0, 0.15)',
+                      position: 'relative',
+                      zIndex: '1',
                     }}>
-                      <FaMapMarkerAlt style={{ fontSize: '0.8rem' }} />
+                      <FaMapMarkerAlt style={{ fontSize: '0.9rem' }} />
                       {distance} km away
                     </div>
                   )}
