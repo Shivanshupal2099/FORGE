@@ -415,32 +415,37 @@ function Request({ onClose, onConnectionAccepted }) {
               <ul className="request-popup__list">
                 {acceptedConnections.map((connection) => {
                   // Determine which profile to show (the other user, not the current user)
-                  const isCurrentUserRequester = connection.requester?.uid === user?.email;
+                  const isCurrentUserRequester = connection.requester?.uid === user?.email || connection.requester?.email === user?.email;
                   const profile = isCurrentUserRequester ? connection.receiver_profile : connection.requester_profile;
                   
                   if (!profile) return null;
                   
+                  // Get the name from the profile or collaborator
+                  const displayName = profile?.first_name && profile?.last_name 
+                    ? `${profile.first_name} ${profile.last_name}`
+                    : connection.collaborator?.name || 'Unknown User';
+                  
                   return (
                     <li key={connection._id} className="request-popup__item request-popup__item--connected">
                       <div className="request-popup__item-avatar">
-                        {profile?.avatar_url ? (
+                        {profile?.avatar_url || connection.collaborator?.avatar_url ? (
                           <img 
-                            src={profile.avatar_url} 
-                            alt={`${profile.first_name} ${profile.last_name}`}
+                            src={profile?.avatar_url || connection.collaborator?.avatar_url} 
+                            alt={displayName}
                           />
                         ) : (
-                          <span>{profile?.first_name?.charAt(0) || '?'}</span>
+                          <span>{displayName?.charAt(0) || '?'}</span>
                         )}
                       </div>
                       <div className="request-popup__item-info">
                         <div className="request-popup__item-name">
-                          {profile?.first_name} {profile?.last_name}
+                          {displayName}
                         </div>
                         {profile?.department && (
                           <div className="request-popup__item-email">{profile.department}</div>
                         )}
                         <div className="request-popup__item-time">
-                          {isCurrentUserRequester ? 'Request sent' : 'Connected'}
+                          Connected
                         </div>
                       </div>
                       <div className="request-popup__item-actions">

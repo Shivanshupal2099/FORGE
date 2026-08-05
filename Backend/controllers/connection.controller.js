@@ -121,10 +121,14 @@ async function decorateConnections(connections, currentUserId) {
 
       return {
         ...connection,
+        requester: requester ? presentUser(requester, profileByUserId.get(requesterId)) : null,
+        receiver_profile: profileByUserId.get(receiverId) || null,
         collaborator: other ? presentUser(other, profileByUserId.get(otherId)) : null,
         requester_profile: requester ? {
           ...profileByUserId.get(requesterId),
-          name: presentUser(requester, profileByUserId.get(requesterId)).name
+          name: presentUser(requester, profileByUserId.get(requesterId)).name,
+          uid: requester.uid,
+          email: requester.email
         } : null
       };
     })
