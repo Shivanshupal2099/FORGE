@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaMapMarkerAlt, FaUser, FaSpinner } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaUser, FaSpinner, FaLocationArrow, FaSearch, FaSlidersH } from 'react-icons/fa';
 import Header from '../Components/Header';
 import NavigationBar from '../Components/NavigationBar';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +13,11 @@ function NearbyPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [searchRadius, setSearchRadius] = useState(50);
+  const [showRadiusModal, setShowRadiusModal] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -31,7 +36,7 @@ function NearbyPage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get(`/api/users/nearby/${user.email}`);
+        const response = await axios.get(`/api/profile/nearby/${user.email}`);
         
         if (response.data.success) {
           setNearbyUsers(response.data.users || []);
@@ -48,6 +53,78 @@ function NearbyPage() {
 
     fetchNearbyUsers();
   }, [user]);
+
+  const handleUpdateLocation = async () => {
+    setLocationLoading(true);
+    setLocationError(null);
+
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
+      setLocationLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          const uid = user?.email;
+          const response = await axios.put(`/api/profile/${uid}/location`, {
+            latitude,
+            longitude
+          });
+          
+          if (response.data.success) {
+            // Refresh user data
+            await fetchNearbyUsers();
+          } else {
+            setLocationError('Failed to update location');
+          }
+        } catch (error) {
+          console.error('Error updating location:', error);
+          setLocationError('Failed to update location. Please try again.');
+        } finally {
+          setLocationLoading(false);
+        }
+      },
+      (error) => {
+        setLocationError('Unable to retrieve your location. Please enable location services.');
+        setLocationLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  };
+
+  const handleFindPeople = async () => {
+    setHasSearched(true);
+    await fetchNearbyUsers();
+  };
+
+  const fetchNearbyUsers = async () => {
+    if (!user?.email) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get(`/api/profile/nearby/${user.email}?radius=${searchRadius}`);
+      
+      if (response.data.success) {
+        setNearbyUsers(response.data.users || []);
+      } else {
+        setError('Failed to load nearby users');
+      }
+    } catch (err) {
+      console.error('Error fetching nearby users:', err);
+      setError('Error loading nearby users');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Earth's radius in km
@@ -87,10 +164,129 @@ function NearbyPage() {
           <p style={{
             fontSize: isMobile ? '0.95rem' : '1rem',
             color: '#666666',
-            margin: '0',
+            margin: '0 0 20px 0',
           }}>
             Discover people near your location
           </p>
+          
+          <div style={{
+            display: 'flex',
+            gap: isMobile ? '10px' : '12px',
+            flexWrap: 'wrap',
+          }}>
+            <button
+              onClick={handleUpdateLocation}
+              disabled={locationLoading}
+              style={{
+                padding: isMobile ? '12px 16px' : '14px 20px',
+                borderRadius: '12px',
+                background: locationLoading ? 'rgba(255, 107, 0, 0.5)' : '#FF6B00',
+                color: '#111111',
+                border: 'none',
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: '600',
+                cursor: locationLoading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 12px rgba(255, 107, 0, 0.2)',
+              }}
+              onMouseEnter={(e) => {
+                if (!locationLoading) {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.background = '#FF8533';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!locationLoading) {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.background = '#FF6B00';
+                }
+              }}
+            >
+              <FaLocationArrow />
+              {locationLoading ? 'Updating...' : 'Update Location'}
+            </button>
+            
+            <button
+              onClick={() => setShowRadiusModal(true)}
+              style={{
+                padding: isMobile ? '12px 16px' : '14px 20px',
+                borderRadius: '12px',
+                background: 'rgba(59, 130, 246, 0.1)',
+                color: '#3B82F6',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.background = 'rgba(59, 130, 246, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.background = 'rgba(59, 130, 246, 0.1)';
+              }}
+            >
+              <FaSlidersH />
+              Radius: {searchRadius} km
+            </button>
+            
+            <button
+              onClick={handleFindPeople}
+              disabled={loading}
+              style={{
+                padding: isMobile ? '12px 16px' : '14px 20px',
+                borderRadius: '12px',
+                background: loading ? 'rgba(34, 197, 94, 0.5)' : '#22C55E',
+                color: '#111111',
+                border: 'none',
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 12px rgba(34, 197, 94, 0.2)',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.background = '#22C55E';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.background = '#22C55E';
+                }
+              }}
+            >
+              <FaSearch />
+              {loading ? 'Searching...' : 'Find People'}
+            </button>
+          </div>
+          
+          {locationError && (
+            <div style={{
+              marginTop: '12px',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              background: 'rgba(255, 107, 0, 0.1)',
+              border: '1px solid rgba(255, 107, 0, 0.3)',
+              color: '#FF6B00',
+              fontSize: '0.9rem',
+            }}>
+              {locationError}
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -112,6 +308,16 @@ function NearbyPage() {
             color: '#666666',
           }}>
             <p>{error}</p>
+          </div>
+        ) : !hasSearched ? (
+          <div style={{
+            padding: '60px 20px',
+            textAlign: 'center',
+            color: '#666666',
+          }}>
+            <FaSearch style={{ fontSize: '3rem', marginBottom: '16px', opacity: 0.5 }} />
+            <h3 style={{ fontSize: '1.25rem', margin: '0 0 8px 0' }}>Click "Find People" to discover nearby users</h3>
+            <p>Update your location and set your search radius to get started</p>
           </div>
         ) : nearbyUsers.length === 0 ? (
           <div style={{
@@ -214,6 +420,114 @@ function NearbyPage() {
           </div>
         )}
       </div>
+      
+      {showRadiusModal && (
+        <div style={{
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px',
+        }} onClick={() => setShowRadiusModal(false)}>
+          <div style={{
+            background: 'var(--app-card-bg)',
+            border: '1px solid var(--app-card-border)',
+            borderRadius: '20px',
+            padding: '32px',
+            maxWidth: '400px',
+            width: '90%',
+            textAlign: 'center',
+          }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{
+              fontSize: '1.5rem',
+              fontWeight: '700',
+              margin: '0 0 16px 0',
+              color: '#111111',
+            }}>
+              Set Search Radius
+            </h3>
+            <p style={{
+              fontSize: '1rem',
+              color: '#666666',
+              margin: '0 0 24px 0',
+            }}>
+              Choose how far to search for nearby users
+            </p>
+            
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              marginBottom: '24px',
+            }}>
+              {[10, 25, 50, 100, 200].map((radius) => (
+                <button
+                  key={radius}
+                  onClick={() => {
+                    setSearchRadius(radius);
+                    setShowRadiusModal(false);
+                  }}
+                  style={{
+                    padding: '14px 20px',
+                    borderRadius: '12px',
+                    background: searchRadius === radius ? '#3B82F6' : 'rgba(59, 130, 246, 0.1)',
+                    color: searchRadius === radius ? '#111111' : '#3B82F6',
+                    border: searchRadius === radius ? 'none' : '1px solid rgba(59, 130, 246, 0.3)',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (searchRadius !== radius) {
+                      e.target.style.background = 'rgba(59, 130, 246, 0.2)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (searchRadius !== radius) {
+                      e.target.style.background = 'rgba(59, 130, 246, 0.1)';
+                    }
+                  }}
+                >
+                  {radius} km
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={() => setShowRadiusModal(false)}
+              style={{
+                padding: '14px 20px',
+                borderRadius: '12px',
+                background: 'rgba(107, 114, 128, 0.1)',
+                color: '#6B7280',
+                border: '1px solid rgba(107, 114, 128, 0.3)',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = 'rgba(107, 114, 128, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'rgba(107, 114, 128, 0.1)';
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      
       <NavigationBar isChatPage={false} />
       <style>{`
         @keyframes spin {

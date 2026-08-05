@@ -419,6 +419,7 @@ exports.clearLocation = async (req, res) => {
 exports.getNearbyUsers = async (req, res) => {
   try {
     const { uid } = req.params;
+    const { radius } = req.query;
 
     if (!uid) {
       return res.status(400).json({
@@ -427,7 +428,7 @@ exports.getNearbyUsers = async (req, res) => {
       });
     }
 
-    console.log('Fetching nearby users for UID:', uid);
+    console.log('Fetching nearby users for UID:', uid, 'with radius:', radius);
 
     // Get current user's profile to get their location
     const currentUserProfile = await Profile.findOne({ uid: uid });
@@ -441,7 +442,7 @@ exports.getNearbyUsers = async (req, res) => {
     }
 
     const { latitude: userLat, longitude: userLon } = currentUserProfile;
-    const searchRadiusKm = 50; // Search within 50km
+    const searchRadiusKm = parseInt(radius) || 50; // Use provided radius or default to 50km
 
     // Find all profiles with location data (excluding current user)
     const nearbyProfiles = await Profile.find({

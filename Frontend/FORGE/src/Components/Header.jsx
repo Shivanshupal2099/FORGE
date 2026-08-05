@@ -31,32 +31,44 @@ function Header({ mobileActions, pendingRequests, children, onJoinCommunity, sho
       
       {isHomePage && mobileActions && (
         <div className="app-header-mobile-actions">
-          {mobileActions.map(({ label, icon: Icon, popup, onClick }) => (
-            <button
-              key={label}
-              type="button"
-              className="app-header-mobile-action-btn"
-              onClick={onClick}
-              aria-label={label}
-              style={{ position: 'relative' }}
-            >
-              <Icon />
-              {label === 'Request' && pendingRequests > 0 && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: '6px',
-                    right: '6px',
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '50%',
-                    background: '#ff0000',
-                    border: '2px solid rgba(255, 255, 255, 0.8)',
-                    boxShadow: '0 2px 8px rgba(255, 0, 0, 0.4)',
-                  }}
-                />
-              )}
-            </button>
+          {mobileActions.map(({ label, icon: Icon, popup, onClick, link }) => (
+            link ? (
+              <Link
+                key={label}
+                to={link}
+                className="app-header-mobile-action-btn"
+                aria-label={label}
+                style={{ position: 'relative', textDecoration: 'none' }}
+              >
+                <Icon />
+              </Link>
+            ) : (
+              <button
+                key={label}
+                type="button"
+                className="app-header-mobile-action-btn"
+                onClick={onClick}
+                aria-label={label}
+                style={{ position: 'relative' }}
+              >
+                <Icon />
+                {label === 'Request' && pendingRequests > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '6px',
+                      right: '6px',
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      background: '#ff0000',
+                      border: '2px solid rgba(255, 255, 255, 0.8)',
+                      boxShadow: '0 2px 8px rgba(255, 0, 0, 0.4)',
+                    }}
+                  />
+                )}
+              </button>
+            )
           ))}
           <Link to="/survey" className="app-header-mobile-action-btn app-header-mobile-action-btn--create">
             <span>+</span>
