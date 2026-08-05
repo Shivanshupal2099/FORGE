@@ -8,7 +8,7 @@ import maleImage from '../assets/male.png';
 import femaleImage from '../assets/female.png';
 
 function NearbyPage() {
-  const { user } = useAuth();
+  const { user, isVerified } = useAuth();
   const [nearbyUsers, setNearbyUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -103,7 +103,7 @@ function NearbyPage() {
 
   const handleFindPeople = async () => {
     // Check if user is verified
-    if (!user?.is_verified) {
+    if (!isVerified) {
       setShowVerificationPopup(true);
       return;
     }
@@ -457,7 +457,7 @@ function NearbyPage() {
                 <button
                   onClick={() => {
                     setShowVerificationPopup(false);
-                    window.location.href = '/settings';
+                    window.location.href = '/profile';
                   }}
                   style={{
                     padding: '14px 24px',
@@ -480,7 +480,7 @@ function NearbyPage() {
                     e.target.style.background = '#FF6B00';
                   }}
                 >
-                  Get Verified
+                  Go to Profile
                 </button>
               </div>
             </div>
