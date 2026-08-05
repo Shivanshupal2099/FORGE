@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FaMapMarkerAlt, FaUser, FaSpinner, FaLocationArrow, FaSearch, FaSlidersH } from 'react-icons/fa';
 import Header from '../Components/Header';
 import NavigationBar from '../Components/NavigationBar';
+import Usercard from '../Components/Usercard';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
 import maleImage from '../assets/male.png';
@@ -13,12 +14,13 @@ function NearbyPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [searchRadius, setSearchRadius] = useState(50);
+  const [searchRadius, setSearchRadius] = useState(500);
   const [showRadiusSlider, setShowRadiusSlider] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [showVerificationPopup, setShowVerificationPopup] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -112,13 +114,54 @@ function NearbyPage() {
     await fetchNearbyUsers();
   };
 
+  const handleUserClick = async (nearbyUser) => {
+    try {
+      const response = await axios.get(`/api/profile/${nearbyUser.uid}`);
+      
+      if (response.data.success && response.data.profile) {
+        const profile = response.data.profile;
+        
+        const userData = {
+          name: `${profile.first_name} ${profile.last_name}`,
+          profession: profile.department || 'User',
+          bio: profile.bio,
+          photo: profile.avatar_url,
+          isVerified: profile.is_verified === true,
+          status: 'Active',
+          visibility: 'Public',
+          lookingFor: profile.looking_for || [],
+          email: profile.uid || profile.email || nearbyUser.uid,
+          socialLinks: {
+            linkedin: profile.linkedin_url,
+            github: profile.github_url,
+            twitter: profile.portfolio_url
+          },
+          visibilitySettings: profile.visibility_settings || {
+            show_name: true,
+            show_profession: true,
+            show_domain: true,
+            show_location: true,
+            show_social_links: true,
+            show_looking_for: true,
+            show_services: true
+          }
+        };
+        
+        setSelectedUser(userData);
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
+
   const fetchNearbyUsers = async () => {
     if (!user?.email) return;
 
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`/api/profile/nearby/${user.email}?radius=${searchRadius}`);
+      const radiusInKm = searchRadius / 1000; // Convert meters to km for backend
+      const response = await axios.get(`/api/profile/nearby/${user.email}?radius=${radiusInKm}`);
       
       if (response.data.success) {
         setNearbyUsers(response.data.users || []);
@@ -333,7 +376,7 @@ function NearbyPage() {
                   fontWeight: '700',
                   color: '#3B82F6',
                 }}>
-                  {searchRadius} km
+                  {searchRadius} m
                 </span>
               </div>
               
@@ -362,8 +405,8 @@ function NearbyPage() {
                 fontSize: '0.85rem',
                 color: '#666666',
               }}>
-                <span>10 km</span>
-                <span>500 km</span>
+                <span>10 m</span>
+                <span>500 m</span>
               </div>
             </div>
           )}
@@ -537,6 +580,16 @@ function NearbyPage() {
                 ? calculateDistance(user.latitude, user.longitude, nearbyUser.latitude, nearbyUser.longitude)
                 : null;
 
+              const visibilitySettings = nearbyUser.visibility_settings || {
+                show_name: true,
+                show_profession: true,
+                show_domain: true,
+                show_location: true,
+                show_social_links: true,
+                show_looking_for: true,
+                show_services: true
+              };
+
               return (
                 <div
                   key={nearbyUser._id}
@@ -560,7 +613,7 @@ function NearbyPage() {
                     e.target.style.transform = 'translateY(0)';
                     e.target.style.boxShadow = 'none';
                   }}
-                  onClick={() => window.location.href = `/profile/${nearbyUser.uid}`}
+                  onClick={() => handleUserClick(nearbyUser)}
                 >
                   <div style={{
                     width: isMobile ? '80px' : '100px',
@@ -569,6 +622,7 @@ function NearbyPage() {
                     overflow: 'hidden',
                     marginBottom: '16px',
                     border: '3px solid var(--app-card-border)',
+                    position: 'relative',
                   }}>
                     <img
                       src={nearbyUser.avatar_url || (nearbyUser.gender === 'Male' ? maleImage : nearbyUser.gender === 'Female' ? femaleImage : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80")}
@@ -579,6 +633,26 @@ function NearbyPage() {
                         objectFit: 'cover',
                       }}
                     />
+                    {nearbyUser.is_verified && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '0',
+                        right: '0',
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        background: '#22C55E',
+                        border: '3px solid var(--app-card-bg)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        color: 'white',
+                        fontWeight: 'bold',
+                      }}>
+                        ✓
+                      </div>
+                    )}
                   </div>
                   <h3 style={{
                     fontSize: isMobile ? '1.1rem' : '1.25rem',
@@ -586,16 +660,52 @@ function NearbyPage() {
                     margin: '0 0 4px 0',
                     color: '#111111',
                   }}>
-                    {nearbyUser.first_name} {nearbyUser.last_name}
+                    {visibilitySettings.show_name ? `${nearbyUser.first_name} ${nearbyUser.last_name}` : 'Anonymous'}
                   </h3>
-                  <p style={{
-                    fontSize: isMobile ? '0.9rem' : '0.95rem',
-                    color: '#666666',
-                    margin: '0 0 12px 0',
-                  }}>
-                    {nearbyUser.department || 'User'}
-                  </p>
-                  {distance && (
+                  {visibilitySettings.show_profession && (
+                    <p style={{
+                      fontSize: isMobile ? '0.9rem' : '0.95rem',
+                      color: '#666666',
+                      margin: '0 0 8px 0',
+                    }}>
+                      {nearbyUser.department || 'User'}
+                    </p>
+                  )}
+                  {visibilitySettings.show_looking_for && nearbyUser.looking_for && nearbyUser.looking_for.length > 0 && (
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '6px',
+                      justifyContent: 'center',
+                      marginBottom: '12px',
+                    }}>
+                      {nearbyUser.looking_for.slice(0, 2).map((item, index) => (
+                        <span key={index} style={{
+                          padding: '4px 10px',
+                          background: 'rgba(59, 130, 246, 0.1)',
+                          color: '#3B82F6',
+                          borderRadius: '12px',
+                          fontSize: isMobile ? '0.75rem' : '0.8rem',
+                          fontWeight: '500',
+                        }}>
+                          {item}
+                        </span>
+                      ))}
+                      {nearbyUser.looking_for.length > 2 && (
+                        <span style={{
+                          padding: '4px 10px',
+                          background: 'rgba(107, 114, 128, 0.1)',
+                          color: '#6B7280',
+                          borderRadius: '12px',
+                          fontSize: isMobile ? '0.75rem' : '0.8rem',
+                          fontWeight: '500',
+                        }}>
+                          +{nearbyUser.looking_for.length - 2}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {distance && visibilitySettings.show_location && (
                     <div style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -617,6 +727,15 @@ function NearbyPage() {
           </div>
         )}
       </div>
+      
+      {selectedUser && (
+        <Usercard 
+          user={selectedUser} 
+          onClose={() => setSelectedUser(null)}
+          visibilitySettings={selectedUser.visibilitySettings}
+          currentUserEmail={user?.email}
+        />
+      )}
       
       <NavigationBar isChatPage={false} />
       <style>{`
