@@ -540,20 +540,9 @@ function SurveyRotator() {
         flexDirection: 'column',
         gap: '20px',
         paddingBottom: '120px',
-        padding: '0 16px',
+        padding: 'clamp(80px, 20vw, 100px) clamp(4px, 1vw, 8px) 0 clamp(4px, 1vw, 8px)',
       }}
     >
-      <h2 style={{
-        margin: '0 0 24px',
-        fontSize: 'clamp(1.3rem, 4vw, 1.8rem)',
-        fontWeight: '700',
-        color: 'var(--app-text)',
-        textAlign: 'center',
-        letterSpacing: '-0.5px',
-      }}>
-        Community Surveys
-      </h2>
-
       {surveys.map((survey) => {
         const questions = surveyQuestions[survey._id] || [];
         const state = surveyStates[survey._id] || { currentQuestionIndex: 0, answers: {} };
@@ -577,146 +566,200 @@ function SurveyRotator() {
             style={{
               background: '#ffffff',
               borderRadius: '24px',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-              padding: 'clamp(20px, 5vw, 28px)',
+              boxShadow: '0 12px 35px rgba(0, 0, 0, 0.08)',
+              padding: 'clamp(20px, 5vw, 32px)',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              border: '2px solid rgba(245, 158, 11, 0.15)',
+              border: '1px solid #ECECEC',
             }}
           >
             {/* Header */}
             <div style={{ marginBottom: '24px' }}>
               <div style={{
                 display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'flex-start',
-                gap: 'clamp(10px, 3vw, 16px)',
                 marginBottom: '16px',
               }}>
+                {/* Left Side */}
                 <div style={{
-                  width: 'clamp(40px, 10vw, 48px)',
-                  height: 'clamp(40px, 10vw, 48px)',
-                  borderRadius: '16px',
-                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+                  alignItems: 'flex-start',
+                  gap: '12px',
                 }}>
-                  <FaClipboardList style={{ 
-                    fontSize: 'clamp(1.1rem, 3vw, 1.4rem)', 
-                    color: '#ffffff' 
-                  }} />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                  <div style={{
+                    width: 'clamp(40px, 10vw, 48px)',
+                    height: 'clamp(40px, 10vw, 48px)',
+                    borderRadius: '14px',
+                    background: '#FF7A00',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    <FaClipboardList style={{
+                      fontSize: 'clamp(18px, 4vw, 22px)',
+                      color: '#ffffff'
+                    }} />
+                  </div>
+                  <div>
                     <h3 style={{
                       margin: 0,
-                      fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+                      fontSize: 'clamp(18px, 4vw, 22px)',
                       fontWeight: '700',
-                      color: 'var(--app-text)',
+                      color: '#1F2937',
                       lineHeight: '1.4',
-                      letterSpacing: '-0.3px',
+                      letterSpacing: '-0.5px',
+                      marginBottom: '4px',
                     }}>
                       {survey.title || 'Survey'}
                     </h3>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button
-                        type="button"
-                        onClick={() => handleShareClick(survey._id)}
-                        style={{
-                          background: 'rgba(59, 130, 246, 0.1)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '8px',
-                          borderRadius: '10px',
-                          color: '#3b82f6',
-                          transition: 'all 0.2s',
-                          flexShrink: 0,
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = 'rgba(59, 130, 246, 0.2)';
-                          e.target.style.transform = 'scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = 'rgba(59, 130, 246, 0.1)';
-                          e.target.style.transform = 'scale(1)';
-                        }}
-                        title="Share survey"
-                      >
-                        <FaShareAlt style={{ fontSize: '0.85rem' }} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setReportPopup({ isOpen: true, surveyId: survey._id, reason: '', status: 'initial', message: '' })}
-                        style={{
-                          background: 'rgba(239, 68, 68, 0.1)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '8px',
-                          borderRadius: '10px',
-                          color: '#ef4444',
-                          transition: 'all 0.2s',
-                          flexShrink: 0,
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = 'rgba(239, 68, 68, 0.2)';
-                          e.target.style.transform = 'scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = 'rgba(239, 68, 68, 0.1)';
-                          e.target.style.transform = 'scale(1)';
-                        }}
-                        title="Report survey"
-                      >
-                        <FaFlag style={{ fontSize: '0.85rem' }} />
-                      </button>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      fontSize: 'clamp(12px, 3vw, 14px)',
+                      fontWeight: '500',
+                      color: '#6B7280',
+                    }}>
+                      <span>by {survey.creator_name || 'Unknown'}</span>
                     </div>
                   </div>
-                  <div style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '8px',
-                    marginTop: '8px',
-                    alignItems: 'center',
-                  }}>
-                    <span style={{
-                      fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
-                      color: '#64748b',
-                      fontWeight: '500',
-                    }}>
-                      {questions.length} question{questions.length !== 1 ? 's' : ''}
-                    </span>
-                    {questions.length > 0 && (
-                      <span style={{
-                        fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
-                        color: '#f59e0b',
-                        fontWeight: '600',
-                        background: 'rgba(245, 158, 11, 0.1)',
-                        padding: '2px 8px',
-                        borderRadius: '6px',
-                      }}>
-                        {questions.map(q => {
-                          const typeLabels = {
-                            'text': 'Text',
-                            'radio': 'Radio',
-                            'checkbox': 'Checkbox'
-                          };
-                          return typeLabels[q.type] || q.type;
-                        }).join(', ')}
-                      </span>
-                    )}
-                    {survey.creator_name && (
-                      <span style={{
-                        fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
-                        color: '#64748b',
-                      }}>
-                        by {survey.creator_name}
-                      </span>
-                    )}
-                  </div>
+                </div>
+
+                {/* Right Side - Action Buttons */}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleShareClick(survey._id)}
+                    style={{
+                      width: 'clamp(36px, 8vw, 40px)',
+                      height: 'clamp(36px, 8vw, 40px)',
+                      background: '#ffffff',
+                      border: '1px solid #EAEAEA',
+                      borderRadius: '14px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#6B7280',
+                      transition: 'all 0.2s ease',
+                      flexShrink: 0,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.borderColor = '#FF7A00';
+                      e.target.style.color = '#FF7A00';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.borderColor = '#EAEAEA';
+                      e.target.style.color = '#6B7280';
+                    }}
+                  >
+                    <FaShareAlt />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleReportClick(survey._id)}
+                    style={{
+                      width: 'clamp(36px, 8vw, 40px)',
+                      height: 'clamp(36px, 8vw, 40px)',
+                      background: '#ffffff',
+                      border: '1px solid #EAEAEA',
+                      borderRadius: '14px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#6B7280',
+                      transition: 'all 0.2s ease',
+                      flexShrink: 0,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.borderColor = '#FF7A00';
+                      e.target.style.color = '#FF7A00';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.borderColor = '#EAEAEA';
+                      e.target.style.color = '#6B7280';
+                    }}
+                  >
+                    <FaFlag />
+                  </button>
                 </div>
               </div>
+
+              {/* Survey Metadata Chips */}
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+                marginBottom: '16px',
+              }}>
+                <span style={{
+                  background: '#FFF4E8',
+                  color: '#FF7A00',
+                  borderRadius: '999px',
+                  padding: 'clamp(4px, 1.5vw, 6px) clamp(10px, 3vw, 14px)',
+                  fontSize: 'clamp(10px, 2.5vw, 12px)',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}>
+                  🌍 Public
+                </span>
+                <span style={{
+                  background: '#FFF4E8',
+                  color: '#FF7A00',
+                  borderRadius: '999px',
+                  padding: 'clamp(4px, 1.5vw, 6px) clamp(10px, 3vw, 14px)',
+                  fontSize: 'clamp(10px, 2.5vw, 12px)',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}>
+                  ❓ {questions.length} Question{questions.length !== 1 ? 's' : ''}
+                </span>
+                {questions.length > 0 && questions.map((q, idx) => {
+                  const typeIcons = {
+                    'text': '📝',
+                    'radio': '🔘',
+                    'checkbox': '☑',
+                    'dropdown': '📋',
+                  };
+                  const typeLabels = {
+                    'text': 'Text',
+                    'radio': 'Radio',
+                    'checkbox': 'Checkbox',
+                    'dropdown': 'Dropdown',
+                  };
+                  const icon = typeIcons[q.type] || '❓';
+                  const label = typeLabels[q.type] || q.type;
+                  return (
+                    <span key={idx} style={{
+                      background: '#FFF4E8',
+                      color: '#FF7A00',
+                      borderRadius: '999px',
+                      padding: 'clamp(4px, 1.5vw, 6px) clamp(10px, 3vw, 14px)',
+                      fontSize: 'clamp(10px, 2.5vw, 12px)',
+                      fontWeight: '500',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}>
+                      {icon} {label}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
+
+            {/* Divider */}
+            <div style={{
+              height: '1px',
+              background: '#F2F2F2',
+              marginBottom: '24px',
+            }} />
 
             {/* Show submitted message or form */}
             {userResponses[survey._id] ? (
@@ -760,6 +803,47 @@ function SurveyRotator() {
               </div>
             ) : (
               <>
+                {/* Progress Section */}
+                <div style={{ marginBottom: 'clamp(20px, 5vw, 32px)' }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 'clamp(8px, 2vw, 12px)',
+                  }}>
+                    <span style={{
+                      fontSize: 'clamp(12px, 3vw, 14px)',
+                      fontWeight: '500',
+                      color: '#6B7280',
+                    }}>
+                      Question {state.currentQuestionIndex + 1} of {questions.length}
+                    </span>
+                    <span style={{
+                      fontSize: 'clamp(12px, 3vw, 14px)',
+                      fontWeight: '600',
+                      color: '#FF7A00',
+                    }}>
+                      {state.currentQuestionIndex + 1} / {questions.length}
+                    </span>
+                  </div>
+                  {/* Progress Bar */}
+                  <div style={{
+                    width: '100%',
+                    height: 'clamp(4px, 1vw, 5px)',
+                    background: '#F1F1F1',
+                    borderRadius: '999px',
+                    overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      width: `${((state.currentQuestionIndex + 1) / questions.length) * 100}%`,
+                      height: '100%',
+                      background: 'linear-gradient(180deg, #FF7A00 0%, #FFA726 100%)',
+                      borderRadius: '999px',
+                      transition: 'width 0.3s ease',
+                    }} />
+                  </div>
+                </div>
+
                 {/* All Questions - Vertical Scroll */}
                 <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {questions.map((question, qIndex) => (
@@ -770,41 +854,44 @@ function SurveyRotator() {
                       border: '1px solid rgba(0, 0, 0, 0.06)',
                     }}>
                       <h4 style={{
-                        margin: '0 0 14px',
-                        fontSize: 'clamp(0.95rem, 2.8vw, 1.05rem)',
-                        fontWeight: '600',
-                        color: 'var(--app-text)',
+                        margin: '0 0 clamp(12px, 3vw, 20px)',
+                        fontSize: 'clamp(18px, 4vw, 28px)',
+                        fontWeight: '700',
+                        color: '#1F2937',
                         lineHeight: '1.5',
-                        letterSpacing: '-0.2px',
+                        letterSpacing: '-0.5px',
                       }}>
-                        {qIndex + 1}. {question.question}
+                        {question.question}
                       </h4>
 
                       {/* Text input */}
                       {question.type === 'text' && (
-                        <input
-                          type="text"
+                        <textarea
                           value={state.answers[question._id] || ''}
                           onChange={(e) => handleAnswer(survey._id, question._id, e.target.value)}
                           placeholder="Type your answer..."
                           disabled={isSubmitting}
                           style={{
                             width: '100%',
-                            padding: 'clamp(12px, 3vw, 14px)',
-                            border: '2px solid #e2e8f0',
-                            borderRadius: '12px',
-                            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
-                            background: 'var(--app-bg)',
-                            color: 'var(--app-text)',
+                            height: 'clamp(140px, 35vw, 180px)',
+                            padding: 'clamp(14px, 3.5vw, 18px)',
+                            border: '1px solid #E5E7EB',
+                            borderRadius: '18px',
+                            fontSize: 'clamp(14px, 3.5vw, 16px)',
+                            background: '#ffffff',
+                            color: '#1F2937',
                             outline: 'none',
-                            transition: 'all 0.2s',
+                            transition: 'all 0.2s ease',
+                            resize: 'none',
+                            fontFamily: 'inherit',
                           }}
+                          placeholderColor="#9CA3AF"
                           onFocus={(e) => {
-                            e.target.style.borderColor = '#f59e0b';
-                            e.target.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.1)';
+                            e.target.style.borderColor = '#FF7A00';
+                            e.target.style.boxShadow = '0 0 0 4px rgba(255, 122, 0, 0.15)';
                           }}
                           onBlur={(e) => {
-                            e.target.style.borderColor = '#e2e8f0';
+                            e.target.style.borderColor = '#E5E7EB';
                             e.target.style.boxShadow = 'none';
                           }}
                         />
@@ -812,7 +899,7 @@ function SurveyRotator() {
 
                       {/* Radio options */}
                       {question.type === 'radio' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 2vw, 8px)' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 3vw, 18px)' }}>
                           {question.options.map((option, idx) => {
                             const isSelected = state.answers[question._id] === option;
                             return (
@@ -823,16 +910,17 @@ function SurveyRotator() {
                                 disabled={isSubmitting}
                                 style={{
                                   width: '100%',
-                                  padding: 'clamp(10px, 3vw, 12px) clamp(14px, 4vw, 16px)',
-                                  border: isSelected 
-                                    ? '2px solid #f59e0b' 
-                                    : '2px solid #e2e8f0',
-                                  borderRadius: '12px',
+                                  height: 'clamp(52px, 13vw, 60px)',
+                                  padding: 'clamp(14px, 3.5vw, 18px)',
+                                  border: isSelected
+                                    ? '1px solid #FF7A00'
+                                    : '1px solid #E8E8E8',
+                                  borderRadius: '16px',
                                   background: isSelected
-                                    ? 'rgba(245, 158, 11, 0.1)'
-                                    : 'var(--app-bg)',
-                                  color: 'var(--app-text)',
-                                  fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
+                                    ? '#FFF8F1'
+                                    : '#ffffff',
+                                  color: '#1F2937',
+                                  fontSize: 'clamp(14px, 3.5vw, 16px)',
                                   fontWeight: '500',
                                   textAlign: 'left',
                                   cursor: isSubmitting ? 'not-allowed' : 'pointer',
@@ -843,20 +931,34 @@ function SurveyRotator() {
                                 }}
                                 onMouseEnter={(e) => {
                                   if (!isSubmitting) {
-                                    e.target.style.borderColor = '#f59e0b';
-                                    e.target.style.background = 'rgba(245, 158, 11, 0.05)';
+                                    e.target.style.borderColor = '#FF7A00';
                                   }
                                 }}
                                 onMouseLeave={(e) => {
                                   if (!isSelected) {
-                                    e.target.style.borderColor = '#e2e8f0';
-                                    e.target.style.background = 'var(--app-bg)';
+                                    e.target.style.borderColor = '#E8E8E8';
                                   }
                                 }}
                               >
                                 <span>{option}</span>
                                 {isSelected && (
-                                  <FaCheck style={{ color: '#f59e0b' }} />
+                                  <div style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '50%',
+                                    border: '2px solid #FF7A00',
+                                    background: '#FF7A00',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}>
+                                    <div style={{
+                                      width: '8px',
+                                      height: '8px',
+                                      borderRadius: '50%',
+                                      background: '#ffffff',
+                                    }} />
+                                  </div>
                                 )}
                               </button>
                             );
@@ -866,10 +968,10 @@ function SurveyRotator() {
 
                       {/* Checkbox options */}
                       {question.type === 'checkbox' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 2vw, 8px)' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 3vw, 18px)' }}>
                           {question.options.map((option, idx) => {
-                            const selectedValues = Array.isArray(state.answers[question._id]) 
-                              ? state.answers[question._id] 
+                            const selectedValues = Array.isArray(state.answers[question._id])
+                              ? state.answers[question._id]
                               : [];
                             const isSelected = selectedValues.includes(option);
                             return (
@@ -887,16 +989,17 @@ function SurveyRotator() {
                                 disabled={isSubmitting}
                                 style={{
                                   width: '100%',
-                                  padding: 'clamp(10px, 3vw, 12px) clamp(14px, 4vw, 16px)',
-                                  border: isSelected 
-                                    ? '2px solid #f59e0b' 
-                                    : '2px solid #e2e8f0',
-                                  borderRadius: '12px',
+                                  height: 'clamp(52px, 13vw, 60px)',
+                                  padding: 'clamp(14px, 3.5vw, 18px)',
+                                  border: isSelected
+                                    ? '1px solid #FF7A00'
+                                    : '1px solid #E8E8E8',
+                                  borderRadius: '16px',
                                   background: isSelected
-                                    ? 'rgba(245, 158, 11, 0.1)'
-                                    : 'var(--app-bg)',
-                                  color: 'var(--app-text)',
-                                  fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
+                                    ? '#FFF8F2'
+                                    : '#ffffff',
+                                  color: '#1F2937',
+                                  fontSize: 'clamp(14px, 3.5vw, 16px)',
                                   fontWeight: '500',
                                   textAlign: 'left',
                                   cursor: isSubmitting ? 'not-allowed' : 'pointer',
@@ -907,20 +1010,29 @@ function SurveyRotator() {
                                 }}
                                 onMouseEnter={(e) => {
                                   if (!isSubmitting) {
-                                    e.target.style.borderColor = '#f59e0b';
-                                    e.target.style.background = 'rgba(245, 158, 11, 0.05)';
+                                    e.target.style.borderColor = '#FF7A00';
                                   }
                                 }}
                                 onMouseLeave={(e) => {
                                   if (!isSelected) {
-                                    e.target.style.borderColor = '#e2e8f0';
-                                    e.target.style.background = 'var(--app-bg)';
+                                    e.target.style.borderColor = '#E8E8E8';
                                   }
                                 }}
                               >
                                 <span>{option}</span>
                                 {isSelected && (
-                                  <FaCheck style={{ color: '#f59e0b' }} />
+                                  <div style={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '6px',
+                                    border: '2px solid #FF7A00',
+                                    background: '#FF7A00',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}>
+                                    <FaCheck style={{ color: '#ffffff', fontSize: '12px' }} />
+                                  </div>
                                 )}
                               </button>
                             );
@@ -931,53 +1043,97 @@ function SurveyRotator() {
                   ))}
                 </div>
 
-                {/* Submit button - only show if not submitted */}
-                <button
-                  type="button"
-                  onClick={() => handleSubmit(survey._id)}
-                  disabled={!allAnswered || isSubmitting}
-                  style={{
-                    width: '100%',
-                    padding: 'clamp(12px, 3vw, 14px) clamp(20px, 5vw, 24px)',
-                    border: 'none',
-                    borderRadius: '14px',
-                    background: !allAnswered || isSubmitting
-                      ? '#cbd5e1'
-                      : '#f59e0b',
-                    color: '#ffffff',
-                    fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
-                    fontWeight: '600',
-                    cursor: !allAnswered || isSubmitting ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    letterSpacing: '-0.3px',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (allAnswered && !isSubmitting) {
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.4)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = 'none';
-                  }}
-                >
-                  {isSubmitting ? (
-                    <>
+                {/* Divider */}
+                <div style={{
+                  height: '1px',
+                  background: '#F2F2F2',
+                  marginBottom: '24px',
+                }} />
+
+                {/* Footer Buttons */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: 'clamp(8px, 2vw, 12px)',
+                }}>
+                  {/* Cancel Button */}
+                  <button
+                    type="button"
+                    onClick={() => setActivePopup(null)}
+                    style={{
+                      width: '45%',
+                      height: 'clamp(48px, 12vw, 52px)',
+                      background: '#ffffff',
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '16px',
+                      color: '#6B7280',
+                      fontSize: 'clamp(14px, 3.5vw, 15px)',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = '#F9FAFB';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = '#ffffff';
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                  {/* Submit Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleSubmit(survey._id)}
+                    disabled={!allAnswered || isSubmitting}
+                    style={{
+                      width: '55%',
+                      height: 'clamp(48px, 12vw, 52px)',
+                      background: !allAnswered || isSubmitting
+                        ? '#D1D5DB'
+                        : 'linear-gradient(180deg, #FF7A00 0%, #FFA726 100%)',
+                      border: 'none',
+                      borderRadius: '16px',
+                      color: '#ffffff',
+                      fontSize: 'clamp(14px, 3.5vw, 15px)',
+                      fontWeight: '600',
+                      cursor: !allAnswered || isSubmitting ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 'clamp(8px, 2vw, 12px)',
+                      boxShadow: !allAnswered || isSubmitting
+                        ? 'none'
+                        : '0 4px 12px rgba(255, 122, 0, 0.3)',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (allAnswered && !isSubmitting) {
+                        e.target.style.transform = 'scale(1.02)';
+                        e.target.style.background = 'linear-gradient(180deg, #FF6B00 0%, #FF9520 100%)';
+                        e.target.style.boxShadow = '0 6px 16px rgba(255, 122, 0, 0.4)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (allAnswered && !isSubmitting) {
+                        e.target.style.transform = 'scale(1)';
+                        e.target.style.background = 'linear-gradient(180deg, #FF7A00 0%, #FFA726 100%)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(255, 122, 0, 0.3)';
+                      }
+                    }}
+                  >
+                    {isSubmitting ? (
                       <FaSpinner style={{ animation: 'spin 1s linear infinite' }} />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      Submit Survey
-                      <FaCheck />
-                    </>
-                  )}
-                </button>
+                    ) : (
+                      <>
+                        Submit Survey
+                        <FaCheck />
+                      </>
+                    )}
+                  </button>
+                </div>
               </>
             )}
           </div>

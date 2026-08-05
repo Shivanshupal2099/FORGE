@@ -1648,39 +1648,39 @@
 }
 
 /* Mono theme for welcome card */
-::root[data-theme='mono'] .welcome-card {
+:root[data-theme='mono'] .welcome-card {
   background: rgba(255, 255, 255, 0.8);
   border: 2px solid rgba(0, 0, 0, 0.3);
   box-shadow: 0 32px 90px rgba(0, 0, 0, 0.3);
 }
 
-::root[data-theme='mono'] .welcome-card__close {
+:root[data-theme='mono'] .welcome-card__close {
   background: rgba(0, 0, 0, 0.1);
   color: #000000;
 }
 
-::root[data-theme='mono'] .welcome-card__close:hover {
+:root[data-theme='mono'] .welcome-card__close:hover {
   background: rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .welcome-card__subtitle {
+:root[data-theme='mono'] .welcome-card__subtitle {
   color: #000000;
 }
 
-::root[data-theme='mono'] .welcome-card__feature {
+:root[data-theme='mono'] .welcome-card__feature {
   background: rgba(0, 0, 0, 0.03);
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-::root[data-theme='mono'] .welcome-card__feature:hover {
+:root[data-theme='mono'] .welcome-card__feature:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
-::root[data-theme='mono'] .welcome-card__feature-content h3 {
+:root[data-theme='mono'] .welcome-card__feature-content h3 {
   color: #000000;
 }
 
-::root[data-theme='mono'] .welcome-card__feature-content p {
+:root[data-theme='mono'] .welcome-card__feature-content p {
   color: #000000;
 }
 
@@ -2315,132 +2315,132 @@
 
 /* Mono theme support for offer component */
 
-::root[data-theme='mono'] .offer-card {
+:root[data-theme='mono'] .offer-card {
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
-::root[data-theme='mono'] .offer-card:hover {
+:root[data-theme='mono'] .offer-card:hover {
   background: rgba(255, 255, 255, 0.8);
 }
 
-::root[data-theme='mono'] .offer-card__title {
+:root[data-theme='mono'] .offer-card__title {
   color: #000000;
 }
 
-::root[data-theme='mono'] .offer-card__category {
+:root[data-theme='mono'] .offer-card__category {
   background: rgba(0, 0, 0, 0.1);
   color: #000000;
 }
 
-::root[data-theme='mono'] .offer-detail-card {
+:root[data-theme='mono'] .offer-detail-card {
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
-::root[data-theme='mono'] .offer-detail__category {
+:root[data-theme='mono'] .offer-detail__category {
   background: rgba(0, 0, 0, 0.1);
   color: #000000;
 }
 
-::root[data-theme='mono'] .offer-detail__description {
+:root[data-theme='mono'] .offer-detail__description {
   color: #000000;
   background: rgba(0, 0, 0, 0.03);
 }
 
-::root[data-theme='mono'] .offer-detail__meta-item {
+:root[data-theme='mono'] .offer-detail__meta-item {
   background: rgba(0, 0, 0, 0.05);
 }
 
-::root[data-theme='mono'] .offer-detail__meta-label,
-::root[data-theme='mono'] .offer-detail__meta-value {
+:root[data-theme='mono'] .offer-detail__meta-label,
+:root[data-theme='mono'] .offer-detail__meta-value {
   color: #000000;
 }
 
-::root[data-theme='mono'] .home-popup__back {
+:root[data-theme='mono'] .home-popup__back {
   background: rgba(0, 0, 0, 0.1);
   color: #000000;
 }
 
-::root[data-theme='mono'] .home-popup__back:hover {
+:root[data-theme='mono'] .home-popup__back:hover {
   background: rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .button-icon {
+:root[data-theme='mono'] .button-icon {
   background: rgba(0, 0, 0, 0.1);
   color: #000000;
 }
 
-::root[data-theme='mono'] .button-icon:hover {
+:root[data-theme='mono'] .button-icon:hover {
   background: rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .button-danger {
+:root[data-theme='mono'] .button-danger {
   background: rgba(255, 0, 0, 0.15);
   color: #FF0000;
 }
 
-::root[data-theme='mono'] .button-danger:hover {
+:root[data-theme='mono'] .button-danger:hover {
   background: rgba(255, 0, 0, 0.25);
 }
 
-::root[data-theme='mono'] .redeemed-badge {
+:root[data-theme='mono'] .redeemed-badge {
   background: rgba(0, 200, 0, 0.15);
   color: #00C800;
 }
 
-::root[data-theme='mono'] .expired-badge {
+:root[data-theme='mono'] .expired-badge {
   background: rgba(255, 0, 0, 0.15);
   color: #FF0000;
 }
 
-::root[data-theme='mono'] .verification-badge {
+:root[data-theme='mono'] .verification-badge {
   background: rgba(255, 165, 0, 0.15);
   color: #FFA500;
 }
 
 /* Mono theme for loading and error states */
-::root[data-theme='mono'] .spinner {
+:root[data-theme='mono'] .spinner {
   color: #000000;
 }
 
-::root[data-theme='mono'] .loading-text,
-::root[data-theme='mono'] .empty-text,
-::root[data-theme='mono'] .empty-subtext {
+:root[data-theme='mono'] .loading-text,
+:root[data-theme='mono'] .empty-text,
+:root[data-theme='mono'] .empty-subtext {
   color: #000000;
 }
 
-::root[data-theme='mono'] .empty-icon {
+:root[data-theme='mono'] .empty-icon {
   color: #000000;
   opacity: 0.3;
 }
 
-::root[data-theme='mono'] .error-text {
+:root[data-theme='mono'] .error-text {
   color: #FF0000;
 }
 
-::root[data-theme='mono'] .button-secondary {
+:root[data-theme='mono'] .button-secondary {
   border-color: rgba(0, 0, 0, 0.3);
   color: #000000;
 }
 
-::root[data-theme='mono'] .button-secondary:hover {
+:root[data-theme='mono'] .button-secondary:hover {
   background: rgba(0, 0, 0, 0.1);
   border-color: rgba(0, 0, 0, 0.5);
 }
 
-::root[data-theme='mono'] .home-popup__token-balance {
+:root[data-theme='mono'] .home-popup__token-balance {
   background: linear-gradient(135deg, rgba(0, 0, 0, 0.15), rgba(50, 50, 50, 0.1));
   border: 2px solid rgba(0, 0, 0, 0.4);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .token-icon {
+:root[data-theme='mono'] .token-icon {
   color: #FFD700;
 }
 
-::root[data-theme='mono'] .token-amount,
-::root[data-theme='mono'] .token-label {
+:root[data-theme='mono'] .token-amount,
+:root[data-theme='mono'] .token-label {
   color: #000000;
 }
 
@@ -3991,18 +3991,18 @@
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
-::root[data-theme='mono'] .settings-signout-zone {
+:root[data-theme='mono'] .settings-signout-zone {
   background: #ffffff;
   border: 2px solid #111111;
 }
 
-::root[data-theme='mono'] .settings-signout-button {
+:root[data-theme='mono'] .settings-signout-button {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   border: none;
   color: #ffffff;
 }
 
-::root[data-theme='mono'] .settings-signout-button:hover {
+:root[data-theme='mono'] .settings-signout-button:hover {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
 }
 
@@ -4350,27 +4350,27 @@
   cursor: not-allowed;
 }
 
-::root[data-theme='mono'] .settings-danger-zone {
+:root[data-theme='mono'] .settings-danger-zone {
   background: rgba(239, 68, 68, 0.1);
   border: 2px solid #ef4444;
 }
 
-::root[data-theme='mono'] .settings-delete-dialog {
+:root[data-theme='mono'] .settings-delete-dialog {
   border: 2px solid #111111;
   background: #ffffff;
   box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .settings-delete-dialog__header h2 {
+:root[data-theme='mono'] .settings-delete-dialog__header h2 {
   color: #111111;
 }
 
-::root[data-theme='mono'] .settings-delete-dialog__content input {
+:root[data-theme='mono'] .settings-delete-dialog__content input {
   border: 2px solid #111111;
   background: #ffffff;
 }
 
-::root[data-theme='mono'] .settings-delete-dialog__content input:focus {
+:root[data-theme='mono'] .settings-delete-dialog__content input:focus {
   border-color: #ef4444;
 }
 
@@ -5221,104 +5221,104 @@
   font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
 }
 
-::root[data-theme='mono'] .verification-popup {
+:root[data-theme='mono'] .verification-popup {
   border: 3px solid #111111;
   background: #ffffff;
   box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .verification-popup__accent,
-::root[data-theme='mono'] .verification-popup__accent2 {
+:root[data-theme='mono'] .verification-popup__accent,
+:root[data-theme='mono'] .verification-popup__accent2 {
   display: none;
 }
 
-::root[data-theme='mono'] .verification-popup__close {
+:root[data-theme='mono'] .verification-popup__close {
   background: #111111;
   color: white;
   border: 2px solid #111111;
 }
 
-::root[data-theme='mono'] .verification-popup__close:hover {
+:root[data-theme='mono'] .verification-popup__close:hover {
   background: #333333;
   border-color: #333333;
 }
 
-::root[data-theme='mono'] .verification-popup__icon-bg {
+:root[data-theme='mono'] .verification-popup__icon-bg {
   background: #111111;
   opacity: 0.1;
 }
 
-::root[data-theme='mono'] .verification-popup__icon {
+:root[data-theme='mono'] .verification-popup__icon {
   background: #111111;
   color: white;
   box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .verification-popup__badge {
+:root[data-theme='mono'] .verification-popup__badge {
   background: #111111;
   color: white;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .verification-popup__headline h2 {
+:root[data-theme='mono'] .verification-popup__headline h2 {
   background: none;
   -webkit-text-fill-color: #111111;
   color: #111111;
 }
 
-::root[data-theme='mono'] .verification-popup__pricing {
+:root[data-theme='mono'] .verification-popup__pricing {
   background: #f3f4f6;
   border: 2px solid #111111;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
 }
 
-::root[data-theme='mono'] .verification-popup__price-amount {
+:root[data-theme='mono'] .verification-popup__price-amount {
   background: none;
   -webkit-text-fill-color: #111111;
   color: #111111;
 }
 
-::root[data-theme='mono'] .verification-popup__benefit {
+:root[data-theme='mono'] .verification-popup__benefit {
   background: #ffffff;
   border: 2px solid #e5e7eb;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
-::root[data-theme='mono'] .verification-popup__benefit:hover {
+:root[data-theme='mono'] .verification-popup__benefit:hover {
   border-color: #111111;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.15);
 }
 
-::root[data-theme='mono'] .verification-popup__benefit-icon {
+:root[data-theme='mono'] .verification-popup__benefit-icon {
   background: #111111;
   color: white;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
   margin: 0 auto;
 }
 
-::root[data-theme='mono'] .verification-popup__button--primary {
+:root[data-theme='mono'] .verification-popup__button--primary {
   background: #111111;
   color: white;
   box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .verification-popup__button--primary:hover {
+:root[data-theme='mono'] .verification-popup__button--primary:hover {
   box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.25);
 }
 
-::root[data-theme='mono'] .verification-popup__button--secondary {
+:root[data-theme='mono'] .verification-popup__button--secondary {
   background: #ffffff;
   border: 3px solid #111111;
   color: #111111;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.15);
 }
 
-::root[data-theme='mono'] .verification-popup__button--secondary:hover {
+:root[data-theme='mono'] .verification-popup__button--secondary:hover {
   background: #f3f4f6;
   box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.2);
 }
 
-::root[data-theme='mono'] .verification-popup__trust {
+:root[data-theme='mono'] .verification-popup__trust {
   border-top-color: #e5e7eb;
   justify-content: center;
 }
@@ -5328,7 +5328,7 @@
   background: var(--app-card-bg);
 }
 
-::root[data-theme='mono'] .page-shell form {
+:root[data-theme='mono'] .page-shell form {
   background: #ffffff !important;
   border: 2px solid #111111 !important;
   box-shadow: 10px 10px 0 #111111 !important;
@@ -5336,13 +5336,13 @@
 }
 
 /* Mono theme mobile adjustments */
-::root[data-theme='mono'] .verification-popup--mobile .verification-popup {
+:root[data-theme='mono'] .verification-popup--mobile .verification-popup {
   border: 2px solid #111111;
   border-radius: 20px 20px 0 0;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
 }
 
-::root[data-theme='mono'] .verification-popup--mobile .verification-popup__benefit {
+:root[data-theme='mono'] .verification-popup--mobile .verification-popup__benefit {
   box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
@@ -6132,82 +6132,82 @@
 }
 
 /* Mono Theme for Legal Pages */
-::root[data-theme='mono'] .legal-page__header {
+:root[data-theme='mono'] .legal-page__header {
   background: #ffffff;
   border: 2px solid #111111;
   box-shadow: 8px 8px 0 #111111;
 }
 
-::root[data-theme='mono'] .legal-page__header::before {
+:root[data-theme='mono'] .legal-page__header::before {
   background: #111111;
 }
 
-::root[data-theme='mono'] .legal-page__icon {
+:root[data-theme='mono'] .legal-page__icon {
   background: #111111;
   color: #ffffff;
   box-shadow: 4px 4px 0 #111111;
 }
 
-::root[data-theme='mono'] .legal-page__icon--terms {
+:root[data-theme='mono'] .legal-page__icon--terms {
   background: #111111;
   color: #ffffff;
 }
 
-::root[data-theme='mono'] .legal-page__title h1 {
+:root[data-theme='mono'] .legal-page__title h1 {
   background: none;
   -webkit-text-fill-color: #111111;
   color: #111111;
 }
 
-::root[data-theme='mono'] .legal-page__intro {
+:root[data-theme='mono'] .legal-page__intro {
   background: #ffffff;
   border: 2px solid #111111;
   box-shadow: 4px 4px 0 #111111;
 }
 
-::root[data-theme='mono'] .legal-page__section {
+:root[data-theme='mono'] .legal-page__section {
   background: #ffffff;
   border: 2px solid #111111;
   box-shadow: 4px 4px 0 #111111;
 }
 
-::root[data-theme='mono'] .legal-page__section:hover {
+:root[data-theme='mono'] .legal-page__section:hover {
   box-shadow: 6px 6px 0 #111111;
 }
 
-::root[data-theme='mono'] .legal-page__section-icon {
+:root[data-theme='mono'] .legal-page__section-icon {
   background: #111111;
   color: #ffffff;
   box-shadow: 2px 2px 0 #111111;
 }
 
-::root[data-theme='mono'] .legal-page__details {
+:root[data-theme='mono'] .legal-page__details {
   background: #ffffff;
   border: 2px solid #111111;
   box-shadow: 10px 10px 0 #111111;
 }
 
-::root[data-theme='mono'] .legal-page__details h2 {
+:root[data-theme='mono'] .legal-page__details h2 {
   border-bottom-color: #111111;
 }
 
-::root[data-theme='mono'] .legal-page__detail h3::before {
+:root[data-theme='mono'] .legal-page__detail h3::before {
   background: #111111;
 }
 
-::root[data-theme='mono'] .legal-page__contact {
+:root[data-theme='mono'] .legal-page__contact {
   background: #ffffff;
   border: 2px solid #111111;
 }
 
-::root[data-theme='mono'] .legal-page__back {
+:root[data-theme='mono'] .legal-page__back {
   background: #ffffff;
   border: 2px solid #111111;
   color: #111111;
   box-shadow: 4px 4px 0 #111111;
 }
 
-::root[data-theme='mono'] .legal-page__back:hover {
+:root[data-theme='mono'] .legal-page__back:hover {
   background: #111111;
   color: #ffffff;
   box-shadow: 6px 6px 0 #111111;
