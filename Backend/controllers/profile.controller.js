@@ -414,3 +414,79 @@ exports.clearLocation = async (req, res) => {
     });
   }
 };
+
+// Get nearby users based on location
+exports.getNearbyUsers = async (req, res) => {
+  try {
+    const { uid } = req.params;
+
+    if (!uid) {
+      return res.status(400).json({
+        success: false,
+        message: 'UID is required'
+      });
+    }
+
+    console.log('Fetching nearby users for UID:', uid);
+
+    // Get current user's profile to get their location
+    const currentUserProfile = await Profile.findOne({ uid: uid });
+    
+    if (!currentUserProfile || !currentUserProfile.latitude || !currentUserProfile.longitude) {
+      return res.json({
+        success: true,
+        users: [],
+        message: 'User location not set'
+      });
+    }
+
+    const { latitude: userLat, longitude: userLon } = currentUserProfile;
+    const searchRadiusKm = 50; // Search within 50km
+
+    // Find all profiles with location data (excluding current user)
+    const nearbyProfiles = await Profile.find({
+      uid: { $ne: uid },
+      latitude: { $ne: null },
+      longitude: { $ne: null }
+    }).lean();
+
+    // Calculate distance for each user and filter by radius
+    const nearbyUsers = nearbyProfiles
+      .map(profile => {
+        const distance = calculateDistance(userLat, userLon, profile.latitude, profile.longitude);
+        return {
+          ...profile,
+          distance
+        };
+      })
+      .filter(user => user.distance <= searchRadiusKm)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, 50); // Limit to 50 nearest users
+
+    console.log(`Found ${nearbyUsers.length} nearby users within ${searchRadiusKm}km`);
+
+    res.json({
+      success: true,
+      users: nearbyUsers
+    });
+  } catch (error) {
+    console.error('Error fetching nearby users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching nearby users',
+      error: error.message
+    });
+  }
+};
+
+// Helper function to calculate distance between two coordinates using Haversine formula
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}

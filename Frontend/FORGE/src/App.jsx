@@ -24,6 +24,7 @@ const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const EventDetailPage = lazy(() => import('./pages/EventDetailPage'));
 const PublicSurveyPage = lazy(() => import('./pages/PublicSurveyPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const NearbyPage = lazy(() => import('./pages/NearbyPage'));
 
 // Loading component for Suspense fallback
 const PageLoader = () => (
@@ -70,6 +71,7 @@ function App() {
             <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />   
             <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
             <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
+            <Route path="/nearby" element={<ProtectedRoute><NearbyPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/profile/:email" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/profile/edit" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />

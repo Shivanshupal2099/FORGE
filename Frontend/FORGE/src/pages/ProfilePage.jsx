@@ -1,12 +1,13 @@
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { IoSettingsSharp, IoMailOutline, IoBriefcaseOutline, IoLinkOutline, IoLocationOutline } from 'react-icons/io5';
-import { FaRegEdit } from 'react-icons/fa';
+import { FaRegEdit, FaCoins } from 'react-icons/fa';
 import { MdEvent, MdOutlineVerified } from 'react-icons/md';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
 import VerificationPopup from '../Components/VerificationPopup';
+import Tokens from '../Components/Tokens';
 import axios from '../api/axios';
 import maleImage from '../assets/male.png';
 import femaleImage from '../assets/female.png';
@@ -29,6 +30,7 @@ function ProfilePage() {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
+  const [showTokensPopup, setShowTokensPopup] = useState(false);
 
   // Determine if viewing own profile or someone else's
   const isOwnProfile = !profileEmail || profileEmail === user?.email;
@@ -220,6 +222,47 @@ function ProfilePage() {
   return (
     <div className="page-shell">
       <Header />
+      {isOwnProfile && (
+        <Link 
+          to="/settings" 
+          aria-label="Settings"
+          style={{
+            position: 'fixed',
+            top: '80px',
+            right: '20px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: isMobile ? '44px' : '48px',
+            height: isMobile ? '44px' : '48px',
+            padding: '0',
+            textDecoration: 'none',
+            color: '#111111',
+            background: 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            borderRadius: '999px',
+            border: '1px solid rgba(255, 255, 255, 0.5)',
+            boxShadow: '0 4px 16px rgba(17, 17, 17, 0.1)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            zIndex: 100,
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)';
+            e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+            e.target.style.borderColor = 'rgba(255, 255, 255, 0.7)';
+            e.target.style.boxShadow = '0 8px 24px rgba(17, 17, 17, 0.15)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.background = 'rgba(255, 255, 255, 0.8)';
+            e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+            e.target.style.boxShadow = '0 4px 16px rgba(17, 17, 17, 0.1)';
+          }}
+        >
+          <IoSettingsSharp style={{ fontSize: isMobile ? '1.2rem' : '1.3rem' }} />
+        </Link>
+      )}
       <div className="profile-card">
         <div className="profile-card__cover"></div>
         
@@ -288,6 +331,43 @@ function ProfilePage() {
               >
                 <FaRegEdit />
               </Link>
+            )}
+            {isOwnProfile && (
+              <button
+                onClick={() => setShowTokensPopup(true)}
+                style={{
+                  padding: '14px',
+                  borderRadius: '999px',
+                  background: 'rgba(255, 215, 0, 0.25)',
+                  color: '#111111',
+                  fontWeight: '500',
+                  fontSize: '1.2rem',
+                  border: '1px solid rgba(255, 215, 0, 0.3)',
+                  boxShadow: '0 4px 12px rgba(255, 215, 0, 0.15)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  marginLeft: '8px',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  minWidth: '48px',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.background = 'rgba(255, 215, 0, 0.35)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.background = 'rgba(255, 215, 0, 0.25)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.15)';
+                }}
+              >
+                <FaCoins />
+              </button>
             )}
             {isOwnProfile && (
               <button
@@ -386,47 +466,6 @@ function ProfilePage() {
               >
                 <MdOutlineVerified />
               </button>
-            )}
-            {isOwnProfile && (
-              <Link 
-                to="/settings" 
-                className="profile-card__settings-button"
-                aria-label="Settings"
-               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: isMobile ? '44px' : '40px',
-                height: isMobile ? '44px' : '40px',
-                padding: '0',
-                marginLeft: '8px',
-                textDecoration: 'none',
-                color: '#111111',
-                background: 'rgba(255, 255, 255, 0.5)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                borderRadius: '999px',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 4px 12px rgba(17, 17, 17, 0.05)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.7)';
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-                e.target.style.boxShadow = '0 6px 16px rgba(17, 17, 17, 0.08)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.5)';
-                e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                e.target.style.boxShadow = '0 4px 12px rgba(17, 17, 17, 0.05)';
-              }}
-            >
-              <IoSettingsSharp />
-            </Link>
             )}
           </div>
         </div>
@@ -865,6 +904,8 @@ function ProfilePage() {
           </div>
         </div>
       )}
+
+      {showTokensPopup && <Tokens onClose={() => setShowTokensPopup(false)} />}
 
       <NavigationBar isChatPage={false} />
     </div>

@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaHandPaper, FaCoins, FaTags, FaUserFriends } from 'react-icons/fa';
+import { FaHandPaper, FaTags, FaUserFriends, FaMapMarkerAlt } from 'react-icons/fa';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import Request from '../Components/Request';
-import Tokens from '../Components/Tokens';
 import Offer from '../Components/Offer';
 import WelcomeCard from '../Components/WelcomeCard';
 import SurveyRotator from '../Components/SurveyRotator';
@@ -17,7 +16,7 @@ import axios from '../api/axios';
 const topActions = [
   { label: 'Request', icon: FaHandPaper, popup: 'request' },
   { label: 'Connected', icon: FaUserFriends, popup: 'connected' },
-  { label: 'Tokens', icon: FaCoins, popup: 'tokens' },
+  { label: 'Nearby', icon: FaMapMarkerAlt, link: '/nearby' },
   { label: 'Offers', icon: FaTags, popup: 'offer' },
 ];
 
@@ -89,11 +88,12 @@ function HomePage() {
       }}
     >
       <Header 
-        mobileActions={isMobile ? topActions.map(({ label, icon, popup }) => ({
+        mobileActions={isMobile ? topActions.map(({ label, icon, popup, link }) => ({
           label,
           icon,
           popup,
-          onClick: () => setActivePopup(popup)
+          link,
+          onClick: popup ? () => setActivePopup(popup) : undefined
         })) : null}
         pendingRequests={pendingRequests}
       />
@@ -195,7 +195,6 @@ function HomePage() {
       
       {activePopup === 'request' && <Request onClose={() => setActivePopup(null)} onConnectionAccepted={handleRequestUpdate} />}
       {activePopup === 'connected' && <ConnectedUsersPopup onClose={() => setActivePopup(null)} />}
-      {activePopup === 'tokens' && <Tokens onClose={() => setActivePopup(null)} />}
       {activePopup === 'offer' && <Offer onClose={() => setActivePopup(null)} />}
     </div>
   );

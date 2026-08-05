@@ -13,6 +13,9 @@ router.put("/:uid/location", uidValidation, profileController.updateLocation);
 // Get user profile
 router.get("/me", profileController.getProfile);
 
+// Get nearby users (must come before /:uid to avoid conflicts)
+router.get("/nearby/:uid", uidValidation, profileController.getNearbyUsers);
+
 // Get user profile by uid
 router.get("/:uid", uidValidation, profileController.getProfile);
 
