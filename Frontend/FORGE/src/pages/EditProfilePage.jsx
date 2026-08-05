@@ -1260,47 +1260,29 @@ function EditProfilePage() {
               </button>
             </div>
             {profileData.isServiceProvider && (
-              <div style={{ position: 'relative' }} data-service-dropdown>
-                <input
-                  type="text"
-                  value={profileData.services.join(', ')}
-                  onChange={(e) => {
-                    const services = e.target.value.split(',').map(s => s.trim()).filter(s => s);
-                    setProfileData(prev => ({ ...prev, services }));
-                  }}
-                  placeholder="Enter services separated by commas (e.g., Web Development, UI/UX Design)"
-                  style={fieldStyle}
-                />
-                {showServiceDropdown && (
-                  <div style={dropdownStyle}>
-                    {serviceOptions.filter(s => 
-                      !profileData.services.includes(s) && 
-                      s.toLowerCase().includes(profileData.services.join(' ').toLowerCase())
-                    ).slice(0, 10).map((service) => (
-                      <div
-                        key={service}
-                        onClick={() => {
-                          setProfileData(prev => ({
-                            ...prev,
-                            services: [...prev.services, service]
-                          }));
-                          setShowServiceDropdown(false);
-                        }}
-                        style={{
-                          padding: isMobile ? '10px 12px' : '12px 16px',
-                          cursor: 'pointer',
-                          borderBottom: '1px solid var(--app-card-border)',
-                          transition: 'background 0.2s',
-                          fontSize: isMobile ? '0.85rem' : '0.9rem',
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = 'var(--app-accent-bg)'}
-                        onMouseLeave={(e) => e.target.style.background = 'transparent'}
-                      >
+              <div>
+                <div style={{ position: 'relative' }} data-service-dropdown>
+                  <select
+                    value={profileData.services.length > 0 ? profileData.services[0] : ''}
+                    onChange={(e) => {
+                      const selectedService = e.target.value;
+                      if (selectedService && !profileData.services.includes(selectedService)) {
+                        setProfileData(prev => ({
+                          ...prev,
+                          services: [...prev.services, selectedService]
+                        }));
+                      }
+                    }}
+                    style={fieldStyle}
+                  >
+                    <option value="">Select a service to add</option>
+                    {serviceOptions.filter(s => !profileData.services.includes(s)).map((service) => (
+                      <option key={service} value={service}>
                         {service}
-                      </div>
+                      </option>
                     ))}
-                  </div>
-                )}
+                  </select>
+                </div>
                 {profileData.services.length > 0 && (
                   <div style={{ marginTop: isMobile ? '10px' : '12px', display: 'flex', flexWrap: 'wrap', gap: isMobile ? '6px' : '8px' }}>
                     {profileData.services.map((service) => (
