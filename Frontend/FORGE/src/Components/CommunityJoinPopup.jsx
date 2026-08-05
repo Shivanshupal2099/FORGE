@@ -172,19 +172,6 @@ function CommunityJoinPopup({ onClose, onJoin }) {
                 </button>
               ))}
             </div>
-            <div style={{
-              padding: '12px 20px',
-              background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 107, 0, 0.05) 100%)',
-              border: '1px solid rgba(255, 107, 0, 0.2)',
-              borderRadius: '12px',
-              fontSize: '0.85rem',
-              color: '#FF6B00',
-              fontWeight: '600',
-              textAlign: 'center',
-              marginBottom: '32px'
-            }}>
-              ⚡ Feature coming soon - Submit to join waitlist
-            </div>
           </>
         )}
 
@@ -241,38 +228,10 @@ function CommunityJoinPopup({ onClose, onJoin }) {
                 <IoPeople />
                 <span>You'll be matched with {memberCount} diverse members from different regions</span>
               </div>
-              <div style={{
-                marginTop: '12px',
-                padding: '10px 16px',
-                background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 107, 0, 0.05) 100%)',
-                border: '1px solid rgba(255, 107, 0, 0.2)',
-                borderRadius: '12px',
-                fontSize: '0.85rem',
-                color: '#FF6B00',
-                fontWeight: '600',
-                textAlign: 'center'
-              }}>
-                ⚡ Feature coming soon - Submit to join waitlist
-              </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'existing' && !showComingSoon && (
-          <div style={{
-            padding: '12px 20px',
-            background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 107, 0, 0.05) 100%)',
-            border: '1px solid rgba(255, 107, 0, 0.2)',
-            borderRadius: '12px',
-            fontSize: '0.85rem',
-            color: '#FF6B00',
-            fontWeight: '600',
-            textAlign: 'center',
-            marginBottom: '32px'
-          }}>
-            ⚡ Feature coming soon - Submit to join waitlist
-          </div>
-        )}
 
         {showComingSoon && (
           <div className="community-join-popup__coming-soon">

@@ -195,56 +195,60 @@ function ActiveEvent({ onClose }) {
                   <div
                     key={ev._id || ev.title || idx}
                     style={{
-                      background: 'rgba(255, 255, 255, 0.7)',
-                      backdropFilter: 'blur(20px) saturate(180%)',
-                      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                      borderRadius: '20px',
-                      padding: '20px',
-                      border: '1px solid rgba(255, 255, 255, 0.5)',
-                      boxShadow: '0 8px 32px rgba(17, 17, 17, 0.08)',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)',
+                      backdropFilter: 'blur(24px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                      borderRadius: '24px',
+                      padding: '24px',
+                      border: '1.5px solid rgba(255, 107, 0, 0.15)',
+                      boxShadow: '0 12px 40px rgba(255, 107, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05)',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                       cursor: 'pointer',
                       position: 'relative',
                       overflow: 'hidden',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-4px)';
-                      e.currentTarget.style.boxShadow = '0 16px 48px rgba(17, 17, 17, 0.12)';
-                      e.currentTarget.style.borderColor = 'rgba(255, 215, 0, 0.3)';
+                      e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 20px 60px rgba(255, 107, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.1)';
+                      e.currentTarget.style.borderColor = 'rgba(255, 107, 0, 0.4)';
+                      e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 248, 240, 0.85) 100%)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 8px 32px rgba(17, 17, 17, 0.08)';
-                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 12px 40px rgba(255, 107, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05)';
+                      e.currentTarget.style.borderColor = 'rgba(255, 107, 0, 0.15)';
+                      e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%)';
                     }}
                   >
                     {/* Category Badge */}
                     <div style={{
                       display: 'inline-block',
-                      padding: '4px 12px',
+                      padding: '6px 14px',
                       borderRadius: '999px',
-                      background: 'rgba(255, 215, 0, 0.15)',
-                      color: '#111111',
-                      fontSize: '0.7rem',
-                      fontWeight: '500',
+                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 165, 0, 0.1) 100%)',
+                      color: '#FF6B00',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
                       textTransform: 'uppercase',
-                      letterSpacing: '0.08em',
-                      marginBottom: '12px',
+                      letterSpacing: '0.1em',
+                      marginBottom: '14px',
+                      border: '1px solid rgba(255, 107, 0, 0.2)',
                     }}>
                       {ev.category || 'Event'}
                     </div>
 
                     {/* Title */}
                     <h4 style={{
-                      fontSize: '1.1rem',
-                      fontWeight: '600',
-                      color: '#111111',
-                      marginBottom: '12px',
+                      fontSize: '1.15rem',
+                      fontWeight: '700',
+                      color: '#1F2937',
+                      marginBottom: '14px',
                       lineHeight: '1.4',
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
                       WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
+                      letterSpacing: '-0.3px',
                     }}>
                       {ev.title || 'Untitled Event'}
                     </h4>
@@ -254,25 +258,26 @@ function ActiveEvent({ onClose }) {
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px',
-                        marginBottom: '8px',
-                        padding: '6px 10px',
-                        borderRadius: '999px',
-                        background: 'rgba(255, 215, 0, 0.1)',
+                        gap: '8px',
+                        marginBottom: '12px',
+                        padding: '8px 14px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 165, 0, 0.05) 100%)',
+                        border: '1px solid rgba(255, 107, 0, 0.15)',
                       }}>
-                        <FaUsers style={{ color: '#111111', fontSize: '0.9rem' }} />
+                        <FaUsers style={{ color: '#FF6B00', fontSize: '0.95rem' }} />
                         <span style={{
-                          fontSize: '0.85rem',
-                          fontWeight: '500',
-                          color: '#111111',
+                          fontSize: '0.9rem',
+                          fontWeight: '700',
+                          color: '#1F2937',
                         }}>
                           {ev.attendeeCount || 0}
                         </span>
                         {ev.maxAttendees && (
                           <span style={{
-                            fontSize: '0.75rem',
-                            fontWeight: '400',
-                            color: '#666666',
+                            fontSize: '0.8rem',
+                            fontWeight: '500',
+                            color: '#6B7280',
                           }}>
                             / {ev.maxAttendees}
                           </span>
@@ -284,24 +289,25 @@ function ActiveEvent({ onClose }) {
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
-                      marginBottom: '8px',
-                      color: '#666666',
-                      fontSize: '0.85rem',
-                      fontWeight: '400',
+                      gap: '10px',
+                      marginBottom: '12px',
+                      color: '#6B7280',
+                      fontSize: '0.9rem',
+                      fontWeight: '500',
                     }}>
                       <span style={{
-                        padding: '4px 10px',
+                        padding: '6px 14px',
                         borderRadius: '999px',
-                        background: 'rgba(255, 215, 0, 0.1)',
-                        color: '#111111',
-                        fontSize: '0.75rem',
-                        fontWeight: '500',
+                        background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 165, 0, 0.05) 100%)',
+                        color: '#FF6B00',
+                        fontSize: '0.8rem',
+                        fontWeight: '700',
+                        border: '1px solid rgba(255, 107, 0, 0.15)',
                       }}>
                         {startText}
                       </span>
                       {startTime && (
-                        <span style={{ color: '#666666', fontWeight: '400' }}>
+                        <span style={{ color: '#6B7280', fontWeight: '500' }}>
                           at {startTime}
                         </span>
                       )}
@@ -312,22 +318,22 @@ function ActiveEvent({ onClose }) {
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px',
-                        marginBottom: '12px',
-                        color: '#666666',
-                        fontSize: '0.8rem',
-                        fontWeight: '400',
+                        gap: '8px',
+                        marginBottom: '14px',
+                        color: '#6B7280',
+                        fontSize: '0.85rem',
+                        fontWeight: '500',
                       }}>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '50%',
-                          background: 'rgba(255, 215, 0, 0.1)',
-                          color: '#111111',
-                          fontSize: '0.7rem',
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '8px',
+                          background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 165, 0, 0.05) 100%)',
+                          color: '#FF6B00',
+                          fontSize: '0.8rem',
                         }}>
                           {ev.onlineType === 'Online' ? '🌐' : '📍'}
                         </span>
@@ -346,60 +352,65 @@ function ActiveEvent({ onClose }) {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      marginTop: '16px',
-                      paddingTop: '12px',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.3)',
+                      marginTop: '18px',
+                      paddingTop: '14px',
+                      borderTop: '1.5px solid rgba(255, 107, 0, 0.1)',
                     }}>
                       {/* Event Type */}
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px',
-                        fontSize: '0.75rem',
-                        fontWeight: '400',
-                        color: '#64748b',
+                        gap: '8px',
+                        fontSize: '0.8rem',
+                        fontWeight: '600',
+                        color: '#6B7280',
                       }}>
                         <span style={{
-                          padding: '4px 8px',
-                          borderRadius: '6px',
+                          padding: '6px 12px',
+                          borderRadius: '10px',
                           background: ev.onlineType === 'Online' 
-                            ? 'rgba(59, 130, 246, 0.1)' 
-                            : 'rgba(16, 185, 129, 0.1)',
+                            ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)' 
+                            : 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%)',
                           color: ev.onlineType === 'Online' ? '#3b82f6' : '#10b981',
+                          border: ev.onlineType === 'Online' 
+                            ? '1px solid rgba(59, 130, 246, 0.2)' 
+                            : '1px solid rgba(16, 185, 129, 0.2)',
                         }}>
                           {ev.onlineType || 'Offline'}
                         </span>
                       </div>
 
                       {/* Action Buttons */}
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{ display: 'flex', gap: '10px' }}>
                         {/* Share Button */}
                         <button
                           onClick={() => handleShare(ev._id, ev.title)}
                           style={{
-                            padding: '8px 12px',
-                            borderRadius: '999px',
-                            border: 'none',
-                            background: 'rgba(255, 215, 0, 0.15)',
-                            color: '#111111',
-                            fontSize: '0.8rem',
-                            fontWeight: '500',
+                            padding: '10px 16px',
+                            borderRadius: '12px',
+                            border: '1.5px solid rgba(255, 107, 0, 0.2)',
+                            background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 165, 0, 0.05) 100%)',
+                            color: '#FF6B00',
+                            fontSize: '0.85rem',
+                            fontWeight: '700',
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease',
+                            transition: 'all 0.3s ease',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '6px',
+                            gap: '8px',
                           }}
                           onMouseEnter={(e) => {
-                            e.target.style.background = 'rgba(255, 215, 0, 0.25)';
+                            e.target.style.background = 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 165, 0, 0.1) 100%)';
                             e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.borderColor = 'rgba(255, 107, 0, 0.4)';
                           }}
                           onMouseLeave={(e) => {
-                            e.target.style.background = 'rgba(255, 215, 0, 0.15)';
+                            e.target.style.background = 'linear-gradient(135deg, rgba(255, 107, 0, 0.1) 0%, rgba(255, 165, 0, 0.05) 100%)';
                             e.target.style.transform = 'translateY(0)';
+                            e.target.style.borderColor = 'rgba(255, 107, 0, 0.2)';
                           }}
                         >
-                          <FaShareAlt style={{ fontSize: '0.9rem' }} />
+                          <FaShareAlt style={{ fontSize: '0.95rem' }} />
                           Share
                         </button>
 
@@ -409,40 +420,42 @@ function ActiveEvent({ onClose }) {
                             onClick={() => handleRegister(ev._id)}
                             disabled={registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true}
                             style={{
-                              padding: '8px 16px',
-                              borderRadius: '999px',
+                              padding: '10px 18px',
+                              borderRadius: '12px',
                               border: 'none',
                               background: registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true
-                                ? '#E0E0D8'
-                                : '#FF6B00',
-                              color: '#111111',
-                              fontSize: '0.8rem',
-                              fontWeight: '600',
+                                ? 'linear-gradient(135deg, #E0E0D8 0%, #D4D4D0 100%)'
+                                : 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+                              color: '#FFFFFF',
+                              fontSize: '0.85rem',
+                              fontWeight: '700',
                               cursor: registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true
                                 ? 'not-allowed'
                                 : 'pointer',
-                              transition: 'all 0.2s ease',
+                              transition: 'all 0.3s ease',
                               display: 'flex',
                               alignItems: 'center',
-                              gap: '6px',
+                              gap: '8px',
                               boxShadow: registering[ev._id] || ev.spotsRemaining === 0 || ev.isRegistered === true
                                 ? 'none'
-                                : '0 4px 12px rgba(255, 107, 0, 0.25)',
+                                : '0 6px 20px rgba(255, 107, 0, 0.3)',
                             }}
                             onMouseEnter={(e) => {
                               if (!registering[ev._id] && ev.spotsRemaining !== 0 && ev.isRegistered !== true) {
-                                e.target.style.transform = 'translateY(-2px)';
-                                e.target.style.background = '#FF8533';
+                                e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                                e.target.style.background = 'linear-gradient(135deg, #FF8533 0%, #FF9A52 100%)';
+                                e.target.style.boxShadow = '0 8px 24px rgba(255, 107, 0, 0.4)';
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (!registering[ev._id] && ev.spotsRemaining !== 0 && ev.isRegistered !== true) {
-                                e.target.style.transform = 'translateY(0)';
-                                e.target.style.background = '#FF6B00';
+                                e.target.style.transform = 'translateY(0) scale(1)';
+                                e.target.style.background = 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)';
+                                e.target.style.boxShadow = '0 6px 20px rgba(255, 107, 0, 0.3)';
                               }
                             }}
                           >
-                            <FaUserPlus style={{ fontSize: '0.9rem' }} />
+                            <FaUserPlus style={{ fontSize: '0.95rem' }} />
                             {registering[ev._id] ? 'Registering...' : ev.spotsRemaining === 0 ? 'Full' : 'Register'}
                           </button>
                         )}
@@ -450,33 +463,37 @@ function ActiveEvent({ onClose }) {
                         {/* Registered Badge */}
                         {ev.isRegistered && (
                           <div style={{
-                            padding: '8px 16px',
-                            borderRadius: '999px',
-                            background: 'rgba(255, 215, 0, 0.2)',
-                            color: '#111111',
-                            fontSize: '0.8rem',
-                            fontWeight: '500',
+                            padding: '10px 18px',
+                            borderRadius: '12px',
+                            background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 165, 0, 0.1) 100%)',
+                            border: '1.5px solid rgba(255, 107, 0, 0.3)',
+                            color: '#FF6B00',
+                            fontSize: '0.85rem',
+                            fontWeight: '700',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '6px',
+                            gap: '8px',
                           }}>
-                            <FaCheck style={{ fontSize: '0.9rem' }} />
+                            <FaCheck style={{ fontSize: '0.95rem' }} />
                             Registered
                           </div>
                         )}
 
                         {/* Price Badge */}
                         <div style={{
-                          padding: '6px 14px',
-                          borderRadius: '999px',
+                          padding: '8px 16px',
+                          borderRadius: '12px',
                           background: ev.priceType === 'Paid' 
-                            ? 'rgba(255, 107, 0, 0.15)' 
-                            : 'rgba(255, 215, 0, 0.15)',
-                          color: '#111111',
-                          fontSize: '0.75rem',
-                          fontWeight: '500',
+                            ? 'linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 165, 0, 0.1) 100%)' 
+                            : 'linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 200, 0, 0.1) 100%)',
+                          border: ev.priceType === 'Paid' 
+                            ? '1.5px solid rgba(255, 107, 0, 0.25)' 
+                            : '1.5px solid rgba(255, 215, 0, 0.25)',
+                          color: ev.priceType === 'Paid' ? '#FF6B00' : '#D4A017',
+                          fontSize: '0.8rem',
+                          fontWeight: '700',
                           textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
+                          letterSpacing: '0.08em',
                         }}>
                           {ev.priceType || 'Free'}
                         </div>
