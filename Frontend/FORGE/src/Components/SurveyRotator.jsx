@@ -302,6 +302,10 @@ function SurveyRotator() {
     }));
   };
 
+  const handleReportClick = (surveyId) => {
+    setReportPopup({ isOpen: true, surveyId: surveyId, reason: '', status: 'initial', message: '' });
+  };
+
   const handleReportSubmit = async () => {
     if (!reportPopup.reason.trim()) {
       setReportPopup({ ...reportPopup, message: 'Please provide a reason for reporting this survey' });
