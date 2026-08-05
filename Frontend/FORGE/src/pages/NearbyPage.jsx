@@ -210,6 +210,18 @@ function NearbyPage() {
           }}>
             <FaMapMarkerAlt style={{ color: '#FF6B00' }} />
             Nearby Users
+            {hasSearched && (
+              <span style={{
+                padding: '4px 12px',
+                background: 'rgba(255, 107, 0, 0.1)',
+                color: '#FF6B00',
+                borderRadius: '20px',
+                fontSize: isMobile ? '0.85rem' : '0.95rem',
+                fontWeight: '600',
+              }}>
+                {nearbyUsers.length} found
+              </span>
+            )}
           </h1>
           <p style={{
             fontSize: isMobile ? '0.95rem' : '1rem',
