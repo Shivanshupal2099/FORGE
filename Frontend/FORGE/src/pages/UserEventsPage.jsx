@@ -488,12 +488,12 @@ function UserEventsPage() {
               width: 24px !important;
             }
             
-            /* Mobile FAB Create Event Button - 90px above bottom nav, 20px from right */
+            /* Mobile FAB Create Event Button - 90px from top, 20px from right */
             .create-event-button-mobile {
               position: fixed !important;
-              bottom: 90px !important;
+              top: 90px !important;
               right: 20px !important;
-              top: auto !important;
+              bottom: auto !important;
               width: 56px !important;
               height: 56px !important;
               border-radius: 50% !important;
