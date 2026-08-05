@@ -333,7 +333,7 @@ function NearbyPage() {
               <input
                 type="range"
                 min="10"
-                max="300"
+                max="500"
                 value={searchRadius}
                 onChange={(e) => setSearchRadius(parseInt(e.target.value))}
                 style={{
@@ -356,7 +356,7 @@ function NearbyPage() {
                 color: '#666666',
               }}>
                 <span>10 km</span>
-                <span>300 km</span>
+                <span>500 km</span>
               </div>
             </div>
           )}
