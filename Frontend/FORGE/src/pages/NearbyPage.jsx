@@ -13,11 +13,12 @@ function NearbyPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [searchRadius, setSearchRadius] = useState(50);
+  const [searchRadius, setSearchRadius] = useState(50000);
   const [showRadiusSlider, setShowRadiusSlider] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [showVerificationPopup, setShowVerificationPopup] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -101,6 +102,12 @@ function NearbyPage() {
   };
 
   const handleFindPeople = async () => {
+    // Check if user is verified
+    if (!user?.is_verified) {
+      setShowVerificationPopup(true);
+      return;
+    }
+    
     setHasSearched(true);
     await fetchNearbyUsers();
   };
@@ -111,7 +118,8 @@ function NearbyPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`/api/profile/nearby/${user.email}?radius=${searchRadius}`);
+      const radiusInKm = searchRadius / 1000; // Convert meters to km for backend
+      const response = await axios.get(`/api/profile/nearby/${user.email}?radius=${radiusInKm}`);
       
       if (response.data.success) {
         setNearbyUsers(response.data.users || []);
@@ -326,7 +334,7 @@ function NearbyPage() {
                   fontWeight: '700',
                   color: '#3B82F6',
                 }}>
-                  {searchRadius} km
+                  {searchRadius} m
                 </span>
               </div>
               
@@ -355,12 +363,129 @@ function NearbyPage() {
                 fontSize: '0.85rem',
                 color: '#666666',
               }}>
-                <span>10 km</span>
-                <span>500 km</span>
+                <span>10 m</span>
+                <span>500 m</span>
               </div>
             </div>
           )}
         </div>
+        
+        {showVerificationPopup && (
+          <div style={{
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            background: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+          }} onClick={() => setShowVerificationPopup(false)}>
+            <div style={{
+              background: 'var(--app-card-bg)',
+              border: '1px solid var(--app-card-border)',
+              borderRadius: '20px',
+              padding: '32px',
+              maxWidth: '400px',
+              width: '90%',
+              textAlign: 'center',
+            }} onClick={(e) => e.stopPropagation()}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #FF6B00, #FF8533)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+              }}>
+                <FaMapMarkerAlt style={{ fontSize: '40px', color: 'white' }} />
+              </div>
+              
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                margin: '0 0 12px 0',
+                color: '#111111',
+              }}>
+                Verification Required
+              </h3>
+              
+              <p style={{
+                fontSize: '1rem',
+                color: '#666666',
+                margin: '0 0 24px 0',
+                lineHeight: '1.5',
+              }}>
+                You need to verify your account to search for nearby users. Get verified to unlock this feature.
+              </p>
+              
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                justifyContent: 'center',
+              }}>
+                <button
+                  onClick={() => setShowVerificationPopup(false)}
+                  style={{
+                    padding: '14px 24px',
+                    borderRadius: '12px',
+                    background: 'rgba(107, 114, 128, 0.1)',
+                    color: '#6B7280',
+                    border: '1px solid rgba(107, 114, 128, 0.3)',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'rgba(107, 114, 128, 0.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'rgba(107, 114, 128, 0.1)';
+                  }}
+                >
+                  Cancel
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setShowVerificationPopup(false);
+                    window.location.href = '/settings';
+                  }}
+                  style={{
+                    padding: '14px 24px',
+                    borderRadius: '12px',
+                    background: '#FF6B00',
+                    color: '#111111',
+                    border: 'none',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(255, 107, 0, 0.2)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.background = '#FF8533';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.background = '#FF6B00';
+                  }}
+                >
+                  Get Verified
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {loading ? (
           <div style={{
