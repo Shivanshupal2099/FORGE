@@ -21,30 +21,32 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
   }, [])
   const navStyle = {
     position: 'fixed',
-    bottom: '12px',
+    bottom: isMobile ? '12px' : 'auto',
+    top: isMobile ? 'auto' : '20px',
     left: '50%',
     transform: 'translateX(-50%)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: '8px',
-    padding: '8px',
+    padding: isMobile ? '8px' : '12px 16px',
     background: 'rgba(255, 255, 255, 0.8)',
     backdropFilter: 'blur(20px) saturate(180%)',
     WebkitBackdropFilter: 'blur(20px) saturate(180%)',
     border: '1px solid rgba(255, 255, 255, 0.5)',
-    borderRadius: '999px',
-    maxWidth: 'min(92vw, 520px)',
-    width: 'calc(100% - 16px)',
-    zIndex: 1000
+    borderRadius: isMobile ? '999px' : '20px',
+    maxWidth: isMobile ? 'min(92vw, 520px)' : 'min(90vw, 700px)',
+    width: isMobile ? 'calc(100% - 16px)' : 'auto',
+    zIndex: 1000,
+    boxShadow: isMobile ? 'none' : '0 8px 32px rgba(0, 0, 0, 0.1)'
   }
 
   const linkStyle = {
-    flex: 1,
-    minWidth: '0',
+    flex: isMobile ? 1 : 'none',
+    minWidth: isMobile ? '0' : 'auto',
     textAlign: 'center',
-    padding: '16px 18px',
-    borderRadius: '999px',
+    padding: isMobile ? '16px 18px' : '12px 20px',
+    borderRadius: isMobile ? '999px' : '16px',
     textDecoration: 'none',
     color: '#666666',
     background: 'rgba(255, 255, 255, 0.5)',
@@ -54,28 +56,30 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '8px',
+    gap: isMobile ? '8px' : '10px',
     fontWeight: '500',
-    fontSize: '1rem',
+    fontSize: isMobile ? '1rem' : '0.95rem',
     overflow: 'hidden',
-    minHeight: '56px'
+    minHeight: isMobile ? '56px' : '48px',
+    whiteSpace: 'nowrap'
   }
 
 
 
 
   const activeStyle = {
-    background: 'rgba(255, 215, 0, 0.25)',
-    color: '#111111',
-    transform: 'translateY(-2px) scale(1.03)',
-    padding: '12px 16px'
+    background: 'rgba(255, 107, 0, 0.15)',
+    color: '#FF6B00',
+    transform: isMobile ? 'translateY(-2px) scale(1.03)' : 'translateY(-2px)',
+    padding: isMobile ? '12px 16px' : '10px 18px',
+    border: '1px solid rgba(255, 107, 0, 0.2)'
   }
 
 
 
 
   const iconStyle = {
-    fontSize: '1.25rem',
+    fontSize: isMobile ? '1.25rem' : '1.15rem',
     transition: 'transform 0.25s ease'
   }
 
