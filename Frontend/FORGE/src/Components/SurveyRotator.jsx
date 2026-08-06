@@ -1594,40 +1594,64 @@ function SurveyRotator() {
           right: 0,
           bottom: 0,
           background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1000,
         }}>
           <div style={{
-            background: '#ffffff',
-            borderRadius: '16px',
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid rgba(255, 255, 255, 0.5)',
+            borderRadius: '20px',
             padding: '32px',
             maxWidth: '500px',
             width: '90%',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
           }}>
-            <h3 style={{
-              margin: '0 0 16px',
-              fontSize: '1.3rem',
-              fontWeight: '700',
-              color: 'var(--app-text)',
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              marginBottom: '16px',
             }}>
-              Share Survey
-            </h3>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)',
+              }}>
+                <FaShareAlt style={{ color: '#ffffff', fontSize: '1.3rem' }} />
+              </div>
+              <h3 style={{
+                margin: 0,
+                fontSize: '1.4rem',
+                fontWeight: '800',
+                color: 'var(--app-text)',
+              }}>
+                Share Survey
+              </h3>
+            </div>
             
             <p style={{
-              margin: '0 0 20px',
+              margin: '0 0 24px',
               fontSize: '0.95rem',
               color: '#64748b',
+              lineHeight: '1.6',
             }}>
               Copy the link below to share this survey with others:
             </p>
             
             <div style={{
               display: 'flex',
-              gap: '8px',
-              marginBottom: '20px',
+              gap: '10px',
+              marginBottom: '24px',
             }}>
               <input
                 type="text"
@@ -1635,39 +1659,49 @@ function SurveyRotator() {
                 readOnly
                 style={{
                   flex: 1,
-                  padding: '12px',
+                  padding: '14px 16px',
                   border: '2px solid #e2e8f0',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '0.9rem',
-                  background: '#f8fafc',
+                  background: 'rgba(255, 255, 255, 0.7)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
                   color: '#64748b',
                   outline: 'none',
+                  fontWeight: '500',
                 }}
               />
               <button
                 type="button"
                 onClick={handleCopyLink}
                 style={{
-                  padding: '12px 20px',
+                  padding: '14px 24px',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   background: sharePopup.copied
-                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                    : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    ? 'linear-gradient(135deg, #FF8533 0%, #FF9520 100%)'
+                    : 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
                   color: '#ffffff',
                   fontSize: '0.9rem',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   cursor: 'pointer',
-                  transition: 'all 0.2s',
+                  transition: 'all 0.3s ease',
                   whiteSpace: 'nowrap',
+                  boxShadow: sharePopup.copied
+                    ? '0 4px 12px rgba(255, 133, 51, 0.3)'
+                    : '0 4px 12px rgba(255, 107, 0, 0.3)',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.4)';
+                  e.target.style.boxShadow = sharePopup.copied
+                    ? '0 6px 16px rgba(255, 133, 51, 0.4)'
+                    : '0 6px 16px rgba(255, 107, 0, 0.4)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = 'none';
+                  e.target.style.boxShadow = sharePopup.copied
+                    ? '0 4px 12px rgba(255, 133, 51, 0.3)'
+                    : '0 4px 12px rgba(255, 107, 0, 0.3)';
                 }}
               >
                 {sharePopup.copied ? 'Copied!' : 'Copy'}
@@ -1679,19 +1713,22 @@ function SurveyRotator() {
               onClick={() => setSharePopup({ isOpen: false, surveyId: null, link: '', copied: false })}
               style={{
                 width: '100%',
-                padding: '12px 24px',
+                padding: '14px 24px',
                 border: '2px solid #e2e8f0',
-                borderRadius: '8px',
-                background: '#ffffff',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.7)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
                 color: '#64748b',
                 fontSize: '0.95rem',
                 fontWeight: '600',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
+                transition: 'all 0.3s ease',
               }}
               onMouseEnter={(e) => {
-                e.target.style.borderColor = '#3b82f6';
-                e.target.style.color = '#3b82f6';
+                e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+                e.target.style.borderColor = '#FF6B00';
+                e.target.style.color = '#FF6B00';
               }}
               onMouseLeave={(e) => {
                 e.target.style.borderColor = '#e2e8f0';
