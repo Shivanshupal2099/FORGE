@@ -4,6 +4,7 @@ const mongoose=require('mongoose')
 const dotenv=require('dotenv')
 const cors=require('cors')
 const helmet=require('helmet')
+const compression=require('compression')
 const http=require('http')
 const { Server }=require('socket.io')
 const authRoutes=require('./routes/auth.routes')
@@ -127,6 +128,18 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+}))
+
+// Enable compression for all responses
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  level: 6,
+  threshold: 1024, // Only compress responses larger than 1KB
 }))
 
 app.use(express.json({ limit: '1mb' }))
