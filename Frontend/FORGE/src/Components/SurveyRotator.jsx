@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { FaClipboardList, FaArrowLeft, FaArrowRight, FaCheck, FaSpinner, FaFlag, FaShareAlt } from 'react-icons/fa';
+import { FaClipboardList, FaArrowLeft, FaArrowRight, FaCheck, FaSpinner, FaFlag, FaShareAlt, FaTimes, FaPaperPlane } from 'react-icons/fa';
 import axios from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
@@ -1068,22 +1068,32 @@ function SurveyRotator() {
                     style={{
                       width: '45%',
                       height: 'clamp(48px, 12vw, 52px)',
-                      background: '#ffffff',
-                      border: '1px solid #E5E7EB',
+                      background: 'rgba(255, 255, 255, 0.7)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.5)',
                       borderRadius: '16px',
                       color: '#6B7280',
                       fontSize: 'clamp(14px, 3.5vw, 15px)',
-                      fontWeight: '500',
+                      fontWeight: '600',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease',
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.background = '#F9FAFB';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+                      e.target.style.transform = 'translateY(-2px)';
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
+                      e.target.style.transform = 'translateY(0)';
                     }}
                   >
+                    <FaTimes />
                     Cancel
                   </button>
 
@@ -1096,35 +1106,35 @@ function SurveyRotator() {
                       width: '55%',
                       height: 'clamp(48px, 12vw, 52px)',
                       background: !allAnswered || isSubmitting
-                        ? '#D1D5DB'
-                        : 'linear-gradient(180deg, #FF7A00 0%, #FFA726 100%)',
+                        ? 'rgba(255, 107, 0, 0.5)'
+                        : 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
                       border: 'none',
                       borderRadius: '16px',
-                      color: '#ffffff',
+                      color: '#111111',
                       fontSize: 'clamp(14px, 3.5vw, 15px)',
-                      fontWeight: '600',
+                      fontWeight: '700',
                       cursor: !allAnswered || isSubmitting ? 'not-allowed' : 'pointer',
-                      transition: 'all 0.2s ease',
+                      transition: 'all 0.3s ease',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: 'clamp(8px, 2vw, 12px)',
+                      gap: '8px',
                       boxShadow: !allAnswered || isSubmitting
                         ? 'none'
-                        : '0 4px 12px rgba(255, 122, 0, 0.3)',
+                        : '0 4px 12px rgba(255, 107, 0, 0.3)',
                     }}
                     onMouseEnter={(e) => {
                       if (allAnswered && !isSubmitting) {
-                        e.target.style.transform = 'scale(1.02)';
-                        e.target.style.background = 'linear-gradient(180deg, #FF6B00 0%, #FF9520 100%)';
-                        e.target.style.boxShadow = '0 6px 16px rgba(255, 122, 0, 0.4)';
+                        e.target.style.transform = 'translateY(-2px) scale(1.02)';
+                        e.target.style.background = 'linear-gradient(135deg, #FF8533 0%, #FF9520 100%)';
+                        e.target.style.boxShadow = '0 6px 16px rgba(255, 107, 0, 0.4)';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (allAnswered && !isSubmitting) {
-                        e.target.style.transform = 'scale(1)';
-                        e.target.style.background = 'linear-gradient(180deg, #FF7A00 0%, #FFA726 100%)';
-                        e.target.style.boxShadow = '0 4px 12px rgba(255, 122, 0, 0.3)';
+                        e.target.style.transform = 'translateY(0) scale(1)';
+                        e.target.style.background = 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.3)';
                       }
                     }}
                   >
@@ -1132,8 +1142,8 @@ function SurveyRotator() {
                       <FaSpinner style={{ animation: 'spin 1s linear infinite' }} />
                     ) : (
                       <>
-                        Submit Survey
-                        <FaCheck />
+                        Submit
+                        <FaPaperPlane />
                       </>
                     )}
                   </button>
@@ -1315,22 +1325,31 @@ function SurveyRotator() {
                       padding: '14px 28px',
                       border: '2px solid #e2e8f0',
                       borderRadius: '12px',
-                      background: '#ffffff',
+                      background: 'rgba(255, 255, 255, 0.7)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                       color: '#64748b',
                       fontSize: '0.95rem',
                       fontWeight: '700',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.borderColor = '#94a3b8';
-                      e.target.style.background = '#f8fafc';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+                      e.target.style.transform = 'translateY(-2px)';
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.borderColor = '#e2e8f0';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
+                      e.target.style.transform = 'translateY(0)';
                     }}
                   >
+                    <FaTimes />
                     Cancel
                   </button>
                   <button
@@ -1506,22 +1525,31 @@ function SurveyRotator() {
                       padding: '14px 24px',
                       border: '2px solid #e2e8f0',
                       borderRadius: '12px',
-                      background: '#ffffff',
+                      background: 'rgba(255, 255, 255, 0.7)',
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
                       color: '#64748b',
                       fontSize: '0.95rem',
                       fontWeight: '700',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.borderColor = '#94a3b8';
-                      e.target.style.background = '#f8fafc';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+                      e.target.style.transform = 'translateY(-2px)';
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.borderColor = '#e2e8f0';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = 'rgba(255, 255, 255, 0.7)';
+                      e.target.style.transform = 'translateY(0)';
                     }}
                   >
+                    <FaTimes />
                     Cancel
                   </button>
                   <button

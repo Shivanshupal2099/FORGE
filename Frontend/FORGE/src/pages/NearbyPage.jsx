@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { FaMapMarkerAlt, FaUser, FaSpinner, FaLocationArrow, FaSearch, FaSlidersH, FaFilter } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaUser, FaSpinner, FaLocationArrow, FaSearch, FaSlidersH, FaFilter, FaArrowLeft } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import Header from '../Components/Header';
 import NavigationBar from '../Components/NavigationBar';
 import Usercard from '../Components/Usercard';
@@ -11,6 +12,7 @@ import femaleImage from '../assets/female.png';
 
 function NearbyPage() {
   const { user, isVerified } = useAuth();
+  const navigate = useNavigate();
   const [nearbyUsers, setNearbyUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -237,7 +239,7 @@ function NearbyPage() {
 
   return (
     <div className="page-shell">
-      <Header />
+      <Header hideLogo={isMobile} />
       <div style={{
         padding: isMobile ? '16px' : '24px',
         maxWidth: '1200px',
@@ -247,6 +249,41 @@ function NearbyPage() {
         flexDirection: 'column',
         alignItems: isMobile ? 'center' : 'flex-start',
       }}>
+        {isMobile && (
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              alignSelf: 'flex-start',
+              padding: '10px 16px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.7)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+              color: '#111111',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '16px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateX(-4px)';
+              e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateX(0)';
+              e.target.style.background = 'rgba(255, 255, 255, 0.7)';
+            }}
+          >
+            <FaArrowLeft />
+            Back
+          </button>
+        )}
         <div style={{
           marginBottom: isMobile ? '20px' : '32px',
           textAlign: isMobile ? 'center' : 'left',

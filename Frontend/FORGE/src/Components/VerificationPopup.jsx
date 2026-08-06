@@ -18,25 +18,25 @@ const BENEFITS = [
     icon: IoPeople,
     label: 'Connect freely',
     desc: 'Reach verified builders across the community',
-    color: '#FFD700'
+    color: '#FF6B00'
   },
   {
     icon: IoStar,
     label: 'Premium access',
     desc: 'Create new surveys, access community offers',
-    color: '#FFE44D'
+    color: '#FF8533'
   },
   {
     icon: IoShieldCheckmark,
     label: 'Build trust',
     desc: 'Show others you are a genuine ForgeConnect member',
-    color: '#E6C200'
+    color: '#FF9520'
   },
   {
     icon: IoChatbubbles,
     label: 'Messaging',
     desc: 'Send connection requests and start conversations',
-    color: '#FFC107'
+    color: '#FFA726'
   },
 ];
 

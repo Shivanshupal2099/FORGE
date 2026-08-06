@@ -1505,14 +1505,14 @@ function EditProfilePage() {
                 height: '64px',
                 borderRadius: '50%',
                 background: popupType === 'success' 
-                  ? 'var(--forge-yellow)' 
-                  : '#ef4444',
+                  ? '#FFA726' 
+                  : '#FF9520',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 16px',
                 fontSize: '32px',
-                color: popupType === 'success' ? '#111111' : 'white'
+                color: 'white'
               }}
             >
               {popupType === 'success' ? '✓' : '✕'}
@@ -1529,8 +1529,8 @@ function EditProfilePage() {
                 width: '100%',
                 padding: '14px 24px',
                 background: popupType === 'success' 
-                  ? 'linear-gradient(135deg, #10b981, #059669)' 
-                  : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  ? 'linear-gradient(135deg, #FF6B00, #FF8533)' 
+                  : 'linear-gradient(135deg, #FFA726, #FF9520)',
                 border: 'none',
                 borderRadius: '12px',
                 color: 'white',
@@ -1542,7 +1542,7 @@ function EditProfilePage() {
               }}
               onMouseEnter={(e) => {
                 e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.2)';
+                e.target.style.boxShadow = '0 8px 20px rgba(255, 107, 0, 0.3)';
               }}
               onMouseLeave={(e) => {
                 e.target.style.transform = 'translateY(0)';
