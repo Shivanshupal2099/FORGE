@@ -21,8 +21,7 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
   }, [])
   const navStyle = {
     position: 'fixed',
-    bottom: isMobile ? '12px' : 'auto',
-    top: isMobile ? 'auto' : '20px',
+    bottom: '12px',
     left: '50%',
     transform: 'translateX(-50%)',
     display: 'flex',
