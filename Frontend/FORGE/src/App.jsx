@@ -5,6 +5,7 @@ import "./App.css";
 import GuestRoute from './Components/GuestRoute';
 import ProtectedRoute from './Components/ProtectedRoute';
 import { AlertProvider } from './contexts/AlertContext';
+import PWAInstallPrompt from './Components/PWAInstallPrompt';
 
 // Lazy load route components for better performance
 const Landing = lazy(() => import("./pages/Landing"));
@@ -85,6 +86,7 @@ function App() {
             <Route path="/auth/callback" element={<AuthCallback />} />
           </Routes>
         </Suspense>
+        <PWAInstallPrompt />
       </BrowserRouter>
     </AlertProvider>
   );
