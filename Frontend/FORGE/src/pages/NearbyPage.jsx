@@ -240,6 +240,143 @@ function NearbyPage() {
   return (
     <div className="page-shell">
       <Header hideLogo={isMobile} />
+      {/* Radar Background Animation */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: -1,
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+      }}>
+        {/* Grid Pattern */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: `
+            linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px',
+          animation: 'gridMove 20s linear infinite',
+        }} />
+        
+        {/* Concentric Radar Circles */}
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: `${i * 200}px`,
+              height: `${i * 200}px`,
+              borderRadius: '50%',
+              border: `1px solid rgba(59, 130, 246, ${0.1 + i * 0.05})`,
+              animation: `radarPulse ${3 + i * 0.5}s ease-in-out infinite`,
+              animationDelay: `${i * 0.3}s`,
+            }}
+          />
+        ))}
+        
+        {/* Scanning Line */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: '50vw',
+          height: '2px',
+          background: 'linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.8), transparent)',
+          transformOrigin: 'left center',
+          animation: 'radarScan 4s linear infinite',
+          boxShadow: '0 0 20px rgba(34, 197, 94, 0.5)',
+        }} />
+        
+        {/* Center Point */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '20px',
+          height: '20px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #22C55E 0%, transparent 70%)',
+          boxShadow: '0 0 30px rgba(34, 197, 94, 0.8)',
+          animation: 'centerPulse 2s ease-in-out infinite',
+        }} />
+        
+        {/* Random Blips */}
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              top: `${20 + Math.random() * 60}%`,
+              left: `${20 + Math.random() * 60}%`,
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#22C55E',
+              boxShadow: '0 0 15px rgba(34, 197, 94, 0.8)',
+              animation: `blip ${2 + Math.random() * 2}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`,
+            }}
+          />
+        ))}
+        
+        <style>{`
+          @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+          }
+          
+          @keyframes radarPulse {
+            0%, 100% { 
+              opacity: 0.3;
+              transform: translate(-50%, -50%) scale(1);
+            }
+            50% { 
+              opacity: 0.6;
+              transform: translate(-50%, -50%) scale(1.05);
+            }
+          }
+          
+          @keyframes radarScan {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          @keyframes centerPulse {
+            0%, 100% { 
+              opacity: 0.5;
+              transform: translate(-50%, -50%) scale(1);
+            }
+            50% { 
+              opacity: 1;
+              transform: translate(-50%, -50%) scale(1.3);
+            }
+          }
+          
+          @keyframes blip {
+            0%, 100% { 
+              opacity: 0;
+              transform: scale(0.5);
+            }
+            50% { 
+              opacity: 1;
+              transform: scale(1.2);
+            }
+          }
+        `}</style>
+      </div>
+      
       <div style={{
         padding: isMobile ? '16px' : '24px',
         maxWidth: '1200px',
@@ -248,6 +385,8 @@ function NearbyPage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: isMobile ? 'center' : 'flex-start',
+        position: 'relative',
+        zIndex: 1,
       }}>
         {isMobile && (
           <button
@@ -292,7 +431,7 @@ function NearbyPage() {
           <h1 style={{
             fontSize: isMobile ? '1.75rem' : '2.5rem',
             fontWeight: '700',
-            color: '#111111',
+            color: '#ffffff',
             margin: '0 0 8px 0',
             display: 'flex',
             alignItems: 'center',
@@ -316,7 +455,7 @@ function NearbyPage() {
           </h1>
           <p style={{
             fontSize: isMobile ? '0.95rem' : '1rem',
-            color: '#666666',
+            color: '#94a3b8',
             margin: '0 0 20px 0',
           }}>
             Discover people near your location
