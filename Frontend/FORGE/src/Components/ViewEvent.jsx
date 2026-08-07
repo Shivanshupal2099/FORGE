@@ -885,7 +885,10 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
         >
           <div
             style={{
-              background: '#ffffff',
+              background: 'var(--app-card-bg)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid var(--app-card-border)',
               borderRadius: '20px',
               padding: '32px',
               maxWidth: '450px',
@@ -895,23 +898,39 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ marginBottom: '24px' }}>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: '800',
-                color: '#1e293b',
-                marginBottom: '8px',
+              <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
+                marginBottom: '8px',
               }}>
-                <FaShareAlt style={{ color: '#667eea' }} />
-                Share Event
-              </h3>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)',
+                }}>
+                  <FaShareAlt style={{ color: '#ffffff', fontSize: '1.3rem' }} />
+                </div>
+                <h3 style={{
+                  fontSize: '1.4rem',
+                  fontWeight: '800',
+                  color: 'var(--app-text)',
+                  margin: 0,
+                }}>
+                  Share Event
+                </h3>
+              </div>
               <p style={{
                 fontSize: '0.95rem',
-                color: '#64748b',
+                color: 'var(--app-muted-text)',
                 fontWeight: '500',
                 margin: 0,
+                marginLeft: '60px',
               }}>
                 {shareModal.eventTitle}
               </p>
@@ -924,7 +943,7 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
                 display: 'block',
                 fontSize: '0.85rem',
                 fontWeight: '700',
-                color: '#475569',
+                color: 'var(--app-text)',
                 marginBottom: '8px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
@@ -933,7 +952,7 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
               </label>
               <div style={{
                 display: 'flex',
-                gap: '8px',
+                gap: '10px',
               }}>
                 <input
                   type="text"
@@ -941,39 +960,41 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
                   readOnly
                   style={{
                     flex: 1,
-                    padding: '12px 16px',
-                    borderRadius: '10px',
-                    border: '2px solid #e2e8f0',
-                    background: '#f8fafc',
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    border: '2px solid var(--app-card-border)',
+                    background: 'var(--app-surface)',
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
                     fontSize: '0.9rem',
-                    color: '#475569',
+                    color: 'var(--app-text)',
                     fontWeight: '600',
                   }}
                 />
                 <button
                   onClick={copyToClipboard}
                   style={{
-                    padding: '12px 20px',
-                    borderRadius: '10px',
+                    padding: '14px 20px',
+                    borderRadius: '12px',
                     border: 'none',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
                     color: '#ffffff',
                     fontSize: '0.9rem',
                     fontWeight: '700',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(255, 107, 0, 0.4)';
                   }}
                   onMouseLeave={(e) => {
                     e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.3)';
                   }}
                 >
                   <FaCopy />
@@ -993,21 +1014,21 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
                   padding: '14px 24px',
                   borderRadius: '12px',
                   border: 'none',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
                   color: '#ffffff',
                   fontSize: '0.95rem',
                   fontWeight: '700',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(255, 107, 0, 0.4)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.3)';
                 }}
               >
                 Share via {navigator.share ? 'Native Share' : 'Copy Link'}
@@ -1017,21 +1038,25 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
                 style={{
                   padding: '14px 24px',
                   borderRadius: '12px',
-                  border: '2px solid #e2e8f0',
-                  background: '#ffffff',
-                  color: '#64748b',
+                  border: '2px solid var(--app-card-border)',
+                  background: 'var(--app-surface)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  color: 'var(--app-muted-text)',
                   fontSize: '0.95rem',
-                  fontWeight: '700',
+                  fontWeight: '600',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: 'all 0.3s ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.background = '#f8fafc';
-                  e.target.style.borderColor = '#cbd5e1';
+                  e.target.style.background = 'var(--app-surface-strong)';
+                  e.target.style.borderColor = '#FF6B00';
+                  e.target.style.color = '#FF6B00';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = '#ffffff';
-                  e.target.style.borderColor = '#e2e8f0';
+                  e.target.style.background = 'var(--app-surface)';
+                  e.target.style.borderColor = 'var(--app-card-border)';
+                  e.target.style.color = 'var(--app-muted-text)';
                 }}
               >
                 Cancel

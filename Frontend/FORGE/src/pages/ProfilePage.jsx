@@ -165,7 +165,7 @@ function ProfilePage() {
 
   return (
     <div className="page-shell">
-      <Header />
+      <Header hideLogo={isMobile} />
       {isOwnProfile && (
         <Link 
           to="/settings" 
@@ -181,27 +181,27 @@ function ProfilePage() {
             height: isMobile ? '44px' : '48px',
             padding: '0',
             textDecoration: 'none',
-            color: '#111111',
-            background: 'rgba(255, 255, 255, 0.8)',
+            color: 'var(--app-text)',
+            background: 'var(--app-card-bg)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
             borderRadius: '999px',
-            border: '1px solid rgba(255, 255, 255, 0.5)',
-            boxShadow: '0 4px 16px rgba(17, 17, 17, 0.1)',
+            border: '1px solid var(--app-card-border)',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            zIndex: 100,
+            zIndex: 1000,
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-2px)';
-            e.target.style.background = 'rgba(255, 255, 255, 0.95)';
-            e.target.style.borderColor = 'rgba(255, 255, 255, 0.7)';
-            e.target.style.boxShadow = '0 8px 24px rgba(17, 17, 17, 0.15)';
+            e.target.style.background = 'var(--app-surface-strong)';
+            e.target.style.borderColor = '#FF6B00';
+            e.target.style.boxShadow = '0 8px 24px rgba(255, 107, 0, 0.2)';
           }}
           onMouseLeave={(e) => {
             e.target.style.transform = 'translateY(0)';
-            e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-            e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-            e.target.style.boxShadow = '0 4px 16px rgba(17, 17, 17, 0.1)';
+            e.target.style.background = 'var(--app-card-bg)';
+            e.target.style.borderColor = 'var(--app-card-border)';
+            e.target.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
           }}
         >
           <IoSettingsSharp style={{ fontSize: isMobile ? '1.2rem' : '1.3rem' }} />
@@ -210,15 +210,15 @@ function ProfilePage() {
       <div className="profile-card">
         <div className="profile-card__cover"></div>
         
-        <div className="profile-card__header">
+        <div className="profile-card__header" style={isMobile ? { flexDirection: 'column', alignItems: 'center', textAlign: 'center' } : {}}>
           <div className="profile-photo">
             <img
               src={profile?.avatar_url || (profile?.gender === 'Male' ? maleImage : profile?.gender === 'Female' ? femaleImage : "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80")}
               alt="Profile"
             />
           </div>
-          <div className="profile-card__info">
-            <div className="profile-card__title-row">
+          <div className="profile-card__info" style={isMobile ? { textAlign: 'center', paddingTop: '20px' } : {}}>
+            <div className="profile-card__title-row" style={isMobile ? { justifyContent: 'center' } : {}}>
               <h1>{profile ? `${profile.first_name} ${profile.last_name}` : (user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User')}</h1>
               {(isVerified || profile?.is_verified) ? (
                 <span className="profile-card__verify-tag profile-card__verify-tag--verified">Verified</span>
@@ -227,30 +227,30 @@ function ProfilePage() {
               )}
             </div>
             <p className="profile-card__role">{profile?.department || 'User'}</p>
-            <div className="profile-card__meta">
+            <div className="profile-card__meta" style={isMobile ? { alignItems: 'center' } : {}}>
               <span className="profile-card__meta-item">
                 <IoMailOutline />
                 {profile?.email || (isOwnProfile ? user?.email : profileEmail) || 'No email'}
               </span>
             </div>
           </div>
-          <div className="profile-card__actions profile-card__actions--mobile">
+          <div className="profile-card__actions profile-card__actions--mobile" style={isMobile ? { justifyContent: 'center', paddingTop: '20px' } : {}}>
             {isOwnProfile && (
               <Link 
                 to="/profile/edit" 
                 className="profile-card__edit-button"
                 style={{
-                  padding: '14px',
+                  padding: isMobile ? '12px' : '14px',
                   borderRadius: '999px',
-                  background: 'rgba(255, 255, 255, 0.5)',
+                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)',
                   backdropFilter: 'blur(10px)',
                   WebkitBackdropFilter: 'blur(10px)',
-                  color: '#666666',
-                  fontWeight: '500',
-                  fontSize: '1.2rem',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: '#3b82f6',
+                  fontWeight: '600',
+                  fontSize: isMobile ? '1rem' : '1.2rem',
+                  border: '1.5px solid rgba(59, 130, 246, 0.25)',
                   textDecoration: 'none',
-                  boxShadow: '0 4px 12px rgba(17, 17, 17, 0.05)',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -258,19 +258,19 @@ function ProfilePage() {
                   gap: '8px',
                   position: 'relative',
                   overflow: 'hidden',
-                  minWidth: '48px',
+                  minWidth: isMobile ? '44px' : '48px',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.background = 'rgba(255, 255, 255, 0.7)';
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-                  e.target.style.boxShadow = '0 6px 16px rgba(17, 17, 17, 0.08)';
+                  e.target.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(59, 130, 246, 0.1) 100%)';
+                  e.target.style.borderColor = 'rgba(59, 130, 246, 0.4)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.25)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = 'rgba(255, 255, 255, 0.5)';
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(17, 17, 17, 0.05)';
+                  e.target.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)';
+                  e.target.style.borderColor = 'rgba(59, 130, 246, 0.25)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.15)';
                 }}
               >
                 <FaRegEdit />
@@ -280,14 +280,14 @@ function ProfilePage() {
               <button
                 onClick={() => setShowTokensPopup(true)}
                 style={{
-                  padding: '14px',
+                  padding: isMobile ? '12px' : '14px',
                   borderRadius: '999px',
-                  background: 'rgba(255, 215, 0, 0.25)',
-                  color: '#111111',
-                  fontWeight: '500',
-                  fontSize: '1.2rem',
-                  border: '1px solid rgba(255, 215, 0, 0.3)',
-                  boxShadow: '0 4px 12px rgba(255, 215, 0, 0.15)',
+                  background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 200, 0, 0.1) 100%)',
+                  color: '#D4A017',
+                  fontWeight: '600',
+                  fontSize: isMobile ? '1rem' : '1.2rem',
+                  border: '1.5px solid rgba(255, 215, 0, 0.3)',
+                  boxShadow: '0 4px 12px rgba(255, 215, 0, 0.2)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -297,17 +297,19 @@ function ProfilePage() {
                   cursor: 'pointer',
                   position: 'relative',
                   overflow: 'hidden',
-                  minWidth: '48px',
+                  minWidth: isMobile ? '44px' : '48px',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.background = 'rgba(255, 215, 0, 0.35)';
-                  e.target.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.25)';
+                  e.target.style.background = 'linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 200, 0, 0.15) 100%)';
+                  e.target.style.borderColor = 'rgba(255, 215, 0, 0.5)';
+                  e.target.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.3)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = 'rgba(255, 215, 0, 0.25)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.15)';
+                  e.target.style.background = 'linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 200, 0, 0.1) 100%)';
+                  e.target.style.borderColor = 'rgba(255, 215, 0, 0.3)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.2)';
                 }}
               >
                 <FaCoins />

@@ -532,10 +532,10 @@ function ActiveEvent({ onClose }) {
         >
           <div
             style={{
-              background: 'rgba(255, 255, 255, 0.9)',
+              background: 'var(--app-card-bg)',
               backdropFilter: 'blur(20px) saturate(180%)',
               WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              border: '1px solid rgba(255, 255, 255, 0.5)',
+              border: '1px solid var(--app-card-border)',
               borderRadius: '20px',
               padding: '32px',
               maxWidth: '450px',
@@ -566,7 +566,7 @@ function ActiveEvent({ onClose }) {
                 <h3 style={{
                   fontSize: '1.4rem',
                   fontWeight: '800',
-                  color: '#1e293b',
+                  color: 'var(--app-text)',
                   margin: 0,
                 }}>
                   Share Event
@@ -574,7 +574,7 @@ function ActiveEvent({ onClose }) {
               </div>
               <p style={{
                 fontSize: '0.95rem',
-                color: '#64748b',
+                color: 'var(--app-muted-text)',
                 fontWeight: '500',
                 margin: 0,
                 marginLeft: '60px',
@@ -590,7 +590,7 @@ function ActiveEvent({ onClose }) {
                 display: 'block',
                 fontSize: '0.85rem',
                 fontWeight: '700',
-                color: '#475569',
+                color: 'var(--app-text)',
                 marginBottom: '8px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
@@ -609,12 +609,12 @@ function ActiveEvent({ onClose }) {
                     flex: 1,
                     padding: '14px 16px',
                     borderRadius: '12px',
-                    border: '2px solid #e2e8f0',
-                    background: 'rgba(255, 255, 255, 0.7)',
+                    border: '2px solid var(--app-card-border)',
+                    background: 'var(--app-surface)',
                     backdropFilter: 'blur(10px)',
                     WebkitBackdropFilter: 'blur(10px)',
                     fontSize: '0.9rem',
-                    color: '#475569',
+                    color: 'var(--app-text)',
                     fontWeight: '600',
                   }}
                 />
@@ -685,25 +685,25 @@ function ActiveEvent({ onClose }) {
                 style={{
                   padding: '14px 24px',
                   borderRadius: '12px',
-                  border: '2px solid #e2e8f0',
-                  background: 'rgba(255, 255, 255, 0.7)',
+                  border: '2px solid var(--app-card-border)',
+                  background: 'var(--app-surface)',
                   backdropFilter: 'blur(10px)',
                   WebkitBackdropFilter: 'blur(10px)',
-                  color: '#64748b',
+                  color: 'var(--app-muted-text)',
                   fontSize: '0.95rem',
                   fontWeight: '600',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+                  e.target.style.background = 'var(--app-surface-strong)';
                   e.target.style.borderColor = '#FF6B00';
                   e.target.style.color = '#FF6B00';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.7)';
-                  e.target.style.borderColor = '#e2e8f0';
-                  e.target.style.color = '#64748b';
+                  e.target.style.background = 'var(--app-surface)';
+                  e.target.style.borderColor = 'var(--app-card-border)';
+                  e.target.style.color = 'var(--app-muted-text)';
                 }}
               >
                 Close
