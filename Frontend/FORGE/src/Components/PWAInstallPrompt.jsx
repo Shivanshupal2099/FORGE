@@ -1,20 +1,15 @@
 import { useState, useEffect } from 'react';
 import { FaDownload, FaTimes } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
+import axiosInstance from '../api/axios';
 
 const PWAInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-    // Check if device is mobile
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
     // Check if already installed
     const checkInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
@@ -23,13 +18,26 @@ const PWAInstallPrompt = () => {
     };
     checkInstalled();
 
+    // Check if user has permanently dismissed or installed
+    const hasInstalled = localStorage.getItem('pwa-installed');
+    const hasDismissed = localStorage.getItem('pwa-install-dismissed');
+    
+    if (hasInstalled) {
+      setIsInstalled(true);
+      return;
+    }
+
+    if (hasDismissed) {
+      return;
+    }
+
     // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
       
-      // Only show prompt on desktop
-      if (!isMobile && !isInstalled) {
+      // Only show prompt if not installed and user is logged in
+      if (!isInstalled && user) {
         setShowPrompt(true);
       }
     };
@@ -39,17 +47,30 @@ const PWAInstallPrompt = () => {
       setDeferredPrompt(null);
       setShowPrompt(false);
       setIsInstalled(true);
+      localStorage.setItem('pwa-installed', 'true');
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
-      window.removeEventListener('resize', checkMobile);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, [isMobile, isInstalled]);
+  }, [isInstalled, user]);
+
+  const recordInstallation = async () => {
+    try {
+      await axiosInstance.post('/api/pwa/install', {
+        email: user.email,
+        device: navigator.userAgent,
+        platform: navigator.platform,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Failed to record PWA installation:', error);
+    }
+  };
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
@@ -60,22 +81,19 @@ const PWAInstallPrompt = () => {
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
       setShowPrompt(false);
+      localStorage.setItem('pwa-installed', 'true');
+      await recordInstallation();
     }
   };
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Don't show again for this session
-    sessionStorage.setItem('pwa-install-dismissed', 'true');
+    // Permanently dismiss for this user
+    localStorage.setItem('pwa-install-dismissed', 'true');
   };
 
-  // Don't show if already installed, on mobile, or dismissed
-  if (isInstalled || isMobile || !showPrompt) {
-    return null;
-  }
-
-  // Check if dismissed in this session
-  if (sessionStorage.getItem('pwa-install-dismissed')) {
+  // Don't show if already installed, not logged in, or dismissed
+  if (isInstalled || !user || !showPrompt) {
     return null;
   }
 

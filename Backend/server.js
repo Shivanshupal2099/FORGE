@@ -20,6 +20,7 @@ const waitlistRoutes=require('./routes/waitlist.routes')
 const paymentRoutes=require('./routes/payment.routes')
 const issueRoutes=require('./routes/issue.routes')
 const communityRoutes=require('./routes/community.routes')
+const pwaRoutes=require('./routes/pwa.routes')
 const { ConnectDB }=require('./config/database')
 const { activityMiddleware, markInactiveUsersOffline }=require('./middlewares/activity.middleware')
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler.middleware')
@@ -188,6 +189,7 @@ app.use('/api/waitlist',waitlistRoutes)
 app.use('/api/payment',paymentRoutes)
 app.use('/api/issues',issueRoutes)
 app.use('/api/communities',communityRoutes)
+app.use('/api/pwa',pwaRoutes)
 
 // Root route
 app.get('/', (req, res) => {
