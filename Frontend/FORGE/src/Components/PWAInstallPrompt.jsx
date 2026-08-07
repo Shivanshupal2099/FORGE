@@ -9,6 +9,7 @@ const PWAInstallPrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
 
@@ -19,6 +20,13 @@ const PWAInstallPrompt = () => {
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
+
+    // Check if iOS
+    const checkIOS = () => {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      setIsIOS(isIOS);
+    };
+    checkIOS();
 
     // Check if already installed
     const checkInstalled = () => {
@@ -41,7 +49,7 @@ const PWAInstallPrompt = () => {
       return;
     }
 
-    // Listen for beforeinstallprompt event
+    // Listen for beforeinstallprompt event (works on Chrome/Edge, not Safari)
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -69,12 +77,19 @@ const PWAInstallPrompt = () => {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
+    // For iOS Safari, show custom prompt since beforeinstallprompt doesn't work
+    if (isIOS && !isInstalled && user && !hasDismissed) {
+      if (isMobile && location.pathname === '/profile') {
+        setShowPrompt(true);
+      }
+    }
+
     return () => {
       window.removeEventListener('resize', checkMobile);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, [isInstalled, user, isMobile, location.pathname]);
+  }, [isInstalled, user, isMobile, isIOS, location.pathname]);
 
   const recordInstallation = async () => {
     try {
@@ -90,6 +105,14 @@ const PWAInstallPrompt = () => {
   };
 
   const handleInstall = async () => {
+    if (isIOS) {
+      // iOS doesn't support beforeinstallprompt, show instructions
+      alert('To install on iOS:\n\n1. Tap the Share button (square with arrow up)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" in the top right');
+      setShowPrompt(false);
+      localStorage.setItem('pwa-install-dismissed', 'true');
+      return;
+    }
+
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
@@ -217,8 +240,28 @@ const PWAInstallPrompt = () => {
           lineHeight: '1.5',
           margin: 0,
         }}>
-          Install ForgeConnect on your device for faster access, offline support, and a better experience.
+          {isIOS 
+            ? 'Install ForgeConnect on your home screen for faster access and offline support.'
+            : 'Install ForgeConnect on your device for faster access, offline support, and a better experience.'
+          }
         </p>
+
+        {isIOS && (
+          <div style={{
+            background: 'rgba(255, 107, 0, 0.1)',
+            border: '1px solid rgba(255, 107, 0, 0.2)',
+            borderRadius: '12px',
+            padding: '12px',
+            fontSize: '0.85rem',
+            color: '#475569',
+            lineHeight: '1.6',
+          }}>
+            <strong style={{ color: '#FF6B00' }}>iOS Instructions:</strong><br />
+            1. Tap the Share button <span style={{ fontSize: '1.2em' }}>⎋</span><br />
+            2. Scroll down and tap "Add to Home Screen"<br />
+            3. Tap "Add" in the top right
+          </div>
+        )}
 
         <div style={{
           display: 'flex',
@@ -248,7 +291,7 @@ const PWAInstallPrompt = () => {
               e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.3)';
             }}
           >
-            Install Now
+            {isIOS ? 'View Instructions' : 'Install Now'}
           </button>
           <button
             onClick={handleDismiss}
