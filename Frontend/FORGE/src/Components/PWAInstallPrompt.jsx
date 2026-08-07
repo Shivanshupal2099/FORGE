@@ -8,10 +8,18 @@ const PWAInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
+    // Check if device is mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     // Check if already installed
     const checkInstalled = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
@@ -38,9 +46,15 @@ const PWAInstallPrompt = () => {
       e.preventDefault();
       setDeferredPrompt(e);
       
-      // Only show prompt if not installed and user is logged in
+      // Show prompt based on device and page
       if (!isInstalled && user) {
-        setShowPrompt(true);
+        // Desktop: show on all pages except map
+        // Mobile: show only on profile page
+        if (!isMobile && location.pathname !== '/map') {
+          setShowPrompt(true);
+        } else if (isMobile && location.pathname === '/profile') {
+          setShowPrompt(true);
+        }
       }
     };
 
@@ -56,10 +70,11 @@ const PWAInstallPrompt = () => {
     window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
+      window.removeEventListener('resize', checkMobile);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, [isInstalled, user]);
+  }, [isInstalled, user, isMobile, location.pathname]);
 
   const recordInstallation = async () => {
     try {
@@ -99,8 +114,13 @@ const PWAInstallPrompt = () => {
     return null;
   }
 
-  // Don't show on map page
-  if (location.pathname === '/map') {
+  // Desktop: don't show on map page
+  // Mobile: only show on profile page
+  if (!isMobile && location.pathname === '/map') {
+    return null;
+  }
+
+  if (isMobile && location.pathname !== '/profile') {
     return null;
   }
 
