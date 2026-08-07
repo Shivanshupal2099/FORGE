@@ -6,6 +6,7 @@ import GuestRoute from './Components/GuestRoute';
 import ProtectedRoute from './Components/ProtectedRoute';
 import { AlertProvider } from './contexts/AlertContext';
 import PWAInstallPrompt from './Components/PWAInstallPrompt';
+import PWADownloadButton from './Components/PWADownloadButton';
 
 // Lazy load route components for better performance
 const Landing = lazy(() => import("./pages/Landing"));
@@ -87,6 +88,7 @@ function App() {
           </Routes>
         </Suspense>
         <PWAInstallPrompt />
+        <PWADownloadButton />
       </BrowserRouter>
     </AlertProvider>
   );

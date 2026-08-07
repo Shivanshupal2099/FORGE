@@ -38,14 +38,15 @@ const PWAInstallPrompt = () => {
 
     // Check if user has permanently dismissed or installed
     const hasInstalled = localStorage.getItem('pwa-installed');
-    const hasDismissed = localStorage.getItem('pwa-install-dismissed');
+    const hasLater = localStorage.getItem('pwa-install-later');
     
     if (hasInstalled) {
       setIsInstalled(true);
       return;
     }
 
-    if (hasDismissed) {
+    // Don't show prompt if user clicked "Later" - they'll see the button instead
+    if (hasLater) {
       return;
     }
 
@@ -78,7 +79,7 @@ const PWAInstallPrompt = () => {
     window.addEventListener('appinstalled', handleAppInstalled);
 
     // For iOS Safari, show custom prompt since beforeinstallprompt doesn't work
-    if (isIOS && !isInstalled && user && !hasDismissed) {
+    if (isIOS && !isInstalled && user && !hasLater) {
       if (isMobile && location.pathname === '/profile') {
         setShowPrompt(true);
       }
@@ -128,8 +129,8 @@ const PWAInstallPrompt = () => {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Permanently dismiss for this user
-    localStorage.setItem('pwa-install-dismissed', 'true');
+    // Mark that user clicked "Later" - show persistent button instead
+    localStorage.setItem('pwa-install-later', 'true');
   };
 
   // Don't show if already installed, not logged in, or dismissed

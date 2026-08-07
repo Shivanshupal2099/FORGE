@@ -23,6 +23,8 @@ function ChatPage() {
   const [notification, setNotification] = useState(null);
   const [pendingMessageIds, setPendingMessageIds] = useState(new Set());
   const [showCommunityPopup, setShowCommunityPopup] = useState(false);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [confirmPopupData, setConfirmPopupData] = useState(null);
   const messagesEndRef = useRef(null);
   const { socket, isConnected, joinConnection, leaveConnection, sendMessage } = useSocket();
 
@@ -244,22 +246,29 @@ function ChatPage() {
   const handleClearChat = async () => {
     if (!selectedUser?.connectionId) return;
 
-    if (!window.confirm('Are you sure you want to clear this chat? This will delete all messages for both users.')) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await axios.delete(`/api/chat/${selectedUser.connectionId}/messages`);
-      if (response.data.success) {
-        setMessages([]);
+    setConfirmPopupData({
+      title: 'Clear Chat',
+      message: 'Are you sure you want to clear this chat? This will delete all messages for both users.',
+      onConfirm: async () => {
+        setShowConfirmPopup(false);
+        try {
+          setLoading(true);
+          const response = await axios.delete(`/api/chat/${selectedUser.connectionId}/messages`);
+          if (response.data.success) {
+            setMessages([]);
+          }
+        } catch (error) {
+          console.error('Error clearing chat:', error);
+          showError('Failed to clear chat. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      },
+      onCancel: () => {
+        setShowConfirmPopup(false);
       }
-    } catch (error) {
-      console.error('Error clearing chat:', error);
-      showError('Failed to clear chat. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    });
+    setShowConfirmPopup(true);
   };
 
   const handleJoinCommunity = async (communityData) => {
@@ -271,28 +280,35 @@ function ChatPage() {
   const handleDisconnect = async () => {
     if (!selectedUser?.connectionId) return;
 
-    if (!window.confirm('Are you sure you want to disconnect from this user? This will remove the connection for both users.')) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await axios.delete(`/api/connections/${selectedUser.connectionId}`);
-      if (response.data.success) {
-        // Remove user from connected users
-        setConnectedUsers(prev => prev.filter(user => user.connectionId !== selectedUser.connectionId));
-        // Clear selected user and messages
-        setSelectedUser(null);
-        setMessages([]);
-        // Leave the socket room
-        leaveConnection(selectedUser.connectionId);
+    setConfirmPopupData({
+      title: 'Disconnect User',
+      message: 'Are you sure you want to disconnect from this user? This will remove the connection for both users.',
+      onConfirm: async () => {
+        setShowConfirmPopup(false);
+        try {
+          setLoading(true);
+          const response = await axios.delete(`/api/connections/${selectedUser.connectionId}`);
+          if (response.data.success) {
+            // Remove user from connected users
+            setConnectedUsers(prev => prev.filter(user => user.connectionId !== selectedUser.connectionId));
+            // Clear selected user and messages
+            setSelectedUser(null);
+            setMessages([]);
+            // Leave the socket room
+            leaveConnection(selectedUser.connectionId);
+          }
+        } catch (error) {
+          console.error('Error disconnecting:', error);
+          showError('Failed to disconnect. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      },
+      onCancel: () => {
+        setShowConfirmPopup(false);
       }
-    } catch (error) {
-      console.error('Error disconnecting:', error);
-      showError('Failed to disconnect. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    });
+    setShowConfirmPopup(true);
   };
 
   const handleSendMessage = async (e) => {
@@ -314,8 +330,11 @@ function ChatPage() {
       console.log('Send response:', response.data);
 
       if (response.data.success) {
-        // Add message locally for sender immediately
+        // Add message ID to pending set BEFORE adding to messages to prevent race condition
         const tempMessageId = response.data.message._id;
+        setPendingMessageIds(prev => new Set([...prev, tempMessageId]));
+
+        // Add message locally for sender immediately
         const message = {
           id: tempMessageId,
           text: newMessage,
@@ -323,11 +342,14 @@ function ChatPage() {
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
 
-        setMessages((currentMessages) => [...currentMessages, message]);
+        setMessages((currentMessages) => {
+          // Double-check that message doesn't already exist before adding
+          if (currentMessages.some(msg => msg.id === tempMessageId)) {
+            return currentMessages;
+          }
+          return [...currentMessages, message];
+        });
         setNewMessage('');
-
-        // Add to pending set to avoid duplication from Socket.io
-        setPendingMessageIds(prev => new Set([...prev, tempMessageId]));
 
         // Remove from pending set after 2 seconds
         setTimeout(() => {
@@ -390,15 +412,17 @@ function ChatPage() {
         <IoSend />
         <span>Send</span>
       </button>
-      <button
-        type="button"
-        className="chat-composer__join-community"
-        onClick={() => setShowCommunityPopup(true)}
-        aria-label="Join community"
-        disabled={loading}
-      >
-        <IoAdd />
-      </button>
+      {isMobile && (
+        <button
+          type="button"
+          className="chat-composer__join-community"
+          onClick={() => setShowCommunityPopup(true)}
+          aria-label="Join community"
+          disabled={loading}
+        >
+          <IoAdd />
+        </button>
+      )}
     </form>
   );
 
@@ -520,6 +544,98 @@ function ChatPage() {
           onClose={() => setShowCommunityPopup(false)}
           onJoin={handleJoinCommunity}
         />
+      )}
+
+      {showConfirmPopup && confirmPopupData && (
+        <div className="chat-confirm-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+        }}>
+          <div className="chat-confirm-popup" style={{
+            background: 'var(--app-card-bg)',
+            borderRadius: '16px',
+            padding: '24px',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+            border: '1px solid var(--app-card-border)',
+          }}>
+            <h3 style={{
+              margin: '0 0 12px 0',
+              color: 'var(--app-text)',
+              fontSize: '1.2rem',
+              fontWeight: '800',
+            }}>
+              {confirmPopupData.title}
+            </h3>
+            <p style={{
+              margin: '0 0 20px 0',
+              color: 'var(--app-muted-text)',
+              fontSize: '0.95rem',
+              lineHeight: '1.5',
+            }}>
+              {confirmPopupData.message}
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'flex-end',
+            }}>
+              <button
+                onClick={confirmPopupData.onCancel}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  border: '2px solid var(--app-card-border)',
+                  background: 'var(--app-surface)',
+                  color: 'var(--app-text)',
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'var(--app-surface-strong)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'var(--app-surface)';
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmPopupData.onConfirm}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  border: '2px solid transparent',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  color: '#991b1b',
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(239, 68, 68, 0.25)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'rgba(239, 68, 68, 0.15)';
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -551,6 +551,13 @@ function EditProfilePage() {
       setPopupMessage('Please accept the Privacy & Security Policy and Terms & Conditions to continue.');
       return;
     }
+
+    if (!profileData.gender) {
+      setShowPopup(true);
+      setPopupType('error');
+      setPopupMessage('Please select your gender to continue.');
+      return;
+    }
     
     setIsLoading(true);
     setError(null);
