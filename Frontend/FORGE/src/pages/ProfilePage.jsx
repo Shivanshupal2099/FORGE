@@ -24,10 +24,6 @@ function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [showVerificationPopup, setShowVerificationPopup] = useState(false);
   const [showComingSoonPopup, setShowComingSoonPopup] = useState(false);
-  const [showLocationPopup, setShowLocationPopup] = useState(false);
-  const [locationLoading, setLocationLoading] = useState(false);
-  const [locationError, setLocationError] = useState(null);
-  const [currentLocation, setCurrentLocation] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
   const [showTokensPopup, setShowTokensPopup] = useState(false);
@@ -165,58 +161,6 @@ function ProfilePage() {
   const handleSignOut = async () => {
     await signOut();
     window.location.href = '/';
-  };
-
-  const handleGetLocation = () => {
-    setLocationLoading(true);
-    setLocationError(null);
-    setCurrentLocation(null);
-
-    if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser');
-      setLocationLoading(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setCurrentLocation({ latitude, longitude });
-        
-        try {
-          const uid = user?.email;
-          const response = await axios.put(`/api/profile/${uid}/location`, {
-            latitude,
-            longitude
-          });
-          
-          if (response.data.success) {
-            setProfile(prev => ({
-              ...prev,
-              latitude,
-              longitude
-            }));
-            setShowLocationPopup(false);
-          } else {
-            setLocationError('Failed to update location in database');
-          }
-        } catch (error) {
-          console.error('Error updating location:', error);
-          setLocationError('Failed to update location. Please try again.');
-        } finally {
-          setLocationLoading(false);
-        }
-      },
-      (error) => {
-        setLocationError('Unable to retrieve your location. Please enable location services.');
-        setLocationLoading(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
-    );
   };
 
   return (
@@ -371,43 +315,6 @@ function ProfilePage() {
             )}
             {isOwnProfile && (
               <button
-                onClick={() => setShowLocationPopup(true)}
-                style={{
-                  padding: '14px',
-                  borderRadius: '999px',
-                  background: 'rgba(255, 215, 0, 0.25)',
-                  color: '#111111',
-                  fontWeight: '500',
-                  fontSize: '1.2rem',
-                  border: '1px solid rgba(255, 215, 0, 0.3)',
-                  boxShadow: '0 4px 12px rgba(255, 215, 0, 0.15)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  marginLeft: '8px',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  minWidth: '48px',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.background = 'rgba(255, 215, 0, 0.35)';
-                  e.target.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.25)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = 'rgba(255, 215, 0, 0.25)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.15)';
-                }}
-              >
-                <IoLocationOutline />
-              </button>
-            )}
-            {isOwnProfile && (
-              <button
                 onClick={() => {
                   if (isVerified || profile?.is_verified) {
                     setShowVerifiedMessage(true);
@@ -416,22 +323,18 @@ function ProfilePage() {
                   }
                 }}
                 style={{
-                  padding: '14px',
+                  padding: '14px 20px',
                   borderRadius: '999px',
                   background: (isVerified || profile?.is_verified) 
-                    ? 'rgba(59, 130, 246, 0.25)' 
-                    : 'rgba(255, 215, 0, 0.25)',
-                  color: (isVerified || profile?.is_verified) 
-                    ? '#1e40af' 
-                    : '#111111',
-                  fontWeight: '500',
-                  fontSize: '1.2rem',
-                  border: (isVerified || profile?.is_verified) 
-                    ? '1px solid rgba(59, 130, 246, 0.4)' 
-                    : '1px solid rgba(255, 215, 0, 0.3)',
+                    ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' 
+                    : 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+                  color: '#ffffff',
+                  fontWeight: '600',
+                  fontSize: '0.9rem',
+                  border: 'none',
                   boxShadow: (isVerified || profile?.is_verified) 
-                    ? '0 4px 12px rgba(59, 130, 246, 0.2)' 
-                    : '0 4px 12px rgba(255, 215, 0, 0.15)',
+                    ? '0 4px 16px rgba(16, 185, 129, 0.3)' 
+                    : '0 4px 16px rgba(255, 107, 0, 0.3)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -441,30 +344,24 @@ function ProfilePage() {
                   cursor: 'pointer',
                   position: 'relative',
                   overflow: 'hidden',
-                  minWidth: '48px',
                 }}
                 onMouseEnter={(e) => {
                   const isUserVerified = isVerified || profile?.is_verified;
                   e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.background = isUserVerified 
-                    ? 'rgba(59, 130, 246, 0.35)' 
-                    : 'rgba(255, 215, 0, 0.35)';
                   e.target.style.boxShadow = isUserVerified 
-                    ? '0 6px 16px rgba(59, 130, 246, 0.3)' 
-                    : '0 6px 16px rgba(255, 215, 0, 0.25)';
+                    ? '0 8px 24px rgba(16, 185, 129, 0.4)' 
+                    : '0 8px 24px rgba(255, 107, 0, 0.4)';
                 }}
                 onMouseLeave={(e) => {
                   const isUserVerified = isVerified || profile?.is_verified;
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = isUserVerified 
-                    ? 'rgba(59, 130, 246, 0.25)' 
-                    : 'rgba(255, 215, 0, 0.25)';
                   e.target.style.boxShadow = isUserVerified 
-                    ? '0 4px 12px rgba(59, 130, 246, 0.2)' 
-                    : '0 4px 12px rgba(255, 215, 0, 0.15)';
+                    ? '0 4px 16px rgba(16, 185, 129, 0.3)' 
+                    : '0 4px 16px rgba(255, 107, 0, 0.3)';
                 }}
               >
                 <MdOutlineVerified />
+                <span>{(isVerified || profile?.is_verified) ? 'Verified' : 'Verify'}</span>
               </button>
             )}
           </div>
@@ -631,177 +528,6 @@ function ProfilePage() {
             >
               Got it
             </button>
-          </div>
-        </div>
-      )}
-
-      {showLocationPopup && (
-        <div style={{
-          position: 'fixed',
-          top: '0',
-          left: '0',
-          right: '0',
-          bottom: '0',
-          background: 'rgba(17, 17, 17, 0.5)',
-          backdropFilter: 'blur(4px)',
-          WebkitBackdropFilter: 'blur(4px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 2000,
-          padding: '20px',
-        }}>
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            borderRadius: '24px',
-            padding: '32px',
-            maxWidth: '480px',
-            width: '100%',
-            boxShadow: '0 16px 48px rgba(17, 17, 17, 0.15)',
-            border: '1px solid rgba(255, 255, 255, 0.5)',
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '64px',
-              height: '64px',
-              borderRadius: '999px',
-              background: 'rgba(255, 215, 0, 0.25)',
-              marginBottom: '20px',
-              margin: '0 auto 20px',
-            }}>
-              <IoLocationOutline style={{ fontSize: '32px', color: '#111111' }} />
-            </div>
-            
-            <h2 style={{
-              margin: '0 0 12px',
-              fontSize: '1.5rem',
-              fontWeight: '600',
-              color: '#111111',
-              textAlign: 'center',
-            }}>
-              Update Your Location
-            </h2>
-            
-            <p style={{
-              margin: '0 0 24px',
-              fontSize: '1rem',
-              color: '#666666',
-              fontWeight: '400',
-              textAlign: 'center',
-              lineHeight: '1.6',
-            }}>
-              We'll use your device's location services to get your current coordinates and update them in your profile.
-            </p>
-
-            {locationError && (
-              <div style={{
-                padding: '12px 16px',
-                borderRadius: '12px',
-                background: 'rgba(255, 107, 0, 0.15)',
-                border: '1px solid rgba(255, 107, 0, 0.3)',
-                marginBottom: '20px',
-                color: '#FF6B00',
-                fontSize: '0.9rem',
-                fontWeight: '500',
-                textAlign: 'center',
-              }}>
-                {locationError}
-              </div>
-            )}
-
-            {currentLocation && (
-              <div style={{
-                padding: '16px',
-                borderRadius: '16px',
-                background: 'rgba(255, 215, 0, 0.1)',
-                border: '1px solid rgba(255, 215, 0, 0.3)',
-                marginBottom: '20px',
-                textAlign: 'center',
-              }}>
-                <div style={{ fontSize: '0.85rem', color: '#666666', fontWeight: '400', marginBottom: '4px' }}>
-                  Location Found:
-                </div>
-                <div style={{ fontSize: '1rem', color: '#111111', fontWeight: '600' }}>
-                  {currentLocation.latitude.toFixed(6)}, {currentLocation.longitude.toFixed(6)}
-                </div>
-              </div>
-            )}
-
-            <div style={{
-              display: 'flex',
-              gap: '12px',
-              justifyContent: 'center',
-            }}>
-              <button
-                onClick={() => {
-                  setShowLocationPopup(false);
-                  setLocationError(null);
-                  setCurrentLocation(null);
-                }}
-                disabled={locationLoading}
-                style={{
-                  padding: '14px 28px',
-                  borderRadius: '999px',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  background: 'rgba(255, 255, 255, 0.5)',
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
-                  color: '#666666',
-                  fontSize: '1rem',
-                  fontWeight: '500',
-                  cursor: locationLoading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 12px rgba(17, 17, 17, 0.05)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!locationLoading) {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.7)';
-                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.5)';
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleGetLocation}
-                disabled={locationLoading}
-                style={{
-                  padding: '14px 28px',
-                  borderRadius: '999px',
-                  border: 'none',
-                  background: '#FF6B00',
-                  color: '#111111',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: locationLoading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 8px 24px rgba(255, 107, 0, 0.25)',
-                  opacity: locationLoading ? 0.7 : 1,
-                }}
-                onMouseEnter={(e) => {
-                  if (!locationLoading) {
-                    e.target.style.background = '#FF8533';
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 12px 32px rgba(255, 107, 0, 0.35)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = '#FF6B00';
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 8px 24px rgba(255, 107, 0, 0.25)';
-                }}
-              >
-                {locationLoading ? 'Getting Location...' : 'Get Location'}
-              </button>
-            </div>
           </div>
         </div>
       )}
