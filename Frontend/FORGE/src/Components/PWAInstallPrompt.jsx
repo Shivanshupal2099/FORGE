@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaDownload, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
 import axiosInstance from '../api/axios';
 
 const PWAInstallPrompt = () => {
@@ -8,6 +9,7 @@ const PWAInstallPrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const { user } = useAuth();
+  const location = useLocation();
 
   useEffect(() => {
     // Check if already installed
@@ -94,6 +96,11 @@ const PWAInstallPrompt = () => {
 
   // Don't show if already installed, not logged in, or dismissed
   if (isInstalled || !user || !showPrompt) {
+    return null;
+  }
+
+  // Don't show on map page
+  if (location.pathname === '/map') {
     return null;
   }
 
