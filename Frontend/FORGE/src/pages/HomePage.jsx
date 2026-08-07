@@ -79,7 +79,7 @@ function HomePage() {
 
   return (
     <div
-      className="page-shell"
+      className="page-shell minimal-ivory-grid"
       style={{
         minHeight: '100vh',
         display: 'flex',

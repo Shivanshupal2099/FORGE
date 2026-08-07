@@ -116,9 +116,13 @@ function EventDetailPage() {
   }
 
   return (
-    <div style={{
+    <div className="minimal-ivory-grid" style={{
       minHeight: '100vh',
-      backgroundColor: '#f5f5f5',
+      backgroundColor: '#FFFEF8',
+      backgroundImage: 
+        'linear-gradient(rgba(210, 205, 195, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(210, 205, 195, 0.08) 1px, transparent 1px)',
+      backgroundSize: '80px 80px',
+      backgroundPosition: 'center center',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',

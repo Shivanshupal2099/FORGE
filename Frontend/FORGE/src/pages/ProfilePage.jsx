@@ -173,7 +173,7 @@ function ProfilePage() {
   };
 
   return (
-    <div className="page-shell">
+    <div className="page-shell minimal-ivory-grid">
       <Header hideLogo={isMobile} />
       {isOwnProfile && (
         <Link 
@@ -328,7 +328,7 @@ function ProfilePage() {
                   if (isVerified || profile?.is_verified) {
                     setShowVerifiedMessage(true);
                   } else {
-                    setShowVerifyIntro(true);
+                    setShowComingSoonPopup(true);
                   }
                 }}
                 style={{
@@ -566,7 +566,6 @@ function ProfilePage() {
               onClick={() => {
                 setShowVerifyIntro(false);
                 localStorage.setItem('hasSeenVerifyIntro', 'true');
-                window.location.href = '/profile';
               }}
               style={{
                 padding: '16px 32px',
@@ -589,7 +588,7 @@ function ProfilePage() {
                 e.target.style.boxShadow = '0 8px 24px rgba(255, 107, 0, 0.3)';
               }}
             >
-              Get Verified
+              Got it
             </button>
           </div>
         </div>

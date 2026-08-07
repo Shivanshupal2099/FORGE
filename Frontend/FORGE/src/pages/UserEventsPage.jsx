@@ -343,7 +343,7 @@ function UserEventsPage() {
 };
 
   return (
-    <div className="page-shell" style={{ position: 'relative' }}>
+    <div className="page-shell minimal-ivory-grid" style={{ position: 'relative' }}>
       {notification && (
         <div style={{
           position: 'fixed',

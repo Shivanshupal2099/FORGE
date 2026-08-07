@@ -487,7 +487,7 @@ function ChatPage() {
   );
 
   return (
-    <div className="page-shell chat-page">
+    <div className="page-shell minimal-ivory-grid chat-page">
       {notification && (
         <div className={`chat-notification chat-notification--${notification.type}`}>
           <div className="chat-notification__content">

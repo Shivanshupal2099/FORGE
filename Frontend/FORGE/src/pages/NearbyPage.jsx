@@ -238,7 +238,7 @@ function NearbyPage() {
   };
 
   return (
-    <div className="page-shell">
+    <div className="page-shell" style={{ background: 'transparent' }}>
       <Header hideLogo={isMobile} />
       {/* Radar Background Animation */}
       <div style={{
