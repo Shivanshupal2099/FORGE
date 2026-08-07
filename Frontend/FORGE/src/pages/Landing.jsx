@@ -45,14 +45,11 @@ function Landing() {
             </div>
 
             <div className="landing-hero__copy">
-              <span className="landing-hero__eyebrow">India's Builder Platform · 2026</span>
+              <span className="landing-hero__eyebrow">Builder Platform</span>
               <h1 className="landing-hero__title">
                 Forge<span className="landing-hero__title-accent">Connect</span>
               </h1>
-              <p className="landing-hero__subtitle">
-                Build with the right people. Discover co-founders, join events, survey real users, and find offers — all on one map.
-              </p>
-            </div>
+              </div>
           </div>
 
           <div className="landing-hero__actions">
@@ -64,9 +61,6 @@ function Landing() {
               Get Started
               <span className="landing-hero__cta-arrow" aria-hidden="true">→</span>
             </button>
-            <p className="landing-hero__hint">
-              Redirecting automatically in a moment…
-            </p>
           </div>
         </div>
       </div>

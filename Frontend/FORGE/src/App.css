@@ -106,14 +106,6 @@
   gap: clamp(20px, 4vw, 32px);
 }
 
-@media (min-width: 720px) {
-  .landing-hero__brand {
-    flex-direction: row;
-    text-align: left;
-    align-items: center;
-  }
-}
-
 .landing-hero__logo-wrap {
   position: relative;
   flex-shrink: 0;
@@ -158,13 +150,6 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--app-text);
-  box-shadow: 4px 4px 0 #111111;
-}
-
-@media (min-width: 720px) {
-  .landing-hero__eyebrow {
-    align-self: flex-start;
-  }
 }
 
 .landing-hero__title {
