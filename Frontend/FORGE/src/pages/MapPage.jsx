@@ -1,8 +1,8 @@
 import { useRef, useEffect, useState, useMemo } from 'react'
-import { FaFilter, FaPlus, FaMinus } from 'react-icons/fa'
+import { FaFilter, FaPlus, FaMinus, FaTimes, FaArrowLeft } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
 import * as mapboxgl from 'mapbox-gl/esm'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import NavigationBar from '../Components/NavigationBar'
 import Header from '../Components/Header'
 import Filtersection from '../Components/Filtersection'
 import Usercard from '../Components/Usercard'
@@ -20,6 +20,7 @@ const MAPBOX_STYLE_URI=import.meta.env.VITE_MAPBOX_STYLE_URI;
 function Map() {
   const { user } = useAuth();
   const { socket, isConnected } = useSocket();
+  const navigate = useNavigate();
   const mapRef = useRef()
   const mapContainerRef = useRef()
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -333,7 +334,28 @@ function Map() {
     boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)',
     backdropFilter: 'blur(12px)',
     WebkitBackdropFilter: 'blur(12px)',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer'
+  }
+
+  const closeBtnStyle = {
+    position: 'absolute',
+    top: isMobile ? '16px' : '20px',
+    left: isMobile ? '16px' : '20px',
+    zIndex: 1100,
+    width: isMobile ? '48px' : '56px',
+    height: isMobile ? '48px' : '56px',
+    borderRadius: '16px',
+    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    color: 'white',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...buttonCommon
   }
 
   const filterBtnStyle = {
@@ -347,10 +369,6 @@ function Map() {
     borderRadius: '20px',
     background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)',
     color: 'white',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     ...buttonCommon
   }
 
@@ -365,10 +383,6 @@ function Map() {
     borderRadius: '20px',
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     color: 'white',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     ...buttonCommon
   }
 
@@ -383,10 +397,6 @@ function Map() {
     borderRadius: '20px',
     background: 'linear-gradient(135deg, #ffd700 0%, #ffeb3b 100%)',
     color: '#1a1a1a',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     ...buttonCommon
   }
 
@@ -470,11 +480,36 @@ function Map() {
 
       <button
         type='button'
+        onClick={() => navigate('/profile')}
+        aria-label='Close map and go to profile'
+        style={closeBtnStyle}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'scale(1.1)';
+          e.target.style.boxShadow = '0 12px 32px rgba(239, 68, 68, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'scale(1)';
+          e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)';
+        }}
+      >
+        <FaArrowLeft size={isMobile ? 20 : 24} />
+      </button>
+
+      <button
+        type='button'
         onClick={() => setIsFilterOpen(true)}
         aria-label='Open filters'
         style={{ ...filterBtnStyle, border: '1px solid rgba(255,255,255,0.35)' }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'scale(1.1)';
+          e.target.style.boxShadow = '0 12px 32px rgba(255, 107, 107, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'scale(1)';
+          e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)';
+        }}
       >
-        <FaFilter size={28} />
+        <FaFilter size={isMobile ? 24 : 28} />
       </button>
 
       <button
@@ -482,8 +517,16 @@ function Map() {
         onClick={() => mapRef.current.zoomIn()}
         aria-label='Zoom in'
         style={zoomInBtnStyle}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'scale(1.1)';
+          e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'scale(1)';
+          e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)';
+        }}
       >
-        <FaPlus size={28} />
+        <FaPlus size={isMobile ? 24 : 28} />
       </button>
 
       <button
@@ -491,8 +534,16 @@ function Map() {
         onClick={() => mapRef.current.zoomOut()}
         aria-label='Zoom out'
         style={zoomOutBtnStyle}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'scale(1.1)';
+          e.target.style.boxShadow = '0 12px 32px rgba(255, 215, 0, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'scale(1)';
+          e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)';
+        }}
       >
-        <FaMinus size={28} />
+        <FaMinus size={isMobile ? 24 : 28} />
       </button>
 
       {isFilterOpen && (
@@ -547,10 +598,6 @@ function Map() {
           currentUserEmail={user?.email}
         />
       )}
-
-      <div style={{ position: 'absolute', left: '50%', bottom: '20px', transform: 'translateX(-50%)', width: 'calc(100% - 24px)', maxWidth: '920px', zIndex: 1000 }}>
-        <NavigationBar isChatPage={false} />
-      </div>
     </div>
   )
 }
