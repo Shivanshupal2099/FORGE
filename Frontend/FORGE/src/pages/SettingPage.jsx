@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IoArrowBack, IoTrashOutline, IoLogOutOutline, IoDocumentTextOutline, IoShieldCheckmarkOutline, IoChatbubbleEllipsesOutline, IoLogoInstagram } from 'react-icons/io5';
+import { IoArrowBack, IoTrashOutline, IoLogOutOutline, IoDocumentTextOutline, IoShieldCheckmarkOutline, IoChatbubbleEllipsesOutline, IoLogoInstagram, IoMoonOutline, IoSunnyOutline, IoDesktopOutline, IoColorPaletteOutline, IoSettingsOutline } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
 import { useAlert } from '../contexts/AlertContext';
 import axios from '../api/axios';
-
-
 
 function SettingPage() {
   const { user, signOut } = useAuth();
@@ -18,6 +16,97 @@ function SettingPage() {
   const [showIssueReportDialog, setShowIssueReportDialog] = useState(false);
   const [issueReport, setIssueReport] = useState({ subject: '', description: '' });
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  
+  // Theme state
+  const [currentTheme, setCurrentTheme] = useState('light');
+  const [accentColor, setAccentColor] = useState('#FFD700');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Available themes
+  const themes = [
+    { id: 'light', name: 'Light', icon: <IoSunnyOutline />, description: 'Clean and bright interface' },
+    { id: 'dark', name: 'Dark', icon: <IoMoonOutline />, description: 'Easy on the eyes' },
+    { id: 'system', name: 'System', icon: <IoDesktopOutline />, description: 'Follows system preference' },
+  ];
+
+  // Available accent colors
+  const accentColors = [
+    { name: 'Gold', value: '#FFD700' },
+    { name: 'Orange', value: '#FF6B00' },
+    { name: 'Blue', value: '#3B82F6' },
+    { name: 'Purple', value: '#8B5CF6' },
+    { name: 'Pink', value: '#EC4899' },
+    { name: 'Green', value: '#10B981' },
+    { name: 'Red', value: '#EF4444' },
+    { name: 'Teal', value: '#14B8A6' },
+  ];
+
+  useEffect(() => {
+    // Load saved theme preference
+    const savedTheme = localStorage.getItem('forge-theme') || 'light';
+    setCurrentTheme(savedTheme);
+    setIsDarkMode(savedTheme === 'dark');
+    
+    const savedAccent = localStorage.getItem('forge-accent') || '#FFD700';
+    setAccentColor(savedAccent);
+    
+    applyTheme(savedTheme, savedAccent);
+  }, []);
+
+  const applyTheme = (theme, accent) => {
+    const root = document.documentElement;
+    const body = document.body;
+    
+    // Apply accent color
+    root.style.setProperty('--app-accent-bg', accent);
+    
+    // Apply theme
+    if (theme === 'dark') {
+      body.style.setProperty('--app-background', '#0f172a');
+      body.style.setProperty('--app-surface', '#1e293b');
+      body.style.setProperty('--app-surface-strong', '#334155');
+      body.style.setProperty('--app-text', '#f8fafc');
+      body.style.setProperty('--app-text-secondary', '#94a3b8');
+      body.style.setProperty('--app-border', '#334155');
+      body.style.setProperty('--app-card-bg', '#1e293b');
+      body.style.setProperty('--app-card-border', '#334155');
+      body.style.setProperty('--app-input-bg', '#1e293b');
+      body.style.setProperty('--app-input-border', '#334155');
+      body.style.setProperty('--app-button-bg', '#334155');
+      body.style.setProperty('--app-button-text', '#f8fafc');
+      setIsDarkMode(true);
+    } else {
+      body.style.setProperty('--app-background', '#FFFDF0');
+      body.style.setProperty('--app-surface', '#FFFFFF');
+      body.style.setProperty('--app-surface-strong', '#F5F5F0');
+      body.style.setProperty('--app-text', '#111111');
+      body.style.setProperty('--app-text-secondary', '#666666');
+      body.style.setProperty('--app-border', '#E0E0D8');
+      body.style.setProperty('--app-card-bg', '#FFFFFF');
+      body.style.setProperty('--app-card-border', '#E0E0D8');
+      body.style.setProperty('--app-input-bg', '#FFFFFF');
+      body.style.setProperty('--app-input-border', '#E0E0D8');
+      body.style.setProperty('--app-button-bg', '#FFD700');
+      body.style.setProperty('--app-button-text', '#000000');
+      setIsDarkMode(false);
+    }
+    
+    // Save preferences
+    localStorage.setItem('forge-theme', theme);
+    localStorage.setItem('forge-accent', accent);
+  };
+
+  const handleThemeChange = (theme) => {
+    setCurrentTheme(theme);
+    applyTheme(theme, accentColor);
+    showSuccess(`Theme changed to ${theme.charAt(0).toUpperCase() + theme.slice(1)}`);
+  };
+
+  const handleAccentChange = (color) => {
+    setAccentColor(color);
+    applyTheme(currentTheme, color);
+    showSuccess('Accent color updated');
+  };
 
   const handleSignOut = async () => {
     try {
@@ -154,12 +243,76 @@ function SettingPage() {
           </Link>
           <div>
             <span className="settings-card__eyebrow">
-              <IoTrashOutline />
-              Account
+              <IoSettingsOutline />
+              Customize
             </span>
             <h1>Settings</h1>
           </div>
         </div>
+
+        {/* Theme Selection Section */}
+        <section className="settings-theme-zone" aria-label="Theme Settings">
+          <div className="settings-option settings-option--full">
+            <div className="settings-option__icon">
+              <IoColorPaletteOutline />
+            </div>
+            <div className="settings-option__content">
+              <h2>Theme</h2>
+              <p>Choose your preferred display mode</p>
+            </div>
+          </div>
+          <div className="theme-selector">
+            {themes.map((theme) => (
+              <button
+                key={theme.id}
+                className={`theme-option ${currentTheme === theme.id ? 'theme-option--active' : ''}`}
+                onClick={() => handleThemeChange(theme.id)}
+                style={{
+                  background: isDarkMode ? '#1e293b' : '#FFFFFF',
+                  border: currentTheme === theme.id ? accentColor : isDarkMode ? '#334155' : '#E0E0D8',
+                  color: isDarkMode ? '#f8fafc' : '#111111',
+                }}
+              >
+                <div className="theme-option__icon">{theme.icon}</div>
+                <div className="theme-option__info">
+                  <span className="theme-option__name">{theme.name}</span>
+                  <span className="theme-option__description">{theme.description}</span>
+                </div>
+                {currentTheme === theme.id && (
+                  <div className="theme-option__check" style={{ background: accentColor }} />
+                )}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Accent Color Selection Section */}
+        <section className="settings-accent-zone" aria-label="Accent Color">
+          <div className="settings-option settings-option--full">
+            <div className="settings-option__icon">
+              <IoColorPaletteOutline />
+            </div>
+            <div className="settings-option__content">
+              <h2>Accent Color</h2>
+              <p>Personalize your interface with accent colors</p>
+            </div>
+          </div>
+          <div className="accent-colors">
+            {accentColors.map((color) => (
+              <button
+                key={color.name}
+                className={`accent-color-option ${accentColor === color.value ? 'accent-color-option--active' : ''}`}
+                onClick={() => handleAccentChange(color.value)}
+                style={{ background: color.value }}
+                title={color.name}
+              >
+                {accentColor === color.value && (
+                  <span className="accent-color-option__check">✓</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </section>
 
         <section className="settings-signout-zone" aria-label="Sign out">
           <div className="settings-option">
