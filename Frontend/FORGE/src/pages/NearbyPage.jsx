@@ -237,6 +237,40 @@ function NearbyPage() {
     setFilters(defaultFilters);
   };
 
+  // Force dark background for radar theme
+  useEffect(() => {
+    const body = document.body;
+    const html = document.documentElement;
+    const root = document.getElementById('root');
+    
+    // Store original styles
+    const originalBodyBg = body.style.background;
+    const originalHtmlBg = html.style.background;
+    const originalRootBg = root?.style.background;
+    
+    // Apply dark radar background
+    body.style.background = '#0f172a';
+    body.style.setProperty('background', '#0f172a', 'important');
+    html.style.background = '#0f172a';
+    html.style.setProperty('background', '#0f172a', 'important');
+    if (root) {
+      root.style.background = 'transparent';
+      root.style.setProperty('background', 'transparent', 'important');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      body.style.background = originalBodyBg;
+      body.style.removeProperty('background');
+      html.style.background = originalHtmlBg;
+      html.style.removeProperty('background');
+      if (root) {
+        root.style.background = originalRootBg;
+        root.style.removeProperty('background');
+      }
+    };
+  }, []);
+
   return (
     <>
       {/* Radar Background Animation */}
