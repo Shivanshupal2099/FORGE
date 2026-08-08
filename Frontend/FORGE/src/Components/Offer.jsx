@@ -305,21 +305,22 @@ function Offer({ onClose }) {
           className="home-popup__close"
           onClick={onClose}
           aria-label="Close offers popup"
+          style={{ color: isDarkMode ? '#ffffff' : '#111111' }}
         >
           <FaTimes aria-hidden="true" />
         </button>
 
         {!showDetailPopup ? (
           <>
-            <div className="home-popup__header">
-              <span className="home-popup__icon">
+            <div className="home-popup__header" data-dark={isDarkMode}>
+              <span className="home-popup__icon" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>
                 <FaTags aria-hidden="true" />
               </span>
               <div>
-                <h2 id="offer-popup-title" className="home-popup__title">
+                <h2 id="offer-popup-title" className="home-popup__title" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>
                   Offers
                 </h2>
-                <p className="home-popup__subtitle">
+                <p className="home-popup__subtitle" style={{ color: isDarkMode ? '#b8b8d0' : '#64748b' }}>
                   Redeem your Forge tokens for exclusive deals and community perks.
                 </p>
               </div>
@@ -336,11 +337,11 @@ function Offer({ onClose }) {
             </div>
 
             {showCreateForm && (
-              <div className="home-popup-section">
-                <h3 className="home-popup-section__title">Create New Offer</h3>
+              <div className="home-popup-section" data-dark={isDarkMode}>
+                <h3 className="home-popup-section__title" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Create New Offer</h3>
                 <form onSubmit={handleCreateOffer} className="offer-create-form">
                   <div className="form-group">
-                    <label htmlFor="title">Title *</label>
+                    <label htmlFor="title" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Title *</label>
                     <input
                       type="text"
                       id="title"
@@ -351,12 +352,15 @@ function Offer({ onClose }) {
                       placeholder="Enter offer title"
                       maxLength={45}
                       style={{
-                        borderColor: newOffer.title.length > 45 ? '#ef4444' : undefined
+                        borderColor: newOffer.title.length > 45 ? '#ef4444' : undefined,
+                        background: isDarkMode ? '#1a1a2e' : '#ffffff',
+                        color: isDarkMode ? '#ffffff' : '#111111',
+                        borderColor: isDarkMode ? '#3a3a5c' : '#E5E7EB'
                       }}
                     />
                     <span style={{
                       fontSize: '0.8rem',
-                      color: newOffer.title.length > 45 ? '#ef4444' : '#64748b',
+                      color: newOffer.title.length > 45 ? '#ef4444' : (isDarkMode ? '#b8b8d0' : '#64748b'),
                       marginTop: '4px',
                       display: 'block'
                     }}>
@@ -364,7 +368,7 @@ function Offer({ onClose }) {
                     </span>
                   </div>
                   <div className="form-group">
-                    <label htmlFor="description">Description *</label>
+                    <label htmlFor="description" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Description *</label>
                     <textarea
                       id="description"
                       name="description"
@@ -375,12 +379,15 @@ function Offer({ onClose }) {
                       rows="3"
                       maxLength={3801}
                       style={{
-                        borderColor: newOffer.description.length > 3801 ? '#ef4444' : undefined
+                        borderColor: newOffer.description.length > 3801 ? '#ef4444' : undefined,
+                        background: isDarkMode ? '#1a1a2e' : '#ffffff',
+                        color: isDarkMode ? '#ffffff' : '#111111',
+                        borderColor: isDarkMode ? '#3a3a5c' : '#E5E7EB'
                       }}
                     />
                     <span style={{
                       fontSize: '0.8rem',
-                      color: newOffer.description.length > 3801 ? '#ef4444' : '#64748b',
+                      color: newOffer.description.length > 3801 ? '#ef4444' : (isDarkMode ? '#b8b8d0' : '#64748b'),
                       marginTop: '4px',
                       display: 'block'
                     }}>
@@ -395,8 +402,8 @@ function Offer({ onClose }) {
             )}
 
             {!showCreateForm && !showDetailPopup && (
-              <div className="home-popup-section">
-                <h3 className="home-popup-section__title">Available offers</h3>
+              <div className="home-popup-section" data-dark={isDarkMode}>
+                <h3 className="home-popup-section__title" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Available offers</h3>
                 {loading ? (
                   <div className="loading-container">
                     <FaSpinner className="spinner large" />
@@ -427,9 +434,10 @@ function Offer({ onClose }) {
                       <div 
                         key={offer._id} 
                         className={`offer-card ${isRedeemed(offer) ? 'redeemed' : ''} ${isExpired(offer) ? 'expired' : ''}`}
+                        style={{ background: isDarkMode ? '#1a1a2e' : 'rgba(255, 255, 255, 0.6)', borderColor: isDarkMode ? '#3a3a5c' : 'rgba(0, 0, 0, 0.08)' }}
                       >
                         <div className="offer-card__header">
-                          <span className="offer-card__title">{offer.title}</span>
+                          <span className="offer-card__title" style={{ color: isDarkMode ? '#ffffff' : '#000000' }}>{offer.title}</span>
                           {isOwner(offer) && (
                             <div className="offer-card__actions">
                               <button
@@ -461,8 +469,8 @@ function Offer({ onClose }) {
                           )}
                         </div>
                         <div className="offer-card__meta">
-                          <span className="offer-card__cost">
-                            <FaCoins /> 100 tokens
+                          <span className="offer-card__cost" style={{ color: isDarkMode ? '#ffffff' : '#000000' }}>
+                            <FaCoins style={{ color: isDarkMode ? '#ffffff' : '#FFD700' }} /> 100 tokens
                           </span>
                           {isRedeemed(offer) && (
                             <span className="offer-card__status redeemed-badge">Redeemed</span>
@@ -479,8 +487,9 @@ function Offer({ onClose }) {
                               e.stopPropagation();
                               handleRedeemOffer(offer._id);
                             }}
+                            style={{ color: isDarkMode ? '#ffffff' : '#111111' }}
                           >
-                            <FaGift /> Redeem
+                            <FaGift style={{ color: isDarkMode ? '#ffffff' : '#111111' }} /> Redeem
                           </button>
                         )}
                         {isRedeemed(offer) && (
@@ -511,26 +520,27 @@ function Offer({ onClose }) {
                   type="button"
                   className="home-popup__back"
                   onClick={() => setShowEditForm(false)}
+                  style={{ color: isDarkMode ? '#ffffff' : '#111111' }}
                 >
                   <FaArrowLeft aria-hidden="true" /> Back to Offer
                 </button>
 
-                <div className="home-popup__header">
-                  <span className="home-popup__icon">
+                <div className="home-popup__header" data-dark={isDarkMode}>
+                  <span className="home-popup__icon" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>
                     <FaEdit aria-hidden="true" />
                   </span>
                   <div>
-                    <h2 className="home-popup__title">Edit Offer</h2>
-                    <p className="home-popup__subtitle">
+                    <h2 className="home-popup__title" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Edit Offer</h2>
+                    <p className="home-popup__subtitle" style={{ color: isDarkMode ? '#b8b8d0' : '#64748b' }}>
                       Update your offer details
                     </p>
                   </div>
                 </div>
 
-                <div className="home-popup-section">
+                <div className="home-popup-section" data-dark={isDarkMode}>
                   <form onSubmit={handleUpdateOffer} className="offer-create-form">
                     <div className="form-group">
-                      <label htmlFor="edit-title">Title *</label>
+                      <label htmlFor="edit-title" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Title *</label>
                       <input
                         type="text"
                         id="edit-title"
@@ -541,12 +551,15 @@ function Offer({ onClose }) {
                         placeholder="Enter offer title"
                         maxLength={45}
                         style={{
-                          borderColor: editOffer.title.length > 45 ? '#ef4444' : undefined
+                          borderColor: editOffer.title.length > 45 ? '#ef4444' : undefined,
+                          background: isDarkMode ? '#1a1a2e' : '#ffffff',
+                          color: isDarkMode ? '#ffffff' : '#111111',
+                          borderColor: isDarkMode ? '#3a3a5c' : '#E5E7EB'
                         }}
                       />
                       <span style={{
                         fontSize: '0.8rem',
-                        color: editOffer.title.length > 45 ? '#ef4444' : '#64748b',
+                        color: editOffer.title.length > 45 ? '#ef4444' : (isDarkMode ? '#b8b8d0' : '#64748b'),
                         marginTop: '4px',
                         display: 'block'
                       }}>
@@ -554,7 +567,7 @@ function Offer({ onClose }) {
                       </span>
                     </div>
                     <div className="form-group">
-                      <label htmlFor="edit-description">Description *</label>
+                      <label htmlFor="edit-description" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Description *</label>
                       <textarea
                         id="edit-description"
                         name="description"
@@ -565,12 +578,15 @@ function Offer({ onClose }) {
                         rows="4"
                         maxLength={3801}
                         style={{
-                          borderColor: editOffer.description.length > 3801 ? '#ef4444' : undefined
+                          borderColor: editOffer.description.length > 3801 ? '#ef4444' : undefined,
+                          background: isDarkMode ? '#1a1a2e' : '#ffffff',
+                          color: isDarkMode ? '#ffffff' : '#111111',
+                          borderColor: isDarkMode ? '#3a3a5c' : '#E5E7EB'
                         }}
                       />
                       <span style={{
                         fontSize: '0.8rem',
-                        color: editOffer.description.length > 3801 ? '#ef4444' : '#64748b',
+                        color: editOffer.description.length > 3801 ? '#ef4444' : (isDarkMode ? '#b8b8d0' : '#64748b'),
                         marginTop: '4px',
                         display: 'block'
                       }}>
@@ -578,14 +594,14 @@ function Offer({ onClose }) {
                       </span>
                     </div>
                     <div className="form-group checkbox-group">
-                      <label>
+                      <label style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>
                         <input
                           type="checkbox"
                           name="is_active"
                           checked={editOffer.is_active}
                           onChange={handleEditInputChange}
                         />
-                        <span>Active Offer</span>
+                        <span style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Active Offer</span>
                       </label>
                     </div>
                     <div className="offer-edit-actions">
@@ -609,23 +625,24 @@ function Offer({ onClose }) {
                   type="button"
                   className="home-popup__back"
                   onClick={handleBackToOffers}
+                  style={{ color: isDarkMode ? '#ffffff' : '#111111' }}
                 >
                   <FaArrowLeft aria-hidden="true" /> Back to Offers
                 </button>
 
-                <div className="home-popup__header">
-                  <span className="home-popup__icon">
+                <div className="home-popup__header" data-dark={isDarkMode}>
+                  <span className="home-popup__icon" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>
                     <FaTags aria-hidden="true" />
                   </span>
                   <div>
-                    <h2 className="home-popup__title">{selectedOffer?.title}</h2>
-                    <p className="home-popup__subtitle">
+                    <h2 className="home-popup__title" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>{selectedOffer?.title}</h2>
+                    <p className="home-popup__subtitle" style={{ color: isDarkMode ? '#b8b8d0' : '#64748b' }}>
                       Offer Details
                     </p>
                   </div>
                 </div>
 
-                <div className="offer-detail-card">
+                <div className="offer-detail-card" style={{ background: isDarkMode ? '#1a1a2e' : '#ffffff', borderColor: isDarkMode ? '#3a3a5c' : 'rgba(0, 0, 0, 0.08)' }}>
                   <div className="offer-detail__header">
                     {isOwner(selectedOffer) ? (
                       <div className="offer-detail__actions">
@@ -634,6 +651,7 @@ function Offer({ onClose }) {
                           className="button-icon"
                           onClick={handleEditOffer}
                           title="Edit offer"
+                          style={{ color: isDarkMode ? '#ffffff' : '#111111' }}
                         >
                           <FaEdit />
                         </button>
@@ -645,6 +663,7 @@ function Offer({ onClose }) {
                           className="button-icon button-icon--danger"
                           onClick={() => setShowReportDialog(true)}
                           title="Report offer"
+                          style={{ color: isDarkMode ? '#ffffff' : '#111111' }}
                         >
                           <FaFlag />
                         </button>
@@ -652,15 +671,15 @@ function Offer({ onClose }) {
                     )}
                   </div>
 
-                  <div className="offer-detail__description">
+                  <div className="offer-detail__description" style={{ color: isDarkMode ? '#b8b8d0' : '#111111' }}>
                     {selectedOffer?.description}
                   </div>
 
                   <div className="offer-detail__meta">
                     {selectedOffer?.max_redemptions && (
                       <div className="offer-detail__meta-item">
-                        <span className="offer-detail__meta-label">Redemptions</span>
-                        <span className="offer-detail__meta-value">
+                        <span className="offer-detail__meta-label" style={{ color: isDarkMode ? '#b8b8d0' : '#64748b' }}>Redemptions</span>
+                        <span className="offer-detail__meta-value" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>
                           {selectedOffer.redeemed_by.length}/{selectedOffer.max_redemptions}
                         </span>
                       </div>
@@ -669,13 +688,13 @@ function Offer({ onClose }) {
 
                   <div className="offer-detail__status">
                     {isRedeemed(selectedOffer) && (
-                      <span className="redeemed-badge">You have redeemed this offer</span>
+                      <span className="redeemed-badge" style={{ color: isDarkMode ? '#ffffff' : '#00C800' }}>You have redeemed this offer</span>
                     )}
                     {isExpired(selectedOffer) && (
-                      <span className="expired-badge">This offer has expired</span>
+                      <span className="expired-badge" style={{ color: isDarkMode ? '#ffffff' : '#ef4444' }}>This offer has expired</span>
                     )}
                     {!selectedOffer?.is_active && (
-                      <span className="expired-badge">This offer is inactive</span>
+                      <span className="expired-badge" style={{ color: isDarkMode ? '#ffffff' : '#ef4444' }}>This offer is inactive</span>
                     )}
                   </div>
 
@@ -684,8 +703,9 @@ function Offer({ onClose }) {
                       type="button"
                       className="button-primary button-large"
                       onClick={() => handleRedeemOffer(selectedOffer._id)}
+                      style={{ color: isDarkMode ? '#ffffff' : '#111111' }}
                     >
-                      <FaGift /> Redeem Offer
+                      <FaGift style={{ color: isDarkMode ? '#ffffff' : '#111111' }} /> Redeem Offer
                     </button>
                   )}
                 </div>
@@ -697,14 +717,14 @@ function Offer({ onClose }) {
 
       {showSuccessPopup && (
         <div className="home-popup-overlay" onClick={handleSuccessPopupClose}>
-          <div className="home-popup" onClick={(e) => e.stopPropagation()}>
-            <div className="home-popup__header">
-              <span className="home-popup__icon">
+          <div className="home-popup" onClick={(e) => e.stopPropagation()} style={{ background: isDarkMode ? '#1a1a2e' : '#ffffff', borderColor: isDarkMode ? '#3a3a5c' : 'rgba(0, 0, 0, 0.08)' }}>
+            <div className="home-popup__header" data-dark={isDarkMode}>
+              <span className="home-popup__icon" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>
                 <FaGift />
               </span>
               <div>
-                <h2 className="home-popup__title">Offer Redeemed!</h2>
-                <p className="home-popup__subtitle">
+                <h2 className="home-popup__title" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Offer Redeemed!</h2>
+                <p className="home-popup__subtitle" style={{ color: isDarkMode ? '#b8b8d0' : '#64748b' }}>
                   Congratulations! You have successfully redeemed this offer.
                 </p>
               </div>
@@ -714,6 +734,7 @@ function Offer({ onClose }) {
                 type="button"
                 className="button-primary button-large"
                 onClick={handleSuccessPopupClose}
+                style={{ color: isDarkMode ? '#ffffff' : '#111111' }}
               >
                 Continue
               </button>

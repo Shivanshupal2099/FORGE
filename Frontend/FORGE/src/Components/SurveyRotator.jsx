@@ -698,63 +698,6 @@ function SurveyRotator() {
                 gap: '8px',
                 marginBottom: '16px',
               }}>
-                <span style={{
-                  background: '#FFF4E8',
-                  color: '#FF7A00',
-                  borderRadius: '999px',
-                  padding: 'clamp(4px, 1.5vw, 6px) clamp(10px, 3vw, 14px)',
-                  fontSize: 'clamp(10px, 2.5vw, 12px)',
-                  fontWeight: '500',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}>
-                  🌍 Public
-                </span>
-                <span style={{
-                  background: '#FFF4E8',
-                  color: '#FF7A00',
-                  borderRadius: '999px',
-                  padding: 'clamp(4px, 1.5vw, 6px) clamp(10px, 3vw, 14px)',
-                  fontSize: 'clamp(10px, 2.5vw, 12px)',
-                  fontWeight: '500',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}>
-                  ❓ {questions.length} Question{questions.length !== 1 ? 's' : ''}
-                </span>
-                {questions.length > 0 && questions.map((q, idx) => {
-                  const typeIcons = {
-                    'text': '📝',
-                    'radio': '🔘',
-                    'checkbox': '☑',
-                    'dropdown': '📋',
-                  };
-                  const typeLabels = {
-                    'text': 'Text',
-                    'radio': 'Radio',
-                    'checkbox': 'Checkbox',
-                    'dropdown': 'Dropdown',
-                  };
-                  const icon = typeIcons[q.type] || '❓';
-                  const label = typeLabels[q.type] || q.type;
-                  return (
-                    <span key={idx} style={{
-                      background: '#FFF4E8',
-                      color: '#FF7A00',
-                      borderRadius: '999px',
-                      padding: 'clamp(4px, 1.5vw, 6px) clamp(10px, 3vw, 14px)',
-                      fontSize: 'clamp(10px, 2.5vw, 12px)',
-                      fontWeight: '500',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                    }}>
-                      {icon} {label}
-                    </span>
-                  );
-                })}
               </div>
             </div>
 
@@ -1094,7 +1037,6 @@ function SurveyRotator() {
                     }}
                   >
                     <FaTimes />
-                    Cancel
                   </button>
 
                   {/* Submit Button */}
@@ -1141,10 +1083,7 @@ function SurveyRotator() {
                     {isSubmitting ? (
                       <FaSpinner style={{ animation: 'spin 1s linear infinite' }} />
                     ) : (
-                      <>
-                        Submit
-                        <FaPaperPlane />
-                      </>
+                      <FaPaperPlane />
                     )}
                   </button>
                 </div>

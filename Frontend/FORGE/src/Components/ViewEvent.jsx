@@ -181,8 +181,8 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
           <FaTimes aria-hidden="true" />
         </button>
 
-        <div className="home-popup__header">
-          <span className="home-popup__icon">
+        <div className="home-popup__header" data-dark={isDarkMode}>
+          <span className="home-popup__icon" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>
             <FaCalendarAlt aria-hidden="true" />
           </span>
           <div>
@@ -219,8 +219,8 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
               padding: '14px 24px',
               border: 'none',
               borderRadius: '999px',
-              background: 'rgba(255, 215, 0, 0.15)',
-              color: '#111111',
+              background: isDarkMode ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 215, 0, 0.15)',
+              color: isDarkMode ? '#ffffff' : '#111111',
               fontSize: '0.95rem',
               fontWeight: '500',
               cursor: 'pointer',
@@ -228,14 +228,14 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = 'translateY(-3px)';
-              e.target.style.background = 'rgba(255, 215, 0, 0.25)';
+              e.target.style.background = isDarkMode ? 'rgba(255, 215, 0, 0.3)' : 'rgba(255, 215, 0, 0.25)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0)';
-              e.target.style.background = 'rgba(255, 215, 0, 0.15)';
+              e.target.style.background = isDarkMode ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 215, 0, 0.15)';
             }}
           >
-            <FaShareAlt /> Share Event
+            <FaShareAlt style={{ color: isDarkMode ? '#ffffff' : '#111111' }} /> Share Event
           </button>
 
           {/* Register Button - Show if registration required and not registered - HIDDEN FOR FREEMIUM */}
@@ -487,8 +487,8 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
               <span style={{ 
                 padding: '4px 12px',
                 borderRadius: '999px',
-                background: 'rgba(255, 215, 0, 0.15)',
-                color: '#111111',
+                background: isDarkMode ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 215, 0, 0.15)',
+                color: isDarkMode ? '#ffffff' : '#111111',
                 fontSize: '0.75rem',
                 fontWeight: '500',
                 textTransform: 'uppercase',
@@ -499,8 +499,10 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
               <span style={{ 
                 padding: '4px 12px',
                 borderRadius: '999px',
-                background: event.status === 'published' ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 107, 0, 0.15)',
-                color: '#111111',
+                background: event.status === 'published' 
+                  ? (isDarkMode ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 215, 0, 0.15)') 
+                  : (isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.15)'),
+                color: isDarkMode ? '#ffffff' : '#111111',
                 fontSize: '0.75rem',
                 fontWeight: '500',
                 textTransform: 'uppercase',
@@ -511,8 +513,10 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
               <span style={{ 
                 padding: '4px 12px',
                 borderRadius: '999px',
-                background: event.priceType === 'Free' ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 107, 0, 0.15)',
-                color: '#111111',
+                background: event.priceType === 'Free' 
+                  ? (isDarkMode ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 215, 0, 0.15)') 
+                  : (isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.15)'),
+                color: isDarkMode ? '#ffffff' : '#111111',
                 fontSize: '0.75rem',
                 fontWeight: '500',
                 textTransform: 'uppercase',
@@ -523,8 +527,8 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
               <span style={{ 
                 padding: '4px 12px',
                 borderRadius: '999px',
-                background: 'rgba(255, 215, 0, 0.15)',
-                color: '#111111',
+                background: isDarkMode ? 'rgba(255, 215, 0, 0.2)' : 'rgba(255, 215, 0, 0.15)',
+                color: isDarkMode ? '#ffffff' : '#111111',
                 fontSize: '0.75rem',
                 fontWeight: '500',
                 textTransform: 'uppercase',

@@ -356,12 +356,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <label htmlFor="event-title" style={{
                     fontSize: isMobile ? '13px' : '14px',
                     fontWeight: '500',
-                    color: '#666666',
+                    color: isDarkMode ? '#b8b8d0' : '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaCalendarAlt style={{ color: '#111111', fontSize: '14px' }} />
+                    <FaCalendarAlt style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '14px' }} />
                     Event Title *
                   </label>
                   <input
@@ -378,18 +378,18 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: '#ffffff',
-                      color: '#1f172a',
+                      background: isDarkMode ? '#1a1a2e' : '#ffffff',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontWeight: '500',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'transparent';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -407,7 +407,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <label htmlFor="event-description" style={{
                     fontSize: isMobile ? '13px' : '14px',
                     fontWeight: '500',
-                    color: '#666666',
+                    color: isDarkMode ? '#b8b8d0' : '#666666',
                   }}>
                     Description
                   </label>
@@ -424,18 +424,18 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: '#ffffff',
-                      color: '#1f172a',
+                      background: isDarkMode ? '#1a1a2e' : '#ffffff',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontWeight: '500',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'transparent';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -453,12 +453,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <label htmlFor="event-category" style={{
                     fontSize: isMobile ? '13px' : '14px',
                     fontWeight: '500',
-                    color: '#666666',
+                    color: isDarkMode ? '#b8b8d0' : '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaTag style={{ color: '#111111', fontSize: '14px' }} />
+                    <FaTag style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '14px' }} />
                     Category
                   </label>
                   <select
@@ -472,19 +472,19 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: '#ffffff',
+                      background: isDarkMode ? '#1a1a2e' : '#ffffff',
                       cursor: 'pointer',
-                      color: '#1f172a',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontWeight: '500',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'transparent';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   >
@@ -512,7 +512,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     <label htmlFor="event-start-date" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
-                      color: '#666666',
+                      color: isDarkMode ? '#b8b8d0' : '#666666',
                     }}>
                       Start date *
                     </label>
@@ -529,19 +529,19 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: '#ffffff',
+                        background: isDarkMode ? '#1a1a2e' : '#ffffff',
                         cursor: 'pointer',
-                        color: '#1f172a',
+                        color: isDarkMode ? '#ffffff' : '#1f172a',
                         fontWeight: '500',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = '#ffffff';
+                        e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
                         e.target.style.borderColor = 'transparent';
-                        e.target.style.background = '#ffffff';
+                        e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     />
@@ -550,7 +550,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     <label htmlFor="event-start-time" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
-                      color: '#666666',
+                      color: isDarkMode ? '#b8b8d0' : '#666666',
                     }}>
                       Start time *
                     </label>
@@ -567,19 +567,19 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: '#ffffff',
+                        background: isDarkMode ? '#1a1a2e' : '#ffffff',
                         cursor: 'pointer',
-                        color: '#1f172a',
+                        color: isDarkMode ? '#ffffff' : '#1f172a',
                         fontWeight: '500',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = '#ffffff';
+                        e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
                         e.target.style.borderColor = 'transparent';
-                        e.target.style.background = '#ffffff';
+                        e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     />
@@ -598,12 +598,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <label htmlFor="event-online-type" style={{
                     fontSize: isMobile ? '13px' : '14px',
                     fontWeight: '500',
-                    color: '#666666',
+                    color: isDarkMode ? '#b8b8d0' : '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaGlobe style={{ color: '#111111', fontSize: '14px' }} />
+                    <FaGlobe style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '14px' }} />
                     Event Format
                   </label>
                   <select
@@ -617,19 +617,19 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: '#ffffff',
+                      background: isDarkMode ? '#1a1a2e' : '#ffffff',
                       cursor: 'pointer',
-                      color: '#1f172a',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontWeight: '500',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'transparent';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   >
@@ -651,12 +651,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <label htmlFor="event-location-or-link" style={{
                     fontSize: isMobile ? '13px' : '14px',
                     fontWeight: '500',
-                    color: '#666666',
+                    color: isDarkMode ? '#b8b8d0' : '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaMapMarkerAlt style={{ color: '#111111', fontSize: '14px' }} />
+                    <FaMapMarkerAlt style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '14px' }} />
                     Location (or meeting link)
                   </label>
                   <input
@@ -676,18 +676,18 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: '#ffffff',
-                      color: '#1f172a',
+                      background: isDarkMode ? '#1a1a2e' : '#ffffff',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontWeight: '500',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'transparent';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -705,12 +705,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <label htmlFor="event-organizer" style={{
                     fontSize: isMobile ? '13px' : '14px',
                     fontWeight: '500',
-                    color: '#666666',
+                    color: isDarkMode ? '#b8b8d0' : '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaUserTie style={{ color: '#111111', fontSize: '14px' }} />
+                    <FaUserTie style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '14px' }} />
                     Organizer
                   </label>
                   <input
@@ -726,18 +726,18 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: '#ffffff',
-                      color: '#1f172a',
+                      background: isDarkMode ? '#1a1a2e' : '#ffffff',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontWeight: '500',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'transparent';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -755,12 +755,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <label htmlFor="event-registration-required" style={{
                     fontSize: isMobile ? '13px' : '14px',
                     fontWeight: '500',
-                    color: '#666666',
+                    color: isDarkMode ? '#b8b8d0' : '#666666',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
                   }}>
-                    <FaUsers style={{ color: '#111111', fontSize: '14px' }} />
+                    <FaUsers style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '14px' }} />
                     Registration required
                   </label>
                   <select
@@ -774,19 +774,19 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: '#ffffff',
+                      background: isDarkMode ? '#1a1a2e' : '#ffffff',
                       cursor: 'pointer',
-                      color: '#1f172a',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontWeight: '500',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'transparent';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   >
@@ -800,7 +800,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     <label htmlFor="event-max-attendees" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
-                      color: '#666666',
+                      color: isDarkMode ? '#b8b8d0' : '#666666',
                     }}>
                       Maximum attendees *
                     </label>
@@ -818,20 +818,20 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: 'rgba(255, 255, 255, 0.8)',
+                        background: isDarkMode ? 'rgba(26, 26, 46, 0.8)' : 'rgba(255, 255, 255, 0.8)',
                         backdropFilter: 'blur(10px)',
                         WebkitBackdropFilter: 'blur(10px)',
-                        color: '#1f172a',
+                        color: isDarkMode ? '#ffffff' : '#1f172a',
                         fontWeight: '500',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+                        e.target.style.background = isDarkMode ? 'rgba(37, 37, 66, 0.95)' : 'rgba(255, 255, 255, 0.95)';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
                         e.target.style.borderColor = 'transparent';
-                        e.target.style.background = 'rgba(255, 255, 255, 0.8)';
+                        e.target.style.background = isDarkMode ? 'rgba(26, 26, 46, 0.8)' : 'rgba(255, 255, 255, 0.8)';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     />
@@ -851,7 +851,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     <label htmlFor="event-visibility" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
-                      color: '#666666',
+                      color: isDarkMode ? '#b8b8d0' : '#666666',
                     }}>
                       Visibility
                     </label>
@@ -866,19 +866,19 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: '#ffffff',
+                        background: isDarkMode ? '#1a1a2e' : '#ffffff',
                         cursor: 'pointer',
-                        color: '#1f172a',
+                        color: isDarkMode ? '#ffffff' : '#1f172a',
                         fontWeight: '500',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = '#ffffff';
+                        e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
                         e.target.style.borderColor = 'transparent';
-                        e.target.style.background = '#ffffff';
+                        e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     >
@@ -890,12 +890,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     <label htmlFor="event-price" style={{
                       fontSize: isMobile ? '13px' : '14px',
                       fontWeight: '500',
-                      color: '#666666',
+                      color: isDarkMode ? '#b8b8d0' : '#666666',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
                     }}>
-                      <FaTicketAlt style={{ color: '#111111', fontSize: '14px' }} />
+                      <FaTicketAlt style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '14px' }} />
                       Price Type
                     </label>
                     <select
@@ -909,19 +909,19 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                         fontSize: isMobile ? '15px' : '16px',
                         outline: 'none',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        background: '#ffffff',
+                        background: isDarkMode ? '#1a1a2e' : '#ffffff',
                         cursor: 'pointer',
-                        color: '#1f172a',
+                        color: isDarkMode ? '#ffffff' : '#1f172a',
                         fontWeight: '500',
                       }}
                       onFocus={(e) => {
                         e.target.style.borderColor = 'var(--forge-orange)';
-                        e.target.style.background = '#ffffff';
+                        e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                         e.target.style.transform = 'translateY(-1px)';
                       }}
                       onBlur={(e) => {
                         e.target.style.borderColor = 'transparent';
-                        e.target.style.background = '#ffffff';
+                        e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                         e.target.style.transform = 'translateY(0)';
                       }}
                     >
@@ -943,7 +943,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <label htmlFor="event-contact-info" style={{
                     fontSize: isMobile ? '13px' : '14px',
                     fontWeight: '500',
-                    color: '#666666',
+                    color: isDarkMode ? '#b8b8d0' : '#666666',
                   }}>
                     Contact information
                   </label>
@@ -960,18 +960,18 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: isMobile ? '15px' : '16px',
                       outline: 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      background: '#ffffff',
-                      color: '#1f172a',
+                      background: isDarkMode ? '#1a1a2e' : '#ffffff',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontWeight: '500',
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = 'var(--forge-orange)';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#252542' : '#ffffff';
                       e.target.style.transform = 'translateY(-1px)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = 'rgba(0, 0, 0, 0.1)';
-                      e.target.style.background = '#ffffff';
+                      e.target.style.background = isDarkMode ? '#1a1a2e' : '#ffffff';
                       e.target.style.transform = 'translateY(0)';
                     }}
                   />
@@ -984,15 +984,15 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 gap: isMobile ? '16px' : '20px',
                 padding: isMobile ? '0 24px' : '0 28px',
                 borderRadius: '24px',
-                background: 'linear-gradient(135deg, rgba(255, 107, 0.0.06) 0%, rgba(255, 107, 0, 0.03) 100%)',
-                border: '2px solid rgba(255, 107, 0, 0.12)',
+                background: isDarkMode ? 'rgba(255, 107, 0, 0.06)' : 'linear-gradient(135deg, rgba(255, 107, 0.0.06) 0%, rgba(255, 107, 0, 0.03) 100%)',
+                border: isDarkMode ? '2px solid rgba(255, 107, 0, 0.2)' : '2px solid rgba(255, 107, 0, 0.12)',
               }}>
                 <div style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
+                  background: isDarkMode ? 'rgba(26, 26, 46, 0.95)' : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%)',
                   borderRadius: '24px',
                   padding: '28px',
-                  color: '#1f172a',
-                  border: '2px solid rgba(255, 107, 0, 0.15)',
+                  color: isDarkMode ? '#ffffff' : '#1f172a',
+                  border: isDarkMode ? '2px solid rgba(255, 107, 0, 0.3)' : '2px solid rgba(255, 107, 0, 0.15)',
                 }}>
                   <div style={{
                     width: '64px',
@@ -1011,6 +1011,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     fontSize: '20px',
                     fontWeight: '700',
                     lineHeight: '1.3',
+                    color: isDarkMode ? '#ffffff' : '#1f172a',
                   }}>
                     {title || 'Event Title'}
                   </p>
@@ -1020,6 +1021,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontSize: '13px',
                       fontWeight: '400',
                       opacity: 0.9,
+                      color: isDarkMode ? '#b8b8d0' : '#1f172a',
                     }}>
                       Starts{' '}
                       {new Date(startDate).toLocaleDateString('en-US', {
@@ -1036,39 +1038,39 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     marginTop: '20px',
                     padding: '20px',
                     borderRadius: '20px',
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
-                    border: '2px solid rgba(255, 107, 0, 0.2)',
+                    background: isDarkMode ? 'rgba(26, 26, 46, 0.6)' : 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
+                    border: isDarkMode ? '2px solid rgba(255, 107, 0, 0.3)' : '2px solid rgba(255, 107, 0, 0.2)',
                   }}>
                     <span style={{
                       padding: '10px 18px',
                       borderRadius: '18px',
-                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 107, 0, 0.12) 100%)',
-                      color: '#1f172a',
+                      background: isDarkMode ? 'rgba(255, 107, 0, 0.3)' : 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 107, 0, 0.12) 100%)',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontSize: '13px',
                       fontWeight: '700',
-                      border: '2px solid rgba(255, 107, 0, 0.3)',
+                      border: isDarkMode ? '2px solid rgba(255, 107, 0, 0.4)' : '2px solid rgba(255, 107, 0, 0.3)',
                     }}>
                       {onlineType}
                     </span>
                     <span style={{
                       padding: '10px 18px',
                       borderRadius: '18px',
-                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 107, 0, 0.12) 100%)',
-                      color: '#1f172a',
+                      background: isDarkMode ? 'rgba(255, 107, 0, 0.3)' : 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 107, 0, 0.12) 100%)',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontSize: '13px',
                       fontWeight: '700',
-                      border: '2px solid rgba(255, 107, 0, 0.3)',
+                      border: isDarkMode ? '2px solid rgba(255, 107, 0, 0.4)' : '2px solid rgba(255, 107, 0, 0.3)',
                     }}>
                       {visibility}
                     </span>
                     <span style={{
                       padding: '10px 18px',
                       borderRadius: '18px',
-                      background: 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 107, 0, 0.12) 100%)',
-                      color: '#1f172a',
+                      background: isDarkMode ? 'rgba(255, 107, 0, 0.3)' : 'linear-gradient(135deg, rgba(255, 107, 0, 0.2) 0%, rgba(255, 107, 0, 0.12) 100%)',
+                      color: isDarkMode ? '#ffffff' : '#1f172a',
                       fontSize: '13px',
                       fontWeight: '700',
-                      border: '2px solid rgba(255, 107, 0, 0.3)',
+                      border: isDarkMode ? '2px solid rgba(255, 107, 0, 0.4)' : '2px solid rgba(255, 107, 0, 0.3)',
                     }}>
                       {priceType}
                     </span>
@@ -1080,6 +1082,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                       fontWeight: '400',
                       opacity: 0.85,
                       wordBreak: 'break-word',
+                      color: isDarkMode ? '#b8b8d0' : '#1f172a',
                     }}>
                       {locationOrLink}
                     </p>
@@ -1092,12 +1095,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 gap: isMobile ? '12px' : '16px',
                 marginTop: isMobile ? '28px' : '36px',
                 paddingTop: isMobile ? '24px' : '28px',
-                borderTop: '2px solid rgba(255, 255, 255, 0.4)',
+                borderTop: isDarkMode ? '2px solid rgba(255, 255, 255, 0.1)' : '2px solid rgba(255, 255, 255, 0.4)',
                 flexDirection: isMobile ? 'column' : 'row',
                 padding: isMobile ? '0 28px' : '0 32px',
                 borderRadius: '24px',
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
-                border: '2px solid rgba(255, 255, 255, 0.5)',
+                background: isDarkMode ? 'rgba(26, 26, 46, 0.6)' : 'linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 100%)',
+                border: isDarkMode ? '2px solid rgba(255, 255, 255, 0.1)' : '2px solid rgba(255, 255, 255, 0.5)',
               }}>
               <button
                 type="button"
@@ -1107,10 +1110,10 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   padding: isMobile ? '16px 24px' : '16px 32px',
                   borderRadius: '20px',
                   border: 'none',
-                  background: 'rgba(255, 255, 255, 0.8)',
+                  background: isDarkMode ? 'rgba(26, 26, 46, 0.8)' : 'rgba(255, 255, 255, 0.8)',
                   backdropFilter: 'blur(10px)',
                   WebkitBackdropFilter: 'blur(10px)',
-                  color: '#374151',
+                  color: isDarkMode ? '#ffffff' : '#374151',
                   fontSize: isMobile ? '15px' : '16px',
                   fontWeight: '700',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
@@ -1119,12 +1122,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                 }}
                 onMouseEnter={(e) => {
                   if (!isLoading) {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+                    e.target.style.background = isDarkMode ? 'rgba(37, 37, 66, 0.95)' : 'rgba(255, 255, 255, 0.95)';
                     e.target.style.transform = 'translateY(-2px)';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.8)';
+                  e.target.style.background = isDarkMode ? 'rgba(26, 26, 46, 0.8)' : 'rgba(255, 255, 255, 0.8)';
                   e.target.style.transform = 'translateY(0)';
                 }}
               >
