@@ -759,7 +759,7 @@ function SettingPage() {
         </div>
       )}
 
-      <NavigationBar isChatPage={false} />
+      {!isMobile && <NavigationBar isChatPage={false} />}
     </div>
   );
 }

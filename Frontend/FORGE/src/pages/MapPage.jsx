@@ -477,7 +477,7 @@ function Map() {
 
       <button
         type='button'
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/home')}
         aria-label='Close map and go to homepage'
         style={closeBtnStyle}
         onMouseEnter={(e) => {
@@ -542,6 +542,20 @@ function Map() {
       >
         <FaMinus size={isMobile ? 24 : 28} />
       </button>
+
+      {/* Bottom design element to hide Mapbox attribution */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '0',
+          left: '0',
+          right: '0',
+          height: isMobile ? '100px' : '120px',
+          background: 'linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%)',
+          pointerEvents: 'none',
+          zIndex: 999,
+        }}
+      />
 
       {isFilterOpen && (
         <div
