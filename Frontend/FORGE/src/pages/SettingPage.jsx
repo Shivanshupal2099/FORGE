@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { IoArrowBack, IoTrashOutline, IoLogOutOutline, IoDocumentTextOutline, IoShieldCheckmarkOutline, IoChatbubbleEllipsesOutline, IoLogoInstagram, IoMoonOutline, IoSunnyOutline, IoDesktopOutline, IoColorPaletteOutline, IoSettingsOutline } from 'react-icons/io5';
+import { IoArrowBack, IoTrashOutline, IoLogOutOutline, IoDocumentTextOutline, IoShieldCheckmarkOutline, IoChatbubbleEllipsesOutline, IoLogoInstagram, IoMoonOutline, IoSunnyOutline, IoDesktopOutline, IoColorPaletteOutline, IoSettingsOutline, IoNotificationsOutline, IoNotificationsOffOutline } from 'react-icons/io5';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,6 +21,17 @@ function SettingPage() {
   const [currentTheme, setCurrentTheme] = useState('light');
   const [accentColor, setAccentColor] = useState('#FFD700');
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Notification settings state
+  const [notificationSettings, setNotificationSettings] = useState({
+    pushEnabled: false,
+    chatNotifications: true,
+    connectionRequests: true,
+    eventReminders: true,
+    marketingNotifications: false,
+  });
+  const [isMobile, setIsMobile] = useState(false);
+  const [isUpdatingNotifications, setIsUpdatingNotifications] = useState(false);
 
   // Available themes
   const themes = [
@@ -51,6 +62,19 @@ function SettingPage() {
     setAccentColor(savedAccent);
     
     applyTheme(savedTheme, savedAccent);
+
+    // Check if mobile device
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      return /android|iphone|ipad|ipod|windows phone/i.test(userAgent);
+    };
+    setIsMobile(checkMobile());
+
+    // Load notification settings from localStorage
+    const savedNotifications = localStorage.getItem('forge-notification-settings');
+    if (savedNotifications) {
+      setNotificationSettings(JSON.parse(savedNotifications));
+    }
   }, []);
 
   const applyTheme = (theme, accent) => {
@@ -106,6 +130,44 @@ function SettingPage() {
     setAccentColor(color);
     applyTheme(currentTheme, color);
     showSuccess('Accent color updated');
+  };
+
+  const handleNotificationToggle = async (setting, value) => {
+    setIsUpdatingNotifications(true);
+    
+    try {
+      const updatedSettings = {
+        ...notificationSettings,
+        [setting]: value
+      };
+      
+      setNotificationSettings(updatedSettings);
+      localStorage.setItem('forge-notification-settings', JSON.stringify(updatedSettings));
+      
+      // If enabling push notifications, request permission
+      if (setting === 'pushEnabled' && value === true) {
+        if ('Notification' in window) {
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            showSuccess('Push notifications enabled');
+          } else {
+            showSuccess('Push notifications enabled (permission granted)');
+          }
+        } else {
+          showError('Push notifications not supported on this device');
+          setNotificationSettings(prev => ({ ...prev, pushEnabled: false }));
+        }
+      } else if (setting === 'pushEnabled' && value === false) {
+        showSuccess('Push notifications disabled');
+      } else {
+        showSuccess(`${setting.replace(/([A-Z])/g, ' $1').toLowerCase().trim()} updated`);
+      }
+    } catch (error) {
+      console.error('Error updating notification settings:', error);
+      showError('Failed to update notification settings');
+    } finally {
+      setIsUpdatingNotifications(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -313,6 +375,104 @@ function SettingPage() {
             ))}
           </div>
         </section>
+
+        {/* Notification Settings Section - Mobile Only */}
+        {isMobile && (
+          <section className="settings-notification-zone" aria-label="Notification Settings">
+            <div className="settings-option settings-option--full">
+              <div className="settings-option__icon">
+                <IoNotificationsOutline />
+              </div>
+              <div className="settings-option__content">
+                <h2>Notifications</h2>
+                <p>Manage your push notification preferences</p>
+              </div>
+            </div>
+
+            {/* Push Notifications Master Toggle */}
+            <div className="notification-toggle-item">
+              <div className="notification-toggle-info">
+                <span className="notification-toggle-title">Push Notifications</span>
+                <span className="notification-toggle-description">
+                  {notificationSettings.pushEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
+              <button
+                className={`notification-toggle-switch ${notificationSettings.pushEnabled ? 'notification-toggle-switch--on' : ''}`}
+                onClick={() => handleNotificationToggle('pushEnabled', !notificationSettings.pushEnabled)}
+                disabled={isUpdatingNotifications}
+                aria-label="Toggle push notifications"
+              >
+                <div className="notification-toggle-slider" />
+              </button>
+            </div>
+
+            {/* Individual Notification Toggles */}
+            {notificationSettings.pushEnabled && (
+              <>
+                <div className="notification-toggle-item notification-toggle-item--sub">
+                  <div className="notification-toggle-info">
+                    <span className="notification-toggle-title">Chat Messages</span>
+                    <span className="notification-toggle-description">New message notifications</span>
+                  </div>
+                  <button
+                    className={`notification-toggle-switch ${notificationSettings.chatNotifications ? 'notification-toggle-switch--on' : ''}`}
+                    onClick={() => handleNotificationToggle('chatNotifications', !notificationSettings.chatNotifications)}
+                    disabled={isUpdatingNotifications}
+                    aria-label="Toggle chat notifications"
+                  >
+                    <div className="notification-toggle-slider" />
+                  </button>
+                </div>
+
+                <div className="notification-toggle-item notification-toggle-item--sub">
+                  <div className="notification-toggle-info">
+                    <span className="notification-toggle-title">Connection Requests</span>
+                    <span className="notification-toggle-description">New collaboration requests</span>
+                  </div>
+                  <button
+                    className={`notification-toggle-switch ${notificationSettings.connectionRequests ? 'notification-toggle-switch--on' : ''}`}
+                    onClick={() => handleNotificationToggle('connectionRequests', !notificationSettings.connectionRequests)}
+                    disabled={isUpdatingNotifications}
+                    aria-label="Toggle connection request notifications"
+                  >
+                    <div className="notification-toggle-slider" />
+                  </button>
+                </div>
+
+                <div className="notification-toggle-item notification-toggle-item--sub">
+                  <div className="notification-toggle-info">
+                    <span className="notification-toggle-title">Event Reminders</span>
+                    <span className="notification-toggle-description">Upcoming event alerts</span>
+                  </div>
+                  <button
+                    className={`notification-toggle-switch ${notificationSettings.eventReminders ? 'notification-toggle-switch--on' : ''}`}
+                    onClick={() => handleNotificationToggle('eventReminders', !notificationSettings.eventReminders)}
+                    disabled={isUpdatingNotifications}
+                    aria-label="Toggle event reminder notifications"
+                  >
+                    <div className="notification-toggle-slider" />
+                  </button>
+                </div>
+
+                <div className="notification-toggle-item notification-toggle-item--sub">
+                  <div className="notification-toggle-info">
+                    <span className="notification-toggle-title">Marketing Updates</span>
+                    <span className="notification-toggle-description">News and feature updates</span>
+                  </div>
+                  <button
+                    className={`notification-toggle-switch ${notificationSettings.marketingNotifications ? 'notification-toggle-switch--on' : ''}`}
+                    onClick={() => handleNotificationToggle('marketingNotifications', !notificationSettings.marketingNotifications)}
+                    disabled={isUpdatingNotifications}
+                    aria-label="Toggle marketing notifications"
+                  >
+                    <div className="notification-toggle-slider" />
+                  </button>
+                </div>
+              </>
+            )}
+          </section>
+        )}
 
         <section className="settings-signout-zone" aria-label="Sign out">
           <div className="settings-option">
