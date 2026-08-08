@@ -4091,20 +4091,140 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Dark Mode Enhancements */
-.settings-theme-zone[data-dark="true"],
-.settings-accent-zone[data-dark="true"] {
-  background: #1e293b;
-  border-color: #334155;
+.settings-card[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.settings-card__header[data-dark="true"] {
+  color: #ffffff;
+}
+
+.settings-card__eyebrow[data-dark="true"] {
+  color: #b8b8d0;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.settings-card h1[data-dark="true"],
+.settings-option h2[data-dark="true"] {
+  color: #ffffff;
+}
+
+.settings-option p[data-dark="true"] {
+  color: #b8b8d0;
+}
+
+.settings-signout-zone[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.settings-issue-zone[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.settings-legal-zone[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.settings-social-zone[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.settings-danger-zone[data-dark="true"] {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+}
+
+.settings-delete-dialog-overlay[data-dark="true"] {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.settings-delete-dialog[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.settings-delete-dialog__header h2[data-dark="true"] {
+  color: #ffffff;
+}
+
+.settings-delete-dialog__warning[data-dark="true"] {
+  color: #b8b8d0;
+}
+
+.settings-delete-dialog__content label[data-dark="true"] {
+  color: #ffffff;
+}
+
+.settings-delete-dialog__content input[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+  color: #ffffff;
+}
+
+.settings-delete-dialog__content textarea[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+  color: #ffffff;
+}
+
+.button-secondary[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+  color: #ffffff;
+}
+
+.button-secondary[data-dark="true"]:hover {
+  background: #252542;
+}
+
+.button-primary[data-dark="true"] {
+  background: var(--app-accent-bg);
+  color: #ffffff;
+}
+
+.button-primary[data-dark="true"]:hover {
+  opacity: 0.9;
 }
 
 .settings-option[data-dark="true"] {
-  background: #1e293b;
-  border-color: #334155;
+  background: #1a1a2e;
+  border-color: #3a3a5c;
 }
 
 .settings-option__icon[data-dark="true"] {
-  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  background: linear-gradient(135deg, #3a3a5c 0%, #4a4a6c 100%);
+}
+
+.theme-option[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.theme-option[data-dark="true"]:hover {
+  background: #252542;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.theme-option__name[data-dark="true"] {
+  color: #ffffff;
+}
+
+.theme-option__description[data-dark="true"] {
+  color: #b8b8d0;
+}
+
+.accent-color-option[data-dark="true"] {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.accent-color-option--active[data-dark="true"] {
+  border-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* Notification Settings Styles */
@@ -4206,22 +4326,43 @@
 
 /* Dark mode for notification settings */
 .settings-notification-zone[data-dark="true"] {
-  background: #1e293b;
-  border-color: #334155;
+  background: #1a1a2e;
+  border-color: #3a3a5c;
 }
 
 .notification-toggle-item[data-dark="true"] {
-  background: #1e293b;
-  border-color: #334155;
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.notification-toggle-item[data-dark="true"]:hover {
+  background: #252542;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .notification-toggle-item--sub[data-dark="true"] {
-  background: #334155;
-  border-color: #475569;
+  background: #252542;
+  border-color: #3a3a5c;
+}
+
+.notification-toggle-item--sub[data-dark="true"]:hover {
+  background: #303054;
+}
+
+.notification-toggle-title[data-dark="true"] {
+  color: #ffffff;
+}
+
+.notification-toggle-description[data-dark="true"] {
+  color: #b8b8d0;
 }
 
 .notification-toggle-switch[data-dark="true"] {
-  background: #475569;
+  background: #3a3a5c;
+}
+
+.notification-toggle-switch[data-dark="true"]:hover:not(:disabled) {
+  background: #4a4a6c;
 }
 
 .notification-toggle-switch--on[data-dark="true"] {

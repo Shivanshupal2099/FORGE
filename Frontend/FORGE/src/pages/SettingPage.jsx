@@ -86,18 +86,21 @@ function SettingPage() {
     
     // Apply theme
     if (theme === 'dark') {
-      body.style.setProperty('--app-background', '#0f172a');
-      body.style.setProperty('--app-surface', '#1e293b');
-      body.style.setProperty('--app-surface-strong', '#334155');
-      body.style.setProperty('--app-text', '#f8fafc');
-      body.style.setProperty('--app-text-secondary', '#94a3b8');
-      body.style.setProperty('--app-border', '#334155');
-      body.style.setProperty('--app-card-bg', '#1e293b');
-      body.style.setProperty('--app-card-border', '#334155');
-      body.style.setProperty('--app-input-bg', '#1e293b');
-      body.style.setProperty('--app-input-border', '#334155');
-      body.style.setProperty('--app-button-bg', '#334155');
-      body.style.setProperty('--app-button-text', '#f8fafc');
+      // Enhanced dark mode palette with better contrast
+      body.style.setProperty('--app-background', '#0a0a0f');
+      body.style.setProperty('--app-surface', '#1a1a2e');
+      body.style.setProperty('--app-surface-strong', '#252542');
+      body.style.setProperty('--app-text', '#ffffff');
+      body.style.setProperty('--app-text-secondary', '#b8b8d0');
+      body.style.setProperty('--app-border', '#3a3a5c');
+      body.style.setProperty('--app-card-bg', '#1a1a2e');
+      body.style.setProperty('--app-card-border', '#3a3a5c');
+      body.style.setProperty('--app-input-bg', '#1a1a2e');
+      body.style.setProperty('--app-input-border', '#3a3a5c');
+      body.style.setProperty('--app-button-bg', accent);
+      body.style.setProperty('--app-button-text', '#ffffff');
+      body.style.setProperty('--app-soft-shadow', '0 8px 32px rgba(0, 0, 0, 0.4)');
+      body.style.setProperty('--app-soft-shadow-lg', '0 16px 48px rgba(0, 0, 0, 0.5)');
       setIsDarkMode(true);
     } else {
       body.style.setProperty('--app-background', '#FFFDF0');
@@ -112,6 +115,8 @@ function SettingPage() {
       body.style.setProperty('--app-input-border', '#E0E0D8');
       body.style.setProperty('--app-button-bg', '#FFD700');
       body.style.setProperty('--app-button-text', '#000000');
+      body.style.setProperty('--app-soft-shadow', '0 8px 32px rgba(17, 17, 17, 0.08)');
+      body.style.setProperty('--app-soft-shadow-lg', '0 16px 48px rgba(17, 17, 17, 0.12)');
       setIsDarkMode(false);
     }
     
@@ -296,15 +301,15 @@ function SettingPage() {
   };
 
   return (
-    <div className="page-shell settings-page">
+    <div className="page-shell settings-page" data-dark={isDarkMode}>
       <Header hideLogo={true} />
-      <div className="settings-card">
-        <div className="settings-card__header">
+      <div className="settings-card" data-dark={isDarkMode}>
+        <div className="settings-card__header" data-dark={isDarkMode}>
           <Link to="/profile" className="settings-card__back" aria-label="Back to profile">
             <IoArrowBack />
           </Link>
           <div>
-            <span className="settings-card__eyebrow">
+            <span className="settings-card__eyebrow" data-dark={isDarkMode}>
               <IoSettingsOutline />
               Customize
             </span>
@@ -313,14 +318,14 @@ function SettingPage() {
         </div>
 
         {/* Theme Selection Section */}
-        <section className="settings-theme-zone" aria-label="Theme Settings">
-          <div className="settings-option settings-option--full">
-            <div className="settings-option__icon">
+        <section className="settings-theme-zone" aria-label="Theme Settings" data-dark={isDarkMode}>
+          <div className="settings-option settings-option--full" data-dark={isDarkMode}>
+            <div className="settings-option__icon" data-dark={isDarkMode}>
               <IoColorPaletteOutline />
             </div>
             <div className="settings-option__content">
-              <h2>Theme</h2>
-              <p>Choose your preferred display mode</p>
+              <h2 data-dark={isDarkMode}>Theme</h2>
+              <p data-dark={isDarkMode}>Choose your preferred display mode</p>
             </div>
           </div>
           <div className="theme-selector">
@@ -328,17 +333,18 @@ function SettingPage() {
               <button
                 key={theme.id}
                 className={`theme-option ${currentTheme === theme.id ? 'theme-option--active' : ''}`}
+                data-dark={isDarkMode}
                 onClick={() => handleThemeChange(theme.id)}
                 style={{
-                  background: isDarkMode ? '#1e293b' : '#FFFFFF',
-                  border: currentTheme === theme.id ? accentColor : isDarkMode ? '#334155' : '#E0E0D8',
-                  color: isDarkMode ? '#f8fafc' : '#111111',
+                  background: isDarkMode ? '#1a1a2e' : '#FFFFFF',
+                  border: currentTheme === theme.id ? accentColor : isDarkMode ? '#3a3a5c' : '#E0E0D8',
+                  color: isDarkMode ? '#ffffff' : '#111111',
                 }}
               >
                 <div className="theme-option__icon">{theme.icon}</div>
                 <div className="theme-option__info">
-                  <span className="theme-option__name">{theme.name}</span>
-                  <span className="theme-option__description">{theme.description}</span>
+                  <span className="theme-option__name" data-dark={isDarkMode}>{theme.name}</span>
+                  <span className="theme-option__description" data-dark={isDarkMode}>{theme.description}</span>
                 </div>
                 {currentTheme === theme.id && (
                   <div className="theme-option__check" style={{ background: accentColor }} />
@@ -349,14 +355,14 @@ function SettingPage() {
         </section>
 
         {/* Accent Color Selection Section */}
-        <section className="settings-accent-zone" aria-label="Accent Color">
-          <div className="settings-option settings-option--full">
-            <div className="settings-option__icon">
+        <section className="settings-accent-zone" aria-label="Accent Color" data-dark={isDarkMode}>
+          <div className="settings-option settings-option--full" data-dark={isDarkMode}>
+            <div className="settings-option__icon" data-dark={isDarkMode}>
               <IoColorPaletteOutline />
             </div>
             <div className="settings-option__content">
-              <h2>Accent Color</h2>
-              <p>Personalize your interface with accent colors</p>
+              <h2 data-dark={isDarkMode}>Accent Color</h2>
+              <p data-dark={isDarkMode}>Personalize your interface with accent colors</p>
             </div>
           </div>
           <div className="accent-colors">
@@ -364,6 +370,7 @@ function SettingPage() {
               <button
                 key={color.name}
                 className={`accent-color-option ${accentColor === color.value ? 'accent-color-option--active' : ''}`}
+                data-dark={isDarkMode}
                 onClick={() => handleAccentChange(color.value)}
                 style={{ background: color.value }}
                 title={color.name}
@@ -378,27 +385,28 @@ function SettingPage() {
 
         {/* Notification Settings Section - Mobile Only */}
         {isMobile && (
-          <section className="settings-notification-zone" aria-label="Notification Settings">
-            <div className="settings-option settings-option--full">
-              <div className="settings-option__icon">
+          <section className="settings-notification-zone" aria-label="Notification Settings" data-dark={isDarkMode}>
+            <div className="settings-option settings-option--full" data-dark={isDarkMode}>
+              <div className="settings-option__icon" data-dark={isDarkMode}>
                 <IoNotificationsOutline />
               </div>
               <div className="settings-option__content">
-                <h2>Notifications</h2>
-                <p>Manage your push notification preferences</p>
+                <h2 data-dark={isDarkMode}>Notifications</h2>
+                <p data-dark={isDarkMode}>Manage your push notification preferences</p>
               </div>
             </div>
 
             {/* Push Notifications Master Toggle */}
-            <div className="notification-toggle-item">
+            <div className="notification-toggle-item" data-dark={isDarkMode}>
               <div className="notification-toggle-info">
-                <span className="notification-toggle-title">Push Notifications</span>
-                <span className="notification-toggle-description">
+                <span className="notification-toggle-title" data-dark={isDarkMode}>Push Notifications</span>
+                <span className="notification-toggle-description" data-dark={isDarkMode}>
                   {notificationSettings.pushEnabled ? 'Enabled' : 'Disabled'}
                 </span>
               </div>
               <button
                 className={`notification-toggle-switch ${notificationSettings.pushEnabled ? 'notification-toggle-switch--on' : ''}`}
+                data-dark={isDarkMode}
                 onClick={() => handleNotificationToggle('pushEnabled', !notificationSettings.pushEnabled)}
                 disabled={isUpdatingNotifications}
                 aria-label="Toggle push notifications"
@@ -410,13 +418,14 @@ function SettingPage() {
             {/* Individual Notification Toggles */}
             {notificationSettings.pushEnabled && (
               <>
-                <div className="notification-toggle-item notification-toggle-item--sub">
+                <div className="notification-toggle-item notification-toggle-item--sub" data-dark={isDarkMode}>
                   <div className="notification-toggle-info">
-                    <span className="notification-toggle-title">Chat Messages</span>
-                    <span className="notification-toggle-description">New message notifications</span>
+                    <span className="notification-toggle-title" data-dark={isDarkMode}>Chat Messages</span>
+                    <span className="notification-toggle-description" data-dark={isDarkMode}>New message notifications</span>
                   </div>
                   <button
                     className={`notification-toggle-switch ${notificationSettings.chatNotifications ? 'notification-toggle-switch--on' : ''}`}
+                    data-dark={isDarkMode}
                     onClick={() => handleNotificationToggle('chatNotifications', !notificationSettings.chatNotifications)}
                     disabled={isUpdatingNotifications}
                     aria-label="Toggle chat notifications"
@@ -425,13 +434,14 @@ function SettingPage() {
                   </button>
                 </div>
 
-                <div className="notification-toggle-item notification-toggle-item--sub">
+                <div className="notification-toggle-item notification-toggle-item--sub" data-dark={isDarkMode}>
                   <div className="notification-toggle-info">
-                    <span className="notification-toggle-title">Connection Requests</span>
-                    <span className="notification-toggle-description">New collaboration requests</span>
+                    <span className="notification-toggle-title" data-dark={isDarkMode}>Connection Requests</span>
+                    <span className="notification-toggle-description" data-dark={isDarkMode}>New collaboration requests</span>
                   </div>
                   <button
                     className={`notification-toggle-switch ${notificationSettings.connectionRequests ? 'notification-toggle-switch--on' : ''}`}
+                    data-dark={isDarkMode}
                     onClick={() => handleNotificationToggle('connectionRequests', !notificationSettings.connectionRequests)}
                     disabled={isUpdatingNotifications}
                     aria-label="Toggle connection request notifications"
@@ -440,13 +450,14 @@ function SettingPage() {
                   </button>
                 </div>
 
-                <div className="notification-toggle-item notification-toggle-item--sub">
+                <div className="notification-toggle-item notification-toggle-item--sub" data-dark={isDarkMode}>
                   <div className="notification-toggle-info">
-                    <span className="notification-toggle-title">Event Reminders</span>
-                    <span className="notification-toggle-description">Upcoming event alerts</span>
+                    <span className="notification-toggle-title" data-dark={isDarkMode}>Event Reminders</span>
+                    <span className="notification-toggle-description" data-dark={isDarkMode}>Upcoming event alerts</span>
                   </div>
                   <button
                     className={`notification-toggle-switch ${notificationSettings.eventReminders ? 'notification-toggle-switch--on' : ''}`}
+                    data-dark={isDarkMode}
                     onClick={() => handleNotificationToggle('eventReminders', !notificationSettings.eventReminders)}
                     disabled={isUpdatingNotifications}
                     aria-label="Toggle event reminder notifications"
@@ -455,13 +466,14 @@ function SettingPage() {
                   </button>
                 </div>
 
-                <div className="notification-toggle-item notification-toggle-item--sub">
+                <div className="notification-toggle-item notification-toggle-item--sub" data-dark={isDarkMode}>
                   <div className="notification-toggle-info">
-                    <span className="notification-toggle-title">Marketing Updates</span>
-                    <span className="notification-toggle-description">News and feature updates</span>
+                    <span className="notification-toggle-title" data-dark={isDarkMode}>Marketing Updates</span>
+                    <span className="notification-toggle-description" data-dark={isDarkMode}>News and feature updates</span>
                   </div>
                   <button
                     className={`notification-toggle-switch ${notificationSettings.marketingNotifications ? 'notification-toggle-switch--on' : ''}`}
+                    data-dark={isDarkMode}
                     onClick={() => handleNotificationToggle('marketingNotifications', !notificationSettings.marketingNotifications)}
                     disabled={isUpdatingNotifications}
                     aria-label="Toggle marketing notifications"
@@ -474,14 +486,14 @@ function SettingPage() {
           </section>
         )}
 
-        <section className="settings-signout-zone" aria-label="Sign out">
-          <div className="settings-option">
-            <div className="settings-option__icon">
+        <section className="settings-signout-zone" aria-label="Sign out" data-dark={isDarkMode}>
+          <div className="settings-option" data-dark={isDarkMode}>
+            <div className="settings-option__icon" data-dark={isDarkMode}>
               <IoLogOutOutline />
             </div>
             <div className="settings-option__content">
-              <h2>Sign Out</h2>
-              <p>Sign out of your account on this device.</p>
+              <h2 data-dark={isDarkMode}>Sign Out</h2>
+              <p data-dark={isDarkMode}>Sign out of your account on this device.</p>
             </div>
             <button
               type="button"
@@ -493,14 +505,14 @@ function SettingPage() {
           </div>
         </section>
 
-        <section className="settings-issue-zone" aria-label="Report Issue">
-          <div className="settings-option">
-            <div className="settings-option__icon">
+        <section className="settings-issue-zone" aria-label="Report Issue" data-dark={isDarkMode}>
+          <div className="settings-option" data-dark={isDarkMode}>
+            <div className="settings-option__icon" data-dark={isDarkMode}>
               <IoDocumentTextOutline />
             </div>
             <div className="settings-option__content">
-              <h2>Report Issue</h2>
-              <p>Report a bug or problem with the platform.</p>
+              <h2 data-dark={isDarkMode}>Report Issue</h2>
+              <p data-dark={isDarkMode}>Report a bug or problem with the platform.</p>
             </div>
             <button
               type="button"
@@ -522,14 +534,14 @@ function SettingPage() {
           </div>
         </section>
 
-        <section className="settings-legal-zone" aria-label="Legal">
-          <div className="settings-option">
-            <div className="settings-option__icon">
+        <section className="settings-legal-zone" aria-label="Legal" data-dark={isDarkMode}>
+          <div className="settings-option" data-dark={isDarkMode}>
+            <div className="settings-option__icon" data-dark={isDarkMode}>
               <IoShieldCheckmarkOutline />
             </div>
             <div className="settings-option__content">
-              <h2>Privacy & Security</h2>
-              <p>View our privacy policy and learn how we protect your data.</p>
+              <h2 data-dark={isDarkMode}>Privacy & Security</h2>
+              <p data-dark={isDarkMode}>View our privacy policy and learn how we protect your data.</p>
             </div>
             <Link
               to="/privacy"
@@ -551,14 +563,14 @@ function SettingPage() {
           </div>
         </section>
 
-        <section className="settings-social-zone" aria-label="Connect with Developer">
-          <div className="settings-option">
-            <div className="settings-option__icon">
+        <section className="settings-social-zone" aria-label="Connect with Developer" data-dark={isDarkMode}>
+          <div className="settings-option" data-dark={isDarkMode}>
+            <div className="settings-option__icon" data-dark={isDarkMode}>
               <IoChatbubbleEllipsesOutline />
             </div>
             <div className="settings-option__content">
-              <h2>Connect on WhatsApp</h2>
-              <p>Join our WhatsApp community for support and updates.</p>
+              <h2 data-dark={isDarkMode}>Connect on WhatsApp</h2>
+              <p data-dark={isDarkMode}>Join our WhatsApp community for support and updates.</p>
             </div>
             <a
               href="https://chat.whatsapp.com/L8uTSgubfj86hbm6UxQRFi?s=sh&p=i&ilr=0&amv=2"
@@ -581,13 +593,13 @@ function SettingPage() {
             </a>
           </div>
 
-          <div className="settings-option">
-            <div className="settings-option__icon">
+          <div className="settings-option" data-dark={isDarkMode}>
+            <div className="settings-option__icon" data-dark={isDarkMode}>
               <IoLogoInstagram />
             </div>
             <div className="settings-option__content">
-              <h2>Follow on Instagram</h2>
-              <p>Follow us on Instagram for latest updates and features.</p>
+              <h2 data-dark={isDarkMode}>Follow on Instagram</h2>
+              <p data-dark={isDarkMode}>Follow us on Instagram for latest updates and features.</p>
             </div>
             <a
               href="https://www.instagram.com/forgeconnect_0?igsh=cmxkZnh1ejJpYXdu"
@@ -611,14 +623,14 @@ function SettingPage() {
           </div>
         </section>
 
-        <section className="settings-danger-zone" aria-label="Danger zone">
-          <div className="settings-option">
-            <div className="settings-option__icon">
+        <section className="settings-danger-zone" aria-label="Danger zone" data-dark={isDarkMode}>
+          <div className="settings-option" data-dark={isDarkMode}>
+            <div className="settings-option__icon" data-dark={isDarkMode}>
               <IoTrashOutline />
             </div>
             <div className="settings-option__content">
-              <h2>Delete Account</h2>
-              <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+              <h2 data-dark={isDarkMode}>Delete Account</h2>
+              <p data-dark={isDarkMode}>Permanently delete your account and all associated data. This action cannot be undone.</p>
             </div>
             <button
               type="button"
@@ -632,16 +644,16 @@ function SettingPage() {
       </div>
 
       {showDeleteDialog && (
-        <div className="settings-delete-dialog-overlay" onClick={() => setShowDeleteDialog(false)}>
-          <div className="settings-delete-dialog" onClick={(e) => e.stopPropagation()}>
+        <div className="settings-delete-dialog-overlay" onClick={() => setShowDeleteDialog(false)} data-dark={isDarkMode}>
+          <div className="settings-delete-dialog" onClick={(e) => e.stopPropagation()} data-dark={isDarkMode}>
             <div className="settings-delete-dialog__header">
-              <h2>Delete Account</h2>
-              <p className="settings-delete-dialog__warning">
+              <h2 data-dark={isDarkMode}>Delete Account</h2>
+              <p className="settings-delete-dialog__warning" data-dark={isDarkMode}>
                 <strong>Warning:</strong> This action is permanent and cannot be undone. Deleting your account will permanently remove your account and all associated data, including your profile, authentication records, payments, subscriptions, notifications, preferences, uploaded files, activity history, and any other data linked to your account. You are solely responsible for this action.
               </p>
             </div>
             <div className="settings-delete-dialog__content">
-              <label htmlFor="delete-confirmation">
+              <label htmlFor="delete-confirmation" data-dark={isDarkMode}>
                 Type <strong>DELETE</strong> to confirm:
               </label>
               <input
@@ -651,12 +663,14 @@ function SettingPage() {
                 onChange={(e) => setDeleteConfirmation(e.target.value)}
                 placeholder="DELETE"
                 disabled={isDeleting}
+                data-dark={isDarkMode}
               />
             </div>
             <div className="settings-delete-dialog__actions">
               <button
                 type="button"
                 className="button-secondary"
+                data-dark={isDarkMode}
                 onClick={() => {
                   setShowDeleteDialog(false);
                   setDeleteConfirmation('');
@@ -668,6 +682,7 @@ function SettingPage() {
               <button
                 type="button"
                 className="button-primary settings-delete-confirm"
+                data-dark={isDarkMode}
                 onClick={handleDeleteAccount}
                 disabled={deleteConfirmation !== 'DELETE' || isDeleting}
               >
@@ -679,14 +694,14 @@ function SettingPage() {
       )}
 
       {showIssueReportDialog && (
-        <div className="settings-delete-dialog-overlay" onClick={() => setShowIssueReportDialog(false)}>
-          <div className="settings-delete-dialog" onClick={(e) => e.stopPropagation()}>
+        <div className="settings-delete-dialog-overlay" onClick={() => setShowIssueReportDialog(false)} data-dark={isDarkMode}>
+          <div className="settings-delete-dialog" onClick={(e) => e.stopPropagation()} data-dark={isDarkMode}>
             <div className="settings-delete-dialog__header">
-              <h2>Report Issue</h2>
-              <p>Describe the issue you're experiencing with the platform.</p>
+              <h2 data-dark={isDarkMode}>Report Issue</h2>
+              <p data-dark={isDarkMode}>Describe the issue you're experiencing with the platform.</p>
             </div>
             <div className="settings-delete-dialog__content">
-              <label htmlFor="issue-subject">Subject</label>
+              <label htmlFor="issue-subject" data-dark={isDarkMode}>Subject</label>
               <input
                 id="issue-subject"
                 type="text"
@@ -694,9 +709,10 @@ function SettingPage() {
                 onChange={(e) => setIssueReport({ ...issueReport, subject: e.target.value })}
                 placeholder="Brief description of the issue"
                 disabled={isSubmittingReport}
+                data-dark={isDarkMode}
                 style={{ marginBottom: '16px' }}
               />
-              <label htmlFor="issue-description">Description</label>
+              <label htmlFor="issue-description" data-dark={isDarkMode}>Description</label>
               <textarea
                 id="issue-description"
                 value={issueReport.description}
@@ -704,6 +720,7 @@ function SettingPage() {
                 placeholder="Detailed description of the issue, steps to reproduce, etc."
                 disabled={isSubmittingReport}
                 rows={4}
+                data-dark={isDarkMode}
                 style={{
                   width: '100%',
                   padding: '12px',
@@ -719,6 +736,7 @@ function SettingPage() {
               <button
                 type="button"
                 className="button-secondary"
+                data-dark={isDarkMode}
                 onClick={() => {
                   setShowIssueReportDialog(false);
                   setIssueReport({ subject: '', description: '' });
@@ -730,6 +748,7 @@ function SettingPage() {
               <button
                 type="button"
                 className="button-primary settings-delete-confirm"
+                data-dark={isDarkMode}
                 onClick={handleSubmitIssueReport}
                 disabled={!issueReport.subject.trim() || !issueReport.description.trim() || isSubmittingReport}
               >
