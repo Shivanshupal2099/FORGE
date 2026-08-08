@@ -30,6 +30,17 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
   const [shareModal, setShareModal] = useState({ show: false, eventId: null, eventTitle: '' });
   const [toast, setToast] = useState(null);
   const [registering, setRegistering] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const savedTheme = localStorage.getItem('forge-theme');
+      setIsDarkMode(savedTheme === 'dark');
+    };
+    checkDarkMode();
+    window.addEventListener('storage', checkDarkMode);
+    return () => window.removeEventListener('storage', checkDarkMode);
+  }, []);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -164,9 +175,9 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
   };
 
   return (
-    <div className="home-popup-overlay" onClick={onClose} role="presentation">
-      <div className="home-popup home-popup--event" onClick={(event) => event.stopPropagation()} style={{ overflowY: 'auto' }}>
-        <button type="button" className="home-popup__close" onClick={onClose} aria-label="Close event popup">
+    <div className="home-popup-overlay" onClick={onClose} role="presentation" data-dark={isDarkMode}>
+      <div className="home-popup home-popup--event" onClick={(event) => event.stopPropagation()} style={{ overflowY: 'auto', background: isDarkMode ? '#1a1a2e' : 'rgba(255, 255, 255, 0.98)', border: isDarkMode ? '1px solid #3a3a5c' : 'none' }} data-dark={isDarkMode}>
+        <button type="button" className="home-popup__close" onClick={onClose} aria-label="Close event popup" style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>
           <FaTimes aria-hidden="true" />
         </button>
 
@@ -175,10 +186,10 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             <FaCalendarAlt aria-hidden="true" />
           </span>
           <div>
-            <h2 id="event-popup-title" className="home-popup__title">
+            <h2 id="event-popup-title" className="home-popup__title" style={{ color: isDarkMode ? '#ffffff' : 'var(--app-text)' }}>
               Event Details
             </h2>
-            <p className="home-popup__subtitle">
+            <p className="home-popup__subtitle" style={{ color: isDarkMode ? '#b8b8d0' : 'var(--app-muted-text)' }}>
               View all information about this event
             </p>
           </div>
@@ -190,11 +201,11 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
           gap: '12px', 
           marginBottom: '24px',
           padding: '16px',
-          background: 'rgba(255, 255, 255, 0.5)',
+          background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
           borderRadius: '16px',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
+          border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)',
           flexWrap: 'wrap'
         }}>
           {/* Share Button - Always show */}
@@ -464,7 +475,7 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             <h3 style={{ 
               fontSize: '1.4rem', 
               fontWeight: '800', 
-              color: 'var(--app-text)', 
+              color: isDarkMode ? '#ffffff' : 'var(--app-text)', 
               marginBottom: '12px',
               lineHeight: '1.3'
             }}>
@@ -526,9 +537,9 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
 
           {/* Description */}
           {event.description && (
-            <div style={{ marginBottom: '20px', padding: '16px', background: 'rgba(255, 255, 255, 0.5)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.3)' }}>
+            <div style={{ marginBottom: '20px', padding: '16px', background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)', borderRadius: '16px', border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)' }}>
               <p style={{ 
-                color: '#666666', 
+                color: isDarkMode ? '#b8b8d0' : '#666666', 
                 fontSize: '1rem', 
                 fontWeight: '400', 
                 lineHeight: '1.6',
@@ -550,28 +561,28 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.isOwner && event.registrationRequired && (
               <div style={{ 
                 padding: '12px', 
-                background: 'rgba(255, 255, 255, 0.5)',
+                background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.3)'
+                border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <FaUsers style={{ color: '#111111', fontSize: '1rem' }} />
+                  <FaUsers style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
                   <span style={{ 
                     fontSize: '0.7rem', 
                     fontWeight: '500', 
-                    color: '#666666',
+                    color: isDarkMode ? '#b8b8d0' : '#666666',
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em'
                   }}>
                     Registration Stats
                   </span>
                 </div>
-                <div style={{ fontSize: '1.3rem', fontWeight: '600', color: '#111111', marginBottom: '2px' }}>
+                <div style={{ fontSize: '1.3rem', fontWeight: '600', color: isDarkMode ? '#ffffff' : '#111111', marginBottom: '2px' }}>
                   {event.attendeeCount || 0}
                 </div>
-                <div style={{ fontSize: '0.85rem', color: '#666666', fontWeight: '400' }}>
+                <div style={{ fontSize: '0.85rem', color: isDarkMode ? '#b8b8d0' : '#666666', fontWeight: '400' }}>
                   {event.maxAttendees 
                     ? `${event.spotsRemaining || 0} spots remaining`
                     : 'No limit on attendees'
@@ -583,22 +594,22 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Start Date & Time */}
             <div style={{ 
               padding: '12px', 
-              background: 'rgba(255, 255, 255, 0.5)',
+              background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.3)'
+              border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                <FaCalendarAlt style={{ color: '#111111', fontSize: '1rem' }} />
-                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>START DATE</span>
+                <FaCalendarAlt style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
+                <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>START DATE</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#111111', fontSize: '0.9rem', fontWeight: '500' }}>
-                <FaClock style={{ color: '#111111', fontSize: '0.85rem' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isDarkMode ? '#ffffff' : '#111111', fontSize: '0.9rem', fontWeight: '500' }}>
+                <FaClock style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '0.85rem' }} />
                 <span>{formatDate(event.startAt)}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#666666', fontSize: '0.85rem', fontWeight: '400', marginTop: '2px' }}>
-                <span style={{ color: '#111111' }}>Time:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.85rem', fontWeight: '400', marginTop: '2px' }}>
+                <span style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Time:</span>
                 <span>{formatTime(event.startAt)}</span>
               </div>
             </div>
@@ -607,22 +618,22 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.endAt && (
               <div style={{ 
                 padding: '12px', 
-                background: 'rgba(255, 255, 255, 0.5)',
+                background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.3)'
+                border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <FaCalendarAlt style={{ color: '#111111', fontSize: '1rem' }} />
-                  <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>END DATE</span>
+                  <FaCalendarAlt style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
+                  <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>END DATE</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#111111', fontSize: '0.9rem', fontWeight: '500' }}>
-                  <FaClock style={{ color: '#111111', fontSize: '0.85rem' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isDarkMode ? '#ffffff' : '#111111', fontSize: '0.9rem', fontWeight: '500' }}>
+                  <FaClock style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '0.85rem' }} />
                   <span>{formatDate(event.endAt)}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#666666', fontSize: '0.85rem', fontWeight: '400', marginTop: '2px' }}>
-                  <span style={{ color: '#111111' }}>Time:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.85rem', fontWeight: '400', marginTop: '2px' }}>
+                  <span style={{ color: isDarkMode ? '#ffffff' : '#111111' }}>Time:</span>
                   <span>{formatTime(event.endAt)}</span>
                 </div>
               </div>
@@ -632,24 +643,24 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.locationOrLink && (
               <div style={{ 
                 padding: '12px', 
-                background: 'rgba(255, 255, 255, 0.5)',
+                background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.3)'
+                border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   {event.onlineType === 'Online' ? (
-                    <FaGlobe style={{ color: '#111111', fontSize: '1rem' }} />
+                    <FaGlobe style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
                   ) : (
-                    <FaMapMarkerAlt style={{ color: '#111111', fontSize: '1rem' }} />
+                    <FaMapMarkerAlt style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
                   )}
-                  <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     {event.onlineType === 'Online' ? 'ONLINE LINK' : 'LOCATION'}
                   </span>
                 </div>
                 <p style={{ 
-                  color: '#111111', 
+                  color: isDarkMode ? '#ffffff' : '#111111', 
                   fontSize: '0.9rem', 
                   fontWeight: '500',
                   margin: '0',
@@ -663,18 +674,18 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Event Type */}
             <div style={{ 
               padding: '12px', 
-              background: 'rgba(255, 255, 255, 0.5)',
+              background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.3)'
+              border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                <FaGlobe style={{ color: '#111111', fontSize: '1rem' }} />
-                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>EVENT TYPE</span>
+                <FaGlobe style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
+                <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>EVENT TYPE</span>
               </div>
               <p style={{ 
-                color: '#111111', 
+                color: isDarkMode ? '#ffffff' : '#111111', 
                 fontSize: '0.9rem', 
                 fontWeight: '500',
                 margin: '0'
@@ -686,18 +697,18 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Visibility */}
             <div style={{ 
               padding: '12px', 
-              background: 'rgba(255, 255, 255, 0.5)',
+              background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.3)'
+              border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                <FaEye style={{ color: '#111111', fontSize: '1rem' }} />
-                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>VISIBILITY</span>
+                <FaEye style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
+                <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>VISIBILITY</span>
               </div>
               <p style={{ 
-                color: '#111111', 
+                color: isDarkMode ? '#ffffff' : '#111111', 
                 fontSize: '0.9rem', 
                 fontWeight: '500',
                 margin: '0'
@@ -709,18 +720,18 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Price */}
             <div style={{ 
               padding: '12px', 
-              background: 'rgba(255, 255, 255, 0.5)',
+              background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.3)'
+              border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                <FaDollarSign style={{ color: '#111111', fontSize: '1rem' }} />
-                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>PRICE TYPE</span>
+                <FaDollarSign style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
+                <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>PRICE TYPE</span>
               </div>
               <p style={{ 
-                color: '#111111', 
+                color: isDarkMode ? '#ffffff' : '#111111', 
                 fontSize: '0.9rem', 
                 fontWeight: '500',
                 margin: '0'
@@ -733,18 +744,18 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.maxAttendees && (
               <div style={{ 
                 padding: '12px', 
-                background: 'rgba(255, 255, 255, 0.5)',
+                background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.3)'
+                border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <FaUsers style={{ color: '#111111', fontSize: '1rem' }} />
-                  <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>MAX ATTENDEES</span>
+                  <FaUsers style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
+                  <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>MAX ATTENDEES</span>
                 </div>
                 <p style={{ 
-                  color: '#111111', 
+                  color: isDarkMode ? '#ffffff' : '#111111', 
                   fontSize: '0.9rem', 
                   fontWeight: '500',
                   margin: '0'
@@ -758,18 +769,18 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {event.organizer && (
               <div style={{ 
                 padding: '12px', 
-                background: 'rgba(255, 255, 255, 0.5)',
+                background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
                 borderRadius: '12px',
-                border: '1px solid rgba(255, 255, 255, 0.3)'
+                border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <FaUserTie style={{ color: '#111111', fontSize: '1rem' }} />
-                  <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>ORGANIZER</span>
+                  <FaUserTie style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
+                  <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>ORGANIZER</span>
                 </div>
                 <p style={{ 
-                  color: '#111111', 
+                  color: isDarkMode ? '#ffffff' : '#111111', 
                   fontSize: '0.9rem', 
                   fontWeight: '500',
                   margin: '0'
@@ -782,18 +793,18 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             {/* Registration Required */}
             <div style={{ 
               padding: '12px', 
-              background: 'rgba(255, 255, 255, 0.5)',
+              background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.3)'
+              border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                <FaTicketAlt style={{ color: '#111111', fontSize: '1rem' }} />
-                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>REGISTRATION</span>
+                <FaTicketAlt style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
+                <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>REGISTRATION</span>
               </div>
               <p style={{ 
-                color: '#111111', 
+                color: isDarkMode ? '#ffffff' : '#111111', 
                 fontSize: '0.9rem', 
                 fontWeight: '500',
                 margin: '0'
@@ -808,18 +819,18 @@ function ViewEvent({ event, onClose, onEdit, onDelete, onEventUpdated }) {
             <div style={{ 
               marginBottom: '20px',
               padding: '12px', 
-              background: 'rgba(255, 255, 255, 0.5)',
+              background: isDarkMode ? '#252542' : 'rgba(255, 255, 255, 0.5)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.3)'
+              border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <FaEnvelope style={{ color: '#111111', fontSize: '1rem' }} />
-                <span style={{ fontWeight: '500', color: '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>CONTACT INFORMATION</span>
+                <FaEnvelope style={{ color: isDarkMode ? '#ffffff' : '#111111', fontSize: '1rem' }} />
+                <span style={{ fontWeight: '500', color: isDarkMode ? '#b8b8d0' : '#666666', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>CONTACT INFORMATION</span>
               </div>
               <p style={{ 
-                color: '#111111', 
+                color: isDarkMode ? '#ffffff' : '#111111', 
                 fontSize: '0.9rem', 
                 fontWeight: '600',
                 margin: '0',

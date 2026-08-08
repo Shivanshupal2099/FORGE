@@ -388,15 +388,15 @@ function ProfilePage() {
         </div>
 
         {profile?.bio && (
-          <div className="profile-card__bio">
-            <h3>About</h3>
-            <p>{profile.bio}</p>
+          <div className="profile-card__bio" data-dark={isDarkMode}>
+            <h3 data-dark={isDarkMode}>About</h3>
+            <p data-dark={isDarkMode}>{profile.bio}</p>
           </div>
         )}
 
         {(profile?.department || profile?.contact_number || profile?.portfolio_url) && (
-          <div className="profile-card__section">
-            <h3>Professional Details</h3>
+          <div className="profile-card__section" data-dark={isDarkMode}>
+            <h3 data-dark={isDarkMode}>Professional Details</h3>
             <div className="profile-card__details">
               {profile?.department && (
                 <div className="profile-card__detail-item">
@@ -404,8 +404,8 @@ function ProfilePage() {
                     <IoBriefcaseOutline />
                   </div>
                   <div className="profile-card__detail-content">
-                    <span className="profile-card__label">Profession</span>
-                    <strong>{profile.department}</strong>
+                    <span className="profile-card__label" data-dark={isDarkMode}>Profession</span>
+                    <strong data-dark={isDarkMode}>{profile.department}</strong>
                   </div>
                 </div>
               )}
@@ -415,8 +415,8 @@ function ProfilePage() {
                     <IoMailOutline />
                   </div>
                   <div className="profile-card__detail-content">
-                    <span className="profile-card__label">Contact</span>
-                    <strong>{profile.contact_number}</strong>
+                    <span className="profile-card__label" data-dark={isDarkMode}>Contact</span>
+                    <strong data-dark={isDarkMode}>{profile.contact_number}</strong>
                   </div>
                 </div>
               )}
@@ -426,8 +426,8 @@ function ProfilePage() {
                     <IoLinkOutline />
                   </div>
                   <div className="profile-card__detail-content">
-                    <span className="profile-card__label">Portfolio</span>
-                    <strong><a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{profile.portfolio_url}</a></strong>
+                    <span className="profile-card__label" data-dark={isDarkMode}>Portfolio</span>
+                    <strong data-dark={isDarkMode}><a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{profile.portfolio_url}</a></strong>
                   </div>
                 </div>
               )}
@@ -436,26 +436,26 @@ function ProfilePage() {
         )}
 
         {profile?.looking_for && profile.looking_for.length > 0 && (
-          <div className="profile-card__section">
-            <h3>Looking For</h3>
+          <div className="profile-card__section" data-dark={isDarkMode}>
+            <h3 data-dark={isDarkMode}>Looking For</h3>
             <div className="profile-card__tags">
               {profile.looking_for.map((item, index) => (
-                <span key={index} className="profile-card__tag">{item}</span>
+                <span key={index} className="profile-card__tag" data-dark={isDarkMode}>{item}</span>
               ))}
             </div>
           </div>
         )}
 
         {surveys && surveys.length > 0 && (
-          <div className="profile-card__section">
-            <h3>Created Surveys</h3>
+          <div className="profile-card__section" data-dark={isDarkMode}>
+            <h3 data-dark={isDarkMode}>Created Surveys</h3>
             <div className="profile-card__details">
               {surveys.map((survey) => (
                 <div key={survey._id} className="profile-card__detail-item">
                   <div className="profile-card__detail-content">
-                    <span className="profile-card__label">Survey</span>
-                    <strong>Survey #{survey._id?.slice(-6)}</strong>
-                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                    <span className="profile-card__label" data-dark={isDarkMode}>Survey</span>
+                    <strong data-dark={isDarkMode}>Survey #{survey._id?.slice(-6)}</strong>
+                    <div style={{ fontSize: '12px', color: isDarkMode ? '#b8b8d0' : '#666', marginTop: '4px' }}>
                       Status: {survey.status} | Responses: {survey.current_responses}/{survey.target_responses}
                     </div>
                   </div>
@@ -466,8 +466,8 @@ function ProfilePage() {
         )}
 
         {(profile?.github_url || profile?.linkedin_url) && (
-          <div className="profile-card__section">
-            <h3>Social Links</h3>
+          <div className="profile-card__section" data-dark={isDarkMode}>
+            <h3 data-dark={isDarkMode}>Social Links</h3>
             <div className="profile-card__details">
               {profile?.github_url && (
                 <div className="profile-card__detail-item">
@@ -475,8 +475,8 @@ function ProfilePage() {
                     <IoLinkOutline />
                   </div>
                   <div className="profile-card__detail-content">
-                    <span className="profile-card__label">GitHub</span>
-                    <strong><a href={profile.github_url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{profile.github_url}</a></strong>
+                    <span className="profile-card__label" data-dark={isDarkMode}>GitHub</span>
+                    <strong data-dark={isDarkMode}><a href={profile.github_url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{profile.github_url}</a></strong>
                   </div>
                 </div>
               )}
@@ -486,8 +486,8 @@ function ProfilePage() {
                     <IoLinkOutline />
                   </div>
                   <div className="profile-card__detail-content">
-                    <span className="profile-card__label">LinkedIn</span>
-                    <strong><a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{profile.linkedin_url}</a></strong>
+                    <span className="profile-card__label" data-dark={isDarkMode}>LinkedIn</span>
+                    <strong data-dark={isDarkMode}><a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{profile.linkedin_url}</a></strong>
                   </div>
                 </div>
               )}

@@ -3470,6 +3470,117 @@
   color: #ffffff;
 }
 
+.profile-card__bio {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.profile-card__bio[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.profile-card__bio h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000000;
+}
+
+.profile-card__bio h3[data-dark="true"] {
+  color: #ffffff;
+}
+
+.profile-card__bio p {
+  margin: 0;
+  color: #666666;
+  line-height: 1.6;
+}
+
+.profile-card__bio p[data-dark="true"] {
+  color: #b8b8d0;
+}
+
+.profile-card__section {
+  margin-bottom: 24px;
+}
+
+.profile-card__section[data-dark="true"] {
+  background: #1a1a2e;
+  border-color: #3a3a5c;
+}
+
+.profile-card__section h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000000;
+}
+
+.profile-card__section h3[data-dark="true"] {
+  color: #ffffff;
+}
+
+.profile-card__detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.profile-card__detail-item[data-dark="true"] {
+  background: #252542;
+}
+
+.profile-card__detail-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 215, 0, 0.15);
+  color: #FFD700;
+}
+
+.profile-card__detail-content {
+  flex: 1;
+}
+
+.profile-card__detail-content strong {
+  color: #000000;
+}
+
+.profile-card__detail-content strong[data-dark="true"] {
+  color: #ffffff;
+}
+
+.profile-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-card__tag {
+  padding: 6px 14px;
+  background: rgba(255, 215, 0, 0.15);
+  color: #000000;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.profile-card__tag[data-dark="true"] {
+  background: #252542;
+  color: #ffffff;
+}
+
 .profile-card__meta-item svg {
   font-size: 1.1rem;
   color: #F072B6;
