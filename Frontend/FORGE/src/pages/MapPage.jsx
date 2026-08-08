@@ -330,10 +330,10 @@ function Map() {
   }, [])
 
   const buttonCommon = {
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
+    border: '1px solid rgba(255, 255, 255, 0.4)',
+    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     display: 'flex',
     alignItems: 'center',
@@ -343,60 +343,57 @@ function Map() {
 
   const closeBtnStyle = {
     position: 'absolute',
-    top: isMobile ? '16px' : '20px',
-    left: isMobile ? '16px' : '20px',
+    bottom: isMobile ? '20px' : '32px',
+    left: isMobile ? 'calc(50% - 90px)' : 'calc(50% - 140px)',
+    right: isMobile ? 'auto' : 'auto',
     zIndex: 1100,
-    width: isMobile ? '48px' : '56px',
-    height: isMobile ? '48px' : '56px',
-    borderRadius: '16px',
-    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    width: isMobile ? '56px' : '72px',
+    height: isMobile ? '56px' : '72px',
+    borderRadius: '18px',
+    background: 'linear-gradient(135deg, #ff4757 0%, #ff3838 100%)',
     color: 'white',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     ...buttonCommon
   }
 
   const filterBtnStyle = {
     position: 'absolute',
-    bottom: isMobile ? 'auto' : '48px',
-    top: isMobile ? '16px' : 'auto',
-    right: isMobile ? '16px' : '196px',
+    bottom: isMobile ? '20px' : '32px',
+    left: isMobile ? 'calc(50% - 20px)' : 'calc(50% - 60px)',
+    right: isMobile ? 'auto' : 'auto',
     zIndex: 1100,
-    width: isMobile ? '56px' : '86px',
-    height: isMobile ? '56px' : '86px',
-    borderRadius: '20px',
-    background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)',
+    width: isMobile ? '56px' : '72px',
+    height: isMobile ? '56px' : '72px',
+    borderRadius: '18px',
+    background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
     color: 'white',
     ...buttonCommon
   }
 
   const zoomInBtnStyle = {
     position: 'absolute',
-    bottom: isMobile ? 'auto' : '48px',
-    top: isMobile ? '16px' : 'auto',
-    right: isMobile ? '80px' : '328px',
+    bottom: isMobile ? '20px' : '32px',
+    left: isMobile ? 'calc(50% + 50px)' : 'calc(50% + 20px)',
+    right: isMobile ? 'auto' : 'auto',
     zIndex: 1100,
-    width: isMobile ? '56px' : '86px',
-    height: isMobile ? '56px' : '86px',
-    borderRadius: '20px',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    width: isMobile ? '56px' : '72px',
+    height: isMobile ? '56px' : '72px',
+    borderRadius: '18px',
+    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
     color: 'white',
     ...buttonCommon
   }
 
   const zoomOutBtnStyle = {
     position: 'absolute',
-    bottom: isMobile ? 'auto' : '48px',
-    top: isMobile ? '16px' : 'auto',
-    right: isMobile ? '144px' : '460px',
+    bottom: isMobile ? '20px' : '32px',
+    left: isMobile ? 'calc(50% + 120px)' : 'calc(50% + 100px)',
+    right: isMobile ? 'auto' : 'auto',
     zIndex: 1100,
-    width: isMobile ? '56px' : '86px',
-    height: isMobile ? '56px' : '86px',
-    borderRadius: '20px',
-    background: 'linear-gradient(135deg, #ffd700 0%, #ffeb3b 100%)',
-    color: '#1a1a1a',
+    width: isMobile ? '56px' : '72px',
+    height: isMobile ? '56px' : '72px',
+    borderRadius: '18px',
+    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+    color: 'white',
     ...buttonCommon
   }
 
@@ -480,19 +477,19 @@ function Map() {
 
       <button
         type='button'
-        onClick={() => navigate('/profile')}
-        aria-label='Close map and go to profile'
+        onClick={() => navigate('/')}
+        aria-label='Close map and go to homepage'
         style={closeBtnStyle}
         onMouseEnter={(e) => {
           e.target.style.transform = 'scale(1.1)';
-          e.target.style.boxShadow = '0 12px 32px rgba(239, 68, 68, 0.4)';
+          e.target.style.boxShadow = '0 16px 40px rgba(255, 71, 87, 0.5)';
         }}
         onMouseLeave={(e) => {
           e.target.style.transform = 'scale(1)';
-          e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)';
+          e.target.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2)';
         }}
       >
-        <FaArrowLeft size={isMobile ? 20 : 24} />
+        <FaTimes size={isMobile ? 24 : 28} />
       </button>
 
       <button
@@ -502,11 +499,11 @@ function Map() {
         style={{ ...filterBtnStyle, border: '1px solid rgba(255,255,255,0.35)' }}
         onMouseEnter={(e) => {
           e.target.style.transform = 'scale(1.1)';
-          e.target.style.boxShadow = '0 12px 32px rgba(255, 107, 107, 0.4)';
+          e.target.style.boxShadow = '0 16px 40px rgba(124, 58, 237, 0.5)';
         }}
         onMouseLeave={(e) => {
           e.target.style.transform = 'scale(1)';
-          e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)';
+          e.target.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2)';
         }}
       >
         <FaFilter size={isMobile ? 24 : 28} />
@@ -519,11 +516,11 @@ function Map() {
         style={zoomInBtnStyle}
         onMouseEnter={(e) => {
           e.target.style.transform = 'scale(1.1)';
-          e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.4)';
+          e.target.style.boxShadow = '0 16px 40px rgba(59, 130, 246, 0.5)';
         }}
         onMouseLeave={(e) => {
           e.target.style.transform = 'scale(1)';
-          e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)';
+          e.target.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2)';
         }}
       >
         <FaPlus size={isMobile ? 24 : 28} />
@@ -536,11 +533,11 @@ function Map() {
         style={zoomOutBtnStyle}
         onMouseEnter={(e) => {
           e.target.style.transform = 'scale(1.1)';
-          e.target.style.boxShadow = '0 12px 32px rgba(255, 215, 0, 0.4)';
+          e.target.style.boxShadow = '0 16px 40px rgba(245, 158, 11, 0.5)';
         }}
         onMouseLeave={(e) => {
           e.target.style.transform = 'scale(1)';
-          e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)';
+          e.target.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2)';
         }}
       >
         <FaMinus size={isMobile ? 24 : 28} />
