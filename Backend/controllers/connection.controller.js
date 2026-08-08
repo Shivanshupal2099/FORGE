@@ -2,6 +2,7 @@ const Connection = require('../models/Connection.model');
 const Profile = require('../models/Profile.model');
 const User = require('../models/Users.model');
 const mongoose = require('mongoose');
+const { sendPushNotification } = require('./push.controller');
 
 // Helper function to validate and convert string to ObjectId
 function validateAndConvertObjectId(id, fieldName = 'ID') {
@@ -209,6 +210,32 @@ exports.createRequest = async (req, res) => {
     });
     
     console.log('createRequest - connection created successfully:', connection._id);
+    
+    // Send push notification to receiver
+    try {
+      const receiverUser = await User.findById(receiverObjectId);
+      if (receiverUser) {
+        const requesterProfile = await Profile.findOne({ user_id: currentUserObjectId });
+        const requesterName = requesterProfile 
+          ? `${requesterProfile.first_name || ''} ${requesterProfile.last_name || ''}`.trim()
+          : currentUser.email?.split('@')[0] || 'Someone';
+        
+        await sendPushNotification(
+          receiverObjectId,
+          'New Connection Request',
+          `${requesterName} wants to connect with you on ForgeConnect`,
+          {
+            type: 'connection_request',
+            connectionId: connection._id.toString(),
+            url: '/connections'
+          }
+        );
+      }
+    } catch (pushError) {
+      console.error('Error sending push notification for connection request:', pushError);
+      // Don't fail the request if push notification fails
+    }
+    
     res.status(201).json({ success: true, connection, message: 'Collaboration request sent' });
   } catch (error) {
     console.error('Error creating connection request:', error);
@@ -314,6 +341,32 @@ async function respondToRequest(req, res, status) {
       { new: true }
     );
     if (!connection) return res.status(404).json({ success: false, message: 'Pending request not found' });
+    
+    // Send push notification to requester when request is accepted
+    if (status === 'accepted') {
+      try {
+        const requesterProfile = await Profile.findOne({ user_id: connection.requester_id });
+        const receiverProfile = await Profile.findOne({ user_id: currentUserObjectId });
+        const receiverName = receiverProfile 
+          ? `${receiverProfile.first_name || ''} ${receiverProfile.last_name || ''}`.trim()
+          : currentUser.email?.split('@')[0] || 'Someone';
+        
+        await sendPushNotification(
+          connection.requester_id,
+          'Connection Accepted!',
+          `${receiverName} accepted your connection request. Start chatting now!`,
+          {
+            type: 'connection_accepted',
+            connectionId: connection._id.toString(),
+            url: `/chat/${connection._id.toString()}`
+          }
+        );
+      } catch (pushError) {
+        console.error('Error sending push notification for accepted connection:', pushError);
+        // Don't fail the request if push notification fails
+      }
+    }
+    
     res.json({ success: true, connection, message: status === 'accepted' ? 'Collaboration accepted — chat is now available' : 'Collaboration request declined' });
   } catch (error) {
     console.error('Error responding to connection request:', error);

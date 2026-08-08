@@ -139,27 +139,72 @@ self.addEventListener('sync', (event) => {
 
 // Handle push notifications
 self.addEventListener('push', (event) => {
-  const options = {
-    body: event.data ? event.data.text() : 'New notification from ForgeConnect',
+  let data = {
+    title: 'ForgeConnect',
+    body: 'New notification from ForgeConnect',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-72x72.png',
     vibrate: [100, 50, 100],
     data: {
+      url: '/',
       dateOfArrival: Date.now(),
       primaryKey: 1
     }
   };
 
+  try {
+    if (event.data) {
+      const payload = event.data.json();
+      data = {
+        ...data,
+        ...payload,
+        data: {
+          url: payload.data?.url || '/',
+          dateOfArrival: Date.now(),
+          primaryKey: payload.data?.primaryKey || 1,
+          ...payload.data
+        }
+      };
+    }
+  } catch (e) {
+    console.error('Error parsing push notification payload:', e);
+  }
+
+  const options = {
+    body: data.body,
+    icon: data.icon,
+    badge: data.badge,
+    vibrate: data.vibrate,
+    data: data.data,
+    requireInteraction: true,
+    tag: data.data?.tag || 'forge-connect-notification'
+  };
+
   event.waitUntil(
-    self.registration.showNotification('ForgeConnect', options)
+    self.registration.showNotification(data.title, options)
   );
 });
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+
+  const url = event.notification.data?.url || '/';
+
   event.waitUntil(
-    clients.openWindow('/')
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Check if there's already a window open
+        for (const client of clientList) {
+          if (client.url === url && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // If no window is open, open a new one
+        if (clients.openWindow) {
+          return clients.openWindow(url);
+        }
+      })
   );
 });
 

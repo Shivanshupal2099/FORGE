@@ -1,7 +1,9 @@
 const Connection = require('../models/Connection.model');
 const Message = require('../models/Message.model');
 const User = require('../models/Users.model');
+const Profile = require('../models/Profile.model');
 const mongoose = require('mongoose');
+const { sendPushNotification } = require('./push.controller');
 
 // Helper function to validate and convert string to ObjectId
 function validateAndConvertObjectId(id, fieldName = 'ID') {
@@ -199,6 +201,29 @@ exports.sendMessage = async (req, res) => {
     });
     
     console.log('sendMessage - message created successfully:', message._id);
+    
+    // Send push notification to receiver
+    try {
+      const senderProfile = await Profile.findOne({ user_id: currentUserObjectId });
+      const senderName = senderProfile 
+        ? `${senderProfile.first_name || ''} ${senderProfile.last_name || ''}`.trim()
+        : currentUser.email?.split('@')[0] || 'Someone';
+      
+      await sendPushNotification(
+        receiverObjectId,
+        `New message from ${senderName}`,
+        body.length > 100 ? body.substring(0, 100) + '...' : body,
+        {
+          type: 'new_message',
+          connectionId: connection._id.toString(),
+          messageId: message._id.toString(),
+          url: `/chat/${connection._id.toString()}`
+        }
+      );
+    } catch (pushError) {
+      console.error('Error sending push notification for new message:', pushError);
+      // Don't fail the message if push notification fails
+    }
     
     // Emit Socket.io event for real-time update (exclude sender to avoid duplication)
     const io = req.app.get('io');

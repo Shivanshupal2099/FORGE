@@ -7,6 +7,7 @@ import ProtectedRoute from './Components/ProtectedRoute';
 import { AlertProvider } from './contexts/AlertContext';
 import PWAInstallPrompt from './Components/PWAInstallPrompt';
 import PWADownloadButton from './Components/PWADownloadButton';
+import PushPermissionPrompt from './Components/PushPermissionPrompt';
 
 // Lazy load route components for better performance
 const Landing = lazy(() => import("./pages/Landing"));
@@ -89,6 +90,7 @@ function App() {
         </Suspense>
         <PWAInstallPrompt />
         <PWADownloadButton />
+        <PushPermissionPrompt />
       </BrowserRouter>
     </AlertProvider>
   );

@@ -238,8 +238,7 @@ function NearbyPage() {
   };
 
   return (
-    <div className="page-shell" style={{ background: 'transparent' }}>
-      <Header hideLogo={isMobile} />
+    <>
       {/* Radar Background Animation */}
       <div style={{
         position: 'fixed',
@@ -378,198 +377,205 @@ function NearbyPage() {
       </div>
       
       <div style={{
-        padding: isMobile ? '16px' : '24px',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: isMobile ? 'center' : 'flex-start',
-        position: 'relative',
-        zIndex: 1,
+        minHeight: '100vh',
+        padding: '24px 16px 110px',
+        background: 'transparent',
       }}>
-        {isMobile && (
-          <button
-            onClick={() => navigate(-1)}
-            style={{
-              alignSelf: 'flex-start',
-              padding: '10px 16px',
-              borderRadius: '12px',
-              background: 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.5)',
-              color: '#111111',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              cursor: 'pointer',
+        <Header hideLogo={isMobile} />
+        <div style={{
+          padding: isMobile ? '16px' : '24px',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: isMobile ? 'center' : 'flex-start',
+          position: 'relative',
+          zIndex: 1,
+        }}>
+          {isMobile && (
+            <button
+              onClick={() => navigate(-1)}
+              style={{
+                alignSelf: 'flex-start',
+                padding: '10px 16px',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.7)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.5)',
+                color: '#111111',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '16px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateX(-4px)';
+                e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateX(0)';
+                e.target.style.background = 'rgba(255, 255, 255, 0.7)';
+              }}
+            >
+              <FaArrowLeft />
+              Back
+            </button>
+          )}
+          <div style={{
+            marginBottom: isMobile ? '20px' : '32px',
+            textAlign: isMobile ? 'center' : 'left',
+            width: '100%',
+          }}>
+            <h1 style={{
+              fontSize: isMobile ? '1.75rem' : '2.5rem',
+              fontWeight: '700',
+              color: '#ffffff',
+              margin: '0 0 8px 0',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              marginBottom: '16px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-              transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateX(-4px)';
-              e.target.style.background = 'rgba(255, 255, 255, 0.9)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateX(0)';
-              e.target.style.background = 'rgba(255, 255, 255, 0.7)';
-            }}
-          >
-            <FaArrowLeft />
-            Back
-          </button>
-        )}
-        <div style={{
-          marginBottom: isMobile ? '20px' : '32px',
-          textAlign: isMobile ? 'center' : 'left',
-          width: '100%',
-        }}>
-          <h1 style={{
-            fontSize: isMobile ? '1.75rem' : '2.5rem',
-            fontWeight: '700',
-            color: '#ffffff',
-            margin: '0 0 8px 0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            justifyContent: isMobile ? 'center' : 'flex-start',
-          }}>
-            <FaMapMarkerAlt style={{ color: '#FF6B00' }} />
-            Find Nearby
-            {hasSearched && (
-              <span style={{
-                padding: '4px 12px',
-                background: 'rgba(255, 107, 0, 0.1)',
-                color: '#FF6B00',
-                borderRadius: '20px',
-                fontSize: isMobile ? '0.85rem' : '0.95rem',
-                fontWeight: '600',
-              }}>
-                {getFilteredUsers().length} found
-              </span>
-            )}
-          </h1>
-          <p style={{
-            fontSize: isMobile ? '0.95rem' : '1rem',
-            color: '#94a3b8',
-            margin: '0 0 20px 0',
-          }}>
-            Discover people near your location
-          </p>
-          
-          <div style={{
-            display: 'flex',
-            gap: isMobile ? '10px' : '12px',
-            flexWrap: 'wrap',
-          }}>
-            <button
-              onClick={handleUpdateLocation}
-              disabled={locationLoading}
-              style={{
-                padding: isMobile ? '12px' : '14px 20px',
-                borderRadius: isMobile ? '50%' : '12px',
-                background: locationLoading ? 'rgba(255, 107, 0, 0.5)' : '#FF6B00',
-                color: '#111111',
-                border: 'none',
-                fontSize: isMobile ? '0.9rem' : '1rem',
-                fontWeight: '600',
-                cursor: locationLoading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: isMobile ? '0' : '8px',
-                justifyContent: 'center',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 12px rgba(255, 107, 0, 0.2)',
-                minWidth: isMobile ? '44px' : 'auto',
-                width: isMobile ? '44px' : 'auto',
-                height: isMobile ? '44px' : 'auto',
-              }}
-              onMouseEnter={(e) => {
-                if (!locationLoading) {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.background = '#FF8533';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!locationLoading) {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = '#FF6B00';
-                }
-              }}
-            >
-              <FaLocationArrow />
-              {!isMobile && (locationLoading ? 'Updating...' : 'Update Location')}
-            </button>
+              gap: '12px',
+              justifyContent: isMobile ? 'center' : 'flex-start',
+            }}>
+              <FaMapMarkerAlt style={{ color: '#FF6B00' }} />
+              Find Nearby
+              {hasSearched && (
+                <span style={{
+                  padding: '4px 12px',
+                  background: 'rgba(255, 107, 0, 0.1)',
+                  color: '#FF6B00',
+                  borderRadius: '20px',
+                  fontSize: isMobile ? '0.85rem' : '0.95rem',
+                  fontWeight: '600',
+                }}>
+                  {getFilteredUsers().length} found
+                </span>
+              )}
+            </h1>
+            <p style={{
+              fontSize: isMobile ? '0.95rem' : '1rem',
+              color: '#94a3b8',
+              margin: '0 0 20px 0',
+            }}>
+              Discover people near your location
+            </p>
             
-            <button
-              onClick={() => setShowRadiusSlider(!showRadiusSlider)}
-              style={{
-                padding: isMobile ? '12px' : '14px 20px',
-                borderRadius: isMobile ? '50%' : '12px',
-                background: 'rgba(59, 130, 246, 0.1)',
-                color: '#3B82F6',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                fontSize: isMobile ? '0.9rem' : '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: isMobile ? '0' : '8px',
-                justifyContent: 'center',
-                transition: 'all 0.3s ease',
-                minWidth: isMobile ? '44px' : 'auto',
-                width: isMobile ? '44px' : 'auto',
-                height: isMobile ? '44px' : 'auto',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.background = 'rgba(59, 130, 246, 0.2)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.background = 'rgba(59, 130, 246, 0.1)';
-              }}
-            >
-              <FaSlidersH />
-              {!isMobile && `Radius: ${searchRadius} m`}
-            </button>
+            <div style={{
+              display: 'flex',
+              gap: isMobile ? '10px' : '12px',
+              flexWrap: 'wrap',
+            }}>
+              <button
+                onClick={handleUpdateLocation}
+                disabled={locationLoading}
+                style={{
+                  padding: isMobile ? '12px' : '14px 20px',
+                  borderRadius: isMobile ? '50%' : '12px',
+                  background: locationLoading ? 'rgba(255, 107, 0, 0.5)' : '#FF6B00',
+                  color: '#111111',
+                  border: 'none',
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  fontWeight: '600',
+                  cursor: locationLoading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: isMobile ? '0' : '8px',
+                  justifyContent: 'center',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 12px rgba(255, 107, 0, 0.2)',
+                  minWidth: isMobile ? '44px' : 'auto',
+                  width: isMobile ? '44px' : 'auto',
+                  height: isMobile ? '44px' : 'auto',
+                }}
+                onMouseEnter={(e) => {
+                  if (!locationLoading) {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.background = '#FF8533';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!locationLoading) {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.background = '#FF6B00';
+                  }
+                }}
+              >
+                <FaLocationArrow />
+                {!isMobile && (locationLoading ? 'Updating...' : 'Update Location')}
+              </button>
+              
+              <button
+                onClick={() => setShowRadiusSlider(!showRadiusSlider)}
+                style={{
+                  padding: isMobile ? '12px' : '14px 20px',
+                  borderRadius: isMobile ? '50%' : '12px',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  color: '#3B82F6',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: isMobile ? '0' : '8px',
+                  justifyContent: 'center',
+                  transition: 'all 0.3s ease',
+                  minWidth: isMobile ? '44px' : 'auto',
+                  width: isMobile ? '44px' : 'auto',
+                  height: isMobile ? '44px' : 'auto',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.background = 'rgba(59, 130, 246, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.background = 'rgba(59, 130, 246, 0.1)';
+                }}
+              >
+                <FaSlidersH />
+                {!isMobile && `Radius: ${searchRadius} m`}
+              </button>
 
-            <button
-              onClick={() => setIsFilterOpen(true)}
-              style={{
-                padding: isMobile ? '12px' : '14px 20px',
-                borderRadius: isMobile ? '50%' : '12px',
-                background: filters.lookingFor ? 'rgba(147, 51, 234, 0.15)' : 'rgba(147, 51, 234, 0.1)',
-                color: '#9333EA',
-                border: filters.lookingFor ? '1px solid rgba(147, 51, 234, 0.4)' : '1px solid rgba(147, 51, 234, 0.3)',
-                fontSize: isMobile ? '0.9rem' : '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: isMobile ? '0' : '8px',
-                justifyContent: 'center',
-                transition: 'all 0.3s ease',
-                minWidth: isMobile ? '44px' : 'auto',
-                width: isMobile ? '44px' : 'auto',
-                height: isMobile ? '44px' : 'auto',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.background = 'rgba(147, 51, 234, 0.2)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.background = filters.lookingFor ? 'rgba(147, 51, 234, 0.15)' : 'rgba(147, 51, 234, 0.1)';
-              }}
-            >
-              <FaFilter />
-              {!isMobile && (filters.lookingFor ? `Filter: ${filters.lookingFor}` : 'Filter')}
-            </button>
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                style={{
+                  padding: isMobile ? '12px' : '14px 20px',
+                  borderRadius: isMobile ? '50%' : '12px',
+                  background: filters.lookingFor ? 'rgba(147, 51, 234, 0.15)' : 'rgba(147, 51, 234, 0.1)',
+                  color: '#9333EA',
+                  border: filters.lookingFor ? '1px solid rgba(147, 51, 234, 0.4)' : '1px solid rgba(147, 51, 234, 0.3)',
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: isMobile ? '0' : '8px',
+                  justifyContent: 'center',
+                  transition: 'all 0.3s ease',
+                  minWidth: isMobile ? '44px' : 'auto',
+                  width: isMobile ? '44px' : 'auto',
+                  height: isMobile ? '44px' : 'auto',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.background = 'rgba(147, 51, 234, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.background = filters.lookingFor ? 'rgba(147, 51, 234, 0.15)' : 'rgba(147, 51, 234, 0.1)';
+                }}
+              >
+                <FaFilter />
+                {!isMobile && 'Filters'}
+              </button>
+            </div>
             
             <button
               onClick={handleFindPeople}
@@ -1240,7 +1246,7 @@ function NearbyPage() {
           to { transform: rotate(360deg); }
         }
       `}</style>
-    </div>
+    </>
   );
 }
 
