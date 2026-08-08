@@ -10,6 +10,7 @@ function ConnectedUsersPopup({ onClose }) {
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -17,6 +18,16 @@ function ConnectedUsersPopup({ onClose }) {
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const savedTheme = localStorage.getItem('forge-theme');
+      setIsDarkMode(savedTheme === 'dark');
+    };
+    checkDarkMode();
+    window.addEventListener('storage', checkDarkMode);
+    return () => window.removeEventListener('storage', checkDarkMode);
   }, []);
 
   useEffect(() => {
@@ -75,14 +86,14 @@ function ConnectedUsersPopup({ onClose }) {
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
-            background: '#ffffff',
+            background: isDarkMode ? '#1a1a2e' : '#ffffff',
             borderRadius: isMobile ? '24px 24px 0 0' : '28px',
             maxWidth: isMobile ? '100%' : '500px',
             width: '100%',
             maxHeight: isMobile ? '85vh' : '80vh',
             overflow: 'hidden',
             position: 'relative',
-            border: 'none',
+            border: isDarkMode ? '1px solid #3a3a5c' : 'none',
             padding: isMobile ? '24px' : '32px',
           }}
         >
@@ -97,7 +108,7 @@ function ConnectedUsersPopup({ onClose }) {
               height: isMobile ? '44px' : '48px',
               borderRadius: '999px',
               border: 'none',
-              background: 'rgba(255, 255, 255, 0.9)',
+              background: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -106,13 +117,13 @@ function ConnectedUsersPopup({ onClose }) {
               zIndex: 10,
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = 'rgba(0, 0, 0, 0.1)';
+              e.target.style.background = isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+              e.target.style.background = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)';
             }}
           >
-            <FaTimes style={{ fontSize: isMobile ? '18px' : '20px', color: '#111111' }} />
+            <FaTimes style={{ fontSize: isMobile ? '18px' : '20px', color: isDarkMode ? '#ffffff' : '#111111' }} />
           </button>
 
           <div style={{ marginBottom: '24px' }}>
@@ -120,7 +131,7 @@ function ConnectedUsersPopup({ onClose }) {
               margin: 0,
               fontSize: isMobile ? '24px' : '28px',
               fontWeight: '800',
-              color: '#111111',
+              color: isDarkMode ? '#ffffff' : '#111111',
               marginBottom: '8px',
             }}>
               Connected Users
@@ -128,7 +139,7 @@ function ConnectedUsersPopup({ onClose }) {
             <p style={{
               margin: 0,
               fontSize: isMobile ? '14px' : '15px',
-              color: '#64748b',
+              color: isDarkMode ? '#b8b8d0' : '#64748b',
               fontWeight: '500',
             }}>
               {connectedUsers.length} {connectedUsers.length === 1 ? 'connection' : 'connections'}
@@ -156,7 +167,7 @@ function ConnectedUsersPopup({ onClose }) {
                   width: '40px',
                   height: '40px',
                   borderRadius: '50%',
-                  border: '3px solid #e2e8f0',
+                  border: isDarkMode ? '3px solid #3a3a5c' : '3px solid #e2e8f0',
                   borderTopColor: '#FF6B00',
                   animation: 'spin 1s linear infinite',
                   margin: '0 auto 16px',
@@ -166,13 +177,13 @@ function ConnectedUsersPopup({ onClose }) {
                     to { transform: rotate(360deg); }
                   }
                 `}</style>
-                <p style={{ color: '#64748b', fontWeight: '500' }}>Loading connections...</p>
+                <p style={{ color: isDarkMode ? '#b8b8d0' : '#64748b', fontWeight: '500' }}>Loading connections...</p>
               </div>
             ) : connectedUsers.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                <FaUser style={{ fontSize: '48px', color: '#cbd5e1', marginBottom: '16px' }} />
-                <p style={{ color: '#64748b', fontWeight: '500', marginBottom: '8px' }}>No connections yet</p>
-                <p style={{ color: '#94a3b8', fontWeight: '400', fontSize: '14px' }}>Start connecting with people to see them here</p>
+                <FaUser style={{ fontSize: '48px', color: isDarkMode ? '#4a4a6c' : '#cbd5e1', marginBottom: '16px' }} />
+                <p style={{ color: isDarkMode ? '#b8b8d0' : '#64748b', fontWeight: '500', marginBottom: '8px' }}>No connections yet</p>
+                <p style={{ color: isDarkMode ? '#6a6a8c' : '#94a3b8', fontWeight: '400', fontSize: '14px' }}>Start connecting with people to see them here</p>
               </div>
             ) : (
               <div className="connected-users-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -196,19 +207,19 @@ function ConnectedUsersPopup({ onClose }) {
                         gap: '16px',
                         padding: '16px',
                         borderRadius: '16px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                        background: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)',
+                        border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(0, 0, 0, 0.08)',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                       }}
                       onMouseEnter={(e) => {
-                        e.target.style.background = 'rgba(255, 107, 0, 0.08)';
-                        e.target.style.borderColor = 'rgba(255, 107, 0, 0.2)';
+                        e.target.style.background = isDarkMode ? 'rgba(255, 107, 0, 0.15)' : 'rgba(255, 107, 0, 0.08)';
+                        e.target.style.borderColor = isDarkMode ? 'rgba(255, 107, 0, 0.3)' : 'rgba(255, 107, 0, 0.2)';
                         e.target.style.transform = 'translateX(4px)';
                       }}
                       onMouseLeave={(e) => {
-                        e.target.style.background = 'rgba(255, 255, 255, 0.8)';
-                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.08)';
+                        e.target.style.background = isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)';
+                        e.target.style.borderColor = isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(0, 0, 0, 0.08)';
                         e.target.style.transform = 'translateX(0)';
                       }}
                     >
@@ -235,7 +246,7 @@ function ConnectedUsersPopup({ onClose }) {
                           margin: '0 0 4px',
                           fontSize: isMobile ? '15px' : '16px',
                           fontWeight: '700',
-                          color: '#111111',
+                          color: isDarkMode ? '#ffffff' : '#111111',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -245,7 +256,7 @@ function ConnectedUsersPopup({ onClose }) {
                         <p style={{
                           margin: 0,
                           fontSize: isMobile ? '13px' : '14px',
-                          color: '#64748b',
+                          color: isDarkMode ? '#b8b8d0' : '#64748b',
                           fontWeight: '500',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',

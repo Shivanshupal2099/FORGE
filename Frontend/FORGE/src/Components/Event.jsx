@@ -19,6 +19,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(!!eventToEdit);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -26,6 +27,16 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const savedTheme = localStorage.getItem('forge-theme');
+      setIsDarkMode(savedTheme === 'dark');
+    };
+    checkDarkMode();
+    window.addEventListener('storage', checkDarkMode);
+    return () => window.removeEventListener('storage', checkDarkMode);
   }, []);
 
   const [title, setTitle] = useState(eventToEdit?.title || '');
@@ -241,8 +252,9 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
           role="dialog"
           aria-modal="true"
           aria-labelledby="event-popup-title"
+          data-dark={isDarkMode}
           style={{
-            background: '#ffffff',
+            background: isDarkMode ? '#1a1a2e' : '#ffffff',
             borderRadius: isMobile ? '24px 24px 0 0' : '28px',
             maxWidth: isMobile ? '100%' : '1100px',
             width: '100%',
@@ -251,7 +263,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
             position: 'relative',
-            border: 'none',
+            border: isDarkMode ? '1px solid #3a3a5c' : 'none',
             padding: isMobile ? '24px' : '32px',
             animation: isMobile ? 'slideUpMobile 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'fadeInScale 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
@@ -268,7 +280,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
               height: isMobile ? '44px' : '48px',
               borderRadius: '999px',
               border: 'none',
-              background: 'rgba(255, 255, 255, 0.9)',
+              background: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -282,12 +294,12 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
               e.target.style.borderColor = 'var(--forge-orange)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'rgba(255, 255, 255, 0.9)';
+              e.target.style.background = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)';
               e.target.style.transform = 'scale(1) rotate(0deg)';
               e.target.style.borderColor = 'transparent';
             }}
           >
-            <FaTimes style={{ fontSize: isMobile ? '18px' : '20px', color: '#111111' }} />
+            <FaTimes style={{ fontSize: isMobile ? '18px' : '20px', color: isDarkMode ? '#ffffff' : '#111111' }} />
           </button>
 
           <div style={{ padding: isMobile ? '28px 24px' : '48px 40px' }}>
@@ -309,7 +321,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                     margin: 0,
                     fontSize: isMobile ? '26px' : '32px',
                     fontWeight: '800',
-                    background: 'linear-gradient(135deg, #1f172a 0%, #475569 100%)',
+                    background: isDarkMode ? 'linear-gradient(135deg, #ffffff 0%, #b8b8d0 100%)' : 'linear-gradient(135deg, #1f172a 0%, #475569 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
@@ -320,7 +332,7 @@ function Event({ onClose, eventToEdit, onEventUpdated }) {
                   <p style={{
                     margin: '6px 0 0',
                     fontSize: isMobile ? '14px' : '15px',
-                    color: '#64748b',
+                    color: isDarkMode ? '#b8b8d0' : '#64748b',
                     fontWeight: '500',
                     lineHeight: '1.5',
                   }}>

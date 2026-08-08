@@ -8,6 +8,7 @@ function Tokens({ onClose }) {
   const [tokenData, setTokenData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -19,6 +20,16 @@ function Tokens({ onClose }) {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const savedTheme = localStorage.getItem('forge-theme');
+      setIsDarkMode(savedTheme === 'dark');
+    };
+    checkDarkMode();
+    window.addEventListener('storage', checkDarkMode);
+    return () => window.removeEventListener('storage', checkDarkMode);
+  }, []);
 
   useEffect(() => {
     const fetchTokens = async () => {
@@ -62,13 +73,14 @@ function Tokens({ onClose }) {
   const earnedTokens = tokenData?.token_history || [];
 
   return (
-    <div className="home-popup-overlay" onClick={onClose} role="presentation">
+    <div className="home-popup-overlay" onClick={onClose} role="presentation" data-dark={isDarkMode}>
       <div
         className="home-popup home-popup--tokens"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="tokens-popup-title"
+        data-dark={isDarkMode}
       >
         <button
           type="button"

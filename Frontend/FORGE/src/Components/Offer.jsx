@@ -29,6 +29,7 @@ function Offer({ onClose }) {
   const [redeemedOfferId, setRedeemedOfferId] = useState(null);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const isExpired = (offer) => {
     return false; // No expiry date functionality
@@ -58,6 +59,16 @@ function Offer({ onClose }) {
       setCurrentUserId(user._id || user.id);
     }
   }, [user]);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const savedTheme = localStorage.getItem('forge-theme');
+      setIsDarkMode(savedTheme === 'dark');
+    };
+    checkDarkMode();
+    window.addEventListener('storage', checkDarkMode);
+    return () => window.removeEventListener('storage', checkDarkMode);
+  }, []);
 
   const fetchOffers = async () => {
     try {
@@ -280,13 +291,14 @@ function Offer({ onClose }) {
   };
 
   return (
-    <div className="home-popup-overlay" onClick={onClose} role="presentation">
+    <div className="home-popup-overlay" onClick={onClose} role="presentation" data-dark={isDarkMode}>
       <div
         className="home-popup home-popup--offer"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="offer-popup-title"
+        data-dark={isDarkMode}
       >
         <button
           type="button"

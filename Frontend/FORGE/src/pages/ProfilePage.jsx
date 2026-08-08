@@ -28,6 +28,7 @@ function ProfilePage() {
   const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
   const [showTokensPopup, setShowTokensPopup] = useState(false);
   const [showVerifyIntro, setShowVerifyIntro] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Determine if viewing own profile or someone else's
   const isOwnProfile = !profileEmail || profileEmail === user?.email;
@@ -40,6 +41,16 @@ function ProfilePage() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const savedTheme = localStorage.getItem('forge-theme');
+      setIsDarkMode(savedTheme === 'dark');
+    };
+    checkDarkMode();
+    window.addEventListener('storage', checkDarkMode);
+    return () => window.removeEventListener('storage', checkDarkMode);
   }, []);
 
   // Check if user has seen verify intro message
@@ -173,7 +184,7 @@ function ProfilePage() {
   };
 
   return (
-    <div className="page-shell minimal-ivory-grid">
+    <div className="page-shell minimal-ivory-grid" data-dark={isDarkMode}>
       <Header hideLogo={isMobile} />
       {isOwnProfile && (
         <Link 
@@ -190,33 +201,33 @@ function ProfilePage() {
             height: isMobile ? '44px' : '48px',
             padding: '0',
             textDecoration: 'none',
-            color: 'var(--app-text)',
-            background: 'var(--app-card-bg)',
+            color: isDarkMode ? '#ffffff' : 'var(--app-text)',
+            background: isDarkMode ? '#1a1a2e' : 'var(--app-card-bg)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
             borderRadius: '999px',
-            border: '1px solid var(--app-card-border)',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+            border: isDarkMode ? '1px solid #3a3a5c' : '1px solid var(--app-card-border)',
+            boxShadow: isDarkMode ? '0 4px 16px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.1)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             zIndex: 1000,
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-2px)';
-            e.target.style.background = 'var(--app-surface-strong)';
+            e.target.style.background = isDarkMode ? '#252542' : 'var(--app-surface-strong)';
             e.target.style.borderColor = '#FF6B00';
             e.target.style.boxShadow = '0 8px 24px rgba(255, 107, 0, 0.2)';
           }}
           onMouseLeave={(e) => {
             e.target.style.transform = 'translateY(0)';
-            e.target.style.background = 'var(--app-card-bg)';
-            e.target.style.borderColor = 'var(--app-card-border)';
-            e.target.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+            e.target.style.background = isDarkMode ? '#1a1a2e' : 'var(--app-card-bg)';
+            e.target.style.borderColor = isDarkMode ? '1px solid #3a3a5c' : 'var(--app-card-border)';
+            e.target.style.boxShadow = isDarkMode ? '0 4px 16px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.1)';
           }}
         >
           <IoSettingsSharp style={{ fontSize: isMobile ? '1.2rem' : '1.3rem' }} />
         </Link>
       )}
-      <div className="profile-card">
+      <div className="profile-card" data-dark={isDarkMode}>
         <div className="profile-card__cover"></div>
         
         <div className="profile-card__header" style={isMobile ? { flexDirection: 'column', alignItems: 'center', textAlign: 'center' } : {}}>
@@ -228,14 +239,14 @@ function ProfilePage() {
           </div>
           <div className="profile-card__info" style={isMobile ? { textAlign: 'center', paddingTop: '20px' } : {}}>
             <div className="profile-card__title-row" style={isMobile ? { justifyContent: 'center' } : {}}>
-              <h1>{profile ? `${profile.first_name} ${profile.last_name}` : (user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User')}</h1>
+              <h1 data-dark={isDarkMode}>{profile ? `${profile.first_name} ${profile.last_name}` : (user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User')}</h1>
               {(isVerified || profile?.is_verified) && (
                 <span className="profile-card__verify-tag profile-card__verify-tag--verified">Verified</span>
               )}
             </div>
-            <p className="profile-card__role">{profile?.department || 'User'}</p>
+            <p className="profile-card__role" data-dark={isDarkMode}>{profile?.department || 'User'}</p>
             <div className="profile-card__meta" style={isMobile ? { alignItems: 'center' } : {}}>
-              <span className="profile-card__meta-item">
+              <span className="profile-card__meta-item" data-dark={isDarkMode}>
                 <IoMailOutline />
                 {profile?.email || (isOwnProfile ? user?.email : profileEmail) || 'No email'}
               </span>

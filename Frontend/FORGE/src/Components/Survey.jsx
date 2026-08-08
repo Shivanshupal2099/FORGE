@@ -107,10 +107,21 @@ function Survey() {
   const [currentSurveyId, setCurrentSurveyId] = useState(null);
   const [surveyResponses, setSurveyResponses] = useState({});
   const [loadingResponses, setLoadingResponses] = useState({});
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     loadSurveys();
   }, [user]);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const savedTheme = localStorage.getItem('forge-theme');
+      setIsDarkMode(savedTheme === 'dark');
+    };
+    checkDarkMode();
+    window.addEventListener('storage', checkDarkMode);
+    return () => window.removeEventListener('storage', checkDarkMode);
+  }, []);
 
   const loadSurveys = async () => {
     if (!user?.email) return;
@@ -512,8 +523,8 @@ function Survey() {
   };
 
   return (
-    <div className="page-shell survey-page">
-      <div className="survey-form">
+    <div className="page-shell survey-page" data-dark={isDarkMode}>
+      <div className="survey-form" data-dark={isDarkMode}>
         <div className="survey-form__header">
           <div>
             <div className="survey-form__icon">
