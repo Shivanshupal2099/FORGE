@@ -109,8 +109,52 @@ const PageLoader = () => {
 
 function App() {
   useEffect(() => {
+    const applyTheme = (theme) => {
+      const root = document.documentElement;
+      const body = document.body;
+      const savedAccent = localStorage.getItem('forge-accent') || '#FFD700';
+      
+      // Apply accent color
+      root.style.setProperty('--app-accent-bg', savedAccent);
+      
+      // Apply theme
+      if (theme === 'dark') {
+        body.style.setProperty('--app-background', '#0a0a0f');
+        body.style.setProperty('--app-surface', '#1a1a2e');
+        body.style.setProperty('--app-surface-strong', '#252542');
+        body.style.setProperty('--app-text', '#ffffff');
+        body.style.setProperty('--app-text-secondary', '#b8b8d0');
+        body.style.setProperty('--app-border', '#3a3a5c');
+        body.style.setProperty('--app-card-bg', '#1a1a2e');
+        body.style.setProperty('--app-card-border', '#3a3a5c');
+        body.style.setProperty('--app-input-bg', '#1a1a2e');
+        body.style.setProperty('--app-input-border', '#3a3a5c');
+        body.style.setProperty('--app-button-bg', savedAccent);
+        body.style.setProperty('--app-button-text', '#ffffff');
+        body.style.setProperty('--app-soft-shadow', '0 8px 32px rgba(0, 0, 0, 0.4)');
+        body.style.setProperty('--app-soft-shadow-lg', '0 16px 48px rgba(0, 0, 0, 0.5)');
+      } else {
+        body.style.setProperty('--app-background', '#FFFDF0');
+        body.style.setProperty('--app-surface', '#FFFFFF');
+        body.style.setProperty('--app-surface-strong', '#F5F5F0');
+        body.style.setProperty('--app-text', '#111111');
+        body.style.setProperty('--app-text-secondary', '#666666');
+        body.style.setProperty('--app-border', '#E0E0D8');
+        body.style.setProperty('--app-card-bg', '#FFFFFF');
+        body.style.setProperty('--app-card-border', '#E0E0D8');
+        body.style.setProperty('--app-input-bg', '#FFFFFF');
+        body.style.setProperty('--app-input-border', '#E0E0D8');
+        body.style.setProperty('--app-button-bg', '#FFD700');
+        body.style.setProperty('--app-button-text', '#000000');
+        body.style.setProperty('--app-soft-shadow', '0 8px 32px rgba(17, 17, 17, 0.08)');
+        body.style.setProperty('--app-soft-shadow-lg', '0 16px 48px rgba(17, 17, 17, 0.12)');
+      }
+      
+      root.dataset.theme = theme;
+    };
+
     const savedTheme = localStorage.getItem('forge-theme') || 'light';
-    document.documentElement.dataset.theme = savedTheme;
+    applyTheme(savedTheme);
   }, []);
 
   return (
