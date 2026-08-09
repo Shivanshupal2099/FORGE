@@ -188,49 +188,49 @@ function ProfilePage() {
   return (
     <div className="page-shell minimal-ivory-grid" data-dark={isDarkMode}>
       <Header hideLogo={isMobile} />
-      {isOwnProfile && (
-        <Link 
-          to="/settings" 
-          aria-label="Settings"
-          style={{
-            position: 'fixed',
-            top: '80px',
-            right: '20px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: isMobile ? '44px' : '48px',
-            height: isMobile ? '44px' : '48px',
-            padding: '0',
-            textDecoration: 'none',
-            color: isDarkMode ? '#ffffff' : 'var(--app-text)',
-            background: isDarkMode ? '#1a1a2e' : 'var(--app-card-bg)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            borderRadius: '999px',
-            border: isDarkMode ? '1px solid #3a3a5c' : '1px solid var(--app-card-border)',
-            boxShadow: isDarkMode ? '0 4px 16px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.1)',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            zIndex: 1000,
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-2px)';
-            e.target.style.background = isDarkMode ? '#252542' : 'var(--app-surface-strong)';
-            e.target.style.borderColor = '#FF6B00';
-            e.target.style.boxShadow = '0 8px 24px rgba(255, 107, 0, 0.2)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.background = isDarkMode ? '#1a1a2e' : 'var(--app-card-bg)';
-            e.target.style.borderColor = isDarkMode ? '1px solid #3a3a5c' : 'var(--app-card-border)';
-            e.target.style.boxShadow = isDarkMode ? '0 4px 16px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.1)';
-          }}
-        >
-          <IoSettingsSharp style={{ fontSize: isMobile ? '1.2rem' : '1.3rem' }} />
-        </Link>
-      )}
       <div className="profile-card" data-dark={isDarkMode}>
         <div className="profile-card__cover"></div>
+        {isOwnProfile && (
+          <Link 
+            to="/settings" 
+            aria-label="Settings"
+            style={{
+              position: isMobile ? 'absolute' : 'fixed',
+              top: isMobile ? '16px' : '80px',
+              right: isMobile ? '16px' : '20px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: isMobile ? '44px' : '48px',
+              height: isMobile ? '44px' : '48px',
+              padding: '0',
+              textDecoration: 'none',
+              color: isDarkMode ? '#ffffff' : 'var(--app-text)',
+              background: isDarkMode ? '#1a1a2e' : 'var(--app-card-bg)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderRadius: '999px',
+              border: isDarkMode ? '1px solid #3a3a5c' : '1px solid var(--app-card-border)',
+              boxShadow: isDarkMode ? '0 4px 16px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              zIndex: isMobile ? 10 : 1000,
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.background = isDarkMode ? '#252542' : 'var(--app-surface-strong)';
+              e.target.style.borderColor = '#FF6B00';
+              e.target.style.boxShadow = '0 8px 24px rgba(255, 107, 0, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.background = isDarkMode ? '#1a1a2e' : 'var(--app-card-bg)';
+              e.target.style.borderColor = isDarkMode ? '1px solid #3a3a5c' : 'var(--app-card-border)';
+              e.target.style.boxShadow = isDarkMode ? '0 4px 16px rgba(0, 0, 0, 0.3)' : '0 4px 16px rgba(0, 0, 0, 0.1)';
+            }}
+          >
+            <IoSettingsSharp style={{ fontSize: isMobile ? '1.2rem' : '1.3rem' }} />
+          </Link>
+        )}
         
         <div className="profile-card__header" style={isMobile ? { flexDirection: 'column', alignItems: 'center', textAlign: 'center' } : {}}>
           <div className="profile-photo">
@@ -905,7 +905,7 @@ function ProfilePage() {
                   borderRadius: '12px',
                   border: 'none',
                   background: shareLinkCopied 
-                    ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' 
+                    ? 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)' 
                     : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
                   color: 'white',
                   fontSize: '14px',
@@ -913,19 +913,19 @@ function ProfilePage() {
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   boxShadow: shareLinkCopied 
-                    ? '0 4px 12px rgba(16, 185, 129, 0.3)' 
+                    ? '0 4px 12px rgba(255, 107, 0, 0.3)' 
                     : '0 4px 12px rgba(59, 130, 246, 0.3)',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
                   e.target.style.boxShadow = shareLinkCopied 
-                    ? '0 6px 16px rgba(16, 185, 129, 0.4)' 
+                    ? '0 6px 16px rgba(255, 107, 0, 0.4)' 
                     : '0 6px 16px rgba(59, 130, 246, 0.4)';
                 }}
                 onMouseLeave={(e) => {
                   e.target.style.transform = 'translateY(0)';
                   e.target.style.boxShadow = shareLinkCopied 
-                    ? '0 4px 12px rgba(16, 185, 129, 0.3)' 
+                    ? '0 4px 12px rgba(255, 107, 0, 0.3)' 
                     : '0 4px 12px rgba(59, 130, 246, 0.3)';
                 }}
               >
