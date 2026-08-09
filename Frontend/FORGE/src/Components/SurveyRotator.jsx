@@ -641,65 +641,67 @@ function SurveyRotator() {
                   </div>
                 </div>
 
-                {/* Right Side - Action Buttons */}
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    type="button"
-                    onClick={() => handleShareClick(survey._id)}
-                    style={{
-                      width: 'clamp(36px, 8vw, 40px)',
-                      height: 'clamp(36px, 8vw, 40px)',
-                      background: '#ffffff',
-                      border: '1px solid #EAEAEA',
-                      borderRadius: '14px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#6B7280',
-                      transition: 'all 0.2s ease',
-                      flexShrink: 0,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.borderColor = '#FF7A00';
-                      e.target.style.color = '#FF7A00';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.borderColor = '#EAEAEA';
-                      e.target.style.color = '#6B7280';
-                    }}
-                  >
-                    <FaShareAlt />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleReportClick(survey._id)}
-                    style={{
-                      width: 'clamp(36px, 8vw, 40px)',
-                      height: 'clamp(36px, 8vw, 40px)',
-                      background: '#ffffff',
-                      border: '1px solid #EAEAEA',
-                      borderRadius: '14px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#6B7280',
-                      transition: 'all 0.2s ease',
-                      flexShrink: 0,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.borderColor = '#FF7A00';
-                      e.target.style.color = '#FF7A00';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.borderColor = '#EAEAEA';
-                      e.target.style.color = '#6B7280';
-                    }}
-                  >
-                    <FaFlag />
-                  </button>
-                </div>
+                {/* Right Side - Action Buttons - Desktop Only */}
+                {!isMobile && (
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleShareClick(survey._id)}
+                      style={{
+                        width: 'clamp(36px, 8vw, 40px)',
+                        height: 'clamp(36px, 8vw, 40px)',
+                        background: '#ffffff',
+                        border: '1px solid #EAEAEA',
+                        borderRadius: '14px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#6B7280',
+                        transition: 'all 0.2s ease',
+                        flexShrink: 0,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.borderColor = '#FF7A00';
+                        e.target.style.color = '#FF7A00';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.borderColor = '#EAEAEA';
+                        e.target.style.color = '#6B7280';
+                      }}
+                    >
+                      <FaShareAlt />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleReportClick(survey._id)}
+                      style={{
+                        width: 'clamp(36px, 8vw, 40px)',
+                        height: 'clamp(36px, 8vw, 40px)',
+                        background: '#ffffff',
+                        border: '1px solid #EAEAEA',
+                        borderRadius: '14px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#6B7280',
+                        transition: 'all 0.2s ease',
+                        flexShrink: 0,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.borderColor = '#FF7A00';
+                        e.target.style.color = '#FF7A00';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.borderColor = '#EAEAEA';
+                        e.target.style.color = '#6B7280';
+                      }}
+                    >
+                      <FaFlag />
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Survey Metadata Chips - Desktop Only */}
@@ -877,10 +879,11 @@ function SurveyRotator() {
                     <div style={{
                       display: 'flex',
                       justifyContent: 'center',
-                      gap: '16px',
+                      gap: '12px',
                       marginTop: '16px',
+                      flexWrap: 'wrap',
                     }}>
-                      {/* Responses Icon */}
+                      {/* Responses Icon with number */}
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -890,11 +893,29 @@ function SurveyRotator() {
                         borderRadius: '50%',
                         background: 'rgba(255, 107, 0, 0.1)',
                         border: '1px solid rgba(255, 107, 0, 0.2)',
+                        position: 'relative',
                       }}>
                         <FaUsers style={{
                           fontSize: '18px',
                           color: '#FF6B00',
                         }} />
+                        <span style={{
+                          position: 'absolute',
+                          bottom: '-4px',
+                          right: '-4px',
+                          background: '#FF6B00',
+                          color: '#ffffff',
+                          fontSize: '10px',
+                          fontWeight: '700',
+                          width: '16px',
+                          height: '16px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                          {survey.current_responses || 0}
+                        </span>
                       </div>
                       
                       {/* Trending Icon */}
@@ -916,7 +937,7 @@ function SurveyRotator() {
                         </div>
                       )}
                       
-                      {/* Questions Icon */}
+                      {/* Questions Icon with number */}
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -926,12 +947,96 @@ function SurveyRotator() {
                         borderRadius: '50%',
                         background: 'rgba(59, 130, 246, 0.1)',
                         border: '1px solid rgba(59, 130, 246, 0.2)',
+                        position: 'relative',
                       }}>
                         <FaChartBar style={{
                           fontSize: '18px',
                           color: '#3B82F6',
                         }} />
+                        <span style={{
+                          position: 'absolute',
+                          bottom: '-4px',
+                          right: '-4px',
+                          background: '#3B82F6',
+                          color: '#ffffff',
+                          fontSize: '10px',
+                          fontWeight: '700',
+                          width: '16px',
+                          height: '16px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                          {questions.length}
+                        </span>
                       </div>
+
+                      {/* Share Icon */}
+                      <button
+                        type="button"
+                        onClick={() => handleShareClick(survey._id)}
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          background: 'rgba(107, 114, 128, 0.1)',
+                          border: '1px solid rgba(107, 114, 128, 0.2)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#6B7280',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.borderColor = '#FF7A00';
+                          e.target.style.color = '#FF7A00';
+                          e.target.style.background = 'rgba(255, 122, 0, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.borderColor = 'rgba(107, 114, 128, 0.2)';
+                          e.target.style.color = '#6B7280';
+                          e.target.style.background = 'rgba(107, 114, 128, 0.1)';
+                        }}
+                      >
+                        <FaShareAlt style={{
+                          fontSize: '18px',
+                        }} />
+                      </button>
+
+                      {/* Report Icon */}
+                      <button
+                        type="button"
+                        onClick={() => handleReportClick(survey._id)}
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          background: 'rgba(107, 114, 128, 0.1)',
+                          border: '1px solid rgba(107, 114, 128, 0.2)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#6B7280',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.borderColor = '#FF7A00';
+                          e.target.style.color = '#FF7A00';
+                          e.target.style.background = 'rgba(255, 122, 0, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.borderColor = 'rgba(107, 114, 128, 0.2)';
+                          e.target.style.color = '#6B7280';
+                          e.target.style.background = 'rgba(107, 114, 128, 0.1)';
+                        }}
+                      >
+                        <FaFlag style={{
+                          fontSize: '18px',
+                        }} />
+                      </button>
                     </div>
                   </>
                 ) : (
