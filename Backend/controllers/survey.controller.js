@@ -13,7 +13,7 @@ exports.createSurvey = async (req, res) => {
     console.log('Request body:', req.body);
     console.log('Request user:', req.user);
     
-    const { uid, visibility, reward_amount, target_responses, target_filter, expires_at } = req.body;
+    const { uid, title, visibility, reward_amount, target_responses, target_filter, expires_at } = req.body;
 
     // Find user by UID
     const user = await User.findOne({ uid });
@@ -34,6 +34,7 @@ exports.createSurvey = async (req, res) => {
     // Create new survey
     const survey = await Survey.create({
       creator_id: user._id,
+      title: title || 'Untitled Survey',
       visibility: visibility || 'public',
       reward_amount,
       target_responses,
