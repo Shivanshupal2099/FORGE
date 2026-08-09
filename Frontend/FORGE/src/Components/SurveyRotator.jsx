@@ -717,12 +717,12 @@ function SurveyRotator() {
                     fontWeight: '600',
                     color: '#FF6B00',
                   }}>
-                    {survey.submission_count || survey.responses?.length || 0} responses
+                    {survey.current_responses || 0} responses
                   </span>
                 </div>
                 
                 {/* Trending Indicator */}
-                {(survey.submission_count || 0) > 10 && (
+                {(survey.current_responses || 0) > 10 && (
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
