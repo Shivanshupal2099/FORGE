@@ -626,7 +626,7 @@ function SurveyRotator() {
                       letterSpacing: '-0.5px',
                       marginBottom: '4px',
                     }}>
-                      {survey.title || 'Survey'}
+                      {survey.title || survey.question || 'Survey'}
                     </h3>
                     <div style={{
                       display: 'flex',
