@@ -723,15 +723,13 @@ function SurveyRotator() {
                     fontSize: 'clamp(12px, 3vw, 14px)',
                     color: '#FF6B00',
                   }} />
-                  {!isMobile && (
-                    <span style={{
-                      fontSize: 'clamp(11px, 2.5vw, 13px)',
-                      fontWeight: '600',
-                      color: '#FF6B00',
-                    }}>
-                      {survey.current_responses || 0} responses
-                    </span>
-                  )}
+                  <span style={{
+                    fontSize: 'clamp(11px, 2.5vw, 13px)',
+                    fontWeight: '600',
+                    color: '#FF6B00',
+                  }}>
+                    {survey.current_responses || 0} responses
+                  </span>
                 </div>
                 
                 {/* Trending Indicator */}
@@ -749,15 +747,13 @@ function SurveyRotator() {
                       fontSize: 'clamp(12px, 3vw, 14px)',
                       color: '#EF4444',
                     }} />
-                    {!isMobile && (
-                      <span style={{
-                        fontSize: 'clamp(11px, 2.5vw, 13px)',
-                        fontWeight: '600',
-                        color: '#EF4444',
-                      }}>
-                        Trending
-                      </span>
-                    )}
+                    <span style={{
+                      fontSize: 'clamp(11px, 2.5vw, 13px)',
+                      fontWeight: '600',
+                      color: '#EF4444',
+                    }}>
+                      Trending
+                    </span>
                   </div>
                 )}
                 
@@ -775,15 +771,13 @@ function SurveyRotator() {
                     fontSize: 'clamp(12px, 3vw, 14px)',
                     color: '#3B82F6',
                   }} />
-                  {!isMobile && (
-                    <span style={{
-                      fontSize: 'clamp(11px, 2.5vw, 13px)',
-                      fontWeight: '600',
-                      color: '#3B82F6',
-                    }}>
-                      {questions.length} questions
-                    </span>
-                  )}
+                  <span style={{
+                    fontSize: 'clamp(11px, 2.5vw, 13px)',
+                    fontWeight: '600',
+                    color: '#3B82F6',
+                  }}>
+                    {questions.length} questions
+                  </span>
                 </div>
               </div>
             </div>
@@ -1249,9 +1243,9 @@ function SurveyRotator() {
             background: 'rgba(0, 0, 0, 0.5)',
             backdropFilter: 'blur(8px)',
             display: 'flex',
-            alignItems: 'flex-end',
+            alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1000,
+            zIndex: 2000,
             padding: '16px',
           }}>
             <div style={{
@@ -1259,12 +1253,12 @@ function SurveyRotator() {
               backdropFilter: 'blur(20px) saturate(180%)',
               WebkitBackdropFilter: 'blur(20px) saturate(180%)',
               border: '1px solid rgba(255, 255, 255, 0.5)',
-              borderRadius: '24px 24px 0 0',
+              borderRadius: '24px',
               padding: '24px',
-              maxWidth: '600px',
+              maxWidth: '500px',
               width: '100%',
-              maxHeight: '90vh',
-              boxShadow: '0 -20px 60px rgba(0, 0, 0, 0.3)',
+              maxHeight: '80vh',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
               overflowY: 'auto',
             }}>
               {/* Close Button */}
@@ -1296,35 +1290,50 @@ function SurveyRotator() {
                   <div key={question._id} style={{ marginBottom: '20px' }}>
                     {/* Text input */}
                     {question.type === 'text' && (
-                      <textarea
-                        value={state.answers[question._id] || ''}
-                        onChange={(e) => handleAnswer(survey._id, question._id, e.target.value)}
-                        placeholder="Type your answer..."
-                        disabled={isSubmitting}
-                        autoFocus={qIndex === 0}
-                        style={{
-                          width: '100%',
-                          minHeight: '120px',
-                          padding: '16px',
-                          border: '2px solid #E5E7EB',
-                          borderRadius: '16px',
-                          fontSize: '16px',
-                          background: '#ffffff',
-                          color: '#1F2937',
-                          outline: 'none',
-                          transition: 'all 0.2s ease',
-                          resize: 'none',
-                          fontFamily: 'inherit',
-                        }}
-                        onFocus={(e) => {
-                          e.target.style.borderColor = '#FF7A00';
-                          e.target.style.boxShadow = '0 0 0 4px rgba(255, 122, 0, 0.15)';
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.borderColor = '#E5E7EB';
-                          e.target.style.boxShadow = 'none';
-                        }}
-                      />
+                      <div>
+                        <textarea
+                          value={state.answers[question._id] || ''}
+                          onChange={(e) => {
+                            if (e.target.value.length <= 200) {
+                              handleAnswer(survey._id, question._id, e.target.value);
+                            }
+                          }}
+                          placeholder="Type your answer... (max 200 characters)"
+                          disabled={isSubmitting}
+                          autoFocus={qIndex === 0}
+                          maxLength={200}
+                          style={{
+                            width: '100%',
+                            minHeight: '120px',
+                            padding: '16px',
+                            border: '2px solid #E5E7EB',
+                            borderRadius: '16px',
+                            fontSize: '16px',
+                            background: '#ffffff',
+                            color: '#1F2937',
+                            outline: 'none',
+                            transition: 'all 0.2s ease',
+                            resize: 'none',
+                            fontFamily: 'inherit',
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = '#FF7A00';
+                            e.target.style.boxShadow = '0 0 0 4px rgba(255, 122, 0, 0.15)';
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = '#E5E7EB';
+                            e.target.style.boxShadow = 'none';
+                          }}
+                        />
+                        <div style={{
+                          textAlign: 'right',
+                          fontSize: '12px',
+                          color: '#6B7280',
+                          marginTop: '4px',
+                        }}>
+                          {(state.answers[question._id] || '').length} / 200
+                        </div>
+                      </div>
                     )}
 
                     {/* Radio options */}
