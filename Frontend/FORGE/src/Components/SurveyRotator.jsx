@@ -626,7 +626,7 @@ function SurveyRotator() {
                       letterSpacing: '-0.5px',
                       marginBottom: '4px',
                     }}>
-                      {survey.title || survey.question || (questions[0]?.question_text) || 'Survey'}
+                      {survey.title || survey.question || (questions[0]?.question) || 'Survey'}
                     </h3>
                     <div style={{
                       display: 'flex',
@@ -702,84 +702,86 @@ function SurveyRotator() {
                 </div>
               </div>
 
-              {/* Survey Metadata Chips */}
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '8px',
-                marginBottom: '16px',
-              }}>
-                {/* Submissions Count */}
+              {/* Survey Metadata Chips - Desktop Only */}
+              {!isMobile && (
                 <div style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  background: 'rgba(255, 107, 0, 0.1)',
-                  borderRadius: '999px',
-                  border: '1px solid rgba(255, 107, 0, 0.2)',
+                  flexWrap: 'wrap',
+                  gap: '8px',
+                  marginBottom: '16px',
                 }}>
-                  <FaUsers style={{
-                    fontSize: 'clamp(12px, 3vw, 14px)',
-                    color: '#FF6B00',
-                  }} />
-                  <span style={{
-                    fontSize: 'clamp(11px, 2.5vw, 13px)',
-                    fontWeight: '600',
-                    color: '#FF6B00',
-                  }}>
-                    {survey.current_responses || 0} responses
-                  </span>
-                </div>
-                
-                {/* Trending Indicator */}
-                {(survey.current_responses || 0) > 10 && (
+                  {/* Submissions Count */}
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
                     padding: '6px 12px',
-                    background: 'rgba(239, 68, 68, 0.1)',
+                    background: 'rgba(255, 107, 0, 0.1)',
                     borderRadius: '999px',
-                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    border: '1px solid rgba(255, 107, 0, 0.2)',
                   }}>
-                    <FaFire style={{
+                    <FaUsers style={{
                       fontSize: 'clamp(12px, 3vw, 14px)',
-                      color: '#EF4444',
+                      color: '#FF6B00',
                     }} />
                     <span style={{
                       fontSize: 'clamp(11px, 2.5vw, 13px)',
                       fontWeight: '600',
-                      color: '#EF4444',
+                      color: '#FF6B00',
                     }}>
-                      Trending
+                      {survey.current_responses || 0} responses
                     </span>
                   </div>
-                )}
-                
-                {/* Questions Count */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  borderRadius: '999px',
-                  border: '1px solid rgba(59, 130, 246, 0.2)',
-                }}>
-                  <FaChartBar style={{
-                    fontSize: 'clamp(12px, 3vw, 14px)',
-                    color: '#3B82F6',
-                  }} />
-                  <span style={{
-                    fontSize: 'clamp(11px, 2.5vw, 13px)',
-                    fontWeight: '600',
-                    color: '#3B82F6',
+                  
+                  {/* Trending Indicator */}
+                  {(survey.current_responses || 0) > 10 && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 12px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      borderRadius: '999px',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                    }}>
+                      <FaFire style={{
+                        fontSize: 'clamp(12px, 3vw, 14px)',
+                        color: '#EF4444',
+                      }} />
+                      <span style={{
+                        fontSize: 'clamp(11px, 2.5vw, 13px)',
+                        fontWeight: '600',
+                        color: '#EF4444',
+                      }}>
+                        Trending
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Questions Count */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    borderRadius: '999px',
+                    border: '1px solid rgba(59, 130, 246, 0.2)',
                   }}>
-                    {questions.length} questions
-                  </span>
+                    <FaChartBar style={{
+                      fontSize: 'clamp(12px, 3vw, 14px)',
+                      color: '#3B82F6',
+                    }} />
+                    <span style={{
+                      fontSize: 'clamp(11px, 2.5vw, 13px)',
+                      fontWeight: '600',
+                      color: '#3B82F6',
+                    }}>
+                      {questions.length} questions
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Divider */}
@@ -831,12 +833,76 @@ function SurveyRotator() {
               </div>
             ) : (
               <>
+                {/* Mobile: Show stats icons at bottom */}
+                {isMobile && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '16px',
+                    marginTop: '16px',
+                    marginBottom: '16px',
+                  }}>
+                    {/* Responses Icon */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      background: 'rgba(255, 107, 0, 0.1)',
+                      border: '1px solid rgba(255, 107, 0, 0.2)',
+                    }}>
+                      <FaUsers style={{
+                        fontSize: '18px',
+                        color: '#FF6B00',
+                      }} />
+                    </div>
+                    
+                    {/* Trending Icon */}
+                    {(survey.current_responses || 0) > 10 && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                      }}>
+                        <FaFire style={{
+                          fontSize: '18px',
+                          color: '#EF4444',
+                        }} />
+                      </div>
+                    )}
+                    
+                    {/* Questions Icon */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      border: '1px solid rgba(59, 130, 246, 0.2)',
+                    }}>
+                      <FaChartBar style={{
+                        fontSize: '18px',
+                        color: '#3B82F6',
+                      }} />
+                    </div>
+                  </div>
+                )}
+
                 {/* Mobile: Show comment icon button only */}
                 {isMobile ? (
                   <div style={{
                     display: 'flex',
                     justifyContent: 'center',
-                    marginTop: '16px',
+                    marginTop: '8px',
                   }}>
                     <button
                       type="button"
