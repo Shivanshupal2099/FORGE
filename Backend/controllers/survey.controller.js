@@ -355,12 +355,14 @@ exports.getPublicSurveys = async (req, res) => {
           const profile = await Profile.findOne({ user_id: survey.creator_id._id });
           return {
             ...survey.toObject(),
-            creator_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Anonymous'
+            creator_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Anonymous',
+            title: survey.title || 'Survey'
           };
         }
         return {
           ...survey.toObject(),
-          creator_name: 'Anonymous'
+          creator_name: 'Anonymous',
+          title: survey.title || 'Survey'
         };
       })
     );
