@@ -62,42 +62,31 @@ const PageLoader = () => {
       textAlign: 'center',
     }}>
       <div style={{
-        width: '60px',
-        height: '60px',
-        border: '4px solid #FF6B00',
-        borderTop: '4px solid transparent',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite',
-        marginBottom: '30px',
-      }} />
-      <div style={{
-        fontSize: '48px',
-        marginBottom: '16px',
+        fontSize: '64px',
+        marginBottom: '24px',
         animation: 'bounce 2s infinite',
       }}>
         {quotes[currentQuote].emoji}
       </div>
       <h2 style={{
-        fontSize: '24px',
-        fontWeight: '600',
+        fontSize: '28px',
+        fontWeight: '700',
         color: '#1a1a2e',
-        marginBottom: '12px',
-        maxWidth: '400px',
+        marginBottom: '16px',
+        maxWidth: '500px',
+        lineHeight: '1.4',
       }}>
         {quotes[currentQuote].text}
       </h2>
       <p style={{
-        fontSize: '16px',
+        fontSize: '18px',
         color: '#666',
         marginBottom: '20px',
+        fontWeight: '500',
       }}>
         Waking up the server... This won't take long! ⚡
       </p>
       <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
         @keyframes bounce {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
