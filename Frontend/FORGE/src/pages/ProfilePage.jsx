@@ -1,7 +1,7 @@
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { IoSettingsSharp, IoMailOutline, IoBriefcaseOutline, IoLinkOutline, IoLocationOutline } from 'react-icons/io5';
-import { FaRegEdit, FaCoins } from 'react-icons/fa';
+import { FaRegEdit, FaCoins, FaShareAlt } from 'react-icons/fa';
 import { MdEvent, MdOutlineVerified } from 'react-icons/md';
 import NavigationBar from '../Components/NavigationBar';
 import Header from '../Components/Header';
@@ -29,6 +29,8 @@ function ProfilePage() {
   const [showTokensPopup, setShowTokensPopup] = useState(false);
   const [showVerifyIntro, setShowVerifyIntro] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showSharePopup, setShowSharePopup] = useState(false);
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
 
   // Determine if viewing own profile or someone else's
   const isOwnProfile = !profileEmail || profileEmail === user?.email;
@@ -333,6 +335,43 @@ function ProfilePage() {
                 <FaCoins />
               </button>
             )}
+            <button
+              onClick={() => setShowSharePopup(true)}
+              style={{
+                padding: isMobile ? '12px' : '14px',
+                borderRadius: '999px',
+                background: isDarkMode ? 'rgba(59, 130, 246, 0.2)' : 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)',
+                color: isDarkMode ? '#60a5fa' : '#3b82f6',
+                fontWeight: '600',
+                fontSize: isMobile ? '1rem' : '1.2rem',
+                border: isDarkMode ? '1.5px solid rgba(59, 130, 246, 0.3)' : '1.5px solid rgba(59, 130, 246, 0.25)',
+                boxShadow: isDarkMode ? '0 4px 12px rgba(59, 130, 246, 0.2)' : '0 4px 12px rgba(59, 130, 246, 0.15)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                marginLeft: '8px',
+                cursor: 'pointer',
+                position: 'relative',
+                overflow: 'hidden',
+                minWidth: isMobile ? '44px' : '48px',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.background = isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(59, 130, 246, 0.1) 100%)';
+                e.target.style.borderColor = isDarkMode ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.4)';
+                e.target.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.25)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.background = isDarkMode ? 'rgba(59, 130, 246, 0.2)' : 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)';
+                e.target.style.borderColor = isDarkMode ? '1.5px solid rgba(59, 130, 246, 0.3)' : '1.5px solid rgba(59, 130, 246, 0.25)';
+                e.target.style.boxShadow = isDarkMode ? '0 4px 12px rgba(59, 130, 246, 0.2)' : '0 4px 12px rgba(59, 130, 246, 0.15)';
+              }}
+            >
+              <FaShareAlt />
+            </button>
             {isOwnProfile && (
               <button
                 onClick={() => {
@@ -757,6 +796,167 @@ function ProfilePage() {
       )}
 
       {showTokensPopup && <Tokens onClose={() => setShowTokensPopup(false)} />}
+
+      {/* Share Profile Popup */}
+      {showSharePopup && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            background: 'rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+          }}
+          onClick={() => setShowSharePopup(false)}
+        >
+          <div
+            style={{
+              background: isDarkMode ? '#1a1a2e' : 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              borderRadius: '24px',
+              padding: '40px',
+              maxWidth: '450px',
+              width: '100%',
+              boxShadow: isDarkMode ? '0 20px 60px rgba(0, 0, 0, 0.5)' : '0 20px 60px rgba(0, 0, 0, 0.3)',
+              border: isDarkMode ? '1px solid #3a3a5c' : '1px solid rgba(255, 255, 255, 0.3)',
+              textAlign: 'center',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 24px',
+                boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+              }}
+            >
+              <FaShareAlt style={{ fontSize: '48px', color: 'white' }} />
+            </div>
+            <h2
+              style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: isDarkMode ? '#ffffff' : '#111111',
+                margin: '0 0 12px',
+              }}
+            >
+              Share Profile
+            </h2>
+            <p
+              style={{
+                fontSize: '16px',
+                color: isDarkMode ? '#b8b8d0' : '#666666',
+                margin: '0 0 24px',
+                lineHeight: '1.5',
+              }}
+            >
+              Share this profile with others by copying the link below
+            </p>
+            <div
+              style={{
+                display: 'flex',
+                gap: '8px',
+                marginBottom: '24px',
+              }}
+            >
+              <input
+                type="text"
+                readOnly
+                value={`${window.location.origin}/profile/${profile?.email || user?.email}`}
+                style={{
+                  flex: 1,
+                  padding: '14px 16px',
+                  borderRadius: '12px',
+                  border: isDarkMode ? '1px solid #3a3a5c' : '1px solid #e2e8f0',
+                  background: isDarkMode ? '#252542' : '#f8fafc',
+                  color: isDarkMode ? '#ffffff' : '#1f172a',
+                  fontSize: '14px',
+                  outline: 'none',
+                }}
+              />
+              <button
+                onClick={async () => {
+                  const profileLink = `${window.location.origin}/profile/${profile?.email || user?.email}`;
+                  try {
+                    await navigator.clipboard.writeText(profileLink);
+                    setShareLinkCopied(true);
+                    setTimeout(() => setShareLinkCopied(false), 2000);
+                  } catch (err) {
+                    console.error('Failed to copy:', err);
+                  }
+                }}
+                style={{
+                  padding: '14px 20px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: shareLinkCopied 
+                    ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' 
+                    : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: shareLinkCopied 
+                    ? '0 4px 12px rgba(16, 185, 129, 0.3)' 
+                    : '0 4px 12px rgba(59, 130, 246, 0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = shareLinkCopied 
+                    ? '0 6px 16px rgba(16, 185, 129, 0.4)' 
+                    : '0 6px 16px rgba(59, 130, 246, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = shareLinkCopied 
+                    ? '0 4px 12px rgba(16, 185, 129, 0.3)' 
+                    : '0 4px 12px rgba(59, 130, 246, 0.3)';
+                }}
+              >
+                {shareLinkCopied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <button
+              onClick={() => setShowSharePopup(false)}
+              style={{
+                padding: '14px 32px',
+                borderRadius: '999px',
+                border: 'none',
+                background: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                color: isDarkMode ? '#ffffff' : '#111111',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       <NavigationBar isChatPage={false} />
     </div>
