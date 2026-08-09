@@ -21,10 +21,8 @@ if ('serviceWorker' in navigator) {
 }
 
 // Start health check to keep backend alive (for Render free tier)
-// Only start in production or if explicitly enabled
-if (import.meta.env.PROD || import.meta.env.VITE_ENABLE_HEALTH_CHECK === 'true') {
-  startHealthCheck();
-}
+// Enable in both production and development for testing
+startHealthCheck(2 * 60 * 1000); // 2 minutes interval
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

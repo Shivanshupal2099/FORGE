@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { FaClipboardList, FaArrowLeft, FaArrowRight, FaCheck, FaSpinner, FaFlag, FaShareAlt, FaTimes, FaPaperPlane } from 'react-icons/fa';
+import { FaClipboardList, FaArrowLeft, FaArrowRight, FaCheck, FaSpinner, FaFlag, FaShareAlt, FaTimes, FaPaperPlane, FaUsers, FaChartBar, FaFire } from 'react-icons/fa';
 import axios from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
@@ -698,6 +698,76 @@ function SurveyRotator() {
                 gap: '8px',
                 marginBottom: '16px',
               }}>
+                {/* Submissions Count */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  background: 'rgba(255, 107, 0, 0.1)',
+                  borderRadius: '999px',
+                  border: '1px solid rgba(255, 107, 0, 0.2)',
+                }}>
+                  <FaUsers style={{
+                    fontSize: 'clamp(12px, 3vw, 14px)',
+                    color: '#FF6B00',
+                  }} />
+                  <span style={{
+                    fontSize: 'clamp(11px, 2.5vw, 13px)',
+                    fontWeight: '600',
+                    color: '#FF6B00',
+                  }}>
+                    {survey.submission_count || survey.responses?.length || 0} responses
+                  </span>
+                </div>
+                
+                {/* Trending Indicator */}
+                {(survey.submission_count || 0) > 10 && (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    borderRadius: '999px',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                  }}>
+                    <FaFire style={{
+                      fontSize: 'clamp(12px, 3vw, 14px)',
+                      color: '#EF4444',
+                    }} />
+                    <span style={{
+                      fontSize: 'clamp(11px, 2.5vw, 13px)',
+                      fontWeight: '600',
+                      color: '#EF4444',
+                    }}>
+                      Trending
+                    </span>
+                  </div>
+                )}
+                
+                {/* Questions Count */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  borderRadius: '999px',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                }}>
+                  <FaChartBar style={{
+                    fontSize: 'clamp(12px, 3vw, 14px)',
+                    color: '#3B82F6',
+                  }} />
+                  <span style={{
+                    fontSize: 'clamp(11px, 2.5vw, 13px)',
+                    fontWeight: '600',
+                    color: '#3B82F6',
+                  }}>
+                    {questions.length} questions
+                  </span>
+                </div>
               </div>
             </div>
 

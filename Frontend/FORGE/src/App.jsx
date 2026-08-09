@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import "./App.css";
@@ -28,32 +28,84 @@ const PublicSurveyPage = lazy(() => import('./pages/PublicSurveyPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const NearbyPage = lazy(() => import('./pages/NearbyPage'));
 
-// Loading component for Suspense fallback
-const PageLoader = () => (
-  <div style={{
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5'
-  }}>
+// Loading component for Suspense fallback with quotes
+const PageLoader = () => {
+  const quotes = [
+    { text: "Connecting minds, building futures", emoji: "🌟" },
+    { text: "Your network is your net worth", emoji: "💼" },
+    { text: "Collaboration breeds innovation", emoji: "🚀" },
+    { text: "Together we achieve more", emoji: "🤝" },
+    { text: "Every connection matters", emoji: "✨" },
+    { text: "Building bridges, not walls", emoji: "🌉" },
+    { text: "Your next opportunity awaits", emoji: "🎯" },
+    { text: "Success starts with a connection", emoji: "💡" },
+  ];
+  
+  const [currentQuote, setCurrentQuote] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuote((prev) => (prev + 1) % quotes.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  return (
     <div style={{
-      
-      width: '40px',
-      height: '40px',
-      border: '4px solid #3182ce',
-      borderTop: '4px solid transparent',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite'
-    }} />
-    <style>{`
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `}</style>
-  </div>
-);
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      backgroundColor: '#f5f5f5',
+      padding: '20px',
+      textAlign: 'center',
+    }}>
+      <div style={{
+        width: '60px',
+        height: '60px',
+        border: '4px solid #FF6B00',
+        borderTop: '4px solid transparent',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+        marginBottom: '30px',
+      }} />
+      <div style={{
+        fontSize: '48px',
+        marginBottom: '16px',
+        animation: 'bounce 2s infinite',
+      }}>
+        {quotes[currentQuote].emoji}
+      </div>
+      <h2 style={{
+        fontSize: '24px',
+        fontWeight: '600',
+        color: '#1a1a2e',
+        marginBottom: '12px',
+        maxWidth: '400px',
+      }}>
+        {quotes[currentQuote].text}
+      </h2>
+      <p style={{
+        fontSize: '16px',
+        color: '#666',
+        marginBottom: '20px',
+      }}>
+        Waking up the server... This won't take long! ⚡
+      </p>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+      `}</style>
+    </div>
+  );
+};
 
 function App() {
   useEffect(() => {
