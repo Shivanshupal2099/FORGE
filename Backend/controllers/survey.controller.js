@@ -348,21 +348,31 @@ exports.getPublicSurveys = async (req, res) => {
     .skip(skip)
     .limit(limit);
 
-    // Fetch profile names for each survey creator
+    // Fetch profile names for each survey creator and populate title from questions if missing
     const surveysWithCreatorNames = await Promise.all(
       surveys.map(async (survey) => {
+        let surveyTitle = survey.title || 'Survey';
+        
+        // If title is missing or default, try to get it from the first question
+        if (!survey.title || survey.title === 'Untitled Survey' || survey.title === 'Survey') {
+          const firstQuestion = await Question.findOne({ surveyId: survey._id }).sort({ order: 1 });
+          if (firstQuestion && firstQuestion.question) {
+            surveyTitle = firstQuestion.question;
+          }
+        }
+        
         if (survey.creator_id) {
           const profile = await Profile.findOne({ user_id: survey.creator_id._id });
           return {
             ...survey.toObject(),
             creator_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Anonymous',
-            title: survey.title || 'Survey'
+            title: surveyTitle
           };
         }
         return {
           ...survey.toObject(),
           creator_name: 'Anonymous',
-          title: survey.title || 'Survey'
+          title: surveyTitle
         };
       })
     );

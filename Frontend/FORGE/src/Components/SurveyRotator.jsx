@@ -626,7 +626,7 @@ function SurveyRotator() {
                       letterSpacing: '-0.5px',
                       marginBottom: '4px',
                     }}>
-                      {survey.title || survey.question || (questions[0]?.question) || 'Survey'}
+                      {survey.title || survey.question || (questions[0]?.question) || ''}
                     </h3>
                     <div style={{
                       display: 'flex',
@@ -833,34 +833,54 @@ function SurveyRotator() {
               </div>
             ) : (
               <>
-                {/* Mobile: Show stats icons at bottom */}
-                {isMobile && (
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '16px',
-                    marginTop: '16px',
-                    marginBottom: '16px',
-                  }}>
-                    {/* Responses Icon */}
+                {/* Mobile: Show comment icon button and stats icons */}
+                {isMobile ? (
+                  <>
                     <div style={{
                       display: 'flex',
-                      alignItems: 'center',
                       justifyContent: 'center',
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      background: 'rgba(255, 107, 0, 0.1)',
-                      border: '1px solid rgba(255, 107, 0, 0.2)',
+                      marginTop: '16px',
                     }}>
-                      <FaUsers style={{
-                        fontSize: '18px',
-                        color: '#FF6B00',
-                      }} />
+                      <button
+                        type="button"
+                        onClick={() => setMobileResponsePopup({ isOpen: true, surveyId: survey._id })}
+                        style={{
+                          width: 'clamp(56px, 14vw, 64px)',
+                          height: 'clamp(56px, 14vw, 64px)',
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)',
+                          transition: 'all 0.3s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'scale(1.05)';
+                          e.target.style.boxShadow = '0 6px 16px rgba(255, 107, 0, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'scale(1)';
+                          e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.3)';
+                        }}
+                      >
+                        <FaComment style={{
+                          fontSize: 'clamp(20px, 5vw, 24px)',
+                          color: '#ffffff',
+                        }} />
+                      </button>
                     </div>
-                    
-                    {/* Trending Icon */}
-                    {(survey.current_responses || 0) > 10 && (
+
+                    {/* Mobile: Show stats icons below comment button */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      gap: '16px',
+                      marginTop: '16px',
+                    }}>
+                      {/* Responses Icon */}
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -868,73 +888,52 @@ function SurveyRotator() {
                         width: '40px',
                         height: '40px',
                         borderRadius: '50%',
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        background: 'rgba(255, 107, 0, 0.1)',
+                        border: '1px solid rgba(255, 107, 0, 0.2)',
                       }}>
-                        <FaFire style={{
+                        <FaUsers style={{
                           fontSize: '18px',
-                          color: '#EF4444',
+                          color: '#FF6B00',
                         }} />
                       </div>
-                    )}
-                    
-                    {/* Questions Icon */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      background: 'rgba(59, 130, 246, 0.1)',
-                      border: '1px solid rgba(59, 130, 246, 0.2)',
-                    }}>
-                      <FaChartBar style={{
-                        fontSize: '18px',
-                        color: '#3B82F6',
-                      }} />
-                    </div>
-                  </div>
-                )}
-
-                {/* Mobile: Show comment icon button only */}
-                {isMobile ? (
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    marginTop: '8px',
-                  }}>
-                    <button
-                      type="button"
-                      onClick={() => setMobileResponsePopup({ isOpen: true, surveyId: survey._id })}
-                      style={{
-                        width: 'clamp(56px, 14vw, 64px)',
-                        height: 'clamp(56px, 14vw, 64px)',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
-                        border: 'none',
-                        cursor: 'pointer',
+                      
+                      {/* Trending Icon */}
+                      {(survey.current_responses || 0) > 10 && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          border: '1px solid rgba(239, 68, 68, 0.2)',
+                        }}>
+                          <FaFire style={{
+                            fontSize: '18px',
+                            color: '#EF4444',
+                          }} />
+                        </div>
+                      )}
+                      
+                      {/* Questions Icon */}
+                      <div style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)',
-                        transition: 'all 0.3s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.transform = 'scale(1.05)';
-                        e.target.style.boxShadow = '0 6px 16px rgba(255, 107, 0, 0.4)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.transform = 'scale(1)';
-                        e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.3)';
-                      }}
-                    >
-                      <FaComment style={{
-                        fontSize: 'clamp(20px, 5vw, 24px)',
-                        color: '#ffffff',
-                      }} />
-                    </button>
-                  </div>
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        background: 'rgba(59, 130, 246, 0.1)',
+                        border: '1px solid rgba(59, 130, 246, 0.2)',
+                      }}>
+                        <FaChartBar style={{
+                          fontSize: '18px',
+                          color: '#3B82F6',
+                        }} />
+                      </div>
+                    </div>
+                  </>
                 ) : (
                   <>
                     {/* Desktop: Show full response interface */}
