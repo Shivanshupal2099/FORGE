@@ -57,12 +57,18 @@ const PushPermissionPrompt = () => {
   return (
     <div style={{
       position: 'fixed',
-      bottom: '100px',
-      left: '16px',
-      right: '16px',
+      top: '0',
+      left: '0',
+      right: '0',
+      bottom: '0',
       zIndex: 1000,
-      maxWidth: '400px',
-      margin: '0 auto',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px',
+      background: 'rgba(0, 0, 0, 0.5)',
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)',
     }}>
       <div style={{
         background: 'linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%)',
@@ -71,6 +77,8 @@ const PushPermissionPrompt = () => {
         boxShadow: '0 4px 20px rgba(255, 107, 0, 0.3)',
         color: 'white',
         position: 'relative',
+        maxWidth: '400px',
+        width: '100%',
       }}>
         <button
           onClick={handleDismiss}

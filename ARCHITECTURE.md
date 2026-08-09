@@ -485,9 +485,9 @@ Backend/
 - `PUT /:id` - Update event
 - `DELETE /:id` - Delete event
 - `POST /:id/attend` - Attend event
-- `DELETE /:id/attend` - Cancel attendance
+- `DELETE /:id/attend` - Cancel attendance 
 
-### Survey Routes (`/api/surveys`)
+### Survey Routes (`/api/surveys`)        
 - `POST /` - Create survey
 - `GET /` - Get surveys
 - `GET /:id` - Get survey details
