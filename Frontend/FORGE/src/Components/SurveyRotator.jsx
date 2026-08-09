@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { FaClipboardList, FaArrowLeft, FaArrowRight, FaCheck, FaSpinner, FaFlag, FaShareAlt, FaTimes, FaPaperPlane, FaUsers, FaChartBar, FaFire } from 'react-icons/fa';
+import { FaClipboardList, FaArrowLeft, FaArrowRight, FaCheck, FaSpinner, FaFlag, FaShareAlt, FaTimes, FaPaperPlane, FaUsers, FaChartBar, FaFire, FaComment } from 'react-icons/fa';
 import axios from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
@@ -21,6 +21,7 @@ function SurveyRotator() {
   const [alreadySubmittedPopup, setAlreadySubmittedPopup] = useState({ isOpen: false });
   const [sharePopup, setSharePopup] = useState({ isOpen: false, surveyId: null, link: '', copied: false });
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [mobileResponsePopup, setMobileResponsePopup] = useState({ isOpen: false, surveyId: null });
   const { user } = useAuth(); 
   const { socket, isConnected } = useSocket();
   const touchStartRef = useRef(null);
@@ -836,46 +837,87 @@ function SurveyRotator() {
               </div>
             ) : (
               <>
-                {/* Progress Section */}
-                <div style={{ marginBottom: 'clamp(20px, 5vw, 32px)' }}>
+                {/* Mobile: Show comment icon button only */}
+                {isMobile ? (
                   <div style={{
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 'clamp(8px, 2vw, 12px)',
+                    justifyContent: 'center',
+                    marginTop: '16px',
                   }}>
-                    <span style={{
-                      fontSize: 'clamp(12px, 3vw, 14px)',
-                      fontWeight: '500',
-                      color: '#6B7280',
-                    }}>
-                      Question {state.currentQuestionIndex + 1} of {questions.length}
-                    </span>
-                    <span style={{
-                      fontSize: 'clamp(12px, 3vw, 14px)',
-                      fontWeight: '600',
-                      color: '#FF7A00',
-                    }}>
-                      {state.currentQuestionIndex + 1} / {questions.length}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setMobileResponsePopup({ isOpen: true, surveyId: survey._id })}
+                      style={{
+                        width: 'clamp(56px, 14vw, 64px)',
+                        height: 'clamp(56px, 14vw, 64px)',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 4px 12px rgba(255, 107, 0, 0.3)',
+                        transition: 'all 0.3s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.05)';
+                        e.target.style.boxShadow = '0 6px 16px rgba(255, 107, 0, 0.4)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 0, 0.3)';
+                      }}
+                    >
+                      <FaComment style={{
+                        fontSize: 'clamp(20px, 5vw, 24px)',
+                        color: '#ffffff',
+                      }} />
+                    </button>
                   </div>
-                  {/* Progress Bar */}
-                  <div style={{
-                    width: '100%',
-                    height: 'clamp(4px, 1vw, 5px)',
-                    background: '#F1F1F1',
-                    borderRadius: '999px',
-                    overflow: 'hidden',
-                  }}>
-                    <div style={{
-                      width: `${((state.currentQuestionIndex + 1) / questions.length) * 100}%`,
-                      height: '100%',
-                      background: 'linear-gradient(180deg, #FF7A00 0%, #FFA726 100%)',
-                      borderRadius: '999px',
-                      transition: 'width 0.3s ease',
-                    }} />
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    {/* Desktop: Show full response interface */}
+                    {/* Progress Section */}
+                    <div style={{ marginBottom: 'clamp(20px, 5vw, 32px)' }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: 'clamp(8px, 2vw, 12px)',
+                      }}>
+                        <span style={{
+                          fontSize: 'clamp(12px, 3vw, 14px)',
+                          fontWeight: '500',
+                          color: '#6B7280',
+                        }}>
+                          Question {state.currentQuestionIndex + 1} of {questions.length}
+                        </span>
+                        <span style={{
+                          fontSize: 'clamp(12px, 3vw, 14px)',
+                          fontWeight: '600',
+                          color: '#FF7A00',
+                        }}>
+                          {state.currentQuestionIndex + 1} / {questions.length}
+                        </span>
+                      </div>
+                      {/* Progress Bar */}
+                      <div style={{
+                        width: '100%',
+                        height: 'clamp(4px, 1vw, 5px)',
+                        background: '#F1F1F1',
+                        borderRadius: '999px',
+                        overflow: 'hidden',
+                      }}>
+                        <div style={{
+                          width: `${((state.currentQuestionIndex + 1) / questions.length) * 100}%`,
+                          height: '100%',
+                          background: 'linear-gradient(180deg, #FF7A00 0%, #FFA726 100%)',
+                          borderRadius: '999px',
+                          transition: 'width 0.3s ease',
+                        }} />
+                      </div>
+                    </div>
 
                 {/* All Questions - Vertical Scroll */}
                 <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -1173,11 +1215,320 @@ function SurveyRotator() {
                     )}
                   </button>
                 </div>
+                  </>
+                )}
               </>
             )}
           </div>
         );
       })}
+
+      {/* Mobile Response Popup */}
+      {mobileResponsePopup.isOpen && (() => {
+        const survey = surveys.find(s => s._id === mobileResponsePopup.surveyId);
+        if (!survey) return null;
+        
+        const questions = surveyQuestions[survey._id] || [];
+        const state = surveyStates[survey._id] || { currentQuestionIndex: 0, answers: {} };
+        const isSubmitting = submitting[survey._id];
+        const allAnswered = questions.length > 0 && questions.every(q => {
+          const value = state.answers[q._id];
+          if (q.type === 'text') return typeof value === 'string' && value.trim().length > 0;
+          if (q.type === 'radio') return typeof value === 'string' && value !== '';
+          if (q.type === 'checkbox') return Array.isArray(value) && value.length > 0;
+          return false;
+        });
+
+        return (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '16px',
+          }}>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+              borderRadius: '24px 24px 0 0',
+              padding: '24px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '90vh',
+              boxShadow: '0 -20px 60px rgba(0, 0, 0, 0.3)',
+              overflowY: 'auto',
+            }}>
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setMobileResponsePopup({ isOpen: false, surveyId: null })}
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: 'rgba(0, 0, 0, 0.05)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <FaTimes style={{ color: '#6B7280', fontSize: '16px' }} />
+              </button>
+
+              {/* Response Content */}
+              <div style={{ marginTop: '8px', marginBottom: '24px' }}>
+                {questions.map((question, qIndex) => (
+                  <div key={question._id} style={{ marginBottom: '20px' }}>
+                    {/* Text input */}
+                    {question.type === 'text' && (
+                      <textarea
+                        value={state.answers[question._id] || ''}
+                        onChange={(e) => handleAnswer(survey._id, question._id, e.target.value)}
+                        placeholder="Type your answer..."
+                        disabled={isSubmitting}
+                        autoFocus={qIndex === 0}
+                        style={{
+                          width: '100%',
+                          minHeight: '120px',
+                          padding: '16px',
+                          border: '2px solid #E5E7EB',
+                          borderRadius: '16px',
+                          fontSize: '16px',
+                          background: '#ffffff',
+                          color: '#1F2937',
+                          outline: 'none',
+                          transition: 'all 0.2s ease',
+                          resize: 'none',
+                          fontFamily: 'inherit',
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#FF7A00';
+                          e.target.style.boxShadow = '0 0 0 4px rgba(255, 122, 0, 0.15)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#E5E7EB';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      />
+                    )}
+
+                    {/* Radio options */}
+                    {question.type === 'radio' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {question.options.map((option, idx) => {
+                          const isSelected = state.answers[question._id] === option;
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => handleAnswer(survey._id, question._id, option)}
+                              disabled={isSubmitting}
+                              style={{
+                                width: '100%',
+                                height: '52px',
+                                padding: '16px',
+                                border: isSelected
+                                  ? '2px solid #FF7A00'
+                                  : '2px solid #E8E8E8',
+                                borderRadius: '16px',
+                                background: isSelected
+                                  ? '#FFF8F1'
+                                  : '#ffffff',
+                                color: '#1F2937',
+                                fontSize: '16px',
+                                fontWeight: '500',
+                                textAlign: 'left',
+                                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <span>{option}</span>
+                              {isSelected && (
+                                <div style={{
+                                  width: '20px',
+                                  height: '20px',
+                                  borderRadius: '50%',
+                                  border: '2px solid #FF7A00',
+                                  background: '#FF7A00',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}>
+                                  <div style={{
+                                    width: '8px',
+                                    height: '8px',
+                                    borderRadius: '50%',
+                                    background: '#ffffff',
+                                  }} />
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Checkbox options */}
+                    {question.type === 'checkbox' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {question.options.map((option, idx) => {
+                          const selectedValues = Array.isArray(state.answers[question._id])
+                            ? state.answers[question._id]
+                            : [];
+                          const isSelected = selectedValues.includes(option);
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => {
+                                const existing = state.answers[question._id];
+                                const next = Array.isArray(existing) ? [...existing] : [];
+                                const idx2 = next.indexOf(option);
+                                if (idx2 >= 0) next.splice(idx2, 1);
+                                else next.push(option);
+                                handleAnswer(survey._id, question._id, next);
+                              }}
+                              disabled={isSubmitting}
+                              style={{
+                                width: '100%',
+                                height: '52px',
+                                padding: '16px',
+                                border: isSelected
+                                  ? '2px solid #FF7A00'
+                                  : '2px solid #E8E8E8',
+                                borderRadius: '16px',
+                                background: isSelected
+                                  ? '#FFF8F2'
+                                  : '#ffffff',
+                                color: '#1F2937',
+                                fontSize: '16px',
+                                fontWeight: '500',
+                                textAlign: 'left',
+                                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                              }}
+                            >
+                              <span>{option}</span>
+                              {isSelected && (
+                                <div style={{
+                                  width: '20px',
+                                  height: '20px',
+                                  borderRadius: '6px',
+                                  border: '2px solid #FF7A00',
+                                  background: '#FF7A00',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}>
+                                  <FaCheck style={{ color: '#ffffff', fontSize: '12px' }} />
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer Buttons */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '12px',
+                paddingBottom: 'env(safe-area-inset-bottom)',
+              }}>
+                {/* Cancel Button */}
+                <button
+                  type="button"
+                  onClick={() => setMobileResponsePopup({ isOpen: false, surveyId: null })}
+                  style={{
+                    width: '45%',
+                    height: '52px',
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                    border: '2px solid rgba(255, 255, 255, 0.5)',
+                    borderRadius: '16px',
+                    color: '#6B7280',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                  }}
+                >
+                  <FaTimes />
+                </button>
+
+                {/* Submit Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleSubmit(survey._id);
+                    setMobileResponsePopup({ isOpen: false, surveyId: null });
+                  }}
+                  disabled={!allAnswered || isSubmitting}
+                  style={{
+                    width: '55%',
+                    height: '52px',
+                    background: !allAnswered || isSubmitting
+                      ? 'rgba(255, 107, 0, 0.5)'
+                      : 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+                    border: 'none',
+                    borderRadius: '16px',
+                    color: '#111111',
+                    fontSize: '15px',
+                    fontWeight: '700',
+                    cursor: !allAnswered || isSubmitting ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: !allAnswered || isSubmitting
+                      ? 'none'
+                      : '0 4px 12px rgba(255, 107, 0, 0.3)',
+                  }}
+                >
+                  {isSubmitting ? (
+                    <FaSpinner style={{ animation: 'spin 1s linear infinite' }} />
+                  ) : (
+                    <FaPaperPlane />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Animation Styles */}
       <style>
