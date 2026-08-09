@@ -20,6 +20,7 @@ function SurveyRotator() {
   const [rateLimitPopup, setRateLimitPopup] = useState({ isOpen: false });
   const [alreadySubmittedPopup, setAlreadySubmittedPopup] = useState({ isOpen: false });
   const [sharePopup, setSharePopup] = useState({ isOpen: false, surveyId: null, link: '', copied: false });
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const { user } = useAuth(); 
   const { socket, isConnected } = useSocket();
   const touchStartRef = useRef(null);
@@ -28,6 +29,15 @@ function SurveyRotator() {
   const getTodayKey = () => {
     return new Date().toISOString().split('T')[0];
   };
+
+  // Handle mobile resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Load daily surveys shown from localStorage
   useEffect(() => {
@@ -712,13 +722,15 @@ function SurveyRotator() {
                     fontSize: 'clamp(12px, 3vw, 14px)',
                     color: '#FF6B00',
                   }} />
-                  <span style={{
-                    fontSize: 'clamp(11px, 2.5vw, 13px)',
-                    fontWeight: '600',
-                    color: '#FF6B00',
-                  }}>
-                    {survey.current_responses || 0} responses
-                  </span>
+                  {!isMobile && (
+                    <span style={{
+                      fontSize: 'clamp(11px, 2.5vw, 13px)',
+                      fontWeight: '600',
+                      color: '#FF6B00',
+                    }}>
+                      {survey.current_responses || 0} responses
+                    </span>
+                  )}
                 </div>
                 
                 {/* Trending Indicator */}
@@ -736,13 +748,15 @@ function SurveyRotator() {
                       fontSize: 'clamp(12px, 3vw, 14px)',
                       color: '#EF4444',
                     }} />
-                    <span style={{
-                      fontSize: 'clamp(11px, 2.5vw, 13px)',
-                      fontWeight: '600',
-                      color: '#EF4444',
-                    }}>
-                      Trending
-                    </span>
+                    {!isMobile && (
+                      <span style={{
+                        fontSize: 'clamp(11px, 2.5vw, 13px)',
+                        fontWeight: '600',
+                        color: '#EF4444',
+                      }}>
+                        Trending
+                      </span>
+                    )}
                   </div>
                 )}
                 
@@ -760,13 +774,15 @@ function SurveyRotator() {
                     fontSize: 'clamp(12px, 3vw, 14px)',
                     color: '#3B82F6',
                   }} />
-                  <span style={{
-                    fontSize: 'clamp(11px, 2.5vw, 13px)',
-                    fontWeight: '600',
-                    color: '#3B82F6',
-                  }}>
-                    {questions.length} questions
-                  </span>
+                  {!isMobile && (
+                    <span style={{
+                      fontSize: 'clamp(11px, 2.5vw, 13px)',
+                      fontWeight: '600',
+                      color: '#3B82F6',
+                    }}>
+                      {questions.length} questions
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
