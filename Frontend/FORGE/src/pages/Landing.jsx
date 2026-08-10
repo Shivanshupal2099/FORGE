@@ -7,7 +7,7 @@ const REDIRECT_MS = 4000;
 
 function Landing() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [progress, setProgress] = useState(0);
 
   const goToNextPage = useCallback(() => {
@@ -19,6 +19,9 @@ function Landing() {
   }, [navigate, user]);
 
   useEffect(() => {
+    // Wait for auth to complete before starting redirect timer
+    if (loading) return;
+
     const start = Date.now();
     const tick = setInterval(() => {
       const elapsed = Date.now() - start;
@@ -31,7 +34,7 @@ function Landing() {
       clearInterval(tick);
       clearTimeout(timer);
     };
-  }, [goToNextPage]);
+  }, [goToNextPage, loading]);
 
   return (
     <div className="page-shell landing-screen landing-screen--hero">
