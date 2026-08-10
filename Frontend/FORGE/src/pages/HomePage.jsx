@@ -17,7 +17,6 @@ import axios from '../api/axios';
 const topActions = [
   { label: 'Request', icon: FaHandPaper, popup: 'request' },
   { label: 'Connected', icon: FaUserFriends, popup: 'connected' },
-  { label: 'Nearby', icon: FaMapMarkerAlt, link: '/nearby' },
   { label: 'Offers', icon: FaTags, popup: 'offer' },
 ];
 

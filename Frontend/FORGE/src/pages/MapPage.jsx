@@ -343,7 +343,7 @@ function Map() {
 
   const closeBtnStyle = {
     position: 'absolute',
-    top: isMobile ? '80px' : '100px',
+    bottom: isMobile ? '20px' : '32px',
     left: isMobile ? '16px' : '24px',
     right: 'auto',
     zIndex: 1100,
@@ -357,9 +357,9 @@ function Map() {
 
   const filterBtnStyle = {
     position: 'absolute',
-    top: isMobile ? '150px' : '190px',
-    left: isMobile ? '16px' : '24px',
-    right: 'auto',
+    top: isMobile ? '80px' : '100px',
+    left: 'auto',
+    right: isMobile ? '16px' : '24px',
     zIndex: 1100,
     width: isMobile ? '56px' : '72px',
     height: isMobile ? '56px' : '72px',
@@ -371,9 +371,9 @@ function Map() {
 
   const zoomInBtnStyle = {
     position: 'absolute',
-    top: isMobile ? '220px' : '280px',
-    left: isMobile ? '16px' : '24px',
-    right: 'auto',
+    top: isMobile ? '150px' : '190px',
+    left: 'auto',
+    right: isMobile ? '16px' : '24px',
     zIndex: 1100,
     width: isMobile ? '56px' : '72px',
     height: isMobile ? '56px' : '72px',
@@ -385,9 +385,9 @@ function Map() {
 
   const zoomOutBtnStyle = {
     position: 'absolute',
-    top: isMobile ? '290px' : '370px',
-    left: isMobile ? '16px' : '24px',
-    right: 'auto',
+    top: isMobile ? '220px' : '280px',
+    left: 'auto',
+    right: isMobile ? '16px' : '24px',
     zIndex: 1100,
     width: isMobile ? '56px' : '72px',
     height: isMobile ? '56px' : '72px',
@@ -399,9 +399,9 @@ function Map() {
 
   const nearbyBtnStyle = {
     position: 'absolute',
-    top: isMobile ? '360px' : '460px',
-    left: isMobile ? '16px' : '24px',
-    right: 'auto',
+    top: isMobile ? '290px' : '370px',
+    left: 'auto',
+    right: isMobile ? '16px' : '24px',
     zIndex: 1100,
     padding: isMobile ? '12px 20px' : '14px 24px',
     borderRadius: '999px',
@@ -512,7 +512,7 @@ function Map() {
           e.target.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2)';
         }}
       >
-        <FaTimes size={isMobile ? 24 : 28} />
+        <FaArrowLeft size={isMobile ? 24 : 28} />
       </button>
 
       <button

@@ -78,8 +78,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!user?.email) return;
 
-    const ACTIVITY_PING_INTERVAL = 2 * 60 * 1000; // 2 minutes
+    const ACTIVITY_PING_INTERVAL = 5 * 60 * 1000; // 5 minutes (increased from 2 minutes)
     let intervalId = null;
+    let activityTimeout = null;
 
     // Initial ping
     pingActivity(user.email);
@@ -89,16 +90,17 @@ export const AuthProvider = ({ children }) => {
       pingActivity(user.email);
     }, ACTIVITY_PING_INTERVAL);
 
-    // Track user interactions (mouse, keyboard, scroll, click)
+    // Track user interactions with debouncing to reduce network calls
     const handleUserActivity = () => {
-      // Reset the interval on user activity
-      if (intervalId) {
-        clearInterval(intervalId);
+      // Clear existing timeout
+      if (activityTimeout) {
+        clearTimeout(activityTimeout);
       }
-      pingActivity(user.email);
-      intervalId = setInterval(() => {
+      
+      // Debounce: only ping after 2 seconds of inactivity
+      activityTimeout = setTimeout(() => {
         pingActivity(user.email);
-      }, ACTIVITY_PING_INTERVAL);
+      }, 2000);
     };
 
     // Add event listeners for user activity
@@ -110,6 +112,9 @@ export const AuthProvider = ({ children }) => {
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
+      }
+      if (activityTimeout) {
+        clearTimeout(activityTimeout);
       }
       window.removeEventListener('mousemove', handleUserActivity);
       window.removeEventListener('keydown', handleUserActivity);
