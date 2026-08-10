@@ -1273,7 +1273,7 @@ function NearbyPage() {
         />
       )}
       
-      <NavigationBar isChatPage={false} />
+      {!isMobile && <NavigationBar isChatPage={false} />}
       <style>{`
         @keyframes spin {
           from { transform: rotate(0deg); }
