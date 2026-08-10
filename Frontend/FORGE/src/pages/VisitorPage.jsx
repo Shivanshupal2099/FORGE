@@ -340,40 +340,107 @@ function DemoEvent() {
   );
 }
 
-function DemoOffers() {
+function DemoNearby() {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: "Update Location", icon: "📍", desc: "Set your current location" },
+    { title: "Set Radius", icon: "🎯", desc: "Choose search distance" },
+    { title: "Filter by Interest", icon: "🔍", desc: "Find people with similar goals" },
+    { title: "Find People", icon: "👥", desc: "Connect with nearby builders" }
+  ];
   return (
     <Phone accent={Y}>
       <div style={{ padding: "10px 14px", background: CR }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: BK, fontFamily: "'DM Sans',sans-serif", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 14 }}>🏷</span> Offers from builders
+          <span style={{ fontSize: 14 }}>🗺</span> Find People Nearby
         </div>
-        {[
-          { name: "Priya R.", role: "UI Designer", offer: "Free 1-hr design review for EdTech founders", tag: "Free", col: O },
-          { name: "Rahul V.", role: "Backend Dev", offer: "₹2K MVP audit — I find your biggest tech debt", tag: "₹2,000", col: BK },
-          { name: "Neha M.", role: "Growth Hacker", offer: "First 100-user GTM plan, pay after results", tag: "Perf", col: "#1A6B54" },
-        ].map((o, i) => (
-          <div key={i} style={{
-            background: W, borderRadius: 9, padding: 10, marginBottom: 8,
-            border: `1.5px solid ${BD}`, boxShadow: `2px 2px 0 ${BD}`,
-            transition: "box-shadow .15s, border-color .15s", cursor: "default",
-          }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = BK; e.currentTarget.style.boxShadow = `3px 3px 0 ${BK}`; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = BD; e.currentTarget.style.boxShadow = `2px 2px 0 ${BD}`; }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
-              <div style={{ width: 26, height: 26, borderRadius: "50%", background: o.col, color: W, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, border: `1.5px solid ${BK}` }}>
-                {o.name.split(" ").map(w => w[0]).join("")}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 10.5, fontWeight: 700, color: BK, fontFamily: "'DM Sans',sans-serif" }}>{o.name}</div>
-                <div style={{ fontSize: 9, color: MU }}>{o.role}</div>
-              </div>
-              <span style={{ fontSize: 9, fontWeight: 700, color: o.col === BK ? Y : W, background: o.col, padding: "2px 7px", borderRadius: 4, border: `1px solid ${BK}` }}>{o.tag}</span>
-            </div>
-            <div style={{ fontSize: 10.5, color: BK, lineHeight: 1.4 }}>{o.offer}</div>
+        
+        {/* Step indicator */}
+        <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
+          {steps.map((s, i) => (
+            <div key={i} style={{
+              flex: 1, height: 4, borderRadius: 2,
+              background: i <= step ? BK : BD,
+              border: i <= step ? `1px solid ${BK}` : "none"
+            }} />
+          ))}
+        </div>
+
+        {/* Current step content */}
+        <div style={{ background: W, borderRadius: 10, padding: 12, marginBottom: 10, border: `1.5px solid ${BD}`, boxShadow: `2px 2px 0 ${BD}` }}>
+          <div style={{ fontSize: 9, color: MU2, marginBottom: 4 }}>Step {step + 1} of 4</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: BK, fontFamily: "'DM Sans',sans-serif", lineHeight: 1.4, marginBottom: 8 }}>
+            {steps[step].title}
           </div>
-        ))}
-        <div style={{ background: Y, border: `1.5px solid ${BK}`, borderRadius: 7, padding: "7px 10px", fontSize: 10, color: BK, textAlign: "center", cursor: "pointer", fontWeight: 700, fontFamily: "'DM Sans',sans-serif", boxShadow: `2px 2px 0 ${BK}` }}>
-          + Post your own offer
+          <div style={{ fontSize: 10, color: MU, lineHeight: 1.5 }}>
+            {steps[step].desc}
+          </div>
+        </div>
+
+        {/* Action buttons */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          {step === 0 && (
+            <button style={{
+              flex: 1, padding: 8, borderRadius: 6, cursor: "pointer",
+              background: BK, color: Y, fontSize: 10, fontWeight: 700,
+              fontFamily: "'DM Sans',sans-serif", border: `1.5px solid ${BK}`,
+              boxShadow: `2px 2px 0 ${Y}`
+            }}>
+              {steps[0].icon} {steps[0].title}
+            </button>
+          )}
+          {step === 1 && (
+            <div style={{ flex: 1, background: YL, borderRadius: 6, padding: 8, border: `1.5px solid ${BD}` }}>
+              <div style={{ fontSize: 9, color: MU2, marginBottom: 4 }}>Search Radius</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: BK, fontFamily: "'DM Sans',sans-serif" }}>500m</div>
+            </div>
+          )}
+          {step === 2 && (
+            <div style={{ flex: 1, background: YL, borderRadius: 6, padding: 8, border: `1.5px solid ${BD}` }}>
+              <div style={{ fontSize: 9, color: MU2, marginBottom: 4 }}>Looking for</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: BK, fontFamily: "'DM Sans',sans-serif" }}>Co-founder</div>
+            </div>
+          )}
+          {step === 3 && (
+            <button style={{
+              flex: 1, padding: 8, borderRadius: 6, cursor: "pointer",
+              background: "#22C55E", color: BK, fontSize: 10, fontWeight: 700,
+              fontFamily: "'DM Sans',sans-serif", border: `1.5px solid ${BK}`,
+              boxShadow: `2px 2px 0 ${BK}`
+            }}>
+              {steps[3].icon} {steps[3].title}
+            </button>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <div style={{ display: "flex", gap: 8 }}>
+          <button 
+            onClick={() => setStep(Math.max(0, step - 1))}
+            disabled={step === 0}
+            style={{
+              flex: 1, padding: 8, borderRadius: 6, cursor: step === 0 ? "not-allowed" : "pointer",
+              background: step === 0 ? W : BK, color: step === 0 ? MU : Y,
+              fontSize: 10, fontWeight: 700, fontFamily: "'DM Sans',sans-serif",
+              border: `1.5px solid ${BD}`, opacity: step === 0 ? 0.5 : 1,
+              boxShadow: step === 0 ? "none" : `2px 2px 0 ${Y}`
+            }}
+          >
+            ← Back
+          </button>
+          <button 
+            onClick={() => setStep(Math.min(3, step + 1))}
+            disabled={step === 3}
+            style={{
+              flex: 1, padding: 8, borderRadius: 6, cursor: step === 3 ? "not-allowed" : "pointer",
+              background: step === 3 ? W : BK, color: step === 3 ? MU : Y,
+              fontSize: 10, fontWeight: 700, fontFamily: "'DM Sans',sans-serif",
+              border: `1.5px solid ${BK}`, opacity: step === 3 ? 0.5 : 1,
+              boxShadow: step === 3 ? "none" : `2px 2px 0 ${Y}`
+            }}
+          >
+            {step === 3 ? "Done" : "Next →"}
+          </button>
         </div>
       </div>
     </Phone>
@@ -411,11 +478,11 @@ const FEATURES = [
     accent: O, Demo: DemoEvent,
   },
   {
-    id: "offers", icon: "🏷", label: "Offers",
-    headline: "Builders helping builders.\nAt builder rates.",
-    body: "Post what you're offering — a free MVP audit, a discounted design sprint, a co-build deal. No per-lead fee. Just the ecosystem helping itself.",
-    bullets: ["Free, paid, or equity offers", "Claimed by verified builders", "₹299/yr flat to list"],
-    accent: Y, Demo: DemoOffers,
+    id: "nearby", icon: "🗺", label: "Nearby",
+    headline: "Find people nearby\nby their interests.",
+    body: "Update your location, set your search radius, filter by interests like co-founder, mentor, or team member, and discover builders near you who share your goals.",
+    bullets: ["Update location in one click", "Set custom search radius", "Filter by interests and goals", "Connect with nearby builders"],
+    accent: Y, Demo: DemoNearby,
   },
 ];
 
@@ -596,7 +663,7 @@ function Hero() {
 
   const isAfterAug4 = new Date() >= new Date('2026-08-04');
   const buttonText = isAfterAug4 ? "Sign up" : "Join the waitlist";
-  const buttonAction = isAfterAug4 ? () => navigate('/signup') : "#join";
+  const buttonAction = isAfterAug4 ? () => navigate('/login') : "#join";
 
   return (
     <section style={{
@@ -739,6 +806,14 @@ function Hero() {
 function FeatureSection({ f, i }) {
   const Demo = f.Demo;
   const flip = i % 2 === 1;
+  const navigate = useNavigate();
+
+  const handleNearbyClick = () => {
+    if (f.id === 'nearby') {
+      navigate('/nearby');
+    }
+  };
+
   return (
     <div id={f.id} style={{ borderTop: `2px solid ${BD}`, padding: "88px 0", background: i % 2 === 1 ? YL : CR }}>
       <div style={{
@@ -770,9 +845,19 @@ function FeatureSection({ f, i }) {
               </div>
             ))}
           </div>
-          <Btn href="#join" yellow={f.accent === Y}>Try {f.label} →</Btn>
+          <Btn 
+            href={f.id === 'nearby' ? undefined : "#join"} 
+            yellow={f.accent === Y} 
+            onClick={f.id === 'nearby' ? handleNearbyClick : undefined}
+            style={f.id === 'nearby' ? { cursor: 'pointer' } : {}}
+          >
+            Try {f.label} →
+          </Btn>
         </div>
-        <div style={{ direction: "ltr", display: "flex", justifyContent: "center" }}>
+        <div 
+          style={{ direction: "ltr", display: "flex", justifyContent: "center", cursor: f.id === 'nearby' ? 'pointer' : 'default' }}
+          onClick={f.id === 'nearby' ? handleNearbyClick : undefined}
+        >
           <Demo />
         </div>
       </div>
@@ -1118,7 +1203,7 @@ function CTA() {
     e.preventDefault();
     
     if (isAfterAug4) {
-      navigate('/signup');
+      navigate('/login');
       return;
     }
 
@@ -1160,7 +1245,7 @@ function CTA() {
           <p style={{ fontSize: 17, color: BK2, lineHeight: 1.7, marginBottom: 40, opacity: 0.75 }}>
             Start building with the right people today.
           </p>
-          <button onClick={() => navigate('/signup')} style={{
+          <button onClick={() => navigate('/login')} style={{
             background: BK, color: Y,
             fontFamily: "'DM Sans',sans-serif", fontWeight: 900,
             fontSize: 16, padding: "16px 40px", borderRadius: 7,
