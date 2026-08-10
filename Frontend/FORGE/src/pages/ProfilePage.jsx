@@ -424,9 +424,7 @@ function ProfilePage() {
             {isOwnProfile && (
               <button
                 onClick={() => {
-                  if (isVerified || profile?.is_verified) {
-                    setShowVerifiedMessage(true);
-                  } else {
+                  if (!(isVerified || profile?.is_verified)) {
                     setShowVerificationPopup(true);
                   }
                 }}

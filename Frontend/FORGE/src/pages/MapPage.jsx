@@ -343,9 +343,9 @@ function Map() {
 
   const closeBtnStyle = {
     position: 'absolute',
-    bottom: isMobile ? '20px' : '32px',
-    left: isMobile ? 'calc(50% - 90px)' : 'calc(50% - 140px)',
-    right: isMobile ? 'auto' : 'auto',
+    top: isMobile ? '80px' : '100px',
+    left: isMobile ? '16px' : '24px',
+    right: 'auto',
     zIndex: 1100,
     width: isMobile ? '56px' : '72px',
     height: isMobile ? '56px' : '72px',
@@ -357,9 +357,9 @@ function Map() {
 
   const filterBtnStyle = {
     position: 'absolute',
-    bottom: isMobile ? '20px' : '32px',
-    left: isMobile ? 'calc(50% - 20px)' : 'calc(50% - 60px)',
-    right: isMobile ? 'auto' : 'auto',
+    top: isMobile ? '150px' : '190px',
+    left: isMobile ? '16px' : '24px',
+    right: 'auto',
     zIndex: 1100,
     width: isMobile ? '56px' : '72px',
     height: isMobile ? '56px' : '72px',
@@ -371,9 +371,9 @@ function Map() {
 
   const zoomInBtnStyle = {
     position: 'absolute',
-    bottom: isMobile ? '20px' : '32px',
-    left: isMobile ? 'calc(50% + 50px)' : 'calc(50% + 20px)',
-    right: isMobile ? 'auto' : 'auto',
+    top: isMobile ? '220px' : '280px',
+    left: isMobile ? '16px' : '24px',
+    right: 'auto',
     zIndex: 1100,
     width: isMobile ? '56px' : '72px',
     height: isMobile ? '56px' : '72px',
@@ -385,9 +385,9 @@ function Map() {
 
   const zoomOutBtnStyle = {
     position: 'absolute',
-    bottom: isMobile ? '20px' : '32px',
-    left: isMobile ? 'calc(50% + 120px)' : 'calc(50% + 100px)',
-    right: isMobile ? 'auto' : 'auto',
+    top: isMobile ? '290px' : '370px',
+    left: isMobile ? '16px' : '24px',
+    right: 'auto',
     zIndex: 1100,
     width: isMobile ? '56px' : '72px',
     height: isMobile ? '56px' : '72px',
@@ -399,8 +399,9 @@ function Map() {
 
   const nearbyBtnStyle = {
     position: 'absolute',
-    top: isMobile ? '80px' : '100px',
-    right: isMobile ? '16px' : '24px',
+    top: isMobile ? '360px' : '460px',
+    left: isMobile ? '16px' : '24px',
+    right: 'auto',
     zIndex: 1100,
     padding: isMobile ? '12px 20px' : '14px 24px',
     borderRadius: '999px',

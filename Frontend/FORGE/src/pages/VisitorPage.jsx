@@ -528,7 +528,13 @@ function Nav() {
             {f.label}
           </a>
         ))}
-        <Btn href={buttonAction} yellow onClick={isAfterAug4 ? buttonAction : undefined}>{buttonText} →</Btn>
+        <Btn 
+          href={isAfterAug4 ? undefined : buttonAction} 
+          yellow 
+          onClick={isAfterAug4 ? buttonAction : undefined}
+        >
+          {buttonText} →
+        </Btn>
       </div>
 
       {/* Mobile Menu Button */}
