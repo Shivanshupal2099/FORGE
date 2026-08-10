@@ -431,23 +431,25 @@ function ProfilePage() {
                   }
                 }}
                 style={{
-                  padding: '14px 20px',
-                  borderRadius: '999px',
+                  padding: isMobile ? '14px 20px' : '12px',
+                  borderRadius: isMobile ? '999px' : '50%',
+                  width: isMobile ? 'auto' : '44px',
+                  height: isMobile ? 'auto' : '44px',
                   background: (isVerified || profile?.is_verified) 
-                    ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' 
+                    ? (isMobile ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)')
                     : 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
                   color: '#ffffff',
                   fontWeight: '600',
                   fontSize: '0.9rem',
                   border: 'none',
                   boxShadow: (isVerified || profile?.is_verified) 
-                    ? '0 4px 16px rgba(16, 185, 129, 0.3)' 
+                    ? (isMobile ? '0 4px 16px rgba(16, 185, 129, 0.3)' : '0 4px 16px rgba(59, 130, 246, 0.3)')
                     : '0 4px 16px rgba(255, 107, 0, 0.3)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
+                  gap: isMobile ? '8px' : '0',
                   marginLeft: '8px',
                   cursor: 'pointer',
                   position: 'relative',
@@ -457,19 +459,19 @@ function ProfilePage() {
                   const isUserVerified = isVerified || profile?.is_verified;
                   e.target.style.transform = 'translateY(-2px)';
                   e.target.style.boxShadow = isUserVerified 
-                    ? '0 8px 24px rgba(16, 185, 129, 0.4)' 
+                    ? (isMobile ? '0 8px 24px rgba(16, 185, 129, 0.4)' : '0 8px 24px rgba(59, 130, 246, 0.4)')
                     : '0 8px 24px rgba(255, 107, 0, 0.4)';
                 }}
                 onMouseLeave={(e) => {
                   const isUserVerified = isVerified || profile?.is_verified;
                   e.target.style.transform = 'translateY(0)';
                   e.target.style.boxShadow = isUserVerified 
-                    ? '0 4px 16px rgba(16, 185, 129, 0.3)' 
+                    ? (isMobile ? '0 4px 16px rgba(16, 185, 129, 0.3)' : '0 4px 16px rgba(59, 130, 246, 0.3)')
                     : '0 4px 16px rgba(255, 107, 0, 0.3)';
                 }}
               >
-                <MdOutlineVerified />
-                <span>{(isVerified || profile?.is_verified) ? 'Verified' : 'Non Verified'}</span>
+                <MdOutlineVerified style={{ fontSize: isMobile ? '1rem' : '1.2rem' }} />
+                {isMobile && <span>{(isVerified || profile?.is_verified) ? 'Verified' : 'Non Verified'}</span>}
               </button>
             )}
           </div>
