@@ -424,11 +424,7 @@ function ProfilePage() {
             {isOwnProfile && (
               <button
                 onClick={() => {
-                  if (isVerified || profile?.is_verified) {
-                    setShowVerifiedMessage(true);
-                  } else {
-                    setShowComingSoonPopup(true);
-                  }
+                  setShowVerificationPopup(true);
                 }}
                 style={{
                   padding: isMobile ? '14px 20px' : '12px',
@@ -471,7 +467,7 @@ function ProfilePage() {
                 }}
               >
                 <MdOutlineVerified style={{ fontSize: isMobile ? '1rem' : '1.2rem' }} />
-                {isMobile && <span>{(isVerified || profile?.is_verified) ? 'Verified' : 'Non Verified'}</span>}
+                {isMobile && <span>{(isVerified || profile?.is_verified) ? 'Verified' : 'Verify'}</span>}
               </button>
             )}
           </div>
