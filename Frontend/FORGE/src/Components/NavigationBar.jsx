@@ -90,38 +90,38 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
       flex: isMobile ? 1 : 'none',
       minWidth: isMobile ? '0' : 'auto',
       textAlign: 'center',
-      padding: isMobile ? '20px 22px' : '16px 22px',
+      padding: isMobile ? '24px 26px' : '20px 26px',
       borderRadius: '999px',
       textDecoration: 'none',
-      color: '#666666',
-      background: 'rgba(255, 215, 0, 0.25)',
+      color: '#111111',
+      background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
       backdropFilter: 'blur(10px)',
       WebkitBackdropFilter: 'blur(10px)',
       transition: 'transform 0.25s ease, background 0.25s ease, color 0.25s ease, padding 0.25s ease',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      gap: isMobile ? '10px' : '12px',
-      fontWeight: '600',
-      fontSize: isMobile ? '1.05rem' : '1rem',
+      gap: isMobile ? '12px' : '14px',
+      fontWeight: '700',
+      fontSize: isMobile ? '1.1rem' : '1.05rem',
       overflow: 'hidden',
-      minHeight: isMobile ? '64px' : '56px',
+      minHeight: isMobile ? '72px' : '64px',
       whiteSpace: 'nowrap',
-      border: '2px solid rgba(255, 215, 0, 0.3)',
-      boxShadow: '0 4px 12px rgba(255, 215, 0, 0.15)'
+      border: '3px solid #FF6B00',
+      boxShadow: '0 6px 20px rgba(255, 107, 0, 0.4)'
     } : linkStyle;
 
     const mapActiveStyle = isMapButton ? {
-      background: 'linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-yellow) 100%)',
+      background: 'linear-gradient(135deg, #FF6B00 0%, #FFD700 100%)',
       color: '#111111',
-      transform: isMobile ? 'translateY(-3px) scale(1.05)' : 'translateY(-3px) scale(1.03)',
-      padding: isMobile ? '18px 20px' : '14px 20px',
-      border: '2px solid var(--forge-orange)',
-      boxShadow: '0 6px 16px rgba(255, 107, 0, 0.25)'
+      transform: isMobile ? 'translateY(-4px) scale(1.08)' : 'translateY(-4px) scale(1.06)',
+      padding: isMobile ? '22px 24px' : '18px 24px',
+      border: '3px solid #CC5500',
+      boxShadow: '0 8px 24px rgba(255, 107, 0, 0.5)'
     } : activeStyle;
 
     const mapIconStyle = isMapButton ? {
-      fontSize: isMobile ? '1.6rem' : '1.45rem',
+      fontSize: isMobile ? '1.8rem' : '1.65rem',
       transition: 'transform 0.25s ease'
     } : iconStyle;
 
@@ -129,12 +129,12 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
       <NavLink
         key={to}
         to={to}
-        style={({ isActive }) => (isActive ? { ...mapButtonStyle, ...mapActiveStyle } : { ...mapButtonStyle, opacity: 0.9 })}
+        style={({ isActive }) => (isActive ? { ...mapButtonStyle, ...mapActiveStyle } : { ...mapButtonStyle, opacity: 0.95 })}
       >
         {({ isActive }) => (
           <>
             <Icon
-              style={isActive ? { ...mapIconStyle, transform: 'scale(1.12)' } : { ...mapIconStyle, fontSize: iconSize }}
+              style={isActive ? { ...mapIconStyle, transform: 'scale(1.15)' } : { ...mapIconStyle, fontSize: iconSize }}
               aria-label={label.toLowerCase()}
             />
             {!isMobile && <span>{label}</span>}
