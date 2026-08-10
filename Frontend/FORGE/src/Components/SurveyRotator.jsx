@@ -1092,16 +1092,6 @@ function SurveyRotator() {
                       borderRadius: '16px',
                       border: '1px solid rgba(0, 0, 0, 0.06)',
                     }}>
-                      <h4 style={{
-                        margin: '0 0 clamp(12px, 3vw, 20px)',
-                        fontSize: 'clamp(18px, 4vw, 28px)',
-                        fontWeight: '700',
-                        color: '#1F2937',
-                        lineHeight: '1.5',
-                        letterSpacing: '-0.5px',
-                      }}>
-                        {questions[state.currentQuestionIndex].question}
-                      </h4>
 
                       {/* Text input */}
                       {questions[state.currentQuestionIndex].type === 'text' && (
