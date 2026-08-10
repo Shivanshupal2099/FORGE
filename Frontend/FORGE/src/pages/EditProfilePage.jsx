@@ -1157,29 +1157,51 @@ function EditProfilePage() {
                     </div>
                   )}
                   {filteredLookingFor.length > 0 ? (
-                    filteredLookingFor.map((option) => (
-                      <div
-                        key={option}
-                        onClick={() => handleLookingForSelect(option)}
-                        style={{
-                          padding: isMobile ? '10px 12px' : '12px 16px',
-                          cursor: 'pointer',
-                          borderBottom: '1px solid var(--app-card-border)',
-                          transition: 'background 0.2s',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          fontSize: isMobile ? '0.85rem' : '0.9rem',
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = 'var(--app-accent-bg)'}
-                        onMouseLeave={(e) => e.target.style.background = 'transparent'}
-                      >
-                        <span>{option}</span>
-                        {profileData.lookingFor.includes(option) && (
-                          <span style={{ color: 'var(--app-accent-text)', fontWeight: 'bold', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>✓</span>
-                        )}
-                      </div>
-                    ))
+                    <>
+                      {filteredLookingFor.map((option) => (
+                        <div
+                          key={option}
+                          onClick={() => handleLookingForSelect(option)}
+                          style={{
+                            padding: isMobile ? '10px 12px' : '12px 16px',
+                            cursor: 'pointer',
+                            borderBottom: '1px solid var(--app-card-border)',
+                            transition: 'background 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            fontSize: isMobile ? '0.85rem' : '0.9rem',
+                          }}
+                          onMouseEnter={(e) => e.target.style.background = 'var(--app-accent-bg)'}
+                          onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                        >
+                          <span>{option}</span>
+                          {profileData.lookingFor.includes(option) && (
+                            <span style={{ color: 'var(--app-accent-text)', fontWeight: 'bold', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>✓</span>
+                          )}
+                        </div>
+                      ))}
+                      {lookingForSearch.trim() && !filteredLookingFor.includes(lookingForSearch.trim()) && (
+                        <div
+                          onClick={() => handleLookingForSelect(lookingForSearch.trim())}
+                          style={{
+                            padding: isMobile ? '10px 12px' : '12px 16px',
+                            cursor: 'pointer',
+                            transition: 'background 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            fontSize: isMobile ? '0.85rem' : '0.9rem',
+                            borderTop: '1px solid var(--app-card-border)',
+                            background: 'var(--app-surface)',
+                          }}
+                          onMouseEnter={(e) => e.target.style.background = 'var(--app-accent-bg)'}
+                          onMouseLeave={(e) => e.target.style.background = 'var(--app-surface)'}
+                        >
+                          <span style={{ color: 'var(--app-accent-text)', fontWeight: '500' }}>+ Add "{lookingForSearch.trim()}"</span>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', color: 'var(--app-muted-text)', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>
                       {lookingForSearch.trim() ? (
