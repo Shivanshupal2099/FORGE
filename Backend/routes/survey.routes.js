@@ -10,8 +10,8 @@ const surveyController = require("../controllers/survey.controller");
 // Create a new survey
 router.post("/create", authMiddleware, surveyValidation, surveyController.createSurvey);
 
-// Get all surveys created by a user
-router.get("/user/:uid", authMiddleware, uidValidation, surveyController.getUserSurveys);
+// Get all surveys created by a user (public endpoint for profile display)
+router.get("/user/:uid", uidValidation, surveyController.getUserSurveys);
 
 // Get public surveys
 router.get("/public/all", surveyController.getPublicSurveys);

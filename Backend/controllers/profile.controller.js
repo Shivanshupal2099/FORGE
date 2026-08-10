@@ -92,8 +92,11 @@ exports.updateProfile = async (req, res) => {
       
       // Don't update is_verified - this should only be set by payment system
       
-      // Update social links based on titles
+      // Update social links array
       if (socialLinks && Array.isArray(socialLinks)) {
+        profile.social_links = socialLinks.filter(link => link.title && link.url);
+        
+        // Also update legacy fields for backward compatibility
         socialLinks.forEach(link => {
           const title = link.title ? link.title.toLowerCase() : '';
           if (title.includes('github') && link.url) {

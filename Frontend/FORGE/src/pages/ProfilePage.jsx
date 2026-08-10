@@ -536,30 +536,22 @@ function ProfilePage() {
           </div>
         )}
 
-        {surveys && surveys.length > 0 && (
-          <div className="profile-card__section" data-dark={isDarkMode}>
-            <h3 data-dark={isDarkMode}>Created Surveys</h3>
-            <div className="profile-card__details">
-              {surveys.map((survey) => (
-                <div key={survey._id} className="profile-card__detail-item">
-                  <div className="profile-card__detail-content">
-                    <span className="profile-card__label" data-dark={isDarkMode}>Survey</span>
-                    <strong data-dark={isDarkMode}>Survey #{survey._id?.slice(-6)}</strong>
-                    <div style={{ fontSize: '12px', color: isDarkMode ? '#b8b8d0' : '#666', marginTop: '4px' }}>
-                      Status: {survey.status} | Responses: {survey.current_responses}/{survey.target_responses}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {(profile?.github_url || profile?.linkedin_url) && (
+        {(profile?.github_url || profile?.linkedin_url || profile?.portfolio_url || (profile?.social_links && profile.social_links.length > 0)) && (
           <div className="profile-card__section" data-dark={isDarkMode}>
             <h3 data-dark={isDarkMode}>Social Links</h3>
             <div className="profile-card__details">
-              {profile?.github_url && (
+              {profile?.social_links && profile.social_links.length > 0 && profile.social_links.map((link, index) => (
+                <div key={index} className="profile-card__detail-item">
+                  <div className="profile-card__detail-icon">
+                    <IoLinkOutline />
+                  </div>
+                  <div className="profile-card__detail-content">
+                    <span className="profile-card__label" data-dark={isDarkMode}>{link.title}</span>
+                    <strong data-dark={isDarkMode}><a href={link.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{link.url}</a></strong>
+                  </div>
+                </div>
+              ))}
+              {profile?.github_url && !profile?.social_links?.some(link => link.title?.toLowerCase().includes('github')) && (
                 <div className="profile-card__detail-item">
                   <div className="profile-card__detail-icon">
                     <IoLinkOutline />
@@ -570,7 +562,7 @@ function ProfilePage() {
                   </div>
                 </div>
               )}
-              {profile?.linkedin_url && (
+              {profile?.linkedin_url && !profile?.social_links?.some(link => link.title?.toLowerCase().includes('linkedin')) && (
                 <div className="profile-card__detail-item">
                   <div className="profile-card__detail-icon">
                     <IoLinkOutline />
@@ -578,6 +570,17 @@ function ProfilePage() {
                   <div className="profile-card__detail-content">
                     <span className="profile-card__label" data-dark={isDarkMode}>LinkedIn</span>
                     <strong data-dark={isDarkMode}><a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{profile.linkedin_url}</a></strong>
+                  </div>
+                </div>
+              )}
+              {profile?.portfolio_url && !profile?.social_links?.some(link => link.title?.toLowerCase().includes('portfolio')) && (
+                <div className="profile-card__detail-item">
+                  <div className="profile-card__detail-icon">
+                    <IoLinkOutline />
+                  </div>
+                  <div className="profile-card__detail-content">
+                    <span className="profile-card__label" data-dark={isDarkMode}>Portfolio</span>
+                    <strong data-dark={isDarkMode}><a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>{profile.portfolio_url}</a></strong>
                   </div>
                 </div>
               )}

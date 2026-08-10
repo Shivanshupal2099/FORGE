@@ -83,6 +83,20 @@ const profileSchema = new mongoose.Schema(
       default: null
     },
 
+    social_links: {
+      type: [{
+        title: {
+          type: String,
+          required: true
+        },
+        url: {
+          type: String,
+          required: true
+        }
+      }],
+      default: []
+    },
+
     contact_number: {
       type: String,
       maxlength: 20,

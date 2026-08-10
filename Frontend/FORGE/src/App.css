@@ -3506,6 +3506,10 @@
 
 .profile-card__section {
   margin-bottom: 24px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
 }
 
 .profile-card__section[data-dark="true"] {
@@ -3529,7 +3533,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
   margin-bottom: 8px;
 }
