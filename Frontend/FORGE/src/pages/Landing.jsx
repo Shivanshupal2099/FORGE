@@ -1,16 +1,22 @@
 import forgeImage from "../assets/forge.png";
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const REDIRECT_MS = 4000;
 
 function Landing() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [progress, setProgress] = useState(0);
 
-  const goToLogin = useCallback(() => {
-    navigate("/login");
-  }, [navigate]);
+  const goToNextPage = useCallback(() => {
+    if (user) {
+      navigate("/home");
+    } else {
+      navigate("/visitor");
+    }
+  }, [navigate, user]);
 
   useEffect(() => {
     const start = Date.now();
@@ -19,13 +25,13 @@ function Landing() {
       setProgress(Math.min(100, (elapsed / REDIRECT_MS) * 100));
     }, 40);
 
-    const timer = setTimeout(goToLogin, REDIRECT_MS);
+    const timer = setTimeout(goToNextPage, REDIRECT_MS);
 
     return () => {
       clearInterval(tick);
       clearTimeout(timer);
     };
-  }, [goToLogin]);
+  }, [goToNextPage]);
 
   return (
     <div className="page-shell landing-screen landing-screen--hero">
@@ -56,7 +62,7 @@ function Landing() {
             <button
               type="button"
               className="landing-hero__cta"
-              onClick={goToLogin}
+              onClick={goToNextPage}
             >
               Get Started
               <span className="landing-hero__cta-arrow" aria-hidden="true">→</span>

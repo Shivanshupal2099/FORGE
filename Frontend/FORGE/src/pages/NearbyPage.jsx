@@ -28,6 +28,15 @@ function NearbyPage() {
   const [filters, setFilters] = useState({
     lookingFor: ""
   });
+  const [showFirstTimePopup, setShowFirstTimePopup] = useState(false);
+
+  useEffect(() => {
+    // Check if user has visited NearbyPage before
+    const hasVisited = localStorage.getItem('nearbyPageVisited');
+    if (!hasVisited) {
+      setShowFirstTimePopup(true);
+    }
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -502,30 +511,33 @@ function NearbyPage() {
             
             <div style={{
               display: 'flex',
-              gap: isMobile ? '10px' : '12px',
-              flexWrap: 'wrap',
+              gap: isMobile ? '8px' : '12px',
+              flexWrap: 'nowrap',
+              alignItems: 'center',
+              justifyContent: isMobile ? 'center' : 'flex-start',
             }}>
               <button
                 onClick={handleUpdateLocation}
                 disabled={locationLoading}
                 style={{
-                  padding: isMobile ? '12px' : '14px 20px',
-                  borderRadius: isMobile ? '50%' : '12px',
+                  padding: isMobile ? '10px' : '12px 16px',
+                  borderRadius: isMobile ? '50%' : '10px',
                   background: locationLoading ? 'rgba(255, 107, 0, 0.5)' : '#FF6B00',
                   color: '#111111',
                   border: 'none',
-                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  fontSize: isMobile ? '0.85rem' : '0.95rem',
                   fontWeight: '600',
                   cursor: locationLoading ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: isMobile ? '0' : '8px',
+                  gap: isMobile ? '0' : '6px',
                   justifyContent: 'center',
                   transition: 'all 0.3s ease',
                   boxShadow: '0 4px 12px rgba(255, 107, 0, 0.2)',
-                  minWidth: isMobile ? '44px' : 'auto',
-                  width: isMobile ? '44px' : 'auto',
-                  height: isMobile ? '44px' : 'auto',
+                  minWidth: isMobile ? '40px' : 'auto',
+                  width: isMobile ? '40px' : 'auto',
+                  height: isMobile ? '40px' : 'auto',
+                  whiteSpace: 'nowrap',
                 }}
                 onMouseEnter={(e) => {
                   if (!locationLoading) {
@@ -547,22 +559,23 @@ function NearbyPage() {
               <button
                 onClick={() => setShowRadiusSlider(!showRadiusSlider)}
                 style={{
-                  padding: isMobile ? '12px' : '14px 20px',
-                  borderRadius: isMobile ? '50%' : '12px',
+                  padding: isMobile ? '10px' : '12px 16px',
+                  borderRadius: isMobile ? '50%' : '10px',
                   background: 'rgba(59, 130, 246, 0.1)',
                   color: '#3B82F6',
                   border: '1px solid rgba(59, 130, 246, 0.3)',
-                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  fontSize: isMobile ? '0.85rem' : '0.95rem',
                   fontWeight: '600',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: isMobile ? '0' : '8px',
+                  gap: isMobile ? '0' : '6px',
                   justifyContent: 'center',
                   transition: 'all 0.3s ease',
-                  minWidth: isMobile ? '44px' : 'auto',
-                  width: isMobile ? '44px' : 'auto',
-                  height: isMobile ? '44px' : 'auto',
+                  minWidth: isMobile ? '40px' : 'auto',
+                  width: isMobile ? '40px' : 'auto',
+                  height: isMobile ? '40px' : 'auto',
+                  whiteSpace: 'nowrap',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
@@ -580,22 +593,23 @@ function NearbyPage() {
               <button
                 onClick={() => setIsFilterOpen(true)}
                 style={{
-                  padding: isMobile ? '12px' : '14px 20px',
-                  borderRadius: isMobile ? '50%' : '12px',
+                  padding: isMobile ? '10px' : '12px 16px',
+                  borderRadius: isMobile ? '50%' : '10px',
                   background: filters.lookingFor ? 'rgba(147, 51, 234, 0.15)' : 'rgba(147, 51, 234, 0.1)',
                   color: '#9333EA',
                   border: filters.lookingFor ? '1px solid rgba(147, 51, 234, 0.4)' : '1px solid rgba(147, 51, 234, 0.3)',
-                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  fontSize: isMobile ? '0.85rem' : '0.95rem',
                   fontWeight: '600',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: isMobile ? '0' : '8px',
+                  gap: isMobile ? '0' : '6px',
                   justifyContent: 'center',
                   transition: 'all 0.3s ease',
-                  minWidth: isMobile ? '44px' : 'auto',
-                  width: isMobile ? '44px' : 'auto',
-                  height: isMobile ? '44px' : 'auto',
+                  minWidth: isMobile ? '40px' : 'auto',
+                  width: isMobile ? '40px' : 'auto',
+                  height: isMobile ? '40px' : 'auto',
+                  whiteSpace: 'nowrap',
                 }}
                 onMouseEnter={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
@@ -615,23 +629,24 @@ function NearbyPage() {
               onClick={handleFindPeople}
               disabled={loading}
               style={{
-                padding: isMobile ? '12px' : '14px 20px',
-                borderRadius: isMobile ? '50%' : '12px',
+                padding: isMobile ? '10px' : '12px 16px',
+                borderRadius: isMobile ? '50%' : '10px',
                 background: loading ? 'rgba(34, 197, 94, 0.5)' : '#22C55E',
                 color: '#111111',
                 border: 'none',
-                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontSize: isMobile ? '0.85rem' : '0.95rem',
                 fontWeight: '600',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: isMobile ? '0' : '8px',
+                gap: isMobile ? '0' : '6px',
                 justifyContent: 'center',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 12px rgba(34, 197, 94, 0.2)',
-                minWidth: isMobile ? '44px' : 'auto',
-                width: isMobile ? '44px' : 'auto',
-                height: isMobile ? '44px' : 'auto',
+                minWidth: isMobile ? '40px' : 'auto',
+                width: isMobile ? '40px' : 'auto',
+                height: isMobile ? '40px' : 'auto',
+                whiteSpace: 'nowrap',
               }}
               onMouseEnter={(e) => {
                 if (!loading) {
@@ -1015,6 +1030,108 @@ function NearbyPage() {
                   Go to Profile
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {showFirstTimePopup && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: '20px',
+              padding: isMobile ? '30px 24px' : '40px 32px',
+              maxWidth: '500px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+              }}>
+                <FaMapMarkerAlt style={{ fontSize: '40px', color: '#FF6B00' }} />
+              </div>
+              
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                margin: '0 0 12px 0',
+                color: '#111111',
+              }}>
+                Welcome to Nearby!
+              </h3>
+              
+              <p style={{
+                fontSize: '1rem',
+                color: '#666666',
+                margin: '0 0 24px 0',
+                lineHeight: '1.6',
+              }}>
+                Follow these steps to find people near you:
+              </p>
+              
+              <div style={{
+                marginBottom: '24px',
+                color: '#333333',
+                lineHeight: '1.8',
+              }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <strong>1.</strong> Click the <span style={{ color: '#FF6B00', fontWeight: '600' }}>Update Location</span> button to set your current location
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  <strong>2.</strong> Set your search radius using the <span style={{ color: '#3B82F6', fontWeight: '600' }}>Radius</span> button
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  <strong>3.</strong> Set your preferences using the <span style={{ color: '#9333EA', fontWeight: '600' }}>Filters</span> button
+                </div>
+                <div>
+                  <strong>4.</strong> Click the <span style={{ color: '#22C55E', fontWeight: '600' }}>Find People</span> button to start searching
+                </div>
+              </div>
+              
+              <button
+                onClick={() => {
+                  setShowFirstTimePopup(false);
+                  localStorage.setItem('nearbyPageVisited', 'true');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '14px 24px',
+                  borderRadius: '12px',
+                  background: '#FF6B00',
+                  color: '#111111',
+                  border: 'none',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 12px rgba(255, 107, 0, 0.2)',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.background = '#FF8533';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.background = '#FF6B00';
+                }}
+              >
+                Got it!
+              </button>
             </div>
           </div>
         )}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from '../api/axios';
+import { useAuth } from "../contexts/AuthContext";
 
 /* ─── PALETTE ─────────────────────────────── */
 const Y   = "#F5C400";
@@ -432,7 +433,7 @@ function Nav() {
 
   const isAfterAug4 = new Date() >= new Date('2026-08-04');
   const buttonText = isAfterAug4 ? "Sign up" : "Join waitlist";
-  const buttonAction = isAfterAug4 ? () => navigate('/signup') : "#join";
+  const buttonAction = isAfterAug4 ? () => navigate('/login') : "#join";
 
   return (
     <nav style={{
@@ -1311,6 +1312,16 @@ function Footer() {
 
 /* ─── ROOT ──────────────────────────────────── */
 export default function VisitorPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect logged-in users to home page
+  useEffect(() => {
+    if (user) {
+      navigate('/home');
+    }
+  }, [user, navigate]);
+
   useGlobalCSS();
   useReveal();
   return (
