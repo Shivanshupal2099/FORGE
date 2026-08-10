@@ -1180,7 +1180,38 @@ function EditProfilePage() {
                     ))
                   ) : (
                     <div style={{ padding: isMobile ? '10px 12px' : '12px 16px', color: 'var(--app-muted-text)', fontSize: isMobile ? '0.85rem' : '0.9rem' }}>
-                      No options found
+                      {lookingForSearch.trim() ? (
+                        <div>
+                          <div style={{ marginBottom: isMobile ? '8px' : '10px' }}>No options found</div>
+                          <button
+                            type="button"
+                            onClick={() => handleLookingForSelect(lookingForSearch.trim())}
+                            style={{
+                              background: 'var(--app-accent-bg)',
+                              color: 'var(--app-accent-text)',
+                              border: '1px solid var(--app-accent-border)',
+                              padding: isMobile ? '6px 12px' : '8px 16px',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              fontSize: isMobile ? '0.85rem' : '0.9rem',
+                              fontWeight: '500',
+                              transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = 'var(--app-accent-text)';
+                              e.target.style.color = 'var(--app-accent-bg)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = 'var(--app-accent-bg)';
+                              e.target.style.color = 'var(--app-accent-text)';
+                            }}
+                          >
+                            + Add "{lookingForSearch.trim()}"
+                          </button>
+                        </div>
+                      ) : (
+                        'Type to search or add new option'
+                      )}
                     </div>
                   )}
                 </div>
