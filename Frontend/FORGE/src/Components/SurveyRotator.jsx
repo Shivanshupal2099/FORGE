@@ -1083,10 +1083,10 @@ function SurveyRotator() {
                       </div>
                     </div>
 
-                {/* All Questions - Vertical Scroll */}
-                <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {questions.map((question, qIndex) => (
-                    <div key={question._id} style={{
+                {/* Current Question - Desktop */}
+                <div style={{ marginBottom: '24px' }}>
+                  {questions.length > 0 && questions[state.currentQuestionIndex] && (
+                    <div style={{
                       padding: 'clamp(16px, 4vw, 20px)',
                       background: 'rgba(0, 0, 0, 0.03)',
                       borderRadius: '16px',
@@ -1100,14 +1100,14 @@ function SurveyRotator() {
                         lineHeight: '1.5',
                         letterSpacing: '-0.5px',
                       }}>
-                        {question.question}
+                        {questions[state.currentQuestionIndex].question}
                       </h4>
 
                       {/* Text input */}
-                      {question.type === 'text' && (
+                      {questions[state.currentQuestionIndex].type === 'text' && (
                         <textarea
-                          value={state.answers[question._id] || ''}
-                          onChange={(e) => handleAnswer(survey._id, question._id, e.target.value)}
+                          value={state.answers[questions[state.currentQuestionIndex]._id] || ''}
+                          onChange={(e) => handleAnswer(survey._id, questions[state.currentQuestionIndex]._id, e.target.value)}
                           placeholder="Type your answer..."
                           disabled={isSubmitting}
                           style={{
@@ -1137,15 +1137,15 @@ function SurveyRotator() {
                       )}
 
                       {/* Radio options */}
-                      {question.type === 'radio' && (
+                      {questions[state.currentQuestionIndex].type === 'radio' && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 3vw, 18px)' }}>
-                          {question.options.map((option, idx) => {
-                            const isSelected = state.answers[question._id] === option;
+                          {questions[state.currentQuestionIndex].options.map((option, idx) => {
+                            const isSelected = state.answers[questions[state.currentQuestionIndex]._id] === option;
                             return (
                               <button
                                 key={idx}
                                 type="button"
-                                onClick={() => handleAnswer(survey._id, question._id, option)}
+                                onClick={() => handleAnswer(survey._id, questions[state.currentQuestionIndex]._id, option)}
                                 disabled={isSubmitting}
                                 style={{
                                   width: '100%',
@@ -1206,11 +1206,11 @@ function SurveyRotator() {
                       )}
 
                       {/* Checkbox options */}
-                      {question.type === 'checkbox' && (
+                      {questions[state.currentQuestionIndex].type === 'checkbox' && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 3vw, 18px)' }}>
-                          {question.options.map((option, idx) => {
-                            const selectedValues = Array.isArray(state.answers[question._id])
-                              ? state.answers[question._id]
+                          {questions[state.currentQuestionIndex].options.map((option, idx) => {
+                            const selectedValues = Array.isArray(state.answers[questions[state.currentQuestionIndex]._id])
+                              ? state.answers[questions[state.currentQuestionIndex]._id]
                               : [];
                             const isSelected = selectedValues.includes(option);
                             return (
@@ -1218,12 +1218,12 @@ function SurveyRotator() {
                                 key={idx}
                                 type="button"
                                 onClick={() => {
-                                  const existing = state.answers[question._id];
+                                  const existing = state.answers[questions[state.currentQuestionIndex]._id];
                                   const next = Array.isArray(existing) ? [...existing] : [];
                                   const idx2 = next.indexOf(option);
                                   if (idx2 >= 0) next.splice(idx2, 1);
                                   else next.push(option);
-                                  handleAnswer(survey._id, question._id, next);
+                                  handleAnswer(survey._id, questions[state.currentQuestionIndex]._id, next);
                                 }}
                                 disabled={isSubmitting}
                                 style={{
@@ -1279,7 +1279,7 @@ function SurveyRotator() {
                         </div>
                       )}
                     </div>
-                  ))}
+                  )}
                 </div>
 
                 {/* Divider */}
