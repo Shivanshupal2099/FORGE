@@ -220,7 +220,7 @@ function VerificationPopup({ onClose }) {
 
       // Initialize Cashfree instance - use Cashfree() without 'new' keyword
       const cashfree = Cashfree({
-        mode: 'sandbox'
+        mode: import.meta.env.VITE_CASHFREE_ENVIRONMENT === 'production' ? 'production' : 'sandbox'
       });
 
       console.log('Cashfree instance created');
