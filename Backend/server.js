@@ -99,15 +99,6 @@ app.use(helmet({
   xssFilter: true,
 }))
 
-// Health check endpoint for Render (must be before rate limiting and other middleware)
-app.get('/healthz', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    message: 'Server is healthy',
-    timestamp: new Date().toISOString()
-  });
-});
-
 // Apply general rate limiting
 app.use('/api', generalLimiter)
 
@@ -198,8 +189,7 @@ app.use('/api/push',pushRoutes)
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Forge API is running 🚀',
-    health: '/healthz'
+    message: 'Forge API is running 🚀'
   });
 });
 
