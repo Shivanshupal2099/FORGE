@@ -17,6 +17,81 @@ const supabase = createClient(
 
 const AuthContext = createContext();
 
+// Push notification subscription helper
+const subscribeToPushNotifications = async () => {
+  try {
+    // Check if service worker is supported
+    if (!('serviceWorker' in navigator)) {
+      console.log('Service worker not supported');
+      return false;
+    }
+
+    // Check if push manager is supported
+    if (!('PushManager' in window)) {
+      console.log('Push notifications not supported');
+      return false;
+    }
+
+    // Request notification permission
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      console.log('Notification permission denied');
+      return false;
+    }
+
+    // Get service worker registration
+    const registration = await navigator.serviceWorker.ready;
+
+    // Get VAPID public key from backend
+    const vapidResponse = await axios.get('/api/push/vapid-public-key');
+    if (!vapidResponse.data.success) {
+      console.log('Failed to get VAPID public key');
+      return false;
+    }
+
+    // Convert VAPID key to Uint8Array
+    const vapidKey = vapidResponse.data.publicKey;
+    const convertedVapidKey = urlBase64ToUint8Array(vapidKey);
+
+    // Subscribe to push notifications
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: convertedVapidKey
+    });
+
+    // Send subscription to backend
+    const subscribeResponse = await axios.post('/api/push/subscribe', {
+      subscription: subscription.toJSON(),
+      user_agent: navigator.userAgent
+    });
+
+    if (subscribeResponse.data.success) {
+      console.log('Successfully subscribed to push notifications');
+      return true;
+    } else {
+      console.log('Failed to subscribe to push notifications:', subscribeResponse.data.message);
+      return false;
+    }
+  } catch (error) {
+    console.error('Error subscribing to push notifications:', error);
+    return false;
+  }
+};
+
+// Helper function to convert base64 to Uint8Array
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -60,6 +135,11 @@ export const AuthProvider = ({ children }) => {
         console.log('Verification status endpoint not available yet, defaulting to false');
         setIsVerified(false);
       }
+
+      // Subscribe to push notifications after successful sync
+      subscribeToPushNotifications().catch(err => {
+        console.log('Push notification subscription failed (non-critical):', err);
+      });
     } catch (error) {
       console.error('Error syncing user to backend:', error);
     }

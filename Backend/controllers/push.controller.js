@@ -51,13 +51,8 @@ exports.subscribe = async (req, res) => {
     // Detect device type
     const deviceType = detectDeviceType(user_agent || req.headers['user-agent']);
 
-    // Only allow mobile devices (android or ios)
-    if (deviceType === 'desktop') {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Push notifications are only available on mobile devices' 
-      });
-    }
+    // Allow all devices (mobile and desktop) to subscribe to push notifications
+    // This enables PWA push notifications on desktop browsers
 
     // Check if subscription already exists for this user
     const existingSubscription = await PushSubscription.findOne({
