@@ -20,7 +20,6 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   const [showVerificationPopup, setShowVerificationPopup] = useState(false);
   const [showSelfVerificationPopup, setShowSelfVerificationPopup] = useState(false);
   const [showTargetUserWarning, setShowTargetUserWarning] = useState(false);
-  const [showComingSoonPopup, setShowComingSoonPopup] = useState(false);
 
   const settings = visibilitySettings || {
     show_name: true,
@@ -41,10 +40,9 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
       return;
     }
 
-    // Check if current user is verified - use AuthContext as source of truth
+    // Check if current user is verified - non-verified users cannot send any requests
     if (currentUserIsVerified === false) {
-      console.log('Current user is not verified, showing coming soon popup');
-      setShowComingSoonPopup(true);
+      setShowSelfVerificationPopup(true);
       return;
     }
 
@@ -207,13 +205,6 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   console.log('Current user isVerified type:', typeof currentUserIsVerified);
 
   const handleConnectRequestAnyway = async () => {
-    // Double-check current user verification status
-    if (currentUserIsVerified === false) {
-      console.log('Current user is not verified, showing coming soon popup');
-      setShowComingSoonPopup(true);
-      return;
-    }
-
     try {
       setConnectionLoading(true);
       setConnectionStatus('idle');
@@ -436,30 +427,6 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
         <VerificationPopup
           onClose={() => setShowSelfVerificationPopup(false)}
         />
-      )}
-
-      {/* Coming Soon Popup - Premium Feature */}
-      {showComingSoonPopup && (
-        <div className="usercard__verificationPopup" onClick={() => setShowComingSoonPopup(false)}>
-          <div className="usercard__verificationPopupContent" onClick={(e) => e.stopPropagation()}>
-            <div className="usercard__verificationPopupHeader">
-              <div className="usercard__verificationPopupIcon">🚀</div>
-              <h3>Coming Soon</h3>
-            </div>
-            <div className="usercard__verificationPopupBody">
-              <p>User verification is a premium feature that will be available in the next version.</p>
-              <p>Stay tuned! Premium users will be able to verify their accounts this Sunday.</p>
-            </div>
-            <div className="usercard__verificationPopupActions">
-              <button 
-                className="usercard__verificationPopupButton usercard__verificationPopupButton--primary"
-                onClick={() => setShowComingSoonPopup(false)}
-              >
-                Got it
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </>
   );
