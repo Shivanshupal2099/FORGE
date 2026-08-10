@@ -85,29 +85,70 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
 
 
   
-  const renderNavItem = (to, Icon, label, iconSize) => (
-    <NavLink
-      key={to}
-      to={to}
-      style={({ isActive }) => (isActive ? { ...linkStyle, ...activeStyle } : { ...linkStyle, opacity: 0.9 })}
-    >
-      {({ isActive }) => (
-        <>
-          <Icon
-            style={isActive ? { ...iconStyle, transform: 'scale(1.12)' } : { ...iconStyle, fontSize: iconSize }}
-            aria-label={label.toLowerCase()}
-          />
-          {!isMobile && <span>{label}</span>}
-        </>
-      )}
-    </NavLink>
-  )
+  const renderNavItem = (to, Icon, label, iconSize, isMapButton = false) => {
+    const mapButtonStyle = isMapButton ? {
+      flex: isMobile ? 1 : 'none',
+      minWidth: isMobile ? '0' : 'auto',
+      textAlign: 'center',
+      padding: isMobile ? '20px 22px' : '16px 22px',
+      borderRadius: '999px',
+      textDecoration: 'none',
+      color: '#666666',
+      background: 'rgba(255, 215, 0, 0.25)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      transition: 'transform 0.25s ease, background 0.25s ease, color 0.25s ease, padding 0.25s ease',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: isMobile ? '10px' : '12px',
+      fontWeight: '600',
+      fontSize: isMobile ? '1.05rem' : '1rem',
+      overflow: 'hidden',
+      minHeight: isMobile ? '64px' : '56px',
+      whiteSpace: 'nowrap',
+      border: '2px solid rgba(255, 215, 0, 0.3)',
+      boxShadow: '0 4px 12px rgba(255, 215, 0, 0.15)'
+    } : linkStyle;
+
+    const mapActiveStyle = isMapButton ? {
+      background: 'linear-gradient(135deg, var(--forge-orange) 0%, var(--forge-yellow) 100%)',
+      color: '#111111',
+      transform: isMobile ? 'translateY(-3px) scale(1.05)' : 'translateY(-3px) scale(1.03)',
+      padding: isMobile ? '18px 20px' : '14px 20px',
+      border: '2px solid var(--forge-orange)',
+      boxShadow: '0 6px 16px rgba(255, 107, 0, 0.25)'
+    } : activeStyle;
+
+    const mapIconStyle = isMapButton ? {
+      fontSize: isMobile ? '1.6rem' : '1.45rem',
+      transition: 'transform 0.25s ease'
+    } : iconStyle;
+
+    return (
+      <NavLink
+        key={to}
+        to={to}
+        style={({ isActive }) => (isActive ? { ...mapButtonStyle, ...mapActiveStyle } : { ...mapButtonStyle, opacity: 0.9 })}
+      >
+        {({ isActive }) => (
+          <>
+            <Icon
+              style={isActive ? { ...mapIconStyle, transform: 'scale(1.12)' } : { ...mapIconStyle, fontSize: iconSize }}
+              aria-label={label.toLowerCase()}
+            />
+            {!isMobile && <span>{label}</span>}
+          </>
+        )}
+      </NavLink>
+    )
+  }
 
   return (
     <div style={navStyle}>
       {renderNavItem('/home', FaHome, 'Home', '1.25rem')}
       {renderNavItem('/chat', IoIosChatboxes, 'Chat', '1.25rem')}
-      {renderNavItem('/map', FaMapMarkedAlt, 'Map', '1.35rem')}
+      {renderNavItem('/map', FaMapMarkedAlt, 'Map', '1.35rem', true)}
       {renderNavItem('/events', MdEvent, 'Events', '1.25rem')}
       {renderNavItem('/profile', FaUserCircle, 'Profile', '1.25rem')}
       {!isMobile && onJoinCommunity && isChatPage && (

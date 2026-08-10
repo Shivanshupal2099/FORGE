@@ -99,12 +99,33 @@
   animation: landing-float 10s ease-in-out infinite reverse;
 }
 
+.landing-hero__glow--three {
+  width: 180px;
+  height: 180px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 215, 0, 0.2);
+  animation: landing-pulse 6s ease-in-out infinite;
+}
+
+.landing-hero__grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 .landing-hero__content {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: clamp(28px, 5vw, 40px);
+  gap: clamp(32px, 6vw, 48px);
   animation: landing-fade-up 0.7s ease both;
 }
 
@@ -113,7 +134,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: clamp(20px, 4vw, 32px);
+  gap: clamp(24px, 5vw, 36px);
 }
 
 .landing-hero__logo-wrap {
@@ -145,29 +166,30 @@
 .landing-hero__copy {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
 }
 
 .landing-hero__eyebrow {
   display: inline-flex;
   align-self: center;
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 999px;
   border: 2px solid var(--app-card-border);
-  background: rgba(255, 215, 0, 0.35);
-  font-size: 0.72rem;
+  background: rgba(255, 215, 0, 0.4);
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--app-text);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
 }
 
 .landing-hero__title {
   margin: 0;
-  font-size: clamp(2.4rem, 7vw, 3.6rem);
+  font-size: clamp(2.8rem, 8vw, 4.2rem);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
+  letter-spacing: -0.05em;
+  line-height: 1.02;
   color: var(--app-text);
 }
 
@@ -233,6 +255,38 @@
   margin: 0;
   font-size: 0.82rem;
   color: var(--app-muted-text);
+}
+
+.landing-hero__trust {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.landing-hero__trust-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px solid var(--app-card-border);
+  backdrop-filter: blur(8px);
+  animation: landing-fade-up 0.7s ease both;
+  animation-delay: 0.3s;
+}
+
+.landing-hero__trust-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.landing-hero__trust-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--app-text);
 }
 
 .landing-hero__progress-track {
@@ -472,6 +526,18 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes landing-pulse {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(1.2);
   }
 }
 

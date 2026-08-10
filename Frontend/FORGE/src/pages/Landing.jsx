@@ -41,6 +41,8 @@ function Landing() {
       <div className="landing-hero">
         <div className="landing-hero__glow landing-hero__glow--one" aria-hidden="true" />
         <div className="landing-hero__glow landing-hero__glow--two" aria-hidden="true" />
+        <div className="landing-hero__glow landing-hero__glow--three" aria-hidden="true" />
+        <div className="landing-hero__grid" aria-hidden="true" />
 
         <div className="landing-hero__content">
           <div className="landing-hero__brand">
@@ -58,6 +60,10 @@ function Landing() {
               <h1 className="landing-hero__title">
                 Forge<span className="landing-hero__title-accent">Connect</span>
               </h1>
+              <p className="landing-hero__subtitle">
+                Connect with builders, co-founders, and mentors nearby. 
+                Find your team, get feedback, and build faster together.
+              </p>
               </div>
           </div>
 
@@ -70,6 +76,24 @@ function Landing() {
               Get Started
               <span className="landing-hero__cta-arrow" aria-hidden="true">→</span>
             </button>
+            <p className="landing-hero__hint">
+              {loading ? 'Checking authentication...' : `Redirecting in ${Math.max(0, 4 - progress / 25).toFixed(1)}s`}
+            </p>
+          </div>
+
+          <div className="landing-hero__trust">
+            <div className="landing-hero__trust-item">
+              <span className="landing-hero__trust-icon">🚀</span>
+              <span className="landing-hero__trust-text">500+ Builders</span>
+            </div>
+            <div className="landing-hero__trust-item">
+              <span className="landing-hero__trust-icon">🎯</span>
+              <span className="landing-hero__trust-text">Real Connections</span>
+            </div>
+            <div className="landing-hero__trust-item">
+              <span className="landing-hero__trust-icon">💡</span>
+              <span className="landing-hero__trust-text">Build Together</span>
+            </div>
           </div>
         </div>
       </div>
