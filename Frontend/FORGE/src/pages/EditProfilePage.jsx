@@ -448,6 +448,8 @@ function EditProfilePage() {
         };
       }
     });
+    // Clear search after selecting/adding
+    setLookingForSearch('');
   };
 
   const removeLookingForItem = (value) => {
