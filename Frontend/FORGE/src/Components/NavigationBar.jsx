@@ -94,7 +94,7 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
       borderRadius: '999px',
       textDecoration: 'none',
       color: '#111111',
-      background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+      background: 'linear-gradient(135deg, #FF8533 0%, #FF6B00 100%)',
       backdropFilter: 'blur(10px)',
       WebkitBackdropFilter: 'blur(10px)',
       transition: 'transform 0.25s ease, background 0.25s ease, color 0.25s ease, padding 0.25s ease',
@@ -112,7 +112,7 @@ function NavigationBar({ onJoinCommunity = null, isChatPage = false }) {
     } : linkStyle;
 
     const mapActiveStyle = isMapButton ? {
-      background: 'linear-gradient(135deg, #FF6B00 0%, #FFD700 100%)',
+      background: 'linear-gradient(135deg, #FF5500 0%, #FF8533 100%)',
       color: '#111111',
       transform: isMobile ? 'translateY(-4px) scale(1.08)' : 'translateY(-4px) scale(1.06)',
       padding: isMobile ? '22px 24px' : '18px 24px',
