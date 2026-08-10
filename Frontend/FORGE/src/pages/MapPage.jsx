@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useMemo } from 'react'
-import { FaFilter, FaPlus, FaMinus, FaTimes, FaArrowLeft } from 'react-icons/fa'
+import { FaFilter, FaPlus, FaMinus, FaTimes, FaArrowLeft, FaMapMarkedAlt } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import * as mapboxgl from 'mapbox-gl/esm'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -397,6 +397,28 @@ function Map() {
     ...buttonCommon
   }
 
+  const nearbyBtnStyle = {
+    position: 'absolute',
+    top: isMobile ? '80px' : '100px',
+    right: isMobile ? '16px' : '24px',
+    zIndex: 1100,
+    padding: isMobile ? '12px 20px' : '14px 24px',
+    borderRadius: '999px',
+    background: 'linear-gradient(135deg, #FF8533 0%, #FF6B00 100%)',
+    color: '#111111',
+    fontWeight: '700',
+    fontSize: isMobile ? '0.9rem' : '1rem',
+    border: '2px solid #FF6B00',
+    boxShadow: '0 6px 20px rgba(255, 107, 0, 0.4)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    cursor: 'pointer'
+  }
+
   const _eventsBtnStyle = {
     position: 'absolute',
     bottom: '48px',
@@ -541,6 +563,24 @@ function Map() {
         }}
       >
         <FaMinus size={isMobile ? 24 : 28} />
+      </button>
+
+      <button
+        type='button'
+        onClick={() => navigate('/nearby')}
+        aria-label='Go to nearby page'
+        style={nearbyBtnStyle}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'translateY(-2px) scale(1.05)';
+          e.target.style.boxShadow = '0 8px 24px rgba(255, 107, 0, 0.5)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'translateY(0) scale(1)';
+          e.target.style.boxShadow = '0 6px 20px rgba(255, 107, 0, 0.4)';
+        }}
+      >
+        <FaMapMarkedAlt size={isMobile ? 18 : 20} />
+        <span>Nearby</span>
       </button>
 
       {/* Bottom design element to hide Mapbox attribution */}
