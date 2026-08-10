@@ -424,7 +424,11 @@ function ProfilePage() {
             {isOwnProfile && (
               <button
                 onClick={() => {
-                  setShowVerificationPopup(true);
+                  if (isVerified || profile?.is_verified) {
+                    setShowVerifiedMessage(true);
+                  } else {
+                    setShowVerificationPopup(true);
+                  }
                 }}
                 style={{
                   padding: isMobile ? '14px 20px' : '12px',
