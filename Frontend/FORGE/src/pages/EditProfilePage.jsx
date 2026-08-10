@@ -53,6 +53,7 @@ function EditProfilePage() {
   const [popupMessage, setPopupMessage] = useState('');
   const [popupType, setPopupType] = useState('success');
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [customLookingForOptions, setCustomLookingForOptions] = useState([]);
 
 
   useEffect(() => {
@@ -62,6 +63,22 @@ function EditProfilePage() {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    // Fetch custom looking for options from backend
+    const fetchCustomOptions = async () => {
+      try {
+        const response = await axios.get('/api/profile/looking-for-options');
+        if (response.data.success) {
+          setCustomLookingForOptions(response.data.options);
+        }
+      } catch (error) {
+        console.error('Error fetching custom looking for options:', error);
+      }
+    };
+
+    fetchCustomOptions();
   }, []);
 
   useEffect(() => {
@@ -537,6 +554,7 @@ function EditProfilePage() {
   const allLookingForOptions = [
     ...lookingForOptions,
     ...professionOptions,
+    ...customLookingForOptions,
   ];
 
   const filteredLookingFor = allLookingForOptions.filter((option) =>

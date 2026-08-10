@@ -4,6 +4,9 @@ const router = express.Router();
 const profileController = require("../controllers/profile.controller");
 const { uidValidation } = require("../middlewares/validation.middleware");
 
+// Get all unique looking_for options
+router.get("/looking-for-options", profileController.getAllLookingForOptions);
+
 // Update user profile (no auth middleware for now, using UID from request)
 router.put("/update", profileController.updateProfile);
 

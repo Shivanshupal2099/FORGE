@@ -2,6 +2,38 @@ const Profile = require('../models/Profile.model');
 const User = require('../models/Users.model');
 const UserLocation = require('../models/UserLocation.model');
 
+// Get all unique looking_for values from all profiles
+exports.getAllLookingForOptions = async (req, res) => {
+  try {
+    const profiles = await Profile.find({ looking_for: { $exists: true, $ne: [] } }).select('looking_for');
+    
+    const allOptions = new Set();
+    
+    profiles.forEach(profile => {
+      if (profile.looking_for && Array.isArray(profile.looking_for)) {
+        profile.looking_for.forEach(option => {
+          if (option && typeof option === 'string' && option.trim()) {
+            allOptions.add(option.trim());
+          }
+        });
+      }
+    });
+    
+    const uniqueOptions = Array.from(allOptions).sort();
+    
+    res.json({
+      success: true,
+      options: uniqueOptions
+    });
+  } catch (error) {
+    console.error('Error fetching looking for options:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching looking for options'
+    });
+  }
+};
+
 exports.updateProfile = async (req, res) => {
   try {
     console.log('Received profile update request');
