@@ -8,7 +8,6 @@ import Offer from '../Components/Offer';
 import WelcomeCard from '../Components/WelcomeCard';
 import SurveyRotator from '../Components/SurveyRotator';
 import ConnectedUsersPopup from '../Components/ConnectedUsersPopup';
-import PushPermissionPrompt from '../Components/PushPermissionPrompt';
 import { useAuth } from '../contexts/AuthContext';
 import axios from '../api/axios';
 
@@ -208,8 +207,6 @@ function HomePage() {
       <NavigationBar isChatPage={false} />
 
       <WelcomeCard />
-      
-      <PushPermissionPrompt />
       
       {activePopup === 'request' && <Request onClose={() => setActivePopup(null)} onConnectionAccepted={handleRequestUpdate} />}
       {activePopup === 'connected' && <ConnectedUsersPopup onClose={() => setActivePopup(null)} />}

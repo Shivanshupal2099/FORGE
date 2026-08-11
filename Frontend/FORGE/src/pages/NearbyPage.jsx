@@ -120,10 +120,21 @@ function NearbyPage() {
   };
 
   const handleFindPeople = async () => {
-    // Check if user is verified
-    if (!isVerified) {
-      setShowVerificationPopup(true);
-      return;
+    // Refresh verification status before checking
+    try {
+      const verificationResponse = await axios.get(`/api/auth/verification-status/email/${user.email}`);
+      const isActuallyVerified = verificationResponse.data.is_verified;
+      
+      console.log('NearbyPage - Verification status check:', isActuallyVerified);
+      
+      // Check if user is verified
+      if (!isActuallyVerified) {
+        setShowVerificationPopup(true);
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking verification status:', error);
+      // If we can't verify, don't block the user
     }
     
     setHasSearched(true);
