@@ -682,187 +682,328 @@ function NearbyPage() {
           
           {showRadiusSlider && (
             <div style={{
-              marginTop: '16px',
-              padding: '24px',
-              borderRadius: '20px',
-              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.03) 100%)',
-              border: '1px solid rgba(59, 130, 246, 0.25)',
-              boxShadow: '0 4px 20px rgba(59, 130, 246, 0.1)',
-            }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '20px',
-              }}>
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.6)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: isMobile ? '16px' : '24px',
+              animation: 'fadeIn 0.2s ease-out',
+            }} onClick={() => setShowRadiusSlider(false)}>
+              <div 
+                style={{
+                  width: '100%',
+                  maxWidth: isMobile ? '340px' : '480px',
+                  padding: isMobile ? '24px' : '32px',
+                  borderRadius: isMobile ? '20px' : '24px',
+                  background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.1)',
+                  animation: 'slideUp 0.3s ease-out',
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header */}
                 <div style={{
                   display: 'flex',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  gap: '8px',
+                  marginBottom: isMobile ? '20px' : '24px',
                 }}>
-                  <FaSlidersH style={{ color: '#3B82F6', fontSize: '1.1rem' }} />
-                  <span style={{
-                    fontSize: '1rem',
-                    fontWeight: '700',
-                    color: '#1E3A8A',
-                    letterSpacing: '-0.3px',
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
                   }}>
-                    Search Radius
-                  </span>
+                    <div style={{
+                      width: isMobile ? '40px' : '48px',
+                      height: isMobile ? '40px' : '48px',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                    }}>
+                      <FaSlidersH style={{ color: 'white', fontSize: isMobile ? '1rem' : '1.2rem' }} />
+                    </div>
+                    <div>
+                      <h3 style={{
+                        fontSize: isMobile ? '1.1rem' : '1.25rem',
+                        fontWeight: '700',
+                        color: '#ffffff',
+                        margin: '0 0 4px 0',
+                        letterSpacing: '-0.3px',
+                      }}>
+                        Search Radius
+                      </h3>
+                      <p style={{
+                        fontSize: isMobile ? '0.8rem' : '0.85rem',
+                        color: '#94a3b8',
+                        margin: '0',
+                      }}>
+                        Adjust your search distance
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowRadiusSlider(false)}
+                    style={{
+                      width: isMobile ? '32px' : '36px',
+                      height: isMobile ? '32px' : '36px',
+                      borderRadius: '10px',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      color: '#ffffff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease',
+                      fontSize: isMobile ? '1.1rem' : '1.2rem',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }}
+                  >
+                    ×
+                  </button>
                 </div>
+
+                {/* Radius Display */}
                 <div style={{
-                  padding: '8px 16px',
-                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-                  color: 'white',
-                  borderRadius: '12px',
-                  fontSize: '1.15rem',
-                  fontWeight: '800',
-                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-                  minWidth: '100px',
-                  textAlign: 'center',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginBottom: isMobile ? '24px' : '32px',
+                  padding: isMobile ? '20px' : '24px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
                 }}>
-                  {searchRadius} m
+                  <div style={{
+                    textAlign: 'center',
+                  }}>
+                    <div style={{
+                      fontSize: isMobile ? '2.5rem' : '3rem',
+                      fontWeight: '800',
+                      color: '#3B82F6',
+                      lineHeight: '1',
+                      marginBottom: '4px',
+                      textShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+                    }}>
+                      {searchRadius}
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? '0.9rem' : '1rem',
+                      fontWeight: '600',
+                      color: '#94a3b8',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                    }}>
+                      Meters
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <div style={{
-                position: 'relative',
-                marginBottom: '24px',
-              }}>
-                <input
-                  type="range"
-                  min="10"
-                  max="500"
-                  value={searchRadius}
-                  onChange={(e) => setSearchRadius(parseInt(e.target.value))}
+                
+                {/* Slider */}
+                <div style={{
+                  position: 'relative',
+                  marginBottom: isMobile ? '28px' : '32px',
+                  padding: isMobile ? '16px' : '20px',
+                  borderRadius: '16px',
+                  background: 'rgba(0, 0, 0, 0.2)',
+                }}>
+                  <input
+                    type="range"
+                    min="10"
+                    max="500"
+                    value={searchRadius}
+                    onChange={(e) => setSearchRadius(parseInt(e.target.value))}
+                    style={{
+                      width: '100%',
+                      height: isMobile ? '8px' : '10px',
+                      borderRadius: isMobile ? '4px' : '5px',
+                      background: 'linear-gradient(90deg, #3B82F6 0%, #3B82F6 ' + ((searchRadius - 10) / (500 - 10) * 100) + '%, #334155 ' + ((searchRadius - 10) / (500 - 10) * 100) + '%, #334155 100%)',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      WebkitAppearance: 'none',
+                      appearance: 'none',
+                      boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.3)',
+                    }}
+                  />
+                  <style>{`
+                    input[type="range"]::-webkit-slider-thumb {
+                      -webkit-appearance: none;
+                      appearance: none;
+                      width: ${isMobile ? '24px' : '28px'};
+                      height: ${isMobile ? '24px' : '28px'};
+                      border-radius: 50%;
+                      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+                      cursor: pointer;
+                      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5), 0 2px 4px rgba(0, 0, 0, 0.2);
+                      border: 3px solid white;
+                      transition: all 0.2s ease;
+                    }
+                    input[type="range"]::-webkit-slider-thumb:hover {
+                      transform: scale(1.15);
+                      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6), 0 3px 6px rgba(0, 0, 0, 0.25);
+                    }
+                    input[type="range"]::-moz-range-thumb {
+                      width: ${isMobile ? '24px' : '28px'};
+                      height: ${isMobile ? '24px' : '28px'};
+                      border-radius: 50%;
+                      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+                      cursor: pointer;
+                      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5), 0 2px 4px rgba(0, 0, 0, 0.2);
+                      border: 3px solid white;
+                      transition: all 0.2s ease;
+                    }
+                    input[type="range"]::-moz-range-thumb:hover {
+                      transform: scale(1.15);
+                      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6), 0 3px 6px rgba(0, 0, 0, 0.25);
+                    }
+                    @keyframes fadeIn {
+                      from { opacity: 0; }
+                      to { opacity: 1; }
+                    }
+                    @keyframes slideUp {
+                      from { 
+                        opacity: 0;
+                        transform: translateY(20px) scale(0.95);
+                      }
+                      to { 
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                      }
+                    }
+                  `}</style>
+                </div>
+                
+                {/* Scale Labels */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-end',
+                  position: 'relative',
+                  marginTop: '12px',
+                  marginBottom: isMobile ? '24px' : '28px',
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}>
+                    <span style={{
+                      fontSize: isMobile ? '0.85rem' : '0.9rem',
+                      fontWeight: '700',
+                      color: '#94a3b8',
+                    }}>
+                      10 m
+                    </span>
+                    <div style={{
+                      width: '2px',
+                      height: '12px',
+                      background: 'linear-gradient(to bottom, #3B82F6, #64748B)',
+                      borderRadius: '1px',
+                    }} />
+                  </div>
+                  
+                  <div style={{
+                    flex: 1,
+                    display: 'flex',
+                    justifyContent: 'space-around',
+                    alignItems: 'flex-end',
+                    position: 'relative',
+                    margin: '0 8px',
+                  }}>
+                    {[25, 50, 100, 200, 300, 400].map((value) => (
+                      <div key={value} style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '8px',
+                        position: 'absolute',
+                        left: `${((value - 10) / (500 - 10)) * 100}%`,
+                        transform: 'translateX(-50%)',
+                      }}>
+                        <span style={{
+                          fontSize: isMobile ? '0.7rem' : '0.75rem',
+                          fontWeight: '600',
+                          color: '#64748B',
+                        }}>
+                          {value}
+                        </span>
+                        <div style={{
+                          width: '2px',
+                          height: '10px',
+                          background: '#475569',
+                          borderRadius: '1px',
+                        }} />
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}>
+                    <span style={{
+                      fontSize: isMobile ? '0.85rem' : '0.9rem',
+                      fontWeight: '700',
+                      color: '#94a3b8',
+                    }}>
+                      500 m
+                    </span>
+                    <div style={{
+                      width: '2px',
+                      height: '12px',
+                      background: 'linear-gradient(to bottom, #64748B, #3B82F6)',
+                      borderRadius: '1px',
+                    }} />
+                  </div>
+                </div>
+
+                {/* Action Button */}
+                <button
+                  onClick={() => setShowRadiusSlider(false)}
                   style={{
                     width: '100%',
-                    height: '12px',
-                    borderRadius: '6px',
-                    background: 'linear-gradient(90deg, #3B82F6 0%, #3B82F6 ' + ((searchRadius - 10) / (500 - 10) * 100) + '%, #E5E7EB ' + ((searchRadius - 10) / (500 - 10) * 100) + '%, #E5E7EB 100%)',
-                    outline: 'none',
+                    padding: isMobile ? '14px' : '16px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: isMobile ? '1rem' : '1.05rem',
+                    fontWeight: '700',
                     cursor: 'pointer',
-                    WebkitAppearance: 'none',
-                    appearance: 'none',
-                    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
                   }}
-                />
-                <style>{`
-                  input[type="range"]::-webkit-slider-thumb {
-                    -webkit-appearance: none;
-                    appearance: none;
-                    width: 28px;
-                    height: 28px;
-                    border-radius: 50%;
-                    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
-                    border: 3px solid white;
-                    transition: all 0.2s ease;
-                  }
-                  input[type="range"]::-webkit-slider-thumb:hover {
-                    transform: scale(1.1);
-                    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5), 0 3px 6px rgba(0, 0, 0, 0.15);
-                  }
-                  input[type="range"]::-moz-range-thumb {
-                    width: 28px;
-                    height: 28px;
-                    border-radius: 50%;
-                    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
-                    border: 3px solid white;
-                    transition: all 0.2s ease;
-                  }
-                  input[type="range"]::-moz-range-thumb:hover {
-                    transform: scale(1.1);
-                    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5), 0 3px 6px rgba(0, 0, 0, 0.15);
-                  }
-                `}</style>
-              </div>
-              
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                position: 'relative',
-                marginTop: '8px',
-              }}>
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}>
-                  <span style={{
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    color: '#6B7280',
-                  }}>
-                    10 m
-                  </span>
-                  <div style={{
-                    width: '2px',
-                    height: '8px',
-                    background: '#CBD5E1',
-                    borderRadius: '1px',
-                  }} />
-                </div>
-                
-                <div style={{
-                  flex: 1,
-                  display: 'flex',
-                  justifyContent: 'space-around',
-                  alignItems: 'center',
-                  position: 'relative',
-                }}>
-                  {[25, 50, 100, 200, 300, 400].map((value) => (
-                    <div key={value} style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '6px',
-                      position: 'absolute',
-                      left: `${((value - 10) / (500 - 10)) * 100}%`,
-                      transform: 'translateX(-50%)',
-                    }}>
-                      <span style={{
-                        fontSize: '0.75rem',
-                        fontWeight: '500',
-                        color: '#9CA3AF',
-                      }}>
-                        {value}
-                      </span>
-                      <div style={{
-                        width: '2px',
-                        height: '6px',
-                        background: '#E5E7EB',
-                        borderRadius: '1px',
-                      }} />
-                    </div>
-                  ))}
-                </div>
-                
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}>
-                  <span style={{
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    color: '#6B7280',
-                  }}>
-                    500 m
-                  </span>
-                  <div style={{
-                    width: '2px',
-                    height: '8px',
-                    background: '#CBD5E1',
-                    borderRadius: '1px',
-                  }} />
-                </div>
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                  }}
+                >
+                  Apply Radius
+                </button>
               </div>
             </div>
           )}
