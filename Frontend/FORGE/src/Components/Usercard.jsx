@@ -19,7 +19,6 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   const [checkingConnection, setCheckingConnection] = useState(true);
   const [showVerificationPopup, setShowVerificationPopup] = useState(false);
   const [showSelfVerificationPopup, setShowSelfVerificationPopup] = useState(false);
-  const [showTargetUserWarning, setShowTargetUserWarning] = useState(false);
 
   const settings = visibilitySettings || {
     show_name: true,
@@ -43,12 +42,6 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
     // Check if current user is verified - non-verified users cannot send any requests
     if (currentUserIsVerified === false) {
       setShowSelfVerificationPopup(true);
-      return;
-    }
-
-    // Check if the target user is verified
-    if (user.isVerified === false) {
-      setShowTargetUserWarning(true);
       return;
     }
 
@@ -204,64 +197,6 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
   console.log('Current user isVerified from AuthContext:', currentUserIsVerified);
   console.log('Current user isVerified type:', typeof currentUserIsVerified);
 
-  const handleConnectRequestAnyway = async () => {
-    try {
-      setConnectionLoading(true);
-      setConnectionStatus('idle');
-
-      console.log('Sending connection request to non-verified user:', user.email);
-      
-      const response = await axios.post('/api/connections', {
-        receiver_uid: user.email
-      });
-
-      console.log('Connection request response:', response.data);
-
-      if (response.data.success) {
-        setConnectionStatus('sent');
-      } else {
-        const errorMessage = response.data.message?.toLowerCase() || '';
-        const isExistingRequest = errorMessage.includes('already') || 
-                                  errorMessage.includes('pending') || 
-                                  errorMessage.includes('connected') ||
-                                  response.status === 409;
-        
-        if (isExistingRequest) {
-          setConnectionStatus('sent');
-        } else {
-          setConnectionStatus('error');
-          showError('Failed to send connection request: ' + response.data.message);
-        }
-      }
-    } catch (error) {
-      console.error('Connection request error:', error.response?.data);
-      const errorMessage = error.response?.data?.message?.toLowerCase() || '';
-      const isExistingRequest = errorMessage.includes('already') || 
-                                errorMessage.includes('pending') || 
-                                errorMessage.includes('connected') ||
-                                error.response?.status === 409;
-      
-      if (isExistingRequest) {
-        setConnectionStatus('sent');
-      } else if (error.response?.status === 401) {
-        setConnectionStatus('error');
-        showError('You are not authenticated. Please log in again.');
-      } else if (error.response?.status === 404) {
-        setConnectionStatus('error');
-        showError('User not found. They may have deleted their account.');
-      } else if (error.response?.status === 403) {
-        setConnectionStatus('error');
-        console.error('Verification required error');
-        setShowSelfVerificationPopup(true);
-      } else {
-        setConnectionStatus('error');
-        showError('Failed to send connection request. Please try again.');
-      }
-    } finally {
-      setConnectionLoading(false);
-    }
-  };
-
   return (
     <>
       <div className="usercard-overlay" onClick={onClose}>
@@ -388,44 +323,14 @@ const Usercard = ({ user, onClose, visibilitySettings, currentUserEmail }) => {
         </div>
       </div>
 
-      {/* Verification Popup for Non-Verified Target User - Outside Usercard */}
-      {showTargetUserWarning && (
-        <div className="usercard__verificationPopup" onClick={() => setShowTargetUserWarning(false)}>
-          <div className="usercard__verificationPopupContent" onClick={(e) => e.stopPropagation()}>
-            <div className="usercard__verificationPopupHeader">
-              <div className="usercard__verificationPopupIcon">⚠️</div>
-              <h3>User Not Verified</h3>
-            </div>
-            <div className="usercard__verificationPopupBody">
-              <p>This user is not verified on ForgeConnect. Verified users have a pure intention to connect with the right people to work, build, and save time by connecting with genuine professionals.</p>
-              <p>For the best experience, we recommend connecting with verified users who have completed additional security checks.</p>
-            </div>
-            <div className="usercard__verificationPopupActions">
-              <button 
-                className="usercard__verificationPopupButton usercard__verificationPopupButton--secondary"
-                onClick={() => setShowTargetUserWarning(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                className="usercard__verificationPopupButton usercard__verificationPopupButton--primary"
-                onClick={() => {
-                  setShowTargetUserWarning(false);
-                  // Proceed with connection request anyway
-                  handleConnectRequestAnyway();
-                }}
-              >
-                Connect Anyway
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Self Verification Popup - Current User Not Verified - Outside Usercard */}
       {showSelfVerificationPopup && (
         <VerificationPopup
           onClose={() => setShowSelfVerificationPopup(false)}
+          onVerify={() => {
+            setShowSelfVerificationPopup(false);
+            checkConnection();
+          }}
         />
       )}
     </>
